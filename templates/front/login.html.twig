@@ -1,0 +1,314 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Connexion – AssistIQ{% endblock %}
+
+{% block body %}
+<div class="auth-page">
+    <!-- Enhanced Animated Background -->
+    <div class="auth-bg">
+        <div class="auth-bg-gradient"></div>
+        <div class="auth-bg-pattern"></div>
+        <div class="auth-orb auth-orb-1"></div>
+        <div class="auth-orb auth-orb-2"></div>
+        <div class="auth-orb auth-orb-3"></div>
+        <div class="auth-orb auth-orb-4"></div>
+        <!-- Floating particles -->
+        <div class="auth-particles" id="particles"></div>
+        <!-- Animated shapes -->
+        <div class="auth-shape auth-shape-1"></div>
+        <div class="auth-shape auth-shape-2"></div>
+        <div class="auth-shape auth-shape-3"></div>
+        <!-- Grid lines -->
+        <div class="auth-grid-lines"></div>
+    </div>
+
+    <div class="auth-container">
+        <!-- Left Panel - Branding & Features -->
+        <div class="auth-panel auth-panel-left">
+            <div class="auth-panel-content">
+                <a href="{{ path('app_home') }}" class="auth-logo auth-logo-animated">
+                    <span class="auth-logo-icon">💙</span>
+                    <span class="auth-logo-text">AssistIQ</span>
+                    <span class="auth-logo-sparkle">✨</span>
+                </a>
+
+                <div class="auth-hero">
+                    <div class="auth-hero-badge">
+                        <span class="auth-badge-dot"></span>
+                        <span>Plateforme sécurisée</span>
+                    </div>
+                    <h1 class="auth-hero-title auth-title-animated">
+                        <span class="auth-title-line">Bienvenue</span>
+                        <span class="auth-title-line auth-hero-gradient">de retour</span>
+                    </h1>
+                    <p class="auth-hero-desc auth-desc-animated">
+                        Continuez votre parcours vers une vie plus saine et plus sereine avec AssistIQ.
+                    </p>
+                </div>
+
+                <div class="auth-features">
+                    <div class="auth-feature auth-feature-animated">
+                        <div class="auth-feature-icon-wrapper">
+                            <div class="auth-feature-icon">🔒</div>
+                            <div class="auth-feature-ring"></div>
+                        </div>
+                        <div class="auth-feature-text">
+                            <strong>Connexion sécurisée</strong>
+                            <span>Vos données sont protégées</span>
+                        </div>
+                        <div class="auth-feature-arrow">→</div>
+                    </div>
+                    <div class="auth-feature auth-feature-animated">
+                        <div class="auth-feature-icon-wrapper">
+                            <div class="auth-feature-icon">📱</div>
+                            <div class="auth-feature-ring"></div>
+                        </div>
+                        <div class="auth-feature-text">
+                            <strong>Accès multi-appareils</strong>
+                            <span>Connectez-vous n'importe où</span>
+                        </div>
+                        <div class="auth-feature-arrow">→</div>
+                    </div>
+                    <div class="auth-feature auth-feature-animated">
+                        <div class="auth-feature-icon-wrapper">
+                            <div class="auth-feature-icon">👨‍👩‍👧</div>
+                            <div class="auth-feature-ring"></div>
+                        </div>
+                        <div class="auth-feature-text">
+                            <strong>Famille connectée</strong>
+                            <span>Partagez avec vos proches</span>
+                        </div>
+                        <div class="auth-feature-arrow">→</div>
+                    </div>
+                </div>
+
+                <div class="auth-testimonial auth-testimonial-animated">
+                    <div class="auth-testimonial-stars">⭐⭐⭐⭐⭐</div>
+                    <div class="auth-testimonial-quote">"AssistIQ m'aide à rester en contact avec ma famille et à gérer ma santé au quotidien."</div>
+                    <div class="auth-testimonial-author">
+                        <div class="auth-testimonial-avatar">
+                            <span>👴</span>
+                            <div class="auth-avatar-ring"></div>
+                        </div>
+                        <div>
+                            <strong>Jean-Pierre, 72 ans</strong>
+                            <span>Utilisateur depuis 2024</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Floating icons decoration -->
+                <div class="auth-floating-icons">
+                    <span class="auth-float-icon" style="--delay: 0s; --x: 10%; --y: 20%;">💊</span>
+                    <span class="auth-float-icon" style="--delay: 1s; --x: 80%; --y: 15%;">❤️</span>
+                    <span class="auth-float-icon" style="--delay: 2s; --x: 70%; --y: 75%;">🏆</span>
+                    <span class="auth-float-icon" style="--delay: 0.5s; --x: 15%; --y: 70%;">🎯</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Panel - Login Form -->
+        <div class="auth-panel auth-panel-right">
+            <div class="auth-form-wrapper auth-form-animated">
+                <!-- Glow effect -->
+                <div class="auth-form-glow"></div>
+                
+                <!-- Mobile Logo -->
+                <a href="{{ path('app_home') }}" class="auth-logo auth-logo-mobile">
+                    <span class="auth-logo-icon">💙</span>
+                    <span class="auth-logo-text">AssistIQ</span>
+                </a>
+
+                <div class="auth-form-header">
+                    <div class="auth-form-icon-wrapper">
+                        <div class="auth-form-icon">👋</div>
+                        <div class="auth-form-icon-ring"></div>
+                    </div>
+                    <h2 class="auth-form-title">Se connecter</h2>
+                    <p class="auth-form-subtitle">Entrez vos identifiants pour accéder à votre compte</p>
+                </div>
+
+                <form class="auth-form" action="{{ path('app_front_dashboard') }}" method="post">
+                    <div class="auth-field auth-field-animated" style="--field-delay: 0.1s;">
+                        <label for="email" class="auth-label">
+                            <span class="auth-label-icon">📧</span>
+                            Adresse email
+                        </label>
+                        <div class="auth-input-wrapper">
+                            <input type="email" id="email" name="email" class="auth-input" placeholder="vous@exemple.com" required autocomplete="email">
+                            <div class="auth-input-border"></div>
+                            <div class="auth-input-glow"></div>
+                        </div>
+                    </div>
+
+                    <div class="auth-field auth-field-animated" style="--field-delay: 0.2s;">
+                        <label for="password" class="auth-label">
+                            <span class="auth-label-icon">🔐</span>
+                            Mot de passe
+                        </label>
+                        <div class="auth-input-wrapper">
+                            <input type="password" id="password" name="password" class="auth-input" placeholder="Entrez votre mot de passe" required autocomplete="current-password">
+                            <button type="button" class="auth-toggle-password" onclick="togglePassword(this)">
+                                <span class="eye-open">👁️</span>
+                                <span class="eye-closed" style="display:none;">🙈</span>
+                            </button>
+                            <div class="auth-input-border"></div>
+                            <div class="auth-input-glow"></div>
+                        </div>
+                    </div>
+
+                    <div class="auth-options auth-field-animated" style="--field-delay: 0.3s;">
+                        <label class="auth-checkbox">
+                            <input type="checkbox" name="remember">
+                            <span class="auth-checkbox-mark">
+                                <svg viewBox="0 0 12 10"><polyline points="1.5 6 4.5 9 10.5 1"></polyline></svg>
+                            </span>
+                            <span class="auth-checkbox-text">Se souvenir de moi</span>
+                        </label>
+                        <a href="#" class="auth-forgot">Mot de passe oublié ?</a>
+                    </div>
+
+                    <button type="submit" class="auth-submit auth-submit-animated" style="--field-delay: 0.4s;">
+                        <span class="auth-submit-bg"></span>
+                        <span class="auth-submit-text">Se connecter</span>
+                        <span class="auth-submit-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M5 12h14M12 5l7 7-7 7"/>
+                            </svg>
+                        </span>
+                        <div class="auth-submit-loader"></div>
+                        <div class="auth-submit-ripple"></div>
+                    </button>
+                </form>
+
+                <div class="auth-divider auth-divider-animated">
+                    <span>ou continuer avec</span>
+                </div>
+
+                <div class="auth-social auth-social-animated">
+                    <button type="button" class="auth-social-btn">
+                        <span class="auth-social-icon">🌐</span>
+                        <span>Google</span>
+                        <div class="auth-social-shine"></div>
+                    </button>
+                    <button type="button" class="auth-social-btn">
+                        <span class="auth-social-icon">🍎</span>
+                        <span>Apple</span>
+                        <div class="auth-social-shine"></div>
+                    </button>
+                </div>
+
+                <div class="auth-footer auth-footer-animated">
+                    <p>Vous n'avez pas de compte ?</p>
+                    <a href="{{ path('app_front_register') }}" class="auth-footer-link">
+                        <span>Créer un compte gratuitement</span>
+                        <span class="auth-footer-arrow">→</span>
+                    </a>
+                </div>
+
+                <a href="{{ path('app_home') }}" class="auth-back">
+                    <span class="auth-back-icon">←</span>
+                    <span>Retour à l'accueil</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Create floating particles
+function createParticles() {
+    const container = document.getElementById('particles');
+    if (!container) return;
+    
+    for (let i = 0; i < 50; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'auth-particle';
+        particle.style.left = Math.random() * 100 + '%';
+        particle.style.top = Math.random() * 100 + '%';
+        particle.style.animationDelay = Math.random() * 5 + 's';
+        particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
+        container.appendChild(particle);
+    }
+}
+createParticles();
+
+// Toggle password visibility
+function togglePassword(btn) {
+    const input = btn.parentElement.querySelector('input');
+    const eyeOpen = btn.querySelector('.eye-open');
+    const eyeClosed = btn.querySelector('.eye-closed');
+    
+    if (input.type === 'password') {
+        input.type = 'text';
+        eyeOpen.style.display = 'none';
+        eyeClosed.style.display = 'inline';
+    } else {
+        input.type = 'password';
+        eyeOpen.style.display = 'inline';
+        eyeClosed.style.display = 'none';
+    }
+}
+
+// Enhanced focus animations
+document.querySelectorAll('.auth-input').forEach(input => {
+    input.addEventListener('focus', () => {
+        input.parentElement.classList.add('focused');
+        input.parentElement.querySelector('.auth-input-glow').style.opacity = '1';
+    });
+    input.addEventListener('blur', () => {
+        if (!input.value) {
+            input.parentElement.classList.remove('focused');
+        }
+        input.parentElement.querySelector('.auth-input-glow').style.opacity = '0';
+    });
+});
+
+// Ripple effect on submit button
+document.querySelector('.auth-submit').addEventListener('click', function(e) {
+    const ripple = this.querySelector('.auth-submit-ripple');
+    const rect = this.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    
+    ripple.style.left = x + 'px';
+    ripple.style.top = y + 'px';
+    ripple.classList.add('active');
+    
+    setTimeout(() => ripple.classList.remove('active'), 600);
+});
+
+// Submit button loading animation
+document.querySelector('.auth-form').addEventListener('submit', function(e) {
+    const btn = this.querySelector('.auth-submit');
+    btn.classList.add('loading');
+});
+
+// Magnetic button effect
+document.querySelectorAll('.auth-submit, .auth-social-btn').forEach(btn => {
+    btn.addEventListener('mousemove', function(e) {
+        const rect = this.getBoundingClientRect();
+        const x = e.clientX - rect.left - rect.width / 2;
+        const y = e.clientY - rect.top - rect.height / 2;
+        
+        this.style.transform = `translate(${x * 0.1}px, ${y * 0.1}px)`;
+    });
+    
+    btn.addEventListener('mouseleave', function() {
+        this.style.transform = '';
+    });
+});
+
+// Parallax effect on orbs
+document.addEventListener('mousemove', function(e) {
+    const orbs = document.querySelectorAll('.auth-orb');
+    const x = e.clientX / window.innerWidth;
+    const y = e.clientY / window.innerHeight;
+    
+    orbs.forEach((orb, i) => {
+        const speed = (i + 1) * 20;
+        orb.style.transform = `translate(${x * speed}px, ${y * speed}px)`;
+    });
+});
+</script>
+{% endblock %}

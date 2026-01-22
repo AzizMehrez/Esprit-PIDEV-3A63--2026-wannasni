@@ -1,0 +1,176 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Recommandations IA – AssistIQ Admin{% endblock %}
+
+{% block body %}
+{% include 'back/_nav.html.twig' %}
+
+<div class="bo-shell">
+    <div class="bo-header">
+        <div>
+            <h1 class="bo-title">🤖 Recommandations Intelligentes</h1>
+            <p class="bo-subtitle">Configurer le système de recommandations basé sur l'IA</p>
+        </div>
+        <div class="bo-actions">
+            <a href="{{ path('app_admin_habits') }}" class="bo-btn bo-btnSecondary">← Retour</a>
+            <button class="bo-btn bo-btnSuccess">💾 Enregistrer</button>
+        </div>
+    </div>
+
+    <!-- Stats IA -->
+    <div class="bo-stats">
+        <div class="bo-stat">
+            <div class="bo-statTop">
+                <span class="bo-statLabel">Recommandations Générées</span>
+                <div class="bo-statIcon primary">🤖</div>
+            </div>
+            <div class="bo-statValue">0</div>
+            <div class="bo-statChange">Cette semaine</div>
+        </div>
+        <div class="bo-stat">
+            <div class="bo-statTop">
+                <span class="bo-statLabel">Taux d'Acceptation</span>
+                <div class="bo-statIcon success">✅</div>
+            </div>
+            <div class="bo-statValue">--%</div>
+            <div class="bo-statChange">Aucune donnée</div>
+        </div>
+        <div class="bo-stat">
+            <div class="bo-statTop">
+                <span class="bo-statLabel">Score Pertinence Moy.</span>
+                <div class="bo-statIcon info">⭐</div>
+            </div>
+            <div class="bo-statValue">--/5</div>
+            <div class="bo-statChange">Aucune donnée</div>
+        </div>
+        <div class="bo-stat">
+            <div class="bo-statTop">
+                <span class="bo-statLabel">Modèle IA</span>
+                <div class="bo-statIcon warn">🧠</div>
+            </div>
+            <div class="bo-statValue" style="font-size: 20px;">AssistIQ v1</div>
+            <div class="bo-statChange">Actif</div>
+        </div>
+    </div>
+
+    <div class="bo-grid cols-2">
+        <!-- Configuration IA -->
+        <div class="bo-card">
+            <div class="bo-cardHeader">
+                <div class="bo-cardTitle">⚙️ Paramètres de l'IA</div>
+            </div>
+
+            <form class="bo-form">
+                <div class="bo-field">
+                    <label class="bo-label">Fréquence des Recommandations</label>
+                    <select class="bo-select">
+                        <option>Quotidienne</option>
+                        <option selected>2-3 fois par semaine</option>
+                        <option>Hebdomadaire</option>
+                    </select>
+                </div>
+
+                <div class="bo-field">
+                    <label class="bo-label">Nombre Max par Jour</label>
+                    <input type="number" class="bo-input" value="3">
+                </div>
+
+                <div class="bo-field">
+                    <label class="bo-label">Niveau de Personnalisation</label>
+                    <select class="bo-select">
+                        <option>Basique (démographique)</option>
+                        <option selected>Moyen (santé + activité)</option>
+                        <option>Avancé (tout l'historique)</option>
+                    </select>
+                </div>
+
+                <div class="bo-field">
+                    <label class="bo-label">Ton des Messages</label>
+                    <select class="bo-select">
+                        <option>Formel</option>
+                        <option selected>Amical et encourageant</option>
+                        <option>Direct</option>
+                    </select>
+                </div>
+            </form>
+        </div>
+
+        <!-- Types de Recommandations -->
+        <div class="bo-card">
+            <div class="bo-cardHeader">
+                <div class="bo-cardTitle">📋 Types de Recommandations</div>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 14px; background: rgba(16,185,129,.08); border-radius: 10px;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <span style="font-size: 1.3rem;">🚶</span>
+                        <div>
+                            <div style="font-weight: 700;">Activité Physique</div>
+                            <div style="font-size: 13px; color: var(--bo-muted);">Suggestions basées sur le niveau</div>
+                        </div>
+                    </div>
+                    <span class="bo-pill success">Activé</span>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 14px; background: rgba(16,185,129,.08); border-radius: 10px;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <span style="font-size: 1.3rem;">🍎</span>
+                        <div>
+                            <div style="font-weight: 700;">Nutrition</div>
+                            <div style="font-size: 13px; color: var(--bo-muted);">Conseils alimentaires adaptés</div>
+                        </div>
+                    </div>
+                    <span class="bo-pill success">Activé</span>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 14px; background: rgba(16,185,129,.08); border-radius: 10px;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <span style="font-size: 1.3rem;">😴</span>
+                        <div>
+                            <div style="font-weight: 700;">Sommeil</div>
+                            <div style="font-size: 13px; color: var(--bo-muted);">Amélioration du repos</div>
+                        </div>
+                    </div>
+                    <span class="bo-pill success">Activé</span>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 14px; background: rgba(15,23,42,.05); border-radius: 10px;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <span style="font-size: 1.3rem;">🧠</span>
+                        <div>
+                            <div style="font-weight: 700;">Stimulation Cognitive</div>
+                            <div style="font-size: 13px; color: var(--bo-muted);">Exercices mentaux</div>
+                        </div>
+                    </div>
+                    <span class="bo-pill">Désactivé</span>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 14px; background: rgba(16,185,129,.08); border-radius: 10px;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <span style="font-size: 1.3rem;">👥</span>
+                        <div>
+                            <div style="font-weight: 700;">Social</div>
+                            <div style="font-size: 13px; color: var(--bo-muted);">Encourager les interactions</div>
+                        </div>
+                    </div>
+                    <span class="bo-pill success">Activé</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Historique Recommandations -->
+    <div class="bo-card" style="margin-top: 24px;">
+        <div class="bo-cardHeader">
+            <div class="bo-cardTitle">📜 Historique des Recommandations</div>
+        </div>
+
+        <div class="bo-empty">
+            <div class="bo-emptyIcon">🤖</div>
+            <div class="bo-emptyTitle">Aucune Recommandation Générée</div>
+            <div class="bo-emptyText">L'historique des recommandations IA apparaîtra ici</div>
+        </div>
+    </div>
+</div>
+{% endblock %}

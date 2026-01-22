@@ -1,0 +1,123 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Seuils d'Alerte Santé – AssistIQ Admin{% endblock %}
+
+{% block body %}
+{% include 'back/_nav.html.twig' %}
+
+<div class="bo-shell">
+    <div class="bo-header">
+        <div>
+            <h1 class="bo-title">⚙️ Configuration des Seuils d'Alerte</h1>
+            <p class="bo-subtitle">Définir les valeurs limites qui déclenchent les alertes santé</p>
+        </div>
+        <div class="bo-actions">
+            <a href="{{ path('app_admin_health') }}" class="bo-btn bo-btnSecondary">← Retour</a>
+            <button class="bo-btn bo-btnSuccess">💾 Enregistrer</button>
+        </div>
+    </div>
+
+    <div class="bo-grid cols-2">
+        <!-- Tension Artérielle -->
+        <div class="bo-card">
+            <div class="bo-cardHeader">
+                <div class="bo-cardTitle">🩺 Tension Artérielle</div>
+            </div>
+            <form class="bo-form">
+                <div class="bo-field">
+                    <label class="bo-label">Seuil Élevé (Systolique)</label>
+                    <input type="number" class="bo-input" value="140" placeholder="mmHg">
+                    <small style="color: var(--bo-muted);">Alerte si > cette valeur</small>
+                </div>
+                <div class="bo-field">
+                    <label class="bo-label">Seuil Élevé (Diastolique)</label>
+                    <input type="number" class="bo-input" value="90" placeholder="mmHg">
+                </div>
+                <div class="bo-field">
+                    <label class="bo-label">Seuil Bas (Systolique)</label>
+                    <input type="number" class="bo-input" value="90" placeholder="mmHg">
+                    <small style="color: var(--bo-muted);">Alerte si < cette valeur</small>
+                </div>
+                <div class="bo-field">
+                    <label class="bo-label">Seuil Critique</label>
+                    <input type="number" class="bo-input" value="180" placeholder="mmHg">
+                    <small style="color: var(--bo-danger);">Déclenche alerte immédiate</small>
+                </div>
+            </form>
+        </div>
+
+        <!-- Rythme Cardiaque -->
+        <div class="bo-card">
+            <div class="bo-cardHeader">
+                <div class="bo-cardTitle">❤️ Rythme Cardiaque</div>
+            </div>
+            <form class="bo-form">
+                <div class="bo-field">
+                    <label class="bo-label">Seuil Maximum</label>
+                    <input type="number" class="bo-input" value="100" placeholder="BPM">
+                </div>
+                <div class="bo-field">
+                    <label class="bo-label">Seuil Minimum</label>
+                    <input type="number" class="bo-input" value="50" placeholder="BPM">
+                </div>
+                <div class="bo-field">
+                    <label class="bo-label">Seuil Critique Haut</label>
+                    <input type="number" class="bo-input" value="120" placeholder="BPM">
+                </div>
+                <div class="bo-field">
+                    <label class="bo-label">Seuil Critique Bas</label>
+                    <input type="number" class="bo-input" value="40" placeholder="BPM">
+                </div>
+            </form>
+        </div>
+
+        <!-- Glycémie -->
+        <div class="bo-card">
+            <div class="bo-cardHeader">
+                <div class="bo-cardTitle">🩸 Glycémie</div>
+            </div>
+            <form class="bo-form">
+                <div class="bo-field">
+                    <label class="bo-label">Seuil Élevé (à jeun)</label>
+                    <input type="number" class="bo-input" value="126" placeholder="mg/dL">
+                </div>
+                <div class="bo-field">
+                    <label class="bo-label">Seuil Bas</label>
+                    <input type="number" class="bo-input" value="70" placeholder="mg/dL">
+                </div>
+                <div class="bo-field">
+                    <label class="bo-label">Seuil Critique Haut</label>
+                    <input type="number" class="bo-input" value="200" placeholder="mg/dL">
+                </div>
+                <div class="bo-field">
+                    <label class="bo-label">Seuil Critique Bas</label>
+                    <input type="number" class="bo-input" value="50" placeholder="mg/dL">
+                </div>
+            </form>
+        </div>
+
+        <!-- Activité -->
+        <div class="bo-card">
+            <div class="bo-cardHeader">
+                <div class="bo-cardTitle">🚶 Activité & Sommeil</div>
+            </div>
+            <form class="bo-form">
+                <div class="bo-field">
+                    <label class="bo-label">Pas Minimum / Jour</label>
+                    <input type="number" class="bo-input" value="2000" placeholder="pas">
+                    <small style="color: var(--bo-muted);">Alerte si activité trop basse</small>
+                </div>
+                <div class="bo-field">
+                    <label class="bo-label">Sommeil Minimum</label>
+                    <input type="number" class="bo-input" value="5" placeholder="heures">
+                </div>
+                <div class="bo-field">
+                    <label class="bo-label">Jours Inactifs Alerte</label>
+                    <input type="number" class="bo-input" value="3" placeholder="jours">
+                    <small style="color: var(--bo-muted);">Alerte après X jours sous le seuil</small>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

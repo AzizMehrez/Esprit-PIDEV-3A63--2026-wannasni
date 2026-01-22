@@ -1,0 +1,162 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Health Tracking – AssistIQ{% endblock %}
+
+{% block body %}
+{% include 'front/_nav.html.twig' %}
+
+<div class="fo-shell">
+    <div class="fo-header">
+        <div>
+            <h1 class="fo-title">📊 Health & Daily Tracking</h1>
+            <p class="fo-subtitle">Monitor your vitals and wellness journey – stay on top of your health</p>
+        </div>
+        <div class="fo-actions">
+            <a href="{{ path('app_front_dashboard') }}" class="fo-btn fo-btnSecondary">← Dashboard</a>
+            <button class="fo-btn fo-btnPrimary">+ Log New Entry</button>
+        </div>
+    </div>
+
+    <!-- Vital Stats -->
+    <div class="fo-kpis">
+        <div class="fo-kpi">
+            <div class="fo-kpiTop">
+                <span class="fo-kpiLabel">Blood Pressure</span>
+                <div class="fo-kpiIcon">🩺</div>
+            </div>
+            <div class="fo-kpiValue">120/80</div>
+            <span class="fo-pill ok" style="margin-top: 10px;">Normal Range</span>
+        </div>
+
+        <div class="fo-kpi">
+            <div class="fo-kpiTop">
+                <span class="fo-kpiLabel">Blood Sugar</span>
+                <div class="fo-kpiIcon" style="background: rgba(245,158,11,.12); border-color: rgba(245,158,11,.18);">🍬</div>
+            </div>
+            <div class="fo-kpiValue">105 mg/dL</div>
+            <span class="fo-pill ok" style="margin-top: 10px;">Optimal</span>
+        </div>
+
+        <div class="fo-kpi">
+            <div class="fo-kpiTop">
+                <span class="fo-kpiLabel">Weight</span>
+                <div class="fo-kpiIcon" style="background: rgba(99,102,241,.12); border-color: rgba(99,102,241,.18);">⚖️</div>
+            </div>
+            <div class="fo-kpiValue">72.5 kg</div>
+            <div style="color: var(--muted2); font-size: 14px; margin-top: 10px;">-0.3 kg this week</div>
+        </div>
+    </div>
+
+    <div class="fo-grid cols-2" style="margin-top: 22px;">
+        <!-- Recent Logs -->
+        <div class="fo-card">
+            <div class="fo-cardTitle">📝 Recent Health Logs</div>
+            <div class="fo-cardHint">Your latest health measurements</div>
+
+            <ul class="fo-list">
+                <li class="fo-row">
+                    <div style="flex: 1;">
+                        <div class="fo-rowTitle">🩺 Blood Pressure</div>
+                        <div class="fo-rowMeta">Today at 7:30 AM • 120/80 mmHg</div>
+                    </div>
+                    <div class="fo-rowRight">
+                        <span class="fo-pill ok">Normal</span>
+                    </div>
+                </li>
+                <li class="fo-row">
+                    <div style="flex: 1;">
+                        <div class="fo-rowTitle">🍬 Blood Sugar</div>
+                        <div class="fo-rowMeta">Today at 8:15 AM • 105 mg/dL</div>
+                    </div>
+                    <div class="fo-rowRight">
+                        <span class="fo-pill ok">Optimal</span>
+                    </div>
+                </li>
+                <li class="fo-row">
+                    <div style="flex: 1;">
+                        <div class="fo-rowTitle">❤️ Heart Rate</div>
+                        <div class="fo-rowMeta">Yesterday at 6:00 PM • 68 BPM</div>
+                    </div>
+                    <div class="fo-rowRight">
+                        <span class="fo-pill ok">Normal</span>
+                    </div>
+                </li>
+                <li class="fo-row">
+                    <div style="flex: 1;">
+                        <div class="fo-rowTitle">⚖️ Weight Check</div>
+                        <div class="fo-rowMeta">2 days ago • 72.8 kg</div>
+                    </div>
+                    <div class="fo-rowRight">
+                        <span class="fo-pill">Stable</span>
+                    </div>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Log New Entry Form -->
+        <div class="fo-card">
+            <div class="fo-cardTitle">➕ Log Health Data</div>
+            <div class="fo-cardHint">Add a new health measurement</div>
+
+            <form class="fo-form">
+                <div class="fo-field">
+                    <label for="metric" class="fo-label">Metric Type</label>
+                    <select id="metric" name="metric" class="fo-select" required>
+                        <option value="">Select a metric...</option>
+                        <option value="bp">Blood Pressure</option>
+                        <option value="sugar">Blood Sugar</option>
+                        <option value="weight">Weight</option>
+                        <option value="hr">Heart Rate</option>
+                        <option value="temp">Temperature</option>
+                    </select>
+                </div>
+
+                <div class="fo-field">
+                    <label for="value" class="fo-label">Value</label>
+                    <input type="text" id="value" name="value" class="fo-input" placeholder="e.g. 120/80" required>
+                    <div class="fo-help">Enter measurement value (units will be added automatically)</div>
+                </div>
+
+                <div class="fo-field">
+                    <label for="notes" class="fo-label">Notes (Optional)</label>
+                    <textarea id="notes" name="notes" class="fo-textarea" placeholder="Any observations or symptoms..."></textarea>
+                </div>
+
+                <button type="submit" class="fo-btn fo-btnPrimary" style="width: 100%;">Save Entry</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Weekly Trends -->
+    <div class="fo-card" style="margin-top: 22px;">
+        <div class="fo-cardTitle">📈 Weekly Trends</div>
+        <div class="fo-cardHint">Track your health patterns over the past 7 days</div>
+
+        <div class="fo-alert info">
+            <div class="fo-alertIcon">💡</div>
+            <div class="fo-alertContent">
+                <div class="fo-alertTitle">Great Progress!</div>
+                <div class="fo-alertText">Your blood pressure has been consistently in the normal range this week. Keep up the healthy habits!</div>
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-top: 16px;">
+            <div style="padding: 16px; border-radius: 14px; border: 1px solid var(--border); background: rgba(16,185,129,.06);">
+                <div style="font-size: 15px; color: var(--muted); font-weight: 800;">Avg Blood Pressure</div>
+                <div style="font-size: 24px; font-weight: 900; color: var(--text); margin-top: 6px;">118/78</div>
+                <div style="color: var(--primary); font-size: 14px; margin-top: 4px; font-weight: 800;">↓ 2 points</div>
+            </div>
+            <div style="padding: 16px; border-radius: 14px; border: 1px solid var(--border); background: rgba(16,185,129,.06);">
+                <div style="font-size: 15px; color: var(--muted); font-weight: 800;">Avg Blood Sugar</div>
+                <div style="font-size: 24px; font-weight: 900; color: var(--text); margin-top: 6px;">103 mg/dL</div>
+                <div style="color: var(--primary); font-size: 14px; margin-top: 4px; font-weight: 800;">Stable</div>
+            </div>
+            <div style="padding: 16px; border-radius: 14px; border: 1px solid var(--border); background: rgba(16,185,129,.06);">
+                <div style="font-size: 15px; color: var(--muted); font-weight: 800;">Weight Change</div>
+                <div style="font-size: 24px; font-weight: 900; color: var(--text); margin-top: 6px;">-0.5 kg</div>
+                <div style="color: var(--primary); font-size: 14px; margin-top: 4px; font-weight: 800;">On track</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

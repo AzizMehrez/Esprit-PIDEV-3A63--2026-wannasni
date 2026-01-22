@@ -1,0 +1,77 @@
+{# Back Office Navigation - Admin Panel #}
+<nav class="bo-nav">
+    <a href="{{ path('app_admin_dashboard') }}" class="bo-navBrand">
+        <span class="bo-navBrandIcon">🛡️</span>
+        <span class="bo-navBrandText">AssistIQ <span class="bo-navBrandBadge">Admin</span></span>
+    </a>
+
+    <ul class="bo-navList">
+        <li>
+            <a href="{{ path('app_admin_dashboard') }}" 
+               class="bo-navLink"
+               {% if app.request.get('_route') == 'app_admin_dashboard' %}aria-current="page"{% endif %}>
+                <span class="bo-navIcon">📊</span>
+                <span class="bo-navLabel">Dashboard</span>
+            </a>
+        </li>
+        <li>
+            <a href="{{ path('app_admin_users') }}" 
+               class="bo-navLink"
+               {% if 'app_admin_users' in app.request.get('_route') %}aria-current="page"{% endif %}>
+                <span class="bo-navIcon">👥</span>
+                <span class="bo-navLabel">Utilisateurs</span>
+            </a>
+        </li>
+        <li>
+            <a href="{{ path('app_admin_health') }}" 
+               class="bo-navLink"
+               {% if 'app_admin_health' in app.request.get('_route') %}aria-current="page"{% endif %}>
+                <span class="bo-navIcon">❤️</span>
+                <span class="bo-navLabel">Santé</span>
+            </a>
+        </li>
+        <li>
+            <a href="{{ path('app_admin_family') }}" 
+               class="bo-navLink"
+               {% if 'app_admin_family' in app.request.get('_route') or 'app_admin_alerts' in app.request.get('_route') %}aria-current="page"{% endif %}>
+                <span class="bo-navIcon">👨‍👩‍👧</span>
+                <span class="bo-navLabel">Proches</span>
+            </a>
+        </li>
+        <li>
+            <a href="{{ path('app_admin_habits') }}" 
+               class="bo-navLink"
+               {% if 'app_admin_habits' in app.request.get('_route') or 'app_admin_recommendations' in app.request.get('_route') %}aria-current="page"{% endif %}>
+                <span class="bo-navIcon">🎯</span>
+                <span class="bo-navLabel">Habitudes</span>
+            </a>
+        </li>
+        <li>
+            <a href="{{ path('app_admin_challenges') }}" 
+               class="bo-navLink"
+               {% if 'app_admin_challenges' in app.request.get('_route') %}aria-current="page"{% endif %}>
+                <span class="bo-navIcon">🏆</span>
+                <span class="bo-navLabel">Défis</span>
+            </a>
+        </li>
+        <li>
+            <a href="{{ path('app_admin_settings') }}" 
+               class="bo-navLink"
+               {% if app.request.get('_route') == 'app_admin_settings' %}aria-current="page"{% endif %}>
+                <span class="bo-navIcon">⚙️</span>
+                <span class="bo-navLabel">Paramètres</span>
+            </a>
+        </li>
+    </ul>
+
+    <div class="bo-navRight">
+        <div class="bo-navAdmin">
+            <span class="bo-navAdminAvatar">👨‍💼</span>
+            <span class="bo-navAdminName">Admin</span>
+        </div>
+        <a href="{{ path('app_home') }}" class="bo-navExit">
+            <span class="bo-navIcon">🚪</span>
+            <span class="bo-navLabel">Quitter</span>
+        </a>
+    </div>
+</nav>

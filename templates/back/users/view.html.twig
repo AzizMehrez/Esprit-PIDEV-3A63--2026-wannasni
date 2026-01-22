@@ -1,0 +1,88 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Détails Utilisateur – AssistIQ Admin{% endblock %}
+
+{% block body %}
+{% include 'back/_nav.html.twig' %}
+
+<div class="bo-shell">
+    <div class="bo-header">
+        <div>
+            <h1 class="bo-title">👤 Détails de l'Utilisateur</h1>
+            <p class="bo-subtitle">Consultez les informations et l'activité de l'utilisateur #{{ id }}</p>
+        </div>
+        <div class="bo-actions">
+            <a href="{{ path('app_admin_users') }}" class="bo-btn bo-btnSecondary">← Retour</a>
+            <a href="{{ path('app_admin_users_edit', {id: id}) }}" class="bo-btn bo-btnPrimary">✏️ Modifier</a>
+        </div>
+    </div>
+
+    <div class="bo-grid cols-2">
+        <!-- Profil -->
+        <div class="bo-card">
+            <div class="bo-cardHeader">
+                <div class="bo-cardTitle">📋 Profil</div>
+                <span class="bo-pill success">Actif</span>
+            </div>
+
+            <div class="bo-empty">
+                <div class="bo-emptyIcon">👤</div>
+                <div class="bo-emptyTitle">Utilisateur #{{ id }}</div>
+                <div class="bo-emptyText">Les données de cet utilisateur seront affichées ici une fois configurées dans la base de données.</div>
+            </div>
+        </div>
+
+        <!-- Statistiques -->
+        <div class="bo-card">
+            <div class="bo-cardHeader">
+                <div class="bo-cardTitle">📊 Statistiques</div>
+            </div>
+
+            <div class="bo-stats" style="grid-template-columns: repeat(2, 1fr);">
+                <div class="bo-stat">
+                    <div class="bo-statLabel">Connexions</div>
+                    <div class="bo-statValue">0</div>
+                </div>
+                <div class="bo-stat">
+                    <div class="bo-statLabel">Défis Complétés</div>
+                    <div class="bo-statValue">0</div>
+                </div>
+                <div class="bo-stat">
+                    <div class="bo-statLabel">Habitudes Actives</div>
+                    <div class="bo-statValue">0</div>
+                </div>
+                <div class="bo-stat">
+                    <div class="bo-statLabel">Alertes</div>
+                    <div class="bo-statValue">0</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Activité Récente -->
+        <div class="bo-card">
+            <div class="bo-cardHeader">
+                <div class="bo-cardTitle">📋 Activité Récente</div>
+            </div>
+
+            <div class="bo-empty">
+                <div class="bo-emptyIcon">📋</div>
+                <div class="bo-emptyTitle">Aucune Activité</div>
+                <div class="bo-emptyText">L'historique des activités apparaîtra ici</div>
+            </div>
+        </div>
+
+        <!-- Proches Connectés -->
+        <div class="bo-card">
+            <div class="bo-cardHeader">
+                <div class="bo-cardTitle">👨‍👩‍👧 Proches Connectés</div>
+            </div>
+
+            <div class="bo-empty">
+                <div class="bo-emptyIcon">👨‍👩‍👧</div>
+                <div class="bo-emptyTitle">Aucun Proche</div>
+                <div class="bo-emptyText">Les connexions familiales apparaîtront ici</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,112 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Suivi Santé – AssistIQ Admin{% endblock %}
+
+{% block body %}
+{% include 'back/_nav.html.twig' %}
+
+<div class="bo-shell">
+    <div class="bo-header">
+        <div>
+            <h1 class="bo-title">❤️ Gestion du Suivi Santé</h1>
+            <p class="bo-subtitle">Surveiller et analyser les données de santé des utilisateurs</p>
+        </div>
+        <div class="bo-actions">
+            <a href="{{ path('app_admin_health_thresholds') }}" class="bo-btn bo-btnSecondary">⚙️ Seuils d'Alerte</a>
+            <a href="{{ path('app_admin_health_metrics') }}" class="bo-btn bo-btnPrimary">📊 Métriques Détaillées</a>
+        </div>
+    </div>
+
+    <!-- Stats Santé -->
+    <div class="bo-stats">
+        <div class="bo-stat">
+            <div class="bo-statTop">
+                <span class="bo-statLabel">Tension Moyenne</span>
+                <div class="bo-statIcon danger">🩺</div>
+            </div>
+            <div class="bo-statValue">--/--</div>
+            <div class="bo-statChange">Aucune donnée</div>
+        </div>
+        <div class="bo-stat">
+            <div class="bo-statTop">
+                <span class="bo-statLabel">Rythme Cardiaque Moy.</span>
+                <div class="bo-statIcon danger">❤️</div>
+            </div>
+            <div class="bo-statValue">-- BPM</div>
+            <div class="bo-statChange">Aucune donnée</div>
+        </div>
+        <div class="bo-stat">
+            <div class="bo-statTop">
+                <span class="bo-statLabel">Pas Quotidiens Moy.</span>
+                <div class="bo-statIcon success">🚶</div>
+            </div>
+            <div class="bo-statValue">--</div>
+            <div class="bo-statChange">Aucune donnée</div>
+        </div>
+        <div class="bo-stat">
+            <div class="bo-statTop">
+                <span class="bo-statLabel">Observance Médicaments</span>
+                <div class="bo-statIcon primary">💊</div>
+            </div>
+            <div class="bo-statValue">--%</div>
+            <div class="bo-statChange">Aucune donnée</div>
+        </div>
+    </div>
+
+    <div class="bo-grid cols-2">
+        <!-- Journal de Santé -->
+        <div class="bo-card">
+            <div class="bo-cardHeader">
+                <div>
+                    <div class="bo-cardTitle">📊 Derniers Relevés de Santé</div>
+                    <div class="bo-cardHint">Données enregistrées par les utilisateurs</div>
+                </div>
+            </div>
+
+            <div class="bo-empty">
+                <div class="bo-emptyIcon">📊</div>
+                <div class="bo-emptyTitle">Aucun Relevé</div>
+                <div class="bo-emptyText">Les données de santé des utilisateurs apparaîtront ici</div>
+            </div>
+        </div>
+
+        <!-- Alertes Critiques -->
+        <div class="bo-card">
+            <div class="bo-cardHeader">
+                <div>
+                    <div class="bo-cardTitle">🚨 Alertes Santé Critiques</div>
+                    <div class="bo-cardHint">Utilisateurs nécessitant une attention</div>
+                </div>
+                <span class="bo-pill success">0 Critique</span>
+            </div>
+
+            <div class="bo-empty">
+                <div class="bo-emptyIcon">✅</div>
+                <div class="bo-emptyTitle">Aucune Alerte Critique</div>
+                <div class="bo-emptyText">Tous les utilisateurs sont dans les plages normales</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Graphiques -->
+    <div class="bo-grid cols-equal" style="margin-top: 24px;">
+        <div class="bo-card">
+            <div class="bo-cardHeader">
+                <div class="bo-cardTitle">📈 Évolution Tension Artérielle (7 jours)</div>
+            </div>
+            <div class="bo-chart">
+                📊 Graphique disponible avec des données
+            </div>
+        </div>
+
+        <div class="bo-card">
+            <div class="bo-cardHeader">
+                <div class="bo-cardTitle">🚶 Distribution des Pas Quotidiens</div>
+            </div>
+            <div class="bo-chart">
+                📊 Graphique disponible avec des données
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,104 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Ajouter un Utilisateur – AssistIQ Admin{% endblock %}
+
+{% block body %}
+{% include 'back/_nav.html.twig' %}
+
+<div class="bo-shell">
+    <div class="bo-header">
+        <div>
+            <h1 class="bo-title">➕ Nouvel Utilisateur</h1>
+            <p class="bo-subtitle">Créer un nouveau compte utilisateur sur la plateforme</p>
+        </div>
+        <div class="bo-actions">
+            <a href="{{ path('app_admin_users') }}" class="bo-btn bo-btnSecondary">← Retour à la liste</a>
+        </div>
+    </div>
+
+    <div class="bo-grid cols-2">
+        <!-- Formulaire Principal -->
+        <div class="bo-card">
+            <div class="bo-cardHeader">
+                <div class="bo-cardTitle">👤 Informations Personnelles</div>
+            </div>
+
+            <form class="bo-form">
+                <div class="bo-field">
+                    <label class="bo-label">Prénom *</label>
+                    <input type="text" class="bo-input" placeholder="Entrez le prénom">
+                </div>
+
+                <div class="bo-field">
+                    <label class="bo-label">Nom *</label>
+                    <input type="text" class="bo-input" placeholder="Entrez le nom">
+                </div>
+
+                <div class="bo-field">
+                    <label class="bo-label">Email *</label>
+                    <input type="email" class="bo-input" placeholder="email@exemple.com">
+                </div>
+
+                <div class="bo-field">
+                    <label class="bo-label">Téléphone</label>
+                    <input type="tel" class="bo-input" placeholder="+33 6 12 34 56 78">
+                </div>
+
+                <div class="bo-field">
+                    <label class="bo-label">Date de Naissance</label>
+                    <input type="date" class="bo-input">
+                </div>
+
+                <div class="bo-field">
+                    <label class="bo-label">Adresse</label>
+                    <textarea class="bo-textarea" placeholder="Adresse complète" rows="2"></textarea>
+                </div>
+            </form>
+        </div>
+
+        <!-- Configuration Compte -->
+        <div class="bo-card">
+            <div class="bo-cardHeader">
+                <div class="bo-cardTitle">⚙️ Configuration du Compte</div>
+            </div>
+
+            <form class="bo-form">
+                <div class="bo-field">
+                    <label class="bo-label">Type d'Utilisateur *</label>
+                    <select class="bo-select">
+                        <option value="">Sélectionner un type...</option>
+                        <option value="elderly">👴 Personne Âgée</option>
+                        <option value="family">👨‍👩‍👧 Proche/Famille</option>
+                        <option value="caregiver">👩‍⚕️ Soignant</option>
+                    </select>
+                </div>
+
+                <div class="bo-field">
+                    <label class="bo-label">Statut du Compte</label>
+                    <select class="bo-select">
+                        <option value="active">✅ Actif</option>
+                        <option value="pending">⏳ En attente de validation</option>
+                        <option value="inactive">❌ Inactif</option>
+                    </select>
+                </div>
+
+                <div class="bo-field">
+                    <label class="bo-label">Mot de Passe Temporaire</label>
+                    <input type="password" class="bo-input" placeholder="Minimum 8 caractères">
+                    <small style="color: var(--bo-muted); font-size: 13px;">L'utilisateur devra le changer à la première connexion</small>
+                </div>
+
+                <div class="bo-field">
+                    <label class="bo-label">Notes Internes</label>
+                    <textarea class="bo-textarea" placeholder="Notes visibles uniquement par l'admin..." rows="3"></textarea>
+                </div>
+
+                <div style="display: flex; gap: 12px; margin-top: 16px;">
+                    <button type="submit" class="bo-btn bo-btnPrimary" style="flex: 1;">💾 Créer l'Utilisateur</button>
+                    <button type="reset" class="bo-btn bo-btnSecondary">🔄 Réinitialiser</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

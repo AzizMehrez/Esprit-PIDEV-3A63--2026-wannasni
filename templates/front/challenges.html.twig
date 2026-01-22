@@ -1,0 +1,265 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Challenges – AssistIQ{% endblock %}
+
+{% block body %}
+{% include 'front/_nav.html.twig' %}
+
+<div class="fo-shell">
+    <div class="fo-header">
+        <div>
+            <h1 class="fo-title">🏆 Challenges & Achievements</h1>
+            <p class="fo-subtitle">Stay motivated with fun daily goals – earn points and celebrate wins</p>
+        </div>
+        <div class="fo-actions">
+            <a href="{{ path('app_front_dashboard') }}" class="fo-btn fo-btnSecondary">← Dashboard</a>
+            <button class="fo-btn fo-btnPrimary">Browse All</button>
+        </div>
+    </div>
+
+    <!-- Points Overview -->
+    <div class="fo-kpis">
+        <div class="fo-kpi">
+            <div class="fo-kpiTop">
+                <span class="fo-kpiLabel">Total Points</span>
+                <div class="fo-kpiIcon" style="background: rgba(245,158,11,.12); border-color: rgba(245,158,11,.18);">⭐</div>
+            </div>
+            <div class="fo-kpiValue">1,247</div>
+            <div style="color: var(--muted2); font-size: 14px; margin-top: 10px;">+85 points this week</div>
+        </div>
+
+        <div class="fo-kpi">
+            <div class="fo-kpiTop">
+                <span class="fo-kpiLabel">Challenges Completed</span>
+                <div class="fo-kpiIcon">🎯</div>
+            </div>
+            <div class="fo-kpiValue">23 / 30</div>
+            <div class="fo-progress" style="margin-top: 12px;">
+                <div class="fo-progressBar" style="width: 77%;"></div>
+            </div>
+        </div>
+
+        <div class="fo-kpi">
+            <div class="fo-kpiTop">
+                <span class="fo-kpiLabel">Current Streak</span>
+                <div class="fo-kpiIcon" style="background: rgba(239,68,68,.12); border-color: rgba(239,68,68,.18);">🔥</div>
+            </div>
+            <div class="fo-kpiValue">7 days</div>
+            <span class="fo-pill ok" style="margin-top: 10px;">On Fire!</span>
+        </div>
+    </div>
+
+    <!-- Today's Challenge -->
+    <div class="fo-card" style="margin-top: 22px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
+            <div>
+                <div class="fo-cardTitle">🌟 Today's Featured Challenge</div>
+                <div class="fo-cardHint">Complete this to earn bonus points!</div>
+            </div>
+            <div style="font-size: 28px; font-weight: 950; color: var(--warn);">+50 pts</div>
+        </div>
+
+        <div style="padding: 20px; border-radius: 14px; background: linear-gradient(135deg, rgba(16,185,129,.08), rgba(99,102,241,.08)); border: 2px solid rgba(16,185,129,.2); margin-top: 14px;">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                <span style="font-size: 36px;">🚶</span>
+                <div>
+                    <div style="font-size: 22px; font-weight: 900; color: var(--text);">Walk for 15 Minutes</div>
+                    <div style="color: var(--muted); font-size: 16px; margin-top: 4px;">Get some fresh air and boost your mood</div>
+                </div>
+            </div>
+
+            <div class="fo-progress">
+                <div class="fo-progressBar" style="width: 40%;"></div>
+            </div>
+            <div style="color: var(--muted); font-size: 15px; margin-top: 8px; font-weight: 700;">6 out of 15 minutes completed</div>
+
+            <button class="fo-btn fo-btnPrimary" style="margin-top: 14px;">Mark as Complete</button>
+        </div>
+    </div>
+
+    <div class="fo-grid cols-2" style="margin-top: 22px;">
+        <!-- Active Challenges -->
+        <div class="fo-card">
+            <div class="fo-cardTitle">⚡ Active Challenges</div>
+            <div class="fo-cardHint">In-progress goals and mini-challenges</div>
+
+            <ul class="fo-list">
+                <li class="fo-row">
+                    <div style="flex: 1;">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                            <span style="font-size: 24px;">💧</span>
+                            <div class="fo-rowTitle">Hydration Hero</div>
+                        </div>
+                        <div class="fo-rowMeta">Drink 8 glasses of water today</div>
+                        <div class="fo-progress" style="margin-top: 10px;">
+                            <div class="fo-progressBar" style="width: 62%;"></div>
+                        </div>
+                        <div style="color: var(--muted2); font-size: 14px; margin-top: 6px;">5 / 8 glasses</div>
+                    </div>
+                    <div class="fo-rowRight">
+                        <div style="font-weight: 900; color: var(--warn); font-size: 18px;">+25 pts</div>
+                    </div>
+                </li>
+
+                <li class="fo-row">
+                    <div style="flex: 1;">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                            <span style="font-size: 24px;">🧘</span>
+                            <div class="fo-rowTitle">Mindful Moments</div>
+                        </div>
+                        <div class="fo-rowMeta">Complete 10 minutes of meditation</div>
+                        <div class="fo-progress" style="margin-top: 10px;">
+                            <div class="fo-progressBar" style="width: 0%;"></div>
+                        </div>
+                        <div style="color: var(--muted2); font-size: 14px; margin-top: 6px;">Not started yet</div>
+                    </div>
+                    <div class="fo-rowRight">
+                        <div style="font-weight: 900; color: var(--warn); font-size: 18px;">+30 pts</div>
+                    </div>
+                </li>
+
+                <li class="fo-row">
+                    <div style="flex: 1;">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                            <span style="font-size: 24px;">🥗</span>
+                            <div class="fo-rowTitle">Healthy Eating</div>
+                        </div>
+                        <div class="fo-rowMeta">Log 3 balanced meals today</div>
+                        <div class="fo-progress" style="margin-top: 10px;">
+                            <div class="fo-progressBar" style="width: 66%;"></div>
+                        </div>
+                        <div style="color: var(--muted2); font-size: 14px; margin-top: 6px;">2 / 3 meals logged</div>
+                    </div>
+                    <div class="fo-rowRight">
+                        <div style="font-weight: 900; color: var(--warn); font-size: 18px;">+20 pts</div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Available Challenges -->
+        <div class="fo-card">
+            <div class="fo-cardTitle">🎯 Available Challenges</div>
+            <div class="fo-cardHint">Start a new challenge to earn more points</div>
+
+            <ul class="fo-list">
+                <li class="fo-row">
+                    <div style="flex: 1;">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                            <span style="font-size: 24px;">📖</span>
+                            <div class="fo-rowTitle">Reading Time</div>
+                        </div>
+                        <div class="fo-rowMeta">Read for 20 minutes before bed</div>
+                    </div>
+                    <div class="fo-rowRight">
+                        <div style="font-weight: 900; color: var(--warn); font-size: 16px; margin-right: 8px;">+35 pts</div>
+                        <button class="fo-btn fo-btnPrimary" style="padding: 8px 14px; font-size: 15px;">Start</button>
+                    </div>
+                </li>
+
+                <li class="fo-row">
+                    <div style="flex: 1;">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                            <span style="font-size: 24px;">🌻</span>
+                            <div class="fo-rowTitle">Outdoor Adventure</div>
+                        </div>
+                        <div class="fo-rowMeta">Spend 30 minutes outside</div>
+                    </div>
+                    <div class="fo-rowRight">
+                        <div style="font-weight: 900; color: var(--warn); font-size: 16px; margin-right: 8px;">+40 pts</div>
+                        <button class="fo-btn fo-btnPrimary" style="padding: 8px 14px; font-size: 15px;">Start</button>
+                    </div>
+                </li>
+
+                <li class="fo-row">
+                    <div style="flex: 1;">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                            <span style="font-size: 24px;">🎨</span>
+                            <div class="fo-rowTitle">Creative Hour</div>
+                        </div>
+                        <div class="fo-rowMeta">Try a creative activity (drawing, crafts, etc.)</div>
+                    </div>
+                    <div class="fo-rowRight">
+                        <div style="font-weight: 900; color: var(--warn); font-size: 16px; margin-right: 8px;">+45 pts</div>
+                        <button class="fo-btn fo-btnPrimary" style="padding: 8px 14px; font-size: 15px;">Start</button>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Recent Achievements -->
+    <div class="fo-card" style="margin-top: 22px;">
+        <div class="fo-cardTitle">🏅 Recent Achievements</div>
+        <div class="fo-cardHint">Celebrate your recent wins!</div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; margin-top: 12px;">
+            <div style="padding: 18px; border-radius: 14px; background: rgba(16,185,129,.08); border: 2px solid rgba(16,185,129,.18);">
+                <div style="font-size: 36px; margin-bottom: 8px;">🔥</div>
+                <div style="font-weight: 900; color: var(--text); font-size: 18px;">7-Day Streak</div>
+                <div style="color: var(--muted); font-size: 15px; margin-top: 4px;">Completed challenges every day this week</div>
+                <div style="color: var(--primary); font-weight: 800; margin-top: 8px;">+100 bonus points</div>
+            </div>
+
+            <div style="padding: 18px; border-radius: 14px; background: rgba(99,102,241,.08); border: 2px solid rgba(99,102,241,.18);">
+                <div style="font-size: 36px; margin-bottom: 8px;">💪</div>
+                <div style="font-weight: 900; color: var(--text); font-size: 18px;">Activity Champion</div>
+                <div style="color: var(--muted); font-size: 15px; margin-top: 4px;">Met your step goal 10 times this month</div>
+                <div style="color: var(--secondary); font-weight: 800; margin-top: 8px;">+75 points</div>
+            </div>
+
+            <div style="padding: 18px; border-radius: 14px; background: rgba(245,158,11,.08); border: 2px solid rgba(245,158,11,.18);">
+                <div style="font-size: 36px; margin-bottom: 8px;">⭐</div>
+                <div style="font-weight: 900; color: var(--text); font-size: 18px;">First 1000 Points</div>
+                <div style="color: var(--muted); font-size: 15px; margin-top: 4px;">Reached your first milestone!</div>
+                <div style="color: var(--warn); font-weight: 800; margin-top: 8px;">Unlocked special badge</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leaderboard -->
+    <div class="fo-card" style="margin-top: 22px;">
+        <div class="fo-cardTitle">🏆 Community Leaderboard</div>
+        <div class="fo-cardHint">See how you rank among other users this month</div>
+
+        <ul class="fo-list">
+            <li class="fo-row">
+                <div style="flex: 1; display: flex; align-items: center; gap: 14px;">
+                    <div style="font-size: 24px; font-weight: 950; color: var(--warn);">#1</div>
+                    <div>
+                        <div class="fo-rowTitle">Margaret T.</div>
+                        <div class="fo-rowMeta">2,845 points</div>
+                    </div>
+                </div>
+                <div class="fo-rowRight">
+                    <span style="font-size: 28px;">🥇</span>
+                </div>
+            </li>
+            <li class="fo-row">
+                <div style="flex: 1; display: flex; align-items: center; gap: 14px;">
+                    <div style="font-size: 24px; font-weight: 950; color: var(--muted);">#2</div>
+                    <div>
+                        <div class="fo-rowTitle">Robert K.</div>
+                        <div class="fo-rowMeta">2,103 points</div>
+                    </div>
+                </div>
+                <div class="fo-rowRight">
+                    <span style="font-size: 28px;">🥈</span>
+                </div>
+            </li>
+            <li class="fo-row" style="background: rgba(16,185,129,.08); border-color: rgba(16,185,129,.25);">
+                <div style="flex: 1; display: flex; align-items: center; gap: 14px;">
+                    <div style="font-size: 24px; font-weight: 950; color: var(--primary);">#7</div>
+                    <div>
+                        <div class="fo-rowTitle">You (John D.)</div>
+                        <div class="fo-rowMeta">1,247 points</div>
+                    </div>
+                </div>
+                <div class="fo-rowRight">
+                    <span class="fo-pill ok">Top 10!</span>
+                </div>
+            </li>
+        </ul>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,190 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Alerts – AssistIQ{% endblock %}
+
+{% block body %}
+{% include 'front/_nav.html.twig' %}
+
+<div class="fo-shell">
+    <div class="fo-header">
+        <div>
+            <h1 class="fo-title">🔔 Alerts & Family Connection</h1>
+            <p class="fo-subtitle">Stay connected with reminders and loved ones – never miss what matters</p>
+        </div>
+        <div class="fo-actions">
+            <a href="{{ path('app_front_dashboard') }}" class="fo-btn fo-btnSecondary">← Dashboard</a>
+            <button class="fo-btn fo-btnPrimary">+ New Alert</button>
+        </div>
+    </div>
+
+    <!-- Critical Alerts -->
+    <div class="fo-alert danger">
+        <div class="fo-alertIcon">⚠️</div>
+        <div class="fo-alertContent">
+            <div class="fo-alertTitle">Medication Reminder Overdue</div>
+            <div class="fo-alertText">You missed your 8:00 PM blood pressure medication. Please take it as soon as possible.</div>
+        </div>
+    </div>
+
+    <div class="fo-grid cols-2" style="margin-top: 22px;">
+        <!-- Active Alerts -->
+        <div class="fo-card">
+            <div class="fo-cardTitle">📌 Active Alerts</div>
+            <div class="fo-cardHint">Reminders and notifications requiring action</div>
+
+            <ul class="fo-list">
+                <li class="fo-row">
+                    <div style="flex: 1;">
+                        <div class="fo-rowTitle">💊 Evening Medication</div>
+                        <div class="fo-rowMeta">Take blood pressure pill • Due at 8:00 PM</div>
+                    </div>
+                    <div class="fo-rowRight">
+                        <span class="fo-pill warn">Pending</span>
+                        <button class="fo-btn fo-btnPrimary" style="padding: 8px 14px; font-size: 15px;">Mark Done</button>
+                    </div>
+                </li>
+                <li class="fo-row">
+                    <div style="flex: 1;">
+                        <div class="fo-rowTitle">🏥 Doctor Appointment</div>
+                        <div class="fo-rowMeta">Tomorrow at 10:30 AM with Dr. Smith</div>
+                    </div>
+                    <div class="fo-rowRight">
+                        <span class="fo-pill info">Upcoming</span>
+                    </div>
+                </li>
+                <li class="fo-row">
+                    <div style="flex: 1;">
+                        <div class="fo-rowTitle">🚶 Daily Walking Goal</div>
+                        <div class="fo-rowMeta">2,753 steps remaining for today</div>
+                    </div>
+                    <div class="fo-rowRight">
+                        <span class="fo-pill">In Progress</span>
+                    </div>
+                </li>
+                <li class="fo-row">
+                    <div style="flex: 1;">
+                        <div class="fo-rowTitle">💧 Hydration Check</div>
+                        <div class="fo-rowMeta">Drink a glass of water • Every 2 hours</div>
+                    </div>
+                    <div class="fo-rowRight">
+                        <span class="fo-pill ok">On Track</span>
+                    </div>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Family Messages -->
+        <div class="fo-card">
+            <div class="fo-cardTitle">👨‍👩‍👧‍👦 Family Messages</div>
+            <div class="fo-cardHint">Stay connected with your loved ones</div>
+
+            <ul class="fo-list">
+                <li class="fo-row">
+                    <div style="flex: 1;">
+                        <div class="fo-rowTitle">Sarah (Daughter)</div>
+                        <div class="fo-rowMeta">"Hi Dad! Don't forget your appointment tomorrow. Love you! ❤️"</div>
+                        <div style="color: var(--muted2); font-size: 14px; margin-top: 6px;">2 hours ago</div>
+                    </div>
+                    <div class="fo-rowRight">
+                        <button class="fo-btn fo-btnSecondary" style="padding: 8px 14px; font-size: 15px;">Reply</button>
+                    </div>
+                </li>
+                <li class="fo-row">
+                    <div style="flex: 1;">
+                        <div class="fo-rowTitle">Michael (Son)</div>
+                        <div class="fo-rowMeta">"Great job on your walking streak! Keep it up 🎉"</div>
+                        <div style="color: var(--muted2); font-size: 14px; margin-top: 6px;">Yesterday</div>
+                    </div>
+                    <div class="fo-rowRight">
+                        <button class="fo-btn fo-btnSecondary" style="padding: 8px 14px; font-size: 15px;">Reply</button>
+                    </div>
+                </li>
+                <li class="fo-row">
+                    <div style="flex: 1;">
+                        <div class="fo-rowTitle">Emma (Caregiver)</div>
+                        <div class="fo-rowMeta">"I'll visit tomorrow morning at 9:00 AM to help with your medication."</div>
+                        <div style="color: var(--muted2); font-size: 14px; margin-top: 6px;">2 days ago</div>
+                    </div>
+                    <div class="fo-rowRight">
+                        <span class="fo-pill ok">Acknowledged</span>
+                    </div>
+                </li>
+            </ul>
+
+            <button class="fo-btn fo-btnIndigo" style="margin-top: 12px; width: 100%;">Send New Message</button>
+        </div>
+    </div>
+
+    <!-- Alert History -->
+    <div class="fo-card" style="margin-top: 22px;">
+        <div class="fo-cardTitle">📜 Recent Alert History</div>
+        <div class="fo-cardHint">Completed and dismissed alerts from the past week</div>
+
+        <ul class="fo-list">
+            <li class="fo-row">
+                <div style="flex: 1;">
+                    <div class="fo-rowTitle">✅ Morning Medication Taken</div>
+                    <div class="fo-rowMeta">Today at 8:00 AM • Blood pressure pill</div>
+                </div>
+                <div class="fo-rowRight">
+                    <span class="fo-pill ok">Completed</span>
+                </div>
+            </li>
+            <li class="fo-row">
+                <div style="flex: 1;">
+                    <div class="fo-rowTitle">✅ Blood Pressure Logged</div>
+                    <div class="fo-rowMeta">Today at 7:30 AM • 120/80 mmHg</div>
+                </div>
+                <div class="fo-rowRight">
+                    <span class="fo-pill ok">Completed</span>
+                </div>
+            </li>
+            <li class="fo-row">
+                <div style="flex: 1;">
+                    <div class="fo-rowTitle">✅ Daily Walking Goal Met</div>
+                    <div class="fo-rowMeta">Yesterday at 6:45 PM • 8,342 steps</div>
+                </div>
+                <div class="fo-rowRight">
+                    <span class="fo-pill ok">Achieved</span>
+                </div>
+            </li>
+            <li class="fo-row">
+                <div style="flex: 1;">
+                    <div class="fo-rowTitle">✅ Weekly Check-in with Emma</div>
+                    <div class="fo-rowMeta">3 days ago • Health status reviewed</div>
+                </div>
+                <div class="fo-rowRight">
+                    <span class="fo-pill ok">Completed</span>
+                </div>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Alert Settings -->
+    <div class="fo-card" style="margin-top: 22px;">
+        <div class="fo-cardTitle">⚙️ Alert Preferences</div>
+        <div class="fo-cardHint">Customize when and how you receive notifications</div>
+
+        <div style="display: grid; gap: 14px;">
+            <label class="fo-checkbox">
+                <input type="checkbox" checked>
+                <span>🔔 Enable medication reminders</span>
+            </label>
+            <label class="fo-checkbox">
+                <input type="checkbox" checked>
+                <span>📱 Send notifications to family members</span>
+            </label>
+            <label class="fo-checkbox">
+                <input type="checkbox" checked>
+                <span>🏥 Appointment reminders (1 day before)</span>
+            </label>
+            <label class="fo-checkbox">
+                <input type="checkbox">
+                <span>🌙 Enable quiet hours (10 PM - 7 AM)</span>
+            </label>
+        </div>
+
+        <button class="fo-btn fo-btnPrimary" style="margin-top: 16px;">Save Preferences</button>
+    </div>
+</div>
+{% endblock %}

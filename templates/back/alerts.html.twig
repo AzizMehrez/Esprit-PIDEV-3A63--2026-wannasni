@@ -1,0 +1,97 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Alert Management – AssistIQ Admin{% endblock %}
+
+{% block body %}
+{% include 'back/_nav.html.twig' %}
+
+<div class="bo-shell">
+    <div class="bo-header">
+        <div>
+            <h1 class="bo-title">🔔 Alert Management</h1>
+            <p class="bo-subtitle">Configure and monitor system alerts across all users</p>
+        </div>
+        <div class="bo-actions">
+            <button class="bo-btn bo-btnSecondary">📋 Alert Templates</button>
+            <button class="bo-btn bo-btnPrimary">+ Create Alert</button>
+        </div>
+    </div>
+
+    <!-- Alert Stats -->
+    <div class="bo-stats">
+        <div class="bo-stat">
+            <div class="bo-statTop">
+                <span class="bo-statLabel">Active Alerts</span>
+                <div class="bo-statIcon warn">🔔</div>
+            </div>
+            <div class="bo-statValue">156</div>
+            <div class="bo-statChange up">↑ 8 new today</div>
+        </div>
+
+        <div class="bo-stat">
+            <div class="bo-statTop">
+                <span class="bo-statLabel">Critical</span>
+                <div class="bo-statIcon danger">🚨</div>
+            </div>
+            <div class="bo-statValue">12</div>
+            <div class="bo-statChange down">↓ 3 resolved</div>
+        </div>
+
+        <div class="bo-stat">
+            <div class="bo-statTop">
+                <span class="bo-statLabel">Resolved Today</span>
+                <div class="bo-statIcon success">✅</div>
+            </div>
+            <div class="bo-statValue">47</div>
+            <div class="bo-statChange up">↑ Great progress!</div>
+        </div>
+
+        <div class="bo-stat">
+            <div class="bo-statTop">
+                <span class="bo-statLabel">Avg Response Time</span>
+                <div class="bo-statIcon info">⏱️</div>
+            </div>
+            <div class="bo-statValue">8 min</div>
+            <div class="bo-statChange down">↓ 2 min faster</div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="bo-card" style="margin-bottom: 24px;">
+        <div style="display: flex; gap: 16px; flex-wrap: wrap; align-items: center;">
+            <select class="bo-select" style="min-width: 150px;">
+                <option>All Priorities</option>
+                <option>🚨 Critical</option>
+                <option>⚠️ High</option>
+                <option>📋 Normal</option>
+                <option>ℹ️ Low</option>
+            </select>
+            <select class="bo-select" style="min-width: 150px;">
+                <option>All Types</option>
+                <option>Health</option>
+                <option>Medication</option>
+                <option>Activity</option>
+                <option>Safety</option>
+            </select>
+            <select class="bo-select" style="min-width: 150px;">
+                <option>All Status</option>
+                <option>Active</option>
+                <option>Acknowledged</option>
+                <option>Resolved</option>
+            </select>
+            <div class="bo-search" style="flex: 1; min-width: 200px;">
+                <input type="text" placeholder="Search alerts...">
+            </div>
+        </div>
+    </div>
+
+    <!-- Alerts Table -->
+    <div class="bo-card">
+        <div class="bo-empty">
+            <div class="bo-emptyIcon">🔔</div>
+            <div class="bo-emptyTitle">No Alerts</div>
+            <div class="bo-emptyText">System alerts will appear here when triggered</div>
+        </div>
+    </div>
+</div>
+{% endblock %}

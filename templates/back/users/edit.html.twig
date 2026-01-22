@@ -1,0 +1,103 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier Utilisateur – AssistIQ Admin{% endblock %}
+
+{% block body %}
+{% include 'back/_nav.html.twig' %}
+
+<div class="bo-shell">
+    <div class="bo-header">
+        <div>
+            <h1 class="bo-title">✏️ Modifier l'Utilisateur</h1>
+            <p class="bo-subtitle">Modifier les informations de l'utilisateur #{{ id }}</p>
+        </div>
+        <div class="bo-actions">
+            <a href="{{ path('app_admin_users_view', {id: id}) }}" class="bo-btn bo-btnSecondary">← Retour au profil</a>
+            <button class="bo-btn bo-btnDanger">🗑️ Supprimer</button>
+        </div>
+    </div>
+
+    <div class="bo-grid cols-2">
+        <!-- Formulaire Principal -->
+        <div class="bo-card">
+            <div class="bo-cardHeader">
+                <div class="bo-cardTitle">👤 Informations Personnelles</div>
+            </div>
+
+            <form class="bo-form">
+                <div class="bo-field">
+                    <label class="bo-label">Prénom *</label>
+                    <input type="text" class="bo-input" value="">
+                </div>
+
+                <div class="bo-field">
+                    <label class="bo-label">Nom *</label>
+                    <input type="text" class="bo-input" value="">
+                </div>
+
+                <div class="bo-field">
+                    <label class="bo-label">Email *</label>
+                    <input type="email" class="bo-input" value="">
+                </div>
+
+                <div class="bo-field">
+                    <label class="bo-label">Téléphone</label>
+                    <input type="tel" class="bo-input" value="">
+                </div>
+
+                <div class="bo-field">
+                    <label class="bo-label">Date de Naissance</label>
+                    <input type="date" class="bo-input">
+                </div>
+
+                <div class="bo-field">
+                    <label class="bo-label">Adresse</label>
+                    <textarea class="bo-textarea" rows="2"></textarea>
+                </div>
+            </form>
+        </div>
+
+        <!-- Configuration Compte -->
+        <div class="bo-card">
+            <div class="bo-cardHeader">
+                <div class="bo-cardTitle">⚙️ Configuration du Compte</div>
+            </div>
+
+            <form class="bo-form">
+                <div class="bo-field">
+                    <label class="bo-label">Type d'Utilisateur *</label>
+                    <select class="bo-select">
+                        <option value="elderly">👴 Personne Âgée</option>
+                        <option value="family">👨‍👩‍👧 Proche/Famille</option>
+                        <option value="caregiver">👩‍⚕️ Soignant</option>
+                    </select>
+                </div>
+
+                <div class="bo-field">
+                    <label class="bo-label">Statut du Compte</label>
+                    <select class="bo-select">
+                        <option value="active">✅ Actif</option>
+                        <option value="pending">⏳ En attente</option>
+                        <option value="inactive">❌ Inactif</option>
+                    </select>
+                </div>
+
+                <div class="bo-field">
+                    <label class="bo-label">Réinitialiser le Mot de Passe</label>
+                    <input type="password" class="bo-input" placeholder="Nouveau mot de passe (laisser vide pour ne pas changer)">
+                </div>
+
+                <div class="bo-field">
+                    <label class="bo-label">Notes Internes</label>
+                    <textarea class="bo-textarea" rows="3"></textarea>
+                </div>
+
+                <div style="display: flex; gap: 12px; margin-top: 16px;">
+                    <button type="submit" class="bo-btn bo-btnSuccess" style="flex: 1;">💾 Enregistrer les Modifications</button>
+                    <a href="{{ path('app_admin_users_view', {id: id}) }}" class="bo-btn bo-btnSecondary">Annuler</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

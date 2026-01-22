@@ -1,0 +1,71 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modèles d'Habitudes – AssistIQ Admin{% endblock %}
+
+{% block body %}
+{% include 'back/_nav.html.twig' %}
+
+<div class="bo-shell">
+    <div class="bo-header">
+        <div>
+            <h1 class="bo-title">📋 Modèles d'Habitudes</h1>
+            <p class="bo-subtitle">Créer et gérer les modèles d'habitudes prédéfinis</p>
+        </div>
+        <div class="bo-actions">
+            <a href="{{ path('app_admin_habits') }}" class="bo-btn bo-btnSecondary">← Retour</a>
+            <button class="bo-btn bo-btnPrimary">+ Nouveau Modèle</button>
+        </div>
+    </div>
+
+    <!-- Modèles par Catégorie -->
+    <div class="bo-grid cols-2">
+        <div class="bo-card">
+            <div class="bo-cardHeader">
+                <div class="bo-cardTitle">💊 Médicaments</div>
+                <button class="bo-btn bo-btnSecondary bo-btnSm">+ Ajouter</button>
+            </div>
+            <div class="bo-empty">
+                <div class="bo-emptyIcon">💊</div>
+                <div class="bo-emptyTitle">Aucun Modèle</div>
+                <div class="bo-emptyText">Créez des modèles de rappels médicaments</div>
+            </div>
+        </div>
+
+        <div class="bo-card">
+            <div class="bo-cardHeader">
+                <div class="bo-cardTitle">🚶 Activité Physique</div>
+                <button class="bo-btn bo-btnSecondary bo-btnSm">+ Ajouter</button>
+            </div>
+            <div class="bo-empty">
+                <div class="bo-emptyIcon">🚶</div>
+                <div class="bo-emptyTitle">Aucun Modèle</div>
+                <div class="bo-emptyText">Créez des modèles d'activité quotidienne</div>
+            </div>
+        </div>
+
+        <div class="bo-card">
+            <div class="bo-cardHeader">
+                <div class="bo-cardTitle">🍎 Nutrition</div>
+                <button class="bo-btn bo-btnSecondary bo-btnSm">+ Ajouter</button>
+            </div>
+            <div class="bo-empty">
+                <div class="bo-emptyIcon">🍎</div>
+                <div class="bo-emptyTitle">Aucun Modèle</div>
+                <div class="bo-emptyText">Créez des modèles d'alimentation saine</div>
+            </div>
+        </div>
+
+        <div class="bo-card">
+            <div class="bo-cardHeader">
+                <div class="bo-cardTitle">😴 Sommeil & Bien-être</div>
+                <button class="bo-btn bo-btnSecondary bo-btnSm">+ Ajouter</button>
+            </div>
+            <div class="bo-empty">
+                <div class="bo-emptyIcon">😴</div>
+                <div class="bo-emptyTitle">Aucun Modèle</div>
+                <div class="bo-emptyText">Créez des modèles de routine sommeil</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

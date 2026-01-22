@@ -1,0 +1,116 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Admin Dashboard – AssistIQ{% endblock %}
+
+{% block body %}
+{% include 'back/_nav.html.twig' %}
+
+<div class="bo-shell">
+    <div class="bo-header">
+        <div>
+            <h1 class="bo-title">📊 Admin Dashboard</h1>
+            <p class="bo-subtitle">Overview of AssistIQ platform performance and user activity</p>
+        </div>
+        <div class="bo-actions">
+            <button class="bo-btn bo-btnSecondary">📥 Export Report</button>
+            <button class="bo-btn bo-btnPrimary">+ Add User</button>
+        </div>
+    </div>
+
+    <!-- Stats Overview -->
+    <div class="bo-stats">
+        <div class="bo-stat">
+            <div class="bo-statTop">
+                <span class="bo-statLabel">Total Users</span>
+                <div class="bo-statIcon primary">👥</div>
+            </div>
+            <div class="bo-statValue">2,847</div>
+            <div class="bo-statChange up">↑ 12.5% this month</div>
+        </div>
+
+        <div class="bo-stat">
+            <div class="bo-statTop">
+                <span class="bo-statLabel">Active Today</span>
+                <div class="bo-statIcon success">✅</div>
+            </div>
+            <div class="bo-statValue">1,234</div>
+            <div class="bo-statChange up">↑ 8.3% vs yesterday</div>
+        </div>
+
+        <div class="bo-stat">
+            <div class="bo-statTop">
+                <span class="bo-statLabel">Health Alerts</span>
+                <div class="bo-statIcon warn">⚠️</div>
+            </div>
+            <div class="bo-statValue">47</div>
+            <div class="bo-statChange down">↓ 15% this week</div>
+        </div>
+
+        <div class="bo-stat">
+            <div class="bo-statTop">
+                <span class="bo-statLabel">Family Connections</span>
+                <div class="bo-statIcon info">👨‍👩‍👧‍👦</div>
+            </div>
+            <div class="bo-statValue">892</div>
+            <div class="bo-statChange up">↑ 23% growth</div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="bo-grid cols-2">
+        <!-- Recent Users -->
+        <div class="bo-card">
+            <div class="bo-cardHeader">
+                <div>
+                    <div class="bo-cardTitle">👥 Recent Users</div>
+                    <div class="bo-cardHint">Newly registered users this week</div>
+                </div>
+                <a href="{{ path('app_admin_users') }}" class="bo-btn bo-btnSecondary bo-btnSm">View All</a>
+            </div>
+
+            <div class="bo-empty">
+                <div class="bo-emptyIcon">👥</div>
+                <div class="bo-emptyTitle">No Recent Users</div>
+                <div class="bo-emptyText">New user registrations will appear here</div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="bo-card">
+            <div class="bo-cardHeader">
+                <div>
+                    <div class="bo-cardTitle">📋 Recent Activity</div>
+                    <div class="bo-cardHint">Latest platform events</div>
+                </div>
+            </div>
+
+            <div class="bo-empty">
+                <div class="bo-emptyIcon">📋</div>
+                <div class="bo-emptyTitle">No Recent Activity</div>
+                <div class="bo-emptyText">Platform events will appear here</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="bo-grid cols-equal" style="margin-top: 24px;">
+        <div class="bo-card">
+            <div class="bo-cardHeader">
+                <div class="bo-cardTitle">📈 User Growth</div>
+            </div>
+            <div class="bo-chart">
+                📊 Chart visualization would go here
+            </div>
+        </div>
+
+        <div class="bo-card">
+            <div class="bo-cardHeader">
+                <div class="bo-cardTitle">🏥 Health Metrics Overview</div>
+            </div>
+            <div class="bo-chart">
+                📊 Health data chart would go here
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,287 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Tableau de bord – AssistIQ{% endblock %}
+
+{% block body %}
+{% include 'front/_nav.html.twig' %}
+
+<div class="fo-shell">
+    <!-- Welcome Banner with Animation -->
+    <div class="fo-welcomeBanner">
+        <div class="fo-welcomeContent">
+            <div class="fo-welcomeGreeting">
+                <span class="fo-welcomeWave">👋</span>
+                <div>
+                    <h1 class="fo-welcomeTitle">Bonjour, Jean !</h1>
+                    <p class="fo-welcomeSubtitle">Faisons de cette journée une journée saine et heureuse</p>
+                </div>
+            </div>
+            <div class="fo-welcomeDate">
+                <div class="fo-dateDay">Mardi</div>
+                <div class="fo-dateNum">21 Jan</div>
+            </div>
+        </div>
+        <div class="fo-welcomeStats">
+            <div class="fo-welcomeStat">
+                <span class="fo-welcomeStatIcon">🔥</span>
+                <span class="fo-welcomeStatValue">7 jours de suite !</span>
+            </div>
+            <div class="fo-welcomeStat">
+                <span class="fo-welcomeStatIcon">⭐</span>
+                <span class="fo-welcomeStatValue">1 247 Points</span>
+            </div>
+            <div class="fo-welcomeStat">
+                <span class="fo-welcomeStatIcon">🏆</span>
+                <span class="fo-welcomeStatValue">Niveau 5</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- KPI Overview with Staggered Animation -->
+    <div class="fo-kpis fo-stagger">
+        <div class="fo-kpi fo-kpi--steps">
+            <div class="fo-kpiGlow"></div>
+            <div class="fo-kpiTop">
+                <span class="fo-kpiLabel">Pas quotidiens</span>
+                <div class="fo-kpiIcon fo-pulse">🚶</div>
+            </div>
+            <div class="fo-kpiValue fo-countUp">5 247</div>
+            <div class="fo-progress" style="margin-top: 12px;">
+                <div class="fo-progressBar fo-progressAnimate" style="--progress: 65%;"></div>
+            </div>
+            <div class="fo-kpiGoal">Objectif : 8 000 pas</div>
+            <div class="fo-kpiTrend up">↑ 12% par rapport à hier</div>
+        </div>
+
+        <div class="fo-kpi fo-kpi--heart">
+            <div class="fo-kpiGlow"></div>
+            <div class="fo-kpiTop">
+                <span class="fo-kpiLabel">Rythme cardiaque</span>
+                <div class="fo-kpiIcon fo-heartbeat" style="background: rgba(239,68,68,.12); border-color: rgba(239,68,68,.18);">❤️</div>
+            </div>
+            <div class="fo-kpiValue">72 <span class="fo-kpiUnit">BPM</span></div>
+            <span class="fo-pill ok" style="margin-top: 10px;">Normal</span>
+            <div class="fo-kpiTrend stable">→ Stable toute la journée</div>
+        </div>
+
+        <div class="fo-kpi fo-kpi--meds">
+            <div class="fo-kpiGlow"></div>
+            <div class="fo-kpiTop">
+                <span class="fo-kpiLabel">Médicaments</span>
+                <div class="fo-kpiIcon fo-bounce" style="background: rgba(99,102,241,.12); border-color: rgba(99,102,241,.18);">💊</div>
+            </div>
+            <div class="fo-kpiValue">3 <span class="fo-kpiUnit">/ 4</span></div>
+            <span class="fo-pill warn" style="margin-top: 10px;">1 en attente</span>
+            <div class="fo-kpiAlert">⏰ Prochaine dose à 20h</div>
+        </div>
+
+        <div class="fo-kpi fo-kpi--sleep">
+            <div class="fo-kpiGlow"></div>
+            <div class="fo-kpiTop">
+                <span class="fo-kpiLabel">Qualité du sommeil</span>
+                <div class="fo-kpiIcon" style="background: rgba(139,92,246,.12); border-color: rgba(139,92,246,.18);">😴</div>
+            </div>
+            <div class="fo-kpiValue">7,5 <span class="fo-kpiUnit">h</span></div>
+            <span class="fo-pill ok" style="margin-top: 10px;">Bon</span>
+            <div class="fo-kpiTrend up">↑ Mieux que la moyenne</div>
+        </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="fo-grid cols-2" style="margin-top: 28px;">
+        <!-- Today's Alerts -->
+        <div class="fo-card fo-card--alerts">
+            <div class="fo-cardHeader">
+                <div>
+                    <div class="fo-cardTitle">🔔 Alertes du jour</div>
+                    <div class="fo-cardHint">Restez à jour avec vos rappels santé</div>
+                </div>
+                <span class="fo-badge fo-badge--pulse">3 actives</span>
+            </div>
+
+            <ul class="fo-list fo-stagger">
+                <li class="fo-row fo-row--urgent">
+                    <div class="fo-rowIcon warn">💊</div>
+                    <div style="flex: 1;">
+                        <div class="fo-rowTitle">Médicament du soir</div>
+                        <div class="fo-rowMeta">Prendre le comprimé tension à 20h</div>
+                    </div>
+                    <div class="fo-rowRight">
+                        <span class="fo-pill warn">En attente</span>
+                    </div>
+                </li>
+                <li class="fo-row">
+                    <div class="fo-rowIcon info">🏥</div>
+                    <div style="flex: 1;">
+                        <div class="fo-rowTitle">Rendez-vous médecin</div>
+                        <div class="fo-rowMeta">Demain à 10h30 – Dr Martin</div>
+                    </div>
+                    <div class="fo-rowRight">
+                        <span class="fo-pill info">À venir</span>
+                    </div>
+                </li>
+                <li class="fo-row">
+                    <div class="fo-rowIcon">🚶</div>
+                    <div style="flex: 1;">
+                        <div class="fo-rowTitle">Objectif marche</div>
+                        <div class="fo-rowMeta">2 753 pas restants pour aujourd'hui</div>
+                    </div>
+                    <div class="fo-rowRight">
+                        <span class="fo-pill">En cours</span>
+                    </div>
+                </li>
+            </ul>
+
+            <a href="{{ path('app_front_alerts') }}" class="fo-btn fo-btnSecondary fo-btn--full">
+                <span>Voir toutes les alertes</span>
+                <span class="fo-btnArrow">→</span>
+            </a>
+        </div>
+
+        <!-- Quick Actions & Challenge -->
+        <div class="fo-cardStack">
+            <div class="fo-card fo-card--actions">
+                <div class="fo-cardTitle">⚡ Actions rapides</div>
+                <div class="fo-cardHint">Accédez aux sections importantes</div>
+
+                <div class="fo-quickGrid">
+                    <a href="{{ path('app_front_health') }}" class="fo-quickAction fo-quickAction--health">
+                        <span class="fo-quickIcon">📊</span>
+                        <span class="fo-quickLabel">Santé</span>
+                    </a>
+                    <a href="{{ path('app_front_habits') }}" class="fo-quickAction fo-quickAction--habits">
+                        <span class="fo-quickIcon">🎯</span>
+                        <span class="fo-quickLabel">Habitudes</span>
+                    </a>
+                    <a href="{{ path('app_front_challenges') }}" class="fo-quickAction fo-quickAction--challenges">
+                        <span class="fo-quickIcon">🏆</span>
+                        <span class="fo-quickLabel">Défis</span>
+                    </a>
+                    <a href="{{ path('app_front_family') }}" class="fo-quickAction fo-quickAction--profile">
+                        <span class="fo-quickIcon">👨‍👩‍👧</span>
+                        <span class="fo-quickLabel">Proches</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="fo-card fo-card--challenge">
+                <div class="fo-challengeHeader">
+                    <div>
+                        <div class="fo-cardTitle">🌟 Défi du jour</div>
+                        <div class="fo-cardHint">Gagnez 50 points bonus !</div>
+                    </div>
+                    <div class="fo-challengeReward">
+                        <span>🎁</span>
+                        <span>+50 pts</span>
+                    </div>
+                </div>
+
+                <div class="fo-challengeContent">
+                    <div class="fo-challengeIcon">🚶‍♂️</div>
+                    <div class="fo-challengeInfo">
+                        <div class="fo-challengeName">Marcher 15 minutes</div>
+                        <div class="fo-challengeDesc">Faites une promenade pour booster votre moral !</div>
+                    </div>
+                </div>
+
+                <div class="fo-challengeProgress">
+                    <div class="fo-progress fo-progress--lg">
+                        <div class="fo-progressBar fo-progressAnimate" style="--progress: 40%;"></div>
+                    </div>
+                    <div class="fo-challengeStats">
+                        <span>6 / 15 minutes</span>
+                        <span class="fo-challengePercent">40%</span>
+                    </div>
+                </div>
+
+                <button class="fo-btn fo-btnPrimary fo-btn--full">
+                    <span>🎯 Continuer le défi</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Family Connection -->
+    <div class="fo-card fo-card--family" style="margin-top: 22px;">
+        <div class="fo-cardHeader">
+            <div>
+                <div class="fo-cardTitle">👨‍👩‍👧‍👦 Mes proches</div>
+                <div class="fo-cardHint">Votre famille veille sur vous</div>
+            </div>
+            <a href="{{ path('app_front_family') }}" class="fo-btn fo-btnSecondary fo-btn--sm">Gérer</a>
+        </div>
+
+        <div class="fo-familyGrid">
+            <div class="fo-familyMember">
+                <div class="fo-familyAvatar fo-familyAvatar--online">👩</div>
+                <div class="fo-familyInfo">
+                    <div class="fo-familyName">Sarah (Fille)</div>
+                    <div class="fo-familyStatus">Dernière connexion : il y a 2h</div>
+                </div>
+                <span class="fo-familyBadge online">En ligne</span>
+            </div>
+            <div class="fo-familyMember">
+                <div class="fo-familyAvatar">👨</div>
+                <div class="fo-familyInfo">
+                    <div class="fo-familyName">Michel (Fils)</div>
+                    <div class="fo-familyStatus">Dernière connexion : Hier</div>
+                </div>
+                <span class="fo-familyBadge">Absent</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity Timeline -->
+    <div class="fo-card" style="margin-top: 22px;">
+        <div class="fo-cardHeader">
+            <div>
+                <div class="fo-cardTitle">📅 Activité récente</div>
+                <div class="fo-cardHint">Votre parcours santé cette semaine</div>
+            </div>
+            <div class="fo-tabs">
+                <button class="fo-tab active">Aujourd'hui</button>
+                <button class="fo-tab">Semaine</button>
+            </div>
+        </div>
+
+        <div class="fo-timeline">
+            <div class="fo-timelineItem fo-timelineItem--success">
+                <div class="fo-timelineDot"></div>
+                <div class="fo-timelineContent">
+                    <div class="fo-timelineTime">23h45 Hier</div>
+                    <div class="fo-timelineTitle">✅ 7 jours consécutifs atteints !</div>
+                    <div class="fo-timelineDesc">Succès débloqué - Vous êtes formidable !</div>
+                </div>
+                <span class="fo-pill ok">+25 pts</span>
+            </div>
+            <div class="fo-timelineItem fo-timelineItem--success">
+                <div class="fo-timelineDot"></div>
+                <div class="fo-timelineContent">
+                    <div class="fo-timelineTime">8h00 Aujourd'hui</div>
+                    <div class="fo-timelineTitle">💊 Médicament du matin pris</div>
+                    <div class="fo-timelineDesc">Comprimé tension - À l'heure !</div>
+                </div>
+                <span class="fo-pill ok">Fait</span>
+            </div>
+            <div class="fo-timelineItem fo-timelineItem--info">
+                <div class="fo-timelineDot"></div>
+                <div class="fo-timelineContent">
+                    <div class="fo-timelineTime">7h30 Aujourd'hui</div>
+                    <div class="fo-timelineTitle">📈 Tension artérielle enregistrée</div>
+                    <div class="fo-timelineDesc">120/80 mmHg - Zone normale</div>
+                </div>
+                <span class="fo-pill ok">Normal</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Motivational Footer -->
+    <div class="fo-motivation">
+        <div class="fo-motivationIcon">💪</div>
+        <div class="fo-motivationText">
+            <strong>Vous êtes formidable, Jean !</strong>
+            <span>Continuez vos bonnes habitudes – votre famille est fière de vous !</span>
+        </div>
+    </div>
+</div>
+{% endblock %}

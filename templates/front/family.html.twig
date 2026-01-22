@@ -1,0 +1,178 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Proches & Famille – AssistIQ{% endblock %}
+
+{% block body %}
+{% include 'front/_nav.html.twig' %}
+
+<div class="fo-shell">
+    <div class="fo-header">
+        <div>
+            <h1 class="fo-title">👨‍👩‍👧 Mes Proches & Famille</h1>
+            <p class="fo-subtitle">Restez connecté avec vos proches – partagez votre bien-être en toute sécurité</p>
+        </div>
+        <div class="fo-actions">
+            <a href="{{ path('app_front_dashboard') }}" class="fo-btn fo-btnSecondary">← Tableau de bord</a>
+            <button class="fo-btn fo-btnPrimary">+ Ajouter un proche</button>
+        </div>
+    </div>
+
+    <!-- Connection Status -->
+    <div class="fo-alert info">
+        <div class="fo-alertIcon">🔗</div>
+        <div class="fo-alertContent">
+            <div class="fo-alertTitle">Connexions actives</div>
+            <div class="fo-alertText">3 membres de votre famille sont connectés et reçoivent vos mises à jour de santé automatiquement.</div>
+        </div>
+    </div>
+
+    <div class="fo-grid cols-2" style="margin-top: 22px;">
+        <!-- Family Members -->
+        <div class="fo-card">
+            <div class="fo-cardTitle">👥 Mes proches connectés</div>
+            <div class="fo-cardHint">Personnes autorisées à suivre votre bien-être</div>
+
+            <ul class="fo-list">
+                <li class="fo-row">
+                    <div style="display: flex; align-items: center; gap: 14px; flex: 1;">
+                        <div style="width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, #10B981, #059669); display: flex; align-items: center; justify-content: center; font-size: 24px;">👩</div>
+                        <div>
+                            <div class="fo-rowTitle">Sarah Martin</div>
+                            <div class="fo-rowMeta">Fille • sarah.m@email.com</div>
+                        </div>
+                    </div>
+                    <div class="fo-rowRight">
+                        <span class="fo-pill ok">En ligne</span>
+                        <button class="fo-btn fo-btnSecondary" style="padding: 8px 14px; font-size: 15px;">Message</button>
+                    </div>
+                </li>
+
+                <li class="fo-row">
+                    <div style="display: flex; align-items: center; gap: 14px; flex: 1;">
+                        <div style="width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, #6366F1, #4F46E5); display: flex; align-items: center; justify-content: center; font-size: 24px;">👨</div>
+                        <div>
+                            <div class="fo-rowTitle">Michel Martin</div>
+                            <div class="fo-rowMeta">Fils • michel.m@email.com</div>
+                        </div>
+                    </div>
+                    <div class="fo-rowRight">
+                        <span class="fo-pill">Hors ligne</span>
+                        <button class="fo-btn fo-btnSecondary" style="padding: 8px 14px; font-size: 15px;">Message</button>
+                    </div>
+                </li>
+
+                <li class="fo-row">
+                    <div style="display: flex; align-items: center; gap: 14px; flex: 1;">
+                        <div style="width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, #F59E0B, #D97706); display: flex; align-items: center; justify-content: center; font-size: 24px;">👩‍⚕️</div>
+                        <div>
+                            <div class="fo-rowTitle">Emma Dupont</div>
+                            <div class="fo-rowMeta">Aide-soignante • emma.d@sante.fr</div>
+                        </div>
+                    </div>
+                    <div class="fo-rowRight">
+                        <span class="fo-pill ok">En ligne</span>
+                        <button class="fo-btn fo-btnSecondary" style="padding: 8px 14px; font-size: 15px;">Message</button>
+                    </div>
+                </li>
+            </ul>
+
+            <button class="fo-btn fo-btnIndigo" style="margin-top: 14px; width: 100%;">+ Inviter un proche</button>
+        </div>
+
+        <!-- Sharing Settings -->
+        <div>
+            <div class="fo-card">
+                <div class="fo-cardTitle">🔐 Partage de données</div>
+                <div class="fo-cardHint">Contrôlez ce que vos proches peuvent voir</div>
+
+                <div style="display: grid; gap: 12px;">
+                    <label class="fo-checkbox">
+                        <input type="checkbox" checked>
+                        <span>Partager mon état de santé général</span>
+                    </label>
+                    <label class="fo-checkbox">
+                        <input type="checkbox" checked>
+                        <span>Alerter si médicament non pris</span>
+                    </label>
+                    <label class="fo-checkbox">
+                        <input type="checkbox" checked>
+                        <span>Partager mes rendez-vous médicaux</span>
+                    </label>
+                    <label class="fo-checkbox">
+                        <input type="checkbox">
+                        <span>Partager mes données de sommeil</span>
+                    </label>
+                    <label class="fo-checkbox">
+                        <input type="checkbox" checked>
+                        <span>Alerter en cas d'urgence</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="fo-card" style="margin-top: 16px;">
+                <div class="fo-cardTitle">🆘 Bouton d'urgence</div>
+                <div class="fo-cardHint">En cas de besoin, alertez tous vos proches</div>
+
+                <div style="padding: 20px; border-radius: 14px; background: rgba(239,68,68,.08); border: 2px solid rgba(239,68,68,.2); text-align: center;">
+                    <div style="font-size: 48px; margin-bottom: 12px;">🚨</div>
+                    <div style="font-size: 18px; font-weight: 800; color: var(--text); margin-bottom: 8px;">Alerter mes proches</div>
+                    <div style="color: var(--muted); font-size: 15px; margin-bottom: 14px;">Envoie une alerte immédiate à tous vos contacts d'urgence</div>
+                    <button class="fo-btn fo-btnDanger" style="width: 100%; font-size: 18px; padding: 14px;">Déclencher l'alerte</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Messages -->
+    <div class="fo-card" style="margin-top: 22px;">
+        <div class="fo-cardTitle">💬 Messages récents</div>
+        <div class="fo-cardHint">Vos dernières conversations avec vos proches</div>
+
+        <ul class="fo-list">
+            <li class="fo-row">
+                <div style="display: flex; align-items: flex-start; gap: 14px; flex: 1;">
+                    <div style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #10B981, #059669); display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0;">👩</div>
+                    <div>
+                        <div class="fo-rowTitle">Sarah Martin</div>
+                        <div style="color: var(--text); font-size: 15px; margin-top: 4px;">"Coucou Papa ! N'oublie pas ton rendez-vous demain. Bisous ❤️"</div>
+                        <div class="fo-rowMeta" style="margin-top: 6px;">Il y a 2 heures</div>
+                    </div>
+                </div>
+                <div class="fo-rowRight">
+                    <button class="fo-btn fo-btnPrimary" style="padding: 8px 14px; font-size: 15px;">Répondre</button>
+                </div>
+            </li>
+
+            <li class="fo-row">
+                <div style="display: flex; align-items: flex-start; gap: 14px; flex: 1;">
+                    <div style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #6366F1, #4F46E5); display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0;">👨</div>
+                    <div>
+                        <div class="fo-rowTitle">Michel Martin</div>
+                        <div style="color: var(--text); font-size: 15px; margin-top: 4px;">"Bravo pour ta série de marche ! Continue comme ça 🎉"</div>
+                        <div class="fo-rowMeta" style="margin-top: 6px;">Hier</div>
+                    </div>
+                </div>
+                <div class="fo-rowRight">
+                    <span class="fo-pill ok">Lu</span>
+                </div>
+            </li>
+
+            <li class="fo-row">
+                <div style="display: flex; align-items: flex-start; gap: 14px; flex: 1;">
+                    <div style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #F59E0B, #D97706); display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0;">👩‍⚕️</div>
+                    <div>
+                        <div class="fo-rowTitle">Emma Dupont</div>
+                        <div style="color: var(--text); font-size: 15px; margin-top: 4px;">"Je passerai demain matin à 9h pour vous aider avec vos médicaments."</div>
+                        <div class="fo-rowMeta" style="margin-top: 6px;">Il y a 2 jours</div>
+                    </div>
+                </div>
+                <div class="fo-rowRight">
+                    <span class="fo-pill ok">Confirmé</span>
+                </div>
+            </li>
+        </ul>
+
+        <button class="fo-btn fo-btnIndigo" style="margin-top: 14px; width: 100%;">Envoyer un nouveau message</button>
+    </div>
+</div>
+{% endblock %}

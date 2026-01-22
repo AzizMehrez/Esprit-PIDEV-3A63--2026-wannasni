@@ -1,0 +1,98 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Gestion des Alertes – AssistIQ Admin{% endblock %}
+
+{% block body %}
+{% include 'back/_nav.html.twig' %}
+
+<div class="bo-shell">
+    <div class="bo-header">
+        <div>
+            <h1 class="bo-title">🔔 Gestion des Alertes</h1>
+            <p class="bo-subtitle">Surveiller et gérer toutes les alertes du système</p>
+        </div>
+        <div class="bo-actions">
+            <a href="{{ path('app_admin_alerts_config') }}" class="bo-btn bo-btnSecondary">⚙️ Configuration</a>
+            <button class="bo-btn bo-btnPrimary">+ Créer une Alerte</button>
+        </div>
+    </div>
+
+    <!-- Stats Alertes -->
+    <div class="bo-stats">
+        <div class="bo-stat">
+            <div class="bo-statTop">
+                <span class="bo-statLabel">Alertes Actives</span>
+                <div class="bo-statIcon warn">🔔</div>
+            </div>
+            <div class="bo-statValue">0</div>
+            <div class="bo-statChange">À traiter</div>
+        </div>
+        <div class="bo-stat">
+            <div class="bo-statTop">
+                <span class="bo-statLabel">Critiques</span>
+                <div class="bo-statIcon danger">🚨</div>
+            </div>
+            <div class="bo-statValue">0</div>
+            <div class="bo-statChange">Priorité haute</div>
+        </div>
+        <div class="bo-stat">
+            <div class="bo-statTop">
+                <span class="bo-statLabel">Résolues Aujourd'hui</span>
+                <div class="bo-statIcon success">✅</div>
+            </div>
+            <div class="bo-statValue">0</div>
+            <div class="bo-statChange">Traitées</div>
+        </div>
+        <div class="bo-stat">
+            <div class="bo-statTop">
+                <span class="bo-statLabel">Temps Réponse Moy.</span>
+                <div class="bo-statIcon info">⏱️</div>
+            </div>
+            <div class="bo-statValue">-- min</div>
+            <div class="bo-statChange">Aucune donnée</div>
+        </div>
+    </div>
+
+    <!-- Filtres -->
+    <div class="bo-card" style="margin-bottom: 24px;">
+        <div style="display: flex; gap: 16px; flex-wrap: wrap; align-items: center;">
+            <select class="bo-select" style="min-width: 150px;">
+                <option>Toutes Priorités</option>
+                <option>🚨 Critique</option>
+                <option>⚠️ Haute</option>
+                <option>📋 Normale</option>
+                <option>ℹ️ Basse</option>
+            </select>
+            <select class="bo-select" style="min-width: 150px;">
+                <option>Tous Types</option>
+                <option>🩺 Santé</option>
+                <option>💊 Médicaments</option>
+                <option>🚶 Activité</option>
+                <option>🆘 Urgence</option>
+            </select>
+            <select class="bo-select" style="min-width: 150px;">
+                <option>Tous Statuts</option>
+                <option>🔔 Active</option>
+                <option>👁️ Acquittée</option>
+                <option>✅ Résolue</option>
+            </select>
+            <div class="bo-search" style="flex: 1; min-width: 200px;">
+                <input type="text" placeholder="Rechercher alertes...">
+            </div>
+        </div>
+    </div>
+
+    <!-- Liste Alertes -->
+    <div class="bo-card">
+        <div class="bo-cardHeader">
+            <div class="bo-cardTitle">📋 Liste des Alertes</div>
+        </div>
+
+        <div class="bo-empty">
+            <div class="bo-emptyIcon">🔔</div>
+            <div class="bo-emptyTitle">Aucune Alerte</div>
+            <div class="bo-emptyText">Les alertes système apparaîtront ici quand elles seront déclenchées</div>
+        </div>
+    </div>
+</div>
+{% endblock %}

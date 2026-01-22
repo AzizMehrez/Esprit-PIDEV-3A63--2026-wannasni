@@ -1,0 +1,658 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}AssistIQ - Votre Compagnon Intelligent pour le Quotidien{% endblock %}
+
+{% block body %}
+<!-- Navigation -->
+<nav class="navbar">
+    <div class="nav-container">
+        <a href="#home" class="nav-logo">
+            <span class="nav-brain">💙</span>
+            <span class="nav-title">AssistIQ</span>
+        </a>
+        <ul class="nav-menu">
+            <li><a href="#home">Accueil</a></li>
+            <li><a href="#features">Fonctionnalités</a></li>
+            <li><a href="#how-it-works">Comment ça marche</a></li>
+            <li><a href="#benefits">Avantages</a></li>
+        </ul>
+        <div class="nav-buttons">
+            <a href="{{ path('app_front_login') }}" class="nav-login">Connexion</a>
+            <a href="{{ path('app_front_register') }}" class="nav-cta">S'inscrire</a>
+        </div>
+    </div>
+</nav>
+
+<!-- Hero Section -->
+<section id="home" class="hero-section">
+    <div class="hero-background">
+        <div class="floating-shape shape-1"></div>
+        <div class="floating-shape shape-2"></div>
+        <div class="floating-shape shape-3"></div>
+        <div class="floating-shape shape-4"></div>
+        <div class="particles" id="particles"></div>
+        <canvas id="neural-network"></canvas>
+    </div>
+    <div class="hero-content">
+        <div class="hero-badge">
+            <span class="badge-icon">💙</span>
+            <span>Votre Compagnon Numérique Quotidien</span>
+        </div>
+        <h1 class="hero-title">
+            <span class="gradient-text">AssistIQ</span>
+            <br>Votre Assistant Intelligent
+            <br>pour un Quotidien Plus Sûr et Plus Sain
+        </h1>
+        <p class="hero-description">
+            Une plateforme simple et accessible conçue pour vous aider à gérer votre vie quotidienne, votre santé et votre sécurité.
+            Une assistance intelligente sans complexité.
+        </p>
+        <div class="hero-buttons">
+            <a href="{{ path('app_front_register') }}" class="btn-primary">Créer un compte</a>
+            <a href="{{ path('app_front_login') }}" class="btn-secondary">
+                <span class="play-icon">🔐</span>
+                Connexion
+            </a>
+        </div>
+        <div class="hero-stats">
+            <div class="stat-item">
+                <div class="stat-number">💊</div>
+                <div class="stat-label">Rappels de Médicaments</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">👨‍👩‍👧</div>
+                <div class="stat-label">Alertes Famille</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">🎯</div>
+                <div class="stat-label">Défis Quotidiens</div>
+            </div>
+        </div>
+    </div>
+    <div class="scroll-indicator">
+        <span class="scroll-text">Défiler vers le bas</span>
+        <div class="scroll-arrow"></div>
+    </div>
+</section>
+
+<!-- What is AssistIQ Section -->
+<section id="about" class="about-section">
+    <div class="container">
+        <div class="section-header">
+            <span class="section-badge">💙 À Propos</span>
+            <h2 class="section-title">Qu'est-ce qu'AssistIQ ?</h2>
+            <p class="section-subtitle">
+                Votre compagnon de confiance pour la santé et le bien-être au quotidien
+            </p>
+        </div>
+        <div class="about-content">
+            <div class="about-card card-animated">
+                <div class="card-icon">🤝</div>
+                <h3>Centré sur l'Humain</h3>
+                <p>Conçu spécialement pour les seniors et leurs familles. Interface simple, accessible et sans stress avec de grandes polices et des couleurs apaisantes.</p>
+            </div>
+            <div class="about-card card-animated">
+                <div class="card-icon">🧠</div>
+                <h3>IA Intelligente et Discrète</h3>
+                <p>Des recommandations et rappels intelligents qui fonctionnent en arrière-plan, vous aidant sans vous submerger.</p>
+            </div>
+            <div class="about-card card-animated">
+                <div class="card-icon">🔒</div>
+                <h3>Sécurité + Autonomie</h3>
+                <p>Restez en sécurité tout en gardant votre indépendance. Vos proches restent informés pendant que vous gardez le contrôle.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section id="features" class="features-section">
+    <div class="container">
+        <div class="section-header">
+            <span class="section-badge">✨ Fonctionnalités</span>
+            <h2 class="section-title">Tout ce dont vous avez besoin pour votre bien-être quotidien</h2>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">💊</div>
+                <h3>Rappels de Médicaments</h3>
+                <p>Ne manquez plus jamais vos médicaments. Des rappels intelligents au bon moment avec une confirmation simple.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📅</div>
+                <h3>Suivi des Rendez-vous</h3>
+                <p>Gardez une trace de tous vos rendez-vous médicaux avec des notifications opportunes.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🚨</div>
+                <h3>Alertes Famille</h3>
+                <p>Alertes automatiques à vos proches si des médicaments sont oubliés ou en cas d'urgence.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🧠</div>
+                <h3>Recommandations Intelligentes</h3>
+                <p>Suggestions de santé personnalisées basées sur vos habitudes et routines.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🎯</div>
+                <h3>Défis Quotidiens</h3>
+                <p>Des mini-défis amusants et motivants pour rester actif et engagé chaque jour.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📊</div>
+                <h3>Suivi des Habitudes</h3>
+                <p>Surveillez le sommeil, l'activité et les routines de médicaments pour maintenir des habitudes saines.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Problem vs Solution Section -->
+<section id="solution" class="solution-section">
+    <div class="container">
+        <div class="section-header">
+            <span class="section-badge">🎯 La Solution</span>
+            <h2 class="section-title">Gérer le quotidien ne devrait pas être compliqué</h2>
+        </div>
+        <div class="comparison-container">
+            <div class="comparison-side problem-side">
+                <div class="comparison-header">
+                    <span class="comparison-icon">❌</span>
+                    <h3>Défis du Quotidien</h3>
+                </div>
+                <div class="comparison-list">
+                    <div class="comparison-item">
+                        <span class="item-icon">🕒</span>
+                        <div class="item-content">
+                            <h4>Médicaments Oubliés</h4>
+                            <p>Difficile de se souvenir de plusieurs médicaments et horaires</p>
+                        </div>
+                    </div>
+                    <div class="comparison-item">
+                        <span class="item-icon">😟</span>
+                        <div class="item-content">
+                            <h4>Inquiétudes de la Famille</h4>
+                            <p>Les proches ne savent pas si tout va bien</p>
+                        </div>
+                    </div>
+                    <div class="comparison-item">
+                        <span class="item-icon">📅</span>
+                        <div class="item-content">
+                            <h4>Rendez-vous Manqués</h4>
+                            <p>Facile d'oublier les visites médicales et bilans</p>
+                        </div>
+                    </div>
+                    <div class="comparison-item">
+                        <span class="item-icon">😕</span>
+                        <div class="item-content">
+                            <h4>Interfaces Complexes</h4>
+                            <p>La plupart des applications sont trop compliquées</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="comparison-divider">
+                <div class="divider-line"></div>
+                <div class="divider-icon">→</div>
+            </div>
+            
+            <div class="comparison-side solution-side">
+                <div class="comparison-header">
+                    <span class="comparison-icon">✅</span>
+                    <h3>Solution AssistIQ</h3>
+                </div>
+                <div class="comparison-list">
+                    <div class="comparison-item">
+                        <span class="item-icon">🔔</span>
+                        <div class="item-content">
+                            <h4>Rappels Intelligents</h4>
+                            <p>Ne manquez plus jamais médicaments ou rendez-vous</p>
+                        </div>
+                    </div>
+                    <div class="comparison-item">
+                        <span class="item-icon">👨‍👩‍👧</span>
+                        <div class="item-content">
+                            <h4>Connexion Familiale</h4>
+                            <p>Vos proches reçoivent les alertes automatiquement</p>
+                        </div>
+                    </div>
+                    <div class="comparison-item">
+                        <span class="item-icon">✅</span>
+                        <div class="item-content">
+                            <h4>Interface Simple</h4>
+                            <p>Grandes polices, icônes claires, zéro complexité</p>
+                        </div>
+                    </div>
+                    <div class="comparison-item">
+                        <span class="item-icon">💪</span>
+                        <div class="item-content">
+                            <h4>Restez Indépendant</h4>
+                            <p>Gérez votre vie avec confiance et soutien</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- How It Works Section -->
+<section id="how-it-works" class="how-it-works-section">
+    <div class="container">
+        <div class="section-header">
+            <span class="section-badge">⚙️ Comment ça marche</span>
+            <h2 class="section-title">Commencez en 3 étapes simples</h2>
+            <p class="section-subtitle">Configuration facile, aucune connaissance technique requise</p>
+        </div>
+        <div class="steps-container">
+            <div class="step-card">
+                <div class="step-number">01</div>
+                <div class="step-icon">📝</div>
+                <h3>Créez votre compte</h3>
+                <p>Inscription simple. Choisissez si vous êtes utilisateur ou membre de la famille. Pas de formulaires compliqués.</p>
+            </div>
+            <div class="step-connector"></div>
+            <div class="step-card">
+                <div class="step-number">02</div>
+                <div class="step-icon">💊</div>
+                <h3>Ajoutez vos informations</h3>
+                <p>Entrez vos médicaments et rendez-vous. Nous gérons les rappels à partir de là.</p>
+            </div>
+            <div class="step-connector"></div>
+            <div class="step-card">
+                <div class="step-number">03</div>
+                <div class="step-icon">✨</div>
+                <h3>Démarrez votre journée</h3>
+                <p>Recevez des rappels quotidiens, des défis et des recommandations intelligentes. Votre famille reste informée automatiquement.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Benefits Section -->
+<section id="benefits" class="benefits-section">
+    <div class="container">
+        <div class="section-header">
+            <span class="section-badge">💎 Avantages</span>
+            <h2 class="section-title">Tranquillité d'esprit pour vous et votre famille</h2>
+        </div>
+        <div class="benefits-grid">
+            <div class="benefit-item">
+                <div class="benefit-stat">💙</div>
+                <div class="benefit-label">Vie Sans Stress</div>
+                <p>Plus de soucis pour les médicaments ou rendez-vous oubliés</p>
+            </div>
+            <div class="benefit-item">
+                <div class="benefit-stat">👨‍👩‍👧</div>
+                <div class="benefit-label">Famille Connectée</div>
+                <p>Vos proches restent informés sans appels constants</p>
+            </div>
+            <div class="benefit-item">
+                <div class="benefit-stat">👍</div>
+                <div class="benefit-label">Facile à Utiliser</div>
+                <p>Conçu pour la simplicité avec une interface grande et claire</p>
+            </div>
+            <div class="benefit-item">
+                <div class="benefit-stat">24/7</div>
+                <div class="benefit-label">Toujours Là</div>
+                <p>Votre compagnon numérique travaille 24h/24</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section id="contact" class="cta-section">
+    <div class="cta-container">
+        <div class="cta-content">
+            <h2 class="cta-title">Prêt à mieux vivre ?</h2>
+            <p class="cta-text">Rejoignez les familles qui font confiance à AssistIQ pour la gestion quotidienne de la santé et de la sécurité.</p>
+            <div class="cta-buttons">
+                <a href="{{ path('app_front_register') }}" class="btn-cta-primary">Créer un compte</a>
+                <a href="#features" class="btn-cta-secondary">En savoir plus</a>
+            </div>
+            <p class="cta-note">💙 Gratuit pour commencer • Configuration facile • Pour toute la famille</p>
+        </div>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+    <div class="footer-container">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <div class="footer-logo">
+                    <span class="footer-brain">💙</span>
+                    <span class="footer-name">AssistIQ</span>
+                </div>
+                <p class="footer-tagline">Votre assistant intelligent pour un quotidien plus sûr et plus sain</p>
+            </div>
+            <div class="footer-links">
+                <div class="footer-column">
+                    <h4>Produit</h4>
+                    <ul>
+                        <li><a href="#features">Fonctionnalités</a></li>
+                        <li><a href="#pricing">Tarifs</a></li>
+                        <li><a href="#demo">Démo</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h4>Entreprise</h4>
+                    <ul>
+                        <li><a href="#about">À propos</a></li>
+                        <li><a href="#careers">Carrières</a></li>
+                        <li><a href="#contact">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h4>Ressources</h4>
+                    <ul>
+                        <li><a href="#docs">Documentation</a></li>
+                        <li><a href="#blog">Blog</a></li>
+                        <li><a href="#support">Support</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 AssistIQ. Tous droits réservés.</p>
+            <div class="footer-socials">
+                <a href="#" class="social-link">Twitter</a>
+                <a href="#" class="social-link">LinkedIn</a>
+                <a href="#" class="social-link">GitHub</a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script>
+    // Smooth scroll for navigation
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        });
+    });
+
+    // Staggered Intersection Observer for animations
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -100px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry, index) => {
+            if (entry.isIntersecting) {
+                setTimeout(() => {
+                    entry.target.classList.add('visible');
+                }, index * 100);
+            }
+        });
+    }, observerOptions);
+
+    document.querySelectorAll('.card-animated, .feature-card, .step-card, .benefit-item, .comparison-item, .about-card').forEach(el => {
+        observer.observe(el);
+    });
+
+    // Navbar scroll effect with parallax
+    let lastScroll = 0;
+    window.addEventListener('scroll', () => {
+        const navbar = document.querySelector('.navbar');
+        const currentScroll = window.scrollY;
+        
+        if (currentScroll > 50) {
+            navbar.classList.add('scrolled');
+        } else {
+            navbar.classList.remove('scrolled');
+        }
+
+        // Hide navbar on scroll down, show on scroll up
+        if (currentScroll > lastScroll && currentScroll > 100) {
+            navbar.style.transform = 'translateY(-100%)';
+        } else {
+            navbar.style.transform = 'translateY(0)';
+        }
+        lastScroll = currentScroll;
+
+        // Parallax effect for hero
+        const hero = document.querySelector('.hero-content');
+        if (hero) {
+            hero.style.transform = `translateY(${currentScroll * 0.5}px)`;
+            hero.style.opacity = 1 - (currentScroll / 600);
+        }
+    });
+
+    // Particle system
+    function createParticles() {
+        const particlesContainer = document.getElementById('particles');
+        const particleCount = 50;
+        
+        for (let i = 0; i < particleCount; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.top = Math.random() * 100 + '%';
+            particle.style.animationDelay = Math.random() * 20 + 's';
+            particle.style.animationDuration = (15 + Math.random() * 10) + 's';
+            particlesContainer.appendChild(particle);
+        }
+    }
+
+    // Neural network canvas animation
+    function initNeuralNetwork() {
+        const canvas = document.getElementById('neural-network');
+        if (!canvas) return;
+        
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const nodes = [];
+        const nodeCount = 80;
+        const maxDistance = 150;
+
+        class Node {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.vx = (Math.random() - 0.5) * 0.5;
+                this.vy = (Math.random() - 0.5) * 0.5;
+                this.radius = 2;
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+
+                if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+                if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(102, 126, 234, 0.6)';
+                ctx.fill();
+            }
+        }
+
+        for (let i = 0; i < nodeCount; i++) {
+            nodes.push(new Node());
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            nodes.forEach(node => {
+                node.update();
+                node.draw();
+            });
+
+            // Draw connections
+            for (let i = 0; i < nodes.length; i++) {
+                for (let j = i + 1; j < nodes.length; j++) {
+                    const dx = nodes[i].x - nodes[j].x;
+                    const dy = nodes[i].y - nodes[j].y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < maxDistance) {
+                        ctx.beginPath();
+                        ctx.moveTo(nodes[i].x, nodes[i].y);
+                        ctx.lineTo(nodes[j].x, nodes[j].y);
+                        const opacity = (1 - distance / maxDistance) * 0.2;
+                        ctx.strokeStyle = `rgba(102, 126, 234, ${opacity})`;
+                        ctx.lineWidth = 1;
+                        ctx.stroke();
+                    }
+                }
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+    }
+
+    // Mouse follower effect for cards
+    document.querySelectorAll('.feature-card, .about-card, .step-card').forEach(card => {
+        card.addEventListener('mousemove', (e) => {
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            
+            const rotateX = (y - centerY) / 20;
+            const rotateY = (centerX - x) / 20;
+            
+            card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-10px)`;
+        });
+        
+        card.addEventListener('mouseleave', () => {
+            card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) translateY(0)';
+        });
+    });
+
+    // Cursor trail effect
+    const cursorTrail = [];
+    const trailLength = 20;
+
+    document.addEventListener('mousemove', (e) => {
+        cursorTrail.push({
+            x: e.clientX,
+            y: e.clientY,
+            timestamp: Date.now()
+        });
+
+        if (cursorTrail.length > trailLength) {
+            cursorTrail.shift();
+        }
+    });
+
+    // Text reveal animation for hero title
+    const heroTitle = document.querySelector('.hero-title');
+    if (heroTitle) {
+        const text = heroTitle.innerHTML;
+        heroTitle.innerHTML = '';
+        
+        const words = text.split('<br>');
+        words.forEach((word, index) => {
+            const span = document.createElement('span');
+            span.innerHTML = word + (index < words.length - 1 ? '<br>' : '');
+            span.style.opacity = '0';
+            span.style.transform = 'translateY(50px)';
+            span.style.display = 'inline-block';
+            heroTitle.appendChild(span);
+            
+            setTimeout(() => {
+                span.style.transition = 'all 0.8s ease';
+                span.style.opacity = '1';
+                span.style.transform = 'translateY(0)';
+            }, index * 200);
+        });
+    }
+
+    // Magnetic button effect
+    document.querySelectorAll('.btn-primary, .btn-cta-primary, .nav-cta').forEach(button => {
+        button.addEventListener('mousemove', (e) => {
+            const rect = button.getBoundingClientRect();
+            const x = e.clientX - rect.left - rect.width / 2;
+            const y = e.clientY - rect.top - rect.height / 2;
+            
+            button.style.transform = `translate(${x * 0.3}px, ${y * 0.3}px) translateY(-3px)`;
+        });
+        
+        button.addEventListener('mouseleave', () => {
+            button.style.transform = 'translate(0, 0)';
+        });
+    });
+
+    // Counter animation for stats
+    function animateCounter(element, target) {
+        let current = 0;
+        const increment = target / 100;
+        const timer = setInterval(() => {
+            current += increment;
+            if (current >= target) {
+                element.textContent = target + (element.dataset.suffix || '');
+                clearInterval(timer);
+            } else {
+                element.textContent = Math.floor(current) + (element.dataset.suffix || '');
+            }
+        }, 20);
+    }
+
+    const statsObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const statNumber = entry.target.querySelector('.stat-number, .benefit-stat');
+                if (statNumber && !statNumber.dataset.animated) {
+                    statNumber.dataset.animated = 'true';
+                    const text = statNumber.textContent;
+                    const value = parseInt(text.replace(/\D/g, ''));
+                    statNumber.dataset.suffix = text.replace(/[0-9]/g, '');
+                    animateCounter(statNumber, value);
+                }
+            }
+        });
+    });
+
+    document.querySelectorAll('.stat-item, .benefit-item').forEach(el => {
+        statsObserver.observe(el);
+    });
+
+    // Initialize everything
+    window.addEventListener('DOMContentLoaded', () => {
+        createParticles();
+        initNeuralNetwork();
+    });
+
+    // Typing effect for hero description
+    const heroDesc = document.querySelector('.hero-description');
+    if (heroDesc) {
+        const originalText = heroDesc.textContent;
+        heroDesc.textContent = '';
+        let charIndex = 0;
+        
+        function typeWriter() {
+            if (charIndex < originalText.length) {
+                heroDesc.textContent += originalText.charAt(charIndex);
+                charIndex++;
+                setTimeout(typeWriter, 30);
+            }
+        }
+        
+        setTimeout(typeWriter, 1000);
+    }
+</script>
+{% endblock %}

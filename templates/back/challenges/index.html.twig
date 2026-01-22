@@ -1,0 +1,146 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Gestion des Mini-Défis – AssistIQ Admin{% endblock %}
+
+{% block body %}
+{% include 'back/_nav.html.twig' %}
+
+<div class="bo-shell">
+    <div class="bo-header">
+        <div>
+            <h1 class="bo-title">🏆 Gestion des Mini-Défis Quotidiens</h1>
+            <p class="bo-subtitle">Créer et gérer les défis pour motiver les utilisateurs</p>
+        </div>
+        <div class="bo-actions">
+            <a href="{{ path('app_admin_challenges_rewards') }}" class="bo-btn bo-btnSecondary">🎁 Récompenses</a>
+            <a href="{{ path('app_admin_challenges_add') }}" class="bo-btn bo-btnPrimary">+ Nouveau Défi</a>
+        </div>
+    </div>
+
+    <!-- Stats Défis -->
+    <div class="bo-stats">
+        <div class="bo-stat">
+            <div class="bo-statTop">
+                <span class="bo-statLabel">Défis Actifs</span>
+                <div class="bo-statIcon primary">🏆</div>
+            </div>
+            <div class="bo-statValue">0</div>
+            <div class="bo-statChange">En cours</div>
+        </div>
+        <div class="bo-stat">
+            <div class="bo-statTop">
+                <span class="bo-statLabel">Participations</span>
+                <div class="bo-statIcon info">👥</div>
+            </div>
+            <div class="bo-statValue">0</div>
+            <div class="bo-statChange">Utilisateurs inscrits</div>
+        </div>
+        <div class="bo-stat">
+            <div class="bo-statTop">
+                <span class="bo-statLabel">Complétés Aujourd'hui</span>
+                <div class="bo-statIcon success">✅</div>
+            </div>
+            <div class="bo-statValue">0</div>
+            <div class="bo-statChange">Défis terminés</div>
+        </div>
+        <div class="bo-stat">
+            <div class="bo-statTop">
+                <span class="bo-statLabel">Points Distribués</span>
+                <div class="bo-statIcon warn">⭐</div>
+            </div>
+            <div class="bo-statValue">0</div>
+            <div class="bo-statChange">Cette semaine</div>
+        </div>
+    </div>
+
+    <div class="bo-grid cols-2">
+        <!-- Défis du Jour -->
+        <div class="bo-card">
+            <div class="bo-cardHeader">
+                <div>
+                    <div class="bo-cardTitle">📅 Défis du Jour</div>
+                    <div class="bo-cardHint">Défis actifs pour aujourd'hui</div>
+                </div>
+            </div>
+
+            <div class="bo-empty">
+                <div class="bo-emptyIcon">🏆</div>
+                <div class="bo-emptyTitle">Aucun Défi Actif</div>
+                <div class="bo-emptyText">Créez des défis quotidiens pour vos utilisateurs</div>
+                <a href="{{ path('app_admin_challenges_add') }}" class="bo-btn bo-btnPrimary" style="margin-top: 16px;">+ Créer un Défi</a>
+            </div>
+        </div>
+
+        <!-- Catégories de Défis -->
+        <div class="bo-card">
+            <div class="bo-cardHeader">
+                <div>
+                    <div class="bo-cardTitle">📂 Catégories de Défis</div>
+                    <div class="bo-cardHint">Types de défis disponibles</div>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
+                <div style="padding: 16px; background: rgba(16,185,129,.08); border-radius: 10px; text-align: center;">
+                    <div style="font-size: 1.8rem; margin-bottom: 6px;">🚶</div>
+                    <div style="font-weight: 700; font-size: 14px;">Marche</div>
+                    <div style="font-size: 12px; color: var(--bo-muted);">0 défis</div>
+                </div>
+                <div style="padding: 16px; background: rgba(99,102,241,.08); border-radius: 10px; text-align: center;">
+                    <div style="font-size: 1.8rem; margin-bottom: 6px;">💧</div>
+                    <div style="font-weight: 700; font-size: 14px;">Hydratation</div>
+                    <div style="font-size: 12px; color: var(--bo-muted);">0 défis</div>
+                </div>
+                <div style="padding: 16px; background: rgba(245,158,11,.08); border-radius: 10px; text-align: center;">
+                    <div style="font-size: 1.8rem; margin-bottom: 6px;">🧘</div>
+                    <div style="font-weight: 700; font-size: 14px;">Bien-être</div>
+                    <div style="font-size: 12px; color: var(--bo-muted);">0 défis</div>
+                </div>
+                <div style="padding: 16px; background: rgba(239,68,68,.08); border-radius: 10px; text-align: center;">
+                    <div style="font-size: 1.8rem; margin-bottom: 6px;">🧠</div>
+                    <div style="font-weight: 700; font-size: 14px;">Cognitif</div>
+                    <div style="font-size: 12px; color: var(--bo-muted);">0 défis</div>
+                </div>
+                <div style="padding: 16px; background: rgba(14,165,233,.08); border-radius: 10px; text-align: center;">
+                    <div style="font-size: 1.8rem; margin-bottom: 6px;">👥</div>
+                    <div style="font-weight: 700; font-size: 14px;">Social</div>
+                    <div style="font-size: 12px; color: var(--bo-muted);">0 défis</div>
+                </div>
+                <div style="padding: 16px; background: rgba(139,92,246,.08); border-radius: 10px; text-align: center;">
+                    <div style="font-size: 1.8rem; margin-bottom: 6px;">🎯</div>
+                    <div style="font-weight: 700; font-size: 14px;">Personnalisé</div>
+                    <div style="font-size: 12px; color: var(--bo-muted);">0 défis</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Liste des Défis -->
+    <div class="bo-card" style="margin-top: 24px;">
+        <div class="bo-cardHeader">
+            <div class="bo-cardTitle">📋 Tous les Défis</div>
+            <div style="display: flex; gap: 12px;">
+                <select class="bo-select" style="min-width: 130px;">
+                    <option>Tous Statuts</option>
+                    <option>Actifs</option>
+                    <option>Planifiés</option>
+                    <option>Terminés</option>
+                </select>
+                <select class="bo-select" style="min-width: 130px;">
+                    <option>Toutes Catégories</option>
+                    <option>Marche</option>
+                    <option>Hydratation</option>
+                    <option>Bien-être</option>
+                    <option>Cognitif</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="bo-empty">
+            <div class="bo-emptyIcon">📋</div>
+            <div class="bo-emptyTitle">Aucun Défi Créé</div>
+            <div class="bo-emptyText">Les défis créés apparaîtront ici</div>
+        </div>
+    </div>
+</div>
+{% endblock %}

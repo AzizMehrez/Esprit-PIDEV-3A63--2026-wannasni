@@ -1,0 +1,79 @@
+{# Front Office Navigation - Elderly-Friendly Design #}
+<nav class="fo-nav" aria-label="Main navigation">
+    <a href="{{ path('app_home') }}" class="fo-navBrand">
+        <span class="fo-navBrandIcon">💙</span>
+        <span class="fo-navBrandText">AssistIQ</span>
+    </a>
+
+    <ul class="fo-navList">
+        <li>
+            <a href="{{ path('app_front_dashboard') }}" 
+               class="fo-navLink"
+               {% if app.request.get('_route') == 'app_front_dashboard' %}aria-current="page"{% endif %}>
+                <span class="fo-navIcon">🏠</span>
+                <span class="fo-navLabel">Tableau de bord</span>
+            </a>
+        </li>
+        <li>
+            <a href="{{ path('app_front_health') }}" 
+               class="fo-navLink"
+               {% if app.request.get('_route') == 'app_front_health' %}aria-current="page"{% endif %}>
+                <span class="fo-navIcon">❤️</span>
+                <span class="fo-navLabel">Santé</span>
+            </a>
+        </li>
+        <li>
+            <a href="{{ path('app_front_family') }}" 
+               class="fo-navLink"
+               {% if app.request.get('_route') == 'app_front_family' %}aria-current="page"{% endif %}>
+                <span class="fo-navIcon">👨‍👩‍👧</span>
+                <span class="fo-navLabel">Proches</span>
+            </a>
+        </li>
+        <li>
+            <a href="{{ path('app_front_alerts') }}" 
+               class="fo-navLink"
+               {% if app.request.get('_route') == 'app_front_alerts' %}aria-current="page"{% endif %}>
+                <span class="fo-navIcon">🔔</span>
+                <span class="fo-navLabel">Alertes</span>
+            </a>
+        </li>
+        <li>
+            <a href="{{ path('app_front_habits') }}" 
+               class="fo-navLink"
+               {% if app.request.get('_route') == 'app_front_habits' %}aria-current="page"{% endif %}>
+                <span class="fo-navIcon">✅</span>
+                <span class="fo-navLabel">Habitudes</span>
+            </a>
+        </li>
+        <li>
+            <a href="{{ path('app_front_recommendations') }}" 
+               class="fo-navLink"
+               {% if app.request.get('_route') == 'app_front_recommendations' %}aria-current="page"{% endif %}>
+                <span class="fo-navIcon">🤖</span>
+                <span class="fo-navLabel">Recommandations</span>
+            </a>
+        </li>
+        <li>
+            <a href="{{ path('app_front_challenges') }}" 
+               class="fo-navLink"
+               {% if app.request.get('_route') == 'app_front_challenges' %}aria-current="page"{% endif %}>
+                <span class="fo-navIcon">🏆</span>
+                <span class="fo-navLabel">Défis</span>
+            </a>
+        </li>
+        <li>
+            <a href="{{ path('app_front_profile') }}" 
+               class="fo-navLink"
+               {% if app.request.get('_route') == 'app_front_profile' %}aria-current="page"{% endif %}>
+                <span class="fo-navIcon">👤</span>
+                <span class="fo-navLabel">Profil</span>
+            </a>
+        </li>
+    </ul>
+
+    <a href="{{ path('app_home') }}" class="fo-navExit">
+        <span class="fo-navIcon">🚪</span>
+        <span class="fo-navLabel">Exit</span>
+    </a>
+</nav>

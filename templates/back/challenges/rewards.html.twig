@@ -1,0 +1,142 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Récompenses – AssistIQ Admin{% endblock %}
+
+{% block body %}
+{% include 'back/_nav.html.twig' %}
+
+<div class="bo-shell">
+    <div class="bo-header">
+        <div>
+            <h1 class="bo-title">🎁 Gestion des Récompenses</h1>
+            <p class="bo-subtitle">Configurer les points, badges et récompenses</p>
+        </div>
+        <div class="bo-actions">
+            <a href="{{ path('app_admin_challenges') }}" class="bo-btn bo-btnSecondary">← Retour</a>
+            <button class="bo-btn bo-btnPrimary">+ Nouveau Badge</button>
+        </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="bo-stats">
+        <div class="bo-stat">
+            <div class="bo-statTop">
+                <span class="bo-statLabel">Points Total Distribués</span>
+                <div class="bo-statIcon warn">⭐</div>
+            </div>
+            <div class="bo-statValue">0</div>
+            <div class="bo-statChange">Depuis le début</div>
+        </div>
+        <div class="bo-stat">
+            <div class="bo-statTop">
+                <span class="bo-statLabel">Badges Débloqués</span>
+                <div class="bo-statIcon primary">🏅</div>
+            </div>
+            <div class="bo-statValue">0</div>
+            <div class="bo-statChange">Par les utilisateurs</div>
+        </div>
+        <div class="bo-stat">
+            <div class="bo-statTop">
+                <span class="bo-statLabel">Récompenses Échangées</span>
+                <div class="bo-statIcon success">🎁</div>
+            </div>
+            <div class="bo-statValue">0</div>
+            <div class="bo-statChange">Contre des points</div>
+        </div>
+        <div class="bo-stat">
+            <div class="bo-statTop">
+                <span class="bo-statLabel">Top Score</span>
+                <div class="bo-statIcon danger">🏆</div>
+            </div>
+            <div class="bo-statValue">0</div>
+            <div class="bo-statChange">Meilleur utilisateur</div>
+        </div>
+    </div>
+
+    <div class="bo-grid cols-2">
+        <!-- Configuration Points -->
+        <div class="bo-card">
+            <div class="bo-cardHeader">
+                <div class="bo-cardTitle">⭐ Configuration des Points</div>
+            </div>
+
+            <form class="bo-form">
+                <div class="bo-field">
+                    <label class="bo-label">Points par Défi Facile</label>
+                    <input type="number" class="bo-input" value="25">
+                </div>
+                <div class="bo-field">
+                    <label class="bo-label">Points par Défi Moyen</label>
+                    <input type="number" class="bo-input" value="50">
+                </div>
+                <div class="bo-field">
+                    <label class="bo-label">Points par Défi Difficile</label>
+                    <input type="number" class="bo-input" value="100">
+                </div>
+                <div class="bo-field">
+                    <label class="bo-label">Bonus Série (7 jours consécutifs)</label>
+                    <input type="number" class="bo-input" value="200">
+                </div>
+                <div class="bo-field">
+                    <label class="bo-label">Bonus Série (30 jours)</label>
+                    <input type="number" class="bo-input" value="1000">
+                </div>
+            </form>
+        </div>
+
+        <!-- Badges -->
+        <div class="bo-card">
+            <div class="bo-cardHeader">
+                <div class="bo-cardTitle">🏅 Badges Disponibles</div>
+                <button class="bo-btn bo-btnSecondary bo-btnSm">+ Ajouter</button>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
+                <div style="padding: 16px; background: rgba(16,185,129,.08); border-radius: 12px; text-align: center;">
+                    <div style="font-size: 2.5rem; margin-bottom: 8px;">🚶</div>
+                    <div style="font-weight: 700; font-size: 13px;">Marcheur</div>
+                    <div style="font-size: 11px; color: var(--bo-muted);">5000 pas</div>
+                </div>
+                <div style="padding: 16px; background: rgba(99,102,241,.08); border-radius: 12px; text-align: center;">
+                    <div style="font-size: 2.5rem; margin-bottom: 8px;">💧</div>
+                    <div style="font-weight: 700; font-size: 13px;">Hydraté</div>
+                    <div style="font-size: 11px; color: var(--bo-muted);">8 verres/jour</div>
+                </div>
+                <div style="padding: 16px; background: rgba(245,158,11,.08); border-radius: 12px; text-align: center;">
+                    <div style="font-size: 2.5rem; margin-bottom: 8px;">🔥</div>
+                    <div style="font-weight: 700; font-size: 13px;">En Feu</div>
+                    <div style="font-size: 11px; color: var(--bo-muted);">7 jours série</div>
+                </div>
+                <div style="padding: 16px; background: rgba(239,68,68,.08); border-radius: 12px; text-align: center;">
+                    <div style="font-size: 2.5rem; margin-bottom: 8px;">⭐</div>
+                    <div style="font-weight: 700; font-size: 13px;">Star</div>
+                    <div style="font-size: 11px; color: var(--bo-muted);">1000 points</div>
+                </div>
+                <div style="padding: 16px; background: rgba(14,165,233,.08); border-radius: 12px; text-align: center;">
+                    <div style="font-size: 2.5rem; margin-bottom: 8px;">🏆</div>
+                    <div style="font-weight: 700; font-size: 13px;">Champion</div>
+                    <div style="font-size: 11px; color: var(--bo-muted);">30 jours série</div>
+                </div>
+                <div style="padding: 16px; background: rgba(139,92,246,.08); border-radius: 12px; text-align: center;">
+                    <div style="font-size: 2.5rem; margin-bottom: 8px;">💪</div>
+                    <div style="font-weight: 700; font-size: 13px;">Motivé</div>
+                    <div style="font-size: 11px; color: var(--bo-muted);">10 défis</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Classement -->
+    <div class="bo-card" style="margin-top: 24px;">
+        <div class="bo-cardHeader">
+            <div class="bo-cardTitle">🏆 Classement des Utilisateurs</div>
+        </div>
+
+        <div class="bo-empty">
+            <div class="bo-emptyIcon">🏆</div>
+            <div class="bo-emptyTitle">Aucun Classement</div>
+            <div class="bo-emptyText">Le classement apparaîtra quand les utilisateurs auront accumulé des points</div>
+        </div>
+    </div>
+</div>
+{% endblock %}

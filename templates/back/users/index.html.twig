@@ -1,0 +1,92 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Gestion des Utilisateurs – AssistIQ Admin{% endblock %}
+
+{% block body %}
+{% include 'back/_nav.html.twig' %}
+
+<div class="bo-shell">
+    <div class="bo-header">
+        <div>
+            <h1 class="bo-title">👥 Gestion des Utilisateurs</h1>
+            <p class="bo-subtitle">Gérer tous les utilisateurs de la plateforme AssistIQ</p>
+        </div>
+        <div class="bo-actions">
+            <button class="bo-btn bo-btnSecondary">📥 Exporter CSV</button>
+            <a href="{{ path('app_admin_users_add') }}" class="bo-btn bo-btnPrimary">+ Nouvel Utilisateur</a>
+        </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="bo-stats">
+        <div class="bo-stat">
+            <div class="bo-statTop">
+                <span class="bo-statLabel">Total Utilisateurs</span>
+                <div class="bo-statIcon primary">👥</div>
+            </div>
+            <div class="bo-statValue">0</div>
+            <div class="bo-statChange">En attente d'inscriptions</div>
+        </div>
+        <div class="bo-stat">
+            <div class="bo-statTop">
+                <span class="bo-statLabel">Personnes Âgées</span>
+                <div class="bo-statIcon success">👴</div>
+            </div>
+            <div class="bo-statValue">0</div>
+            <div class="bo-statChange">Utilisateurs seniors</div>
+        </div>
+        <div class="bo-stat">
+            <div class="bo-statTop">
+                <span class="bo-statLabel">Proches/Famille</span>
+                <div class="bo-statIcon info">👨‍👩‍👧</div>
+            </div>
+            <div class="bo-statValue">0</div>
+            <div class="bo-statChange">Membres famille</div>
+        </div>
+        <div class="bo-stat">
+            <div class="bo-statTop">
+                <span class="bo-statLabel">Soignants</span>
+                <div class="bo-statIcon warn">👩‍⚕️</div>
+            </div>
+            <div class="bo-statValue">0</div>
+            <div class="bo-statChange">Professionnels</div>
+        </div>
+    </div>
+
+    <!-- Filtres -->
+    <div class="bo-card" style="margin-bottom: 24px;">
+        <div style="display: flex; gap: 16px; flex-wrap: wrap; align-items: center;">
+            <div class="bo-search" style="flex: 1; min-width: 250px;">
+                <input type="text" placeholder="Rechercher par nom, email...">
+            </div>
+            <select class="bo-select" style="min-width: 150px;">
+                <option>Tous les types</option>
+                <option>👴 Personnes âgées</option>
+                <option>👨‍👩‍👧 Proches/Famille</option>
+                <option>👩‍⚕️ Soignants</option>
+            </select>
+            <select class="bo-select" style="min-width: 150px;">
+                <option>Tous les statuts</option>
+                <option>✅ Actif</option>
+                <option>⏳ En attente</option>
+                <option>❌ Inactif</option>
+            </select>
+            <button class="bo-btn bo-btnSecondary">🔄 Réinitialiser</button>
+        </div>
+    </div>
+
+    <!-- Table Utilisateurs -->
+    <div class="bo-card">
+        <div class="bo-cardHeader">
+            <div class="bo-cardTitle">📋 Liste des Utilisateurs</div>
+        </div>
+        
+        <div class="bo-empty">
+            <div class="bo-emptyIcon">👥</div>
+            <div class="bo-emptyTitle">Aucun Utilisateur</div>
+            <div class="bo-emptyText">Les utilisateurs inscrits apparaîtront ici. Cliquez sur "+ Nouvel Utilisateur" pour commencer.</div>
+            <a href="{{ path('app_admin_users_add') }}" class="bo-btn bo-btnPrimary" style="margin-top: 20px;">+ Ajouter un Utilisateur</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

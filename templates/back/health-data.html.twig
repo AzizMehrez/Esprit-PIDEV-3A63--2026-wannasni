@@ -1,0 +1,116 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Health Data – AssistIQ Admin{% endblock %}
+
+{% block body %}
+{% include 'back/_nav.html.twig' %}
+
+<div class="bo-shell">
+    <div class="bo-header">
+        <div>
+            <h1 class="bo-title">❤️ Health Data Management</h1>
+            <p class="bo-subtitle">Monitor and analyze user health metrics across the platform</p>
+        </div>
+        <div class="bo-actions">
+            <button class="bo-btn bo-btnSecondary">📊 Generate Report</button>
+            <button class="bo-btn bo-btnPrimary">⚙️ Configure Thresholds</button>
+        </div>
+    </div>
+
+    <!-- Health Stats -->
+    <div class="bo-stats">
+        <div class="bo-stat">
+            <div class="bo-statTop">
+                <span class="bo-statLabel">Avg Blood Pressure</span>
+                <div class="bo-statIcon danger">🩺</div>
+            </div>
+            <div class="bo-statValue">128/82</div>
+            <div class="bo-statChange up">↑ 3% this week</div>
+        </div>
+
+        <div class="bo-stat">
+            <div class="bo-statTop">
+                <span class="bo-statLabel">Avg Heart Rate</span>
+                <div class="bo-statIcon danger">❤️</div>
+            </div>
+            <div class="bo-statValue">74 BPM</div>
+            <div class="bo-statChange down">↓ Normal range</div>
+        </div>
+
+        <div class="bo-stat">
+            <div class="bo-statTop">
+                <span class="bo-statLabel">Avg Daily Steps</span>
+                <div class="bo-statIcon success">🚶</div>
+            </div>
+            <div class="bo-statValue">4,521</div>
+            <div class="bo-statChange up">↑ 15% vs last week</div>
+        </div>
+
+        <div class="bo-stat">
+            <div class="bo-statTop">
+                <span class="bo-statLabel">Medication Compliance</span>
+                <div class="bo-statIcon primary">💊</div>
+            </div>
+            <div class="bo-statValue">87%</div>
+            <div class="bo-statChange up">↑ 5% improvement</div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="bo-grid cols-2">
+        <!-- Health Metrics Table -->
+        <div class="bo-card">
+            <div class="bo-cardHeader">
+                <div>
+                    <div class="bo-cardTitle">📊 Recent Health Logs</div>
+                    <div class="bo-cardHint">Latest recorded health data from users</div>
+                </div>
+            </div>
+
+            <div class="bo-empty">
+                <div class="bo-emptyIcon">📊</div>
+                <div class="bo-emptyTitle">No Health Logs</div>
+                <div class="bo-emptyText">Health data from users will appear here</div>
+            </div>
+        </div>
+
+        <!-- Critical Alerts -->
+        <div class="bo-card">
+            <div class="bo-cardHeader">
+                <div>
+                    <div class="bo-cardTitle">🚨 Critical Health Alerts</div>
+                    <div class="bo-cardHint">Users requiring immediate attention</div>
+                </div>
+                <span class="bo-pill danger">5 Critical</span>
+            </div>
+
+            <div class="bo-empty">
+                <div class="bo-emptyIcon">✅</div>
+                <div class="bo-emptyTitle">No Critical Alerts</div>
+                <div class="bo-emptyText">All users are within healthy ranges</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="bo-grid cols-equal" style="margin-top: 24px;">
+        <div class="bo-card">
+            <div class="bo-cardHeader">
+                <div class="bo-cardTitle">📈 Blood Pressure Trends (7 Days)</div>
+            </div>
+            <div class="bo-chart">
+                📊 Blood pressure trend chart would go here
+            </div>
+        </div>
+
+        <div class="bo-card">
+            <div class="bo-cardHeader">
+                <div class="bo-cardTitle">🚶 Daily Steps Distribution</div>
+            </div>
+            <div class="bo-chart">
+                📊 Steps distribution chart would go here
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

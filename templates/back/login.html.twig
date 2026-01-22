@@ -1,0 +1,38 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Admin Login – AssistIQ{% endblock %}
+
+{% block body %}
+<div class="bo-authShell">
+    <div class="bo-authBox">
+        <div class="bo-authLogo">
+            <span class="bo-authLogoIcon">🛡️</span>
+            <span class="bo-authLogoText">AssistIQ</span>
+            <span class="bo-authLogoBadge">Admin</span>
+        </div>
+
+        <div class="bo-authTitle">Admin Portal</div>
+        <div class="bo-authSubtitle">Sign in to manage the AssistIQ platform</div>
+
+        <form class="bo-form" action="{{ path('app_admin_dashboard') }}" method="post">
+            <div class="bo-field">
+                <label for="email" class="bo-label">Email Address</label>
+                <input type="email" id="email" name="email" class="bo-input" placeholder="admin@assistiq.com" required>
+            </div>
+
+            <div class="bo-field">
+                <label for="password" class="bo-label">Password</label>
+                <input type="password" id="password" name="password" class="bo-input" placeholder="Enter your password" required>
+            </div>
+
+            <button type="submit" class="bo-btn bo-btnPrimary" style="width: 100%; margin-top: 8px;">
+                🔐 Sign In to Admin
+            </button>
+        </form>
+
+        <p style="text-align: center; margin-top: 24px; color: var(--bo-muted); font-size: 14px;">
+            <a href="{{ path('app_home') }}" style="color: var(--bo-primary); text-decoration: none; font-weight: 600;">← Back to Main Site</a>
+        </p>
+    </div>
+</div>
+{% endblock %}

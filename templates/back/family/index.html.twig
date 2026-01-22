@@ -1,0 +1,122 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Gestion des Proches – AssistIQ Admin{% endblock %}
+
+{% block body %}
+{% include 'back/_nav.html.twig' %}
+
+<div class="bo-shell">
+    <div class="bo-header">
+        <div>
+            <h1 class="bo-title">👨‍👩‍👧 Gestion des Proches et Alertes</h1>
+            <p class="bo-subtitle">Gérer les connexions familiales et le système d'alertes</p>
+        </div>
+        <div class="bo-actions">
+            <a href="{{ path('app_admin_alerts') }}" class="bo-btn bo-btnSecondary">🔔 Voir les Alertes</a>
+            <a href="{{ path('app_admin_alerts_config') }}" class="bo-btn bo-btnPrimary">⚙️ Configurer Alertes</a>
+        </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="bo-stats">
+        <div class="bo-stat">
+            <div class="bo-statTop">
+                <span class="bo-statLabel">Connexions Famille</span>
+                <div class="bo-statIcon primary">👨‍👩‍👧</div>
+            </div>
+            <div class="bo-statValue">0</div>
+            <div class="bo-statChange">Liens établis</div>
+        </div>
+        <div class="bo-stat">
+            <div class="bo-statTop">
+                <span class="bo-statLabel">Alertes Actives</span>
+                <div class="bo-statIcon warn">🔔</div>
+            </div>
+            <div class="bo-statValue">0</div>
+            <div class="bo-statChange">En attente</div>
+        </div>
+        <div class="bo-stat">
+            <div class="bo-statTop">
+                <span class="bo-statLabel">Alertes Aujourd'hui</span>
+                <div class="bo-statIcon danger">🚨</div>
+            </div>
+            <div class="bo-statValue">0</div>
+            <div class="bo-statChange">Déclenchées</div>
+        </div>
+        <div class="bo-stat">
+            <div class="bo-statTop">
+                <span class="bo-statLabel">Temps Réponse Moy.</span>
+                <div class="bo-statIcon success">⏱️</div>
+            </div>
+            <div class="bo-statValue">-- min</div>
+            <div class="bo-statChange">Aucune donnée</div>
+        </div>
+    </div>
+
+    <div class="bo-grid cols-2">
+        <!-- Connexions Familiales -->
+        <div class="bo-card">
+            <div class="bo-cardHeader">
+                <div>
+                    <div class="bo-cardTitle">🔗 Connexions Familiales</div>
+                    <div class="bo-cardHint">Liens entre utilisateurs et leurs proches</div>
+                </div>
+                <a href="{{ path('app_admin_family_connections') }}" class="bo-btn bo-btnSecondary bo-btnSm">Gérer</a>
+            </div>
+
+            <div class="bo-empty">
+                <div class="bo-emptyIcon">👨‍👩‍👧</div>
+                <div class="bo-emptyTitle">Aucune Connexion</div>
+                <div class="bo-emptyText">Les liens familiaux apparaîtront ici une fois créés</div>
+            </div>
+        </div>
+
+        <!-- Alertes Récentes -->
+        <div class="bo-card">
+            <div class="bo-cardHeader">
+                <div>
+                    <div class="bo-cardTitle">🔔 Alertes Récentes</div>
+                    <div class="bo-cardHint">Dernières notifications envoyées</div>
+                </div>
+                <a href="{{ path('app_admin_alerts') }}" class="bo-btn bo-btnSecondary bo-btnSm">Voir tout</a>
+            </div>
+
+            <div class="bo-empty">
+                <div class="bo-emptyIcon">✅</div>
+                <div class="bo-emptyTitle">Aucune Alerte</div>
+                <div class="bo-emptyText">Les alertes apparaîtront ici quand elles seront déclenchées</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Types d'Alertes -->
+    <div class="bo-card" style="margin-top: 24px;">
+        <div class="bo-cardHeader">
+            <div class="bo-cardTitle">📋 Types d'Alertes Configurés</div>
+        </div>
+
+        <div class="bo-stats" style="grid-template-columns: repeat(4, 1fr);">
+            <div class="bo-stat" style="text-align: center;">
+                <div style="font-size: 2rem; margin-bottom: 8px;">🩺</div>
+                <div style="font-weight: 700;">Santé</div>
+                <div style="font-size: 13px; color: var(--bo-muted);">Tension, cœur, glycémie</div>
+            </div>
+            <div class="bo-stat" style="text-align: center;">
+                <div style="font-size: 2rem; margin-bottom: 8px;">💊</div>
+                <div style="font-weight: 700;">Médicaments</div>
+                <div style="font-size: 13px; color: var(--bo-muted);">Rappels, oublis</div>
+            </div>
+            <div class="bo-stat" style="text-align: center;">
+                <div style="font-size: 2rem; margin-bottom: 8px;">🚶</div>
+                <div style="font-weight: 700;">Activité</div>
+                <div style="font-size: 13px; color: var(--bo-muted);">Inactivité prolongée</div>
+            </div>
+            <div class="bo-stat" style="text-align: center;">
+                <div style="font-size: 2rem; margin-bottom: 8px;">🆘</div>
+                <div style="font-weight: 700;">Urgence</div>
+                <div style="font-size: 13px; color: var(--bo-muted);">Chute, SOS</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

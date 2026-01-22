@@ -1,0 +1,182 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Créer un Défi – AssistIQ Admin{% endblock %}
+
+{% block body %}
+{% include 'back/_nav.html.twig' %}
+
+<div class="bo-shell">
+    <div class="bo-header">
+        <div>
+            <h1 class="bo-title">➕ Créer un Nouveau Défi</h1>
+            <p class="bo-subtitle">Configurer un mini-défi quotidien pour les utilisateurs</p>
+        </div>
+        <div class="bo-actions">
+            <a href="{{ path('app_admin_challenges') }}" class="bo-btn bo-btnSecondary">← Retour</a>
+        </div>
+    </div>
+
+    <div class="bo-grid cols-2">
+        <!-- Informations du Défi -->
+        <div class="bo-card">
+            <div class="bo-cardHeader">
+                <div class="bo-cardTitle">📝 Informations du Défi</div>
+            </div>
+
+            <form class="bo-form">
+                <div class="bo-field">
+                    <label class="bo-label">Titre du Défi *</label>
+                    <input type="text" class="bo-input" placeholder="Ex: Marcher 5000 pas">
+                </div>
+
+                <div class="bo-field">
+                    <label class="bo-label">Description</label>
+                    <textarea class="bo-textarea" placeholder="Décrivez le défi et ses bienfaits..." rows="3"></textarea>
+                </div>
+
+                <div class="bo-field">
+                    <label class="bo-label">Catégorie *</label>
+                    <select class="bo-select">
+                        <option value="">Sélectionner...</option>
+                        <option value="walk">🚶 Marche</option>
+                        <option value="hydration">💧 Hydratation</option>
+                        <option value="wellness">🧘 Bien-être</option>
+                        <option value="cognitive">🧠 Cognitif</option>
+                        <option value="social">👥 Social</option>
+                        <option value="custom">🎯 Personnalisé</option>
+                    </select>
+                </div>
+
+                <div class="bo-field">
+                    <label class="bo-label">Icône</label>
+                    <input type="text" class="bo-input" placeholder="🚶" maxlength="2">
+                    <small style="color: var(--bo-muted);">Emoji représentant le défi</small>
+                </div>
+
+                <div class="bo-field">
+                    <label class="bo-label">Difficulté</label>
+                    <select class="bo-select">
+                        <option value="easy">🟢 Facile</option>
+                        <option value="medium" selected>🟡 Moyen</option>
+                        <option value="hard">🔴 Difficile</option>
+                    </select>
+                </div>
+            </form>
+        </div>
+
+        <!-- Objectif et Récompense -->
+        <div class="bo-card">
+            <div class="bo-cardHeader">
+                <div class="bo-cardTitle">🎯 Objectif et Récompense</div>
+            </div>
+
+            <form class="bo-form">
+                <div class="bo-field">
+                    <label class="bo-label">Type d'Objectif</label>
+                    <select class="bo-select">
+                        <option value="count">Compteur (atteindre un nombre)</option>
+                        <option value="duration">Durée (temps à accomplir)</option>
+                        <option value="completion">Complétion simple (fait/pas fait)</option>
+                    </select>
+                </div>
+
+                <div class="bo-field">
+                    <label class="bo-label">Valeur Objectif</label>
+                    <input type="number" class="bo-input" placeholder="Ex: 5000 (pas)">
+                </div>
+
+                <div class="bo-field">
+                    <label class="bo-label">Unité</label>
+                    <input type="text" class="bo-input" placeholder="Ex: pas, verres, minutes">
+                </div>
+
+                <div class="bo-field">
+                    <label class="bo-label">Points de Récompense ⭐</label>
+                    <input type="number" class="bo-input" value="50">
+                </div>
+
+                <div class="bo-field">
+                    <label class="bo-label">Badge Débloqué (optionnel)</label>
+                    <select class="bo-select">
+                        <option value="">Aucun badge</option>
+                        <option value="walker">🚶 Marcheur</option>
+                        <option value="hydrated">💧 Bien Hydraté</option>
+                        <option value="mindful">🧘 Zen Master</option>
+                        <option value="social">👥 Papillon Social</option>
+                    </select>
+                </div>
+            </form>
+        </div>
+
+        <!-- Planification -->
+        <div class="bo-card">
+            <div class="bo-cardHeader">
+                <div class="bo-cardTitle">📅 Planification</div>
+            </div>
+
+            <form class="bo-form">
+                <div class="bo-field">
+                    <label class="bo-label">Type de Récurrence</label>
+                    <select class="bo-select">
+                        <option value="once">Unique (une seule fois)</option>
+                        <option value="daily" selected>Quotidien</option>
+                        <option value="weekly">Hebdomadaire</option>
+                        <option value="custom">Personnalisé</option>
+                    </select>
+                </div>
+
+                <div class="bo-field">
+                    <label class="bo-label">Date de Début</label>
+                    <input type="date" class="bo-input">
+                </div>
+
+                <div class="bo-field">
+                    <label class="bo-label">Date de Fin (optionnel)</label>
+                    <input type="date" class="bo-input">
+                    <small style="color: var(--bo-muted);">Laisser vide pour un défi permanent</small>
+                </div>
+
+                <div class="bo-field">
+                    <label class="bo-label">Heure Limite</label>
+                    <input type="time" class="bo-input" value="23:59">
+                </div>
+            </form>
+        </div>
+
+        <!-- Cible -->
+        <div class="bo-card">
+            <div class="bo-cardHeader">
+                <div class="bo-cardTitle">👥 Utilisateurs Cibles</div>
+            </div>
+
+            <form class="bo-form">
+                <div class="bo-field">
+                    <label class="bo-label">Audience</label>
+                    <select class="bo-select">
+                        <option value="all" selected>Tous les utilisateurs</option>
+                        <option value="elderly">Personnes âgées uniquement</option>
+                        <option value="active">Utilisateurs actifs</option>
+                        <option value="inactive">Utilisateurs peu actifs</option>
+                        <option value="custom">Sélection personnalisée</option>
+                    </select>
+                </div>
+
+                <div class="bo-field">
+                    <label class="bo-label">Niveau d'Activité Minimum</label>
+                    <select class="bo-select">
+                        <option value="any">Tous niveaux</option>
+                        <option value="low">Débutant</option>
+                        <option value="medium">Intermédiaire</option>
+                        <option value="high">Avancé</option>
+                    </select>
+                </div>
+
+                <div style="display: flex; gap: 12px; margin-top: 24px;">
+                    <button type="submit" class="bo-btn bo-btnSuccess" style="flex: 1;">✅ Créer le Défi</button>
+                    <button type="button" class="bo-btn bo-btnSecondary">👁️ Prévisualiser</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

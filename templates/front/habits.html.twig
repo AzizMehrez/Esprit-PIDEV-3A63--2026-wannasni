@@ -1,0 +1,189 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Habits & Recommendations – AssistIQ{% endblock %}
+
+{% block body %}
+{% include 'front/_nav.html.twig' %}
+
+<div class="fo-shell">
+    <div class="fo-header">
+        <div>
+            <h1 class="fo-title">🎯 Habits & Smart Recommendations</h1>
+            <p class="fo-subtitle">Build healthy routines with AI-powered insights – your path to wellness</p>
+        </div>
+        <div class="fo-actions">
+            <a href="{{ path('app_front_dashboard') }}" class="fo-btn fo-btnSecondary">← Dashboard</a>
+            <button class="fo-btn fo-btnPrimary">+ Add Habit</button>
+        </div>
+    </div>
+
+    <!-- AI Recommendations -->
+    <div class="fo-alert info">
+        <div class="fo-alertIcon">🤖</div>
+        <div class="fo-alertContent">
+            <div class="fo-alertTitle">AI Recommendation</div>
+            <div class="fo-alertText">Based on your health data, we suggest adding a 10-minute stretching routine after your morning walk to improve flexibility!</div>
+        </div>
+    </div>
+
+    <div class="fo-grid cols-2" style="margin-top: 22px;">
+        <!-- Active Habits -->
+        <div class="fo-card">
+            <div class="fo-cardTitle">✨ Your Active Habits</div>
+            <div class="fo-cardHint">Track your daily routines and build consistency</div>
+
+            <ul class="fo-list">
+                <li class="fo-row">
+                    <div style="flex: 1;">
+                        <div class="fo-rowTitle">🚶 Morning Walk</div>
+                        <div class="fo-rowMeta">30 minutes • Every day at 7:00 AM</div>
+                        <div class="fo-progress" style="margin-top: 10px;">
+                            <div class="fo-progressBar" style="width: 85%;"></div>
+                        </div>
+                        <div style="color: var(--muted2); font-size: 14px; margin-top: 6px;">17 day streak 🔥</div>
+                    </div>
+                    <div class="fo-rowRight">
+                        <span class="fo-pill ok">Active</span>
+                    </div>
+                </li>
+
+                <li class="fo-row">
+                    <div style="flex: 1;">
+                        <div class="fo-rowTitle">💊 Medication Routine</div>
+                        <div class="fo-rowMeta">8:00 AM & 8:00 PM daily</div>
+                        <div class="fo-progress" style="margin-top: 10px;">
+                            <div class="fo-progressBar" style="width: 95%;"></div>
+                        </div>
+                        <div style="color: var(--muted2); font-size: 14px; margin-top: 6px;">95% completion rate this month</div>
+                    </div>
+                    <div class="fo-rowRight">
+                        <span class="fo-pill ok">Excellent</span>
+                    </div>
+                </li>
+
+                <li class="fo-row">
+                    <div style="flex: 1;">
+                        <div class="fo-rowTitle">💧 Hydration Goal</div>
+                        <div class="fo-rowMeta">8 glasses per day</div>
+                        <div class="fo-progress" style="margin-top: 10px;">
+                            <div class="fo-progressBar" style="width: 62%;"></div>
+                        </div>
+                        <div style="color: var(--muted2); font-size: 14px; margin-top: 6px;">5 of 8 glasses today</div>
+                    </div>
+                    <div class="fo-rowRight">
+                        <span class="fo-pill">In Progress</span>
+                    </div>
+                </li>
+
+                <li class="fo-row">
+                    <div style="flex: 1;">
+                        <div class="fo-rowTitle">🧘 Evening Relaxation</div>
+                        <div class="fo-rowMeta">15 minutes • 8:30 PM</div>
+                        <div class="fo-progress" style="margin-top: 10px;">
+                            <div class="fo-progressBar" style="width: 40%;"></div>
+                        </div>
+                        <div style="color: var(--muted2); font-size: 14px; margin-top: 6px;">4 day streak</div>
+                    </div>
+                    <div class="fo-rowRight">
+                        <span class="fo-pill info">New</span>
+                    </div>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Personalized Recommendations -->
+        <div>
+            <div class="fo-card">
+                <div class="fo-cardTitle">💡 Smart Suggestions</div>
+                <div class="fo-cardHint">AI-powered recommendations just for you</div>
+
+                <ul class="fo-list">
+                    <li class="fo-row">
+                        <div style="flex: 1;">
+                            <div class="fo-rowTitle">🌅 Add Morning Stretching</div>
+                            <div class="fo-rowMeta">10 minutes after your walk to improve flexibility</div>
+                        </div>
+                        <div class="fo-rowRight">
+                            <button class="fo-btn fo-btnPrimary" style="padding: 8px 14px; font-size: 15px;">+ Add</button>
+                        </div>
+                    </li>
+                    <li class="fo-row">
+                        <div style="flex: 1;">
+                            <div class="fo-rowTitle">📖 Reading Time</div>
+                            <div class="fo-rowMeta">20 minutes before bed to reduce screen time</div>
+                        </div>
+                        <div class="fo-rowRight">
+                            <button class="fo-btn fo-btnPrimary" style="padding: 8px 14px; font-size: 15px;">+ Add</button>
+                        </div>
+                    </li>
+                    <li class="fo-row">
+                        <div style="flex: 1;">
+                            <div class="fo-rowTitle">🥗 Healthy Lunch</div>
+                            <div class="fo-rowMeta">Track your meals to monitor nutrition</div>
+                        </div>
+                        <div class="fo-rowRight">
+                            <button class="fo-btn fo-btnPrimary" style="padding: 8px 14px; font-size: 15px;">+ Add</button>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="fo-card" style="margin-top: 16px;">
+                <div class="fo-cardTitle">🏆 Weekly Achievements</div>
+                <div class="fo-cardHint">Celebrate your progress</div>
+
+                <div class="fo-alert ok">
+                    <div class="fo-alertIcon">🎉</div>
+                    <div class="fo-alertContent">
+                        <div class="fo-alertTitle">7-Day Walking Streak!</div>
+                        <div class="fo-alertText">You've walked every day this week. Amazing consistency!</div>
+                    </div>
+                </div>
+
+                <div style="display: grid; gap: 10px; margin-top: 12px;">
+                    <div style="padding: 12px; border-radius: 12px; background: rgba(16,185,129,.08); border: 1px solid rgba(16,185,129,.15);">
+                        <div style="font-weight: 800; color: var(--text);">💊 Perfect Medication Week</div>
+                        <div style="color: var(--muted); font-size: 14px; margin-top: 4px;">All doses taken on time</div>
+                    </div>
+                    <div style="padding: 12px; border-radius: 12px; background: rgba(99,102,241,.08); border: 1px solid rgba(99,102,241,.15);">
+                        <div style="font-weight: 800; color: var(--text);">💧 Hydration Champion</div>
+                        <div style="color: var(--muted); font-size: 14px; margin-top: 4px;">Met daily water goal 6/7 days</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Habit Statistics -->
+    <div class="fo-card" style="margin-top: 22px;">
+        <div class="fo-cardTitle">📊 Habit Statistics</div>
+        <div class="fo-cardHint">Your progress over the past 30 days</div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin-top: 12px;">
+            <div style="padding: 18px; border-radius: 14px; border: 1px solid var(--border); background: rgba(255,255,255,.7);">
+                <div style="font-size: 15px; color: var(--muted); font-weight: 800;">Total Active Habits</div>
+                <div style="font-size: 32px; font-weight: 950; color: var(--text); margin-top: 8px;">4</div>
+                <div style="color: var(--primary); font-size: 14px; margin-top: 6px; font-weight: 800;">+1 this week</div>
+            </div>
+
+            <div style="padding: 18px; border-radius: 14px; border: 1px solid var(--border); background: rgba(255,255,255,.7);">
+                <div style="font-size: 15px; color: var(--muted); font-weight: 800;">Average Completion</div>
+                <div style="font-size: 32px; font-weight: 950; color: var(--text); margin-top: 8px;">87%</div>
+                <div style="color: var(--primary); font-size: 14px; margin-top: 6px; font-weight: 800;">↑ 5% improvement</div>
+            </div>
+
+            <div style="padding: 18px; border-radius: 14px; border: 1px solid var(--border); background: rgba(255,255,255,.7);">
+                <div style="font-size: 15px; color: var(--muted); font-weight: 800;">Longest Streak</div>
+                <div style="font-size: 32px; font-weight: 950; color: var(--text); margin-top: 8px;">17 days</div>
+                <div style="color: var(--secondary); font-size: 14px; margin-top: 6px; font-weight: 800;">Morning Walk 🚶</div>
+            </div>
+
+            <div style="padding: 18px; border-radius: 14px; border: 1px solid var(--border); background: rgba(255,255,255,.7);">
+                <div style="font-size: 15px; color: var(--muted); font-weight: 800;">Points Earned</div>
+                <div style="font-size: 32px; font-weight: 950; color: var(--text); margin-top: 8px;">342</div>
+                <div style="color: var(--warn); font-size: 14px; margin-top: 6px; font-weight: 800;">+28 this week</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

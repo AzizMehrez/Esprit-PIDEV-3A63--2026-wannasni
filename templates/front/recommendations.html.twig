@@ -1,0 +1,219 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Recommandations IA – AssistIQ{% endblock %}
+
+{% block body %}
+{% include 'front/_nav.html.twig' %}
+
+<div class="fo-shell">
+    <div class="fo-header">
+        <div>
+            <h1 class="fo-title">🤖 Recommandations Intelligentes</h1>
+            <p class="fo-subtitle">Des conseils personnalisés basés sur vos habitudes et votre santé</p>
+        </div>
+        <div class="fo-actions">
+            <a href="{{ path('app_front_dashboard') }}" class="fo-btn fo-btnSecondary">← Tableau de bord</a>
+            <button class="fo-btn fo-btnPrimary">Actualiser</button>
+        </div>
+    </div>
+
+    <!-- AI Status -->
+    <div class="fo-alert info">
+        <div class="fo-alertIcon">🧠</div>
+        <div class="fo-alertContent">
+            <div class="fo-alertTitle">Analyse en cours</div>
+            <div class="fo-alertText">Notre IA analyse vos données des 7 derniers jours pour vous proposer des recommandations personnalisées.</div>
+        </div>
+    </div>
+
+    <!-- Today's Top Recommendations -->
+    <div class="fo-card" style="margin-top: 22px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
+            <div>
+                <div class="fo-cardTitle">⭐ Recommandations du jour</div>
+                <div class="fo-cardHint">Conseils prioritaires basés sur votre profil</div>
+            </div>
+            <span class="fo-pill info">3 nouvelles</span>
+        </div>
+
+        <div style="display: grid; gap: 16px; margin-top: 18px;">
+            <!-- Recommendation 1 -->
+            <div style="padding: 20px; border-radius: 14px; background: linear-gradient(135deg, rgba(16,185,129,.08), rgba(16,185,129,.02)); border: 2px solid rgba(16,185,129,.2);">
+                <div style="display: flex; align-items: flex-start; gap: 16px;">
+                    <div style="font-size: 36px;">🚶</div>
+                    <div style="flex: 1;">
+                        <div style="font-size: 18px; font-weight: 900; color: var(--text);">Augmentez votre activité physique</div>
+                        <div style="color: var(--muted); font-size: 15px; margin-top: 6px; line-height: 1.5;">
+                            Vos données montrent une baisse de 15% de vos pas cette semaine. Essayez d'ajouter une courte promenade de 10 minutes après le déjeuner pour maintenir votre forme.
+                        </div>
+                        <div style="display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap;">
+                            <button class="fo-btn fo-btnPrimary" style="padding: 10px 18px;">Accepter ce conseil</button>
+                            <button class="fo-btn fo-btnSecondary" style="padding: 10px 18px;">Plus tard</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recommendation 2 -->
+            <div style="padding: 20px; border-radius: 14px; background: linear-gradient(135deg, rgba(99,102,241,.08), rgba(99,102,241,.02)); border: 2px solid rgba(99,102,241,.2);">
+                <div style="display: flex; align-items: flex-start; gap: 16px;">
+                    <div style="font-size: 36px;">💧</div>
+                    <div style="flex: 1;">
+                        <div style="font-size: 18px; font-weight: 900; color: var(--text);">Améliorez votre hydratation</div>
+                        <div style="color: var(--muted); font-size: 15px; margin-top: 6px; line-height: 1.5;">
+                            Vous n'avez atteint votre objectif d'hydratation que 3 jours sur 7 cette semaine. Pensez à garder une bouteille d'eau près de vous.
+                        </div>
+                        <div style="display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap;">
+                            <button class="fo-btn fo-btnIndigo" style="padding: 10px 18px;">Activer les rappels</button>
+                            <button class="fo-btn fo-btnSecondary" style="padding: 10px 18px;">Ignorer</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recommendation 3 -->
+            <div style="padding: 20px; border-radius: 14px; background: linear-gradient(135deg, rgba(139,92,246,.08), rgba(139,92,246,.02)); border: 2px solid rgba(139,92,246,.2);">
+                <div style="display: flex; align-items: flex-start; gap: 16px;">
+                    <div style="font-size: 36px;">😴</div>
+                    <div style="flex: 1;">
+                        <div style="font-size: 18px; font-weight: 900; color: var(--text);">Optimisez votre sommeil</div>
+                        <div style="color: var(--muted); font-size: 15px; margin-top: 6px; line-height: 1.5;">
+                            Votre heure de coucher varie beaucoup. Essayez de vous coucher vers 22h30 chaque soir pour améliorer la qualité de votre sommeil.
+                        </div>
+                        <div style="display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap;">
+                            <button class="fo-btn fo-btnPrimary" style="padding: 10px 18px;">Créer un rappel</button>
+                            <button class="fo-btn fo-btnSecondary" style="padding: 10px 18px;">Pas maintenant</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="fo-grid cols-2" style="margin-top: 22px;">
+        <!-- Health Insights -->
+        <div class="fo-card">
+            <div class="fo-cardTitle">📊 Analyse de votre santé</div>
+            <div class="fo-cardHint">Tendances détectées par notre IA</div>
+
+            <ul class="fo-list">
+                <li class="fo-row">
+                    <div style="flex: 1;">
+                        <div class="fo-rowTitle">🩺 Tension artérielle stable</div>
+                        <div class="fo-rowMeta">Vos mesures sont constantes depuis 2 semaines</div>
+                    </div>
+                    <div class="fo-rowRight">
+                        <span class="fo-pill ok">Excellent</span>
+                    </div>
+                </li>
+                <li class="fo-row">
+                    <div style="flex: 1;">
+                        <div class="fo-rowTitle">💊 Bonne observance médicaments</div>
+                        <div class="fo-rowMeta">95% de vos doses prises à l'heure</div>
+                    </div>
+                    <div class="fo-rowRight">
+                        <span class="fo-pill ok">Très bien</span>
+                    </div>
+                </li>
+                <li class="fo-row">
+                    <div style="flex: 1;">
+                        <div class="fo-rowTitle">🚶 Activité physique en baisse</div>
+                        <div class="fo-rowMeta">-15% de pas par rapport à la semaine dernière</div>
+                    </div>
+                    <div class="fo-rowRight">
+                        <span class="fo-pill warn">À améliorer</span>
+                    </div>
+                </li>
+                <li class="fo-row">
+                    <div style="flex: 1;">
+                        <div class="fo-rowTitle">😴 Sommeil irrégulier</div>
+                        <div class="fo-rowMeta">Heure de coucher variable cette semaine</div>
+                    </div>
+                    <div class="fo-rowRight">
+                        <span class="fo-pill warn">Attention</span>
+                    </div>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Suggested Habits -->
+        <div class="fo-card">
+            <div class="fo-cardTitle">💡 Habitudes suggérées</div>
+            <div class="fo-cardHint">Nouvelles routines adaptées à vos besoins</div>
+
+            <ul class="fo-list">
+                <li class="fo-row">
+                    <div style="flex: 1;">
+                        <div class="fo-rowTitle">🌅 Réveil à heure fixe</div>
+                        <div class="fo-rowMeta">Se lever à 7h30 tous les jours</div>
+                    </div>
+                    <div class="fo-rowRight">
+                        <button class="fo-btn fo-btnPrimary" style="padding: 8px 14px; font-size: 15px;">+ Ajouter</button>
+                    </div>
+                </li>
+                <li class="fo-row">
+                    <div style="flex: 1;">
+                        <div class="fo-rowTitle">🍵 Tisane du soir</div>
+                        <div class="fo-rowMeta">Une tisane relaxante à 21h</div>
+                    </div>
+                    <div class="fo-rowRight">
+                        <button class="fo-btn fo-btnPrimary" style="padding: 8px 14px; font-size: 15px;">+ Ajouter</button>
+                    </div>
+                </li>
+                <li class="fo-row">
+                    <div style="flex: 1;">
+                        <div class="fo-rowTitle">🧘 Étirements matinaux</div>
+                        <div class="fo-rowMeta">5 minutes après le réveil</div>
+                    </div>
+                    <div class="fo-rowRight">
+                        <button class="fo-btn fo-btnPrimary" style="padding: 8px 14px; font-size: 15px;">+ Ajouter</button>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Weekly Summary -->
+    <div class="fo-card" style="margin-top: 22px;">
+        <div class="fo-cardTitle">📈 Résumé de la semaine</div>
+        <div class="fo-cardHint">Votre progression sur les 7 derniers jours</div>
+
+        <div class="fo-kpis" style="margin-top: 16px;">
+            <div class="fo-kpi">
+                <div class="fo-kpiTop">
+                    <span class="fo-kpiLabel">Score santé</span>
+                    <div class="fo-kpiIcon">💚</div>
+                </div>
+                <div class="fo-kpiValue">78%</div>
+                <span class="fo-pill ok" style="margin-top: 10px;">Bon</span>
+            </div>
+
+            <div class="fo-kpi">
+                <div class="fo-kpiTop">
+                    <span class="fo-kpiLabel">Conseils suivis</span>
+                    <div class="fo-kpiIcon" style="background: rgba(99,102,241,.12); border-color: rgba(99,102,241,.18);">✅</div>
+                </div>
+                <div class="fo-kpiValue">5 / 8</div>
+                <div style="color: var(--muted2); font-size: 14px; margin-top: 10px;">Cette semaine</div>
+            </div>
+
+            <div class="fo-kpi">
+                <div class="fo-kpiTop">
+                    <span class="fo-kpiLabel">Amélioration</span>
+                    <div class="fo-kpiIcon" style="background: rgba(245,158,11,.12); border-color: rgba(245,158,11,.18);">📈</div>
+                </div>
+                <div class="fo-kpiValue">+12%</div>
+                <div style="color: var(--primary); font-size: 14px; margin-top: 10px; font-weight: 800;">↑ vs semaine dernière</div>
+            </div>
+        </div>
+
+        <div class="fo-alert ok" style="margin-top: 18px;">
+            <div class="fo-alertIcon">🎉</div>
+            <div class="fo-alertContent">
+                <div class="fo-alertTitle">Félicitations !</div>
+                <div class="fo-alertText">Vous avez amélioré votre score santé de 12% cette semaine. Continuez ainsi pour atteindre vos objectifs !</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

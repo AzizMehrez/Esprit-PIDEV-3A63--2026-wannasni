@@ -1,0 +1,244 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Profile & Settings – AssistIQ{% endblock %}
+
+{% block body %}
+{% include 'front/_nav.html.twig' %}
+
+<div class="fo-shell">
+    <div class="fo-header">
+        <div>
+            <h1 class="fo-title">👤 Profile & Preferences</h1>
+            <p class="fo-subtitle">Manage your account and personalize your experience</p>
+        </div>
+        <div class="fo-actions">
+            <a href="{{ path('app_front_dashboard') }}" class="fo-btn fo-btnSecondary">← Dashboard</a>
+            <button class="fo-btn fo-btnDanger">Logout</button>
+        </div>
+    </div>
+
+    <div class="fo-grid cols-2">
+        <!-- Profile Information -->
+        <div class="fo-card">
+            <div class="fo-cardTitle">📝 Personal Information</div>
+            <div class="fo-cardHint">Update your profile details</div>
+
+            <form class="fo-form">
+                <div class="fo-field">
+                    <label for="fullName" class="fo-label">Full Name</label>
+                    <input type="text" id="fullName" name="fullName" class="fo-input" value="John Doe" required>
+                </div>
+
+                <div class="fo-field">
+                    <label for="email" class="fo-label">Email Address</label>
+                    <input type="email" id="email" name="email" class="fo-input" value="john.doe@example.com" required>
+                </div>
+
+                <div class="fo-field">
+                    <label for="phone" class="fo-label">Phone Number</label>
+                    <input type="tel" id="phone" name="phone" class="fo-input" value="+1 (555) 123-4567">
+                </div>
+
+                <div class="fo-field">
+                    <label for="dob" class="fo-label">Date of Birth</label>
+                    <input type="date" id="dob" name="dob" class="fo-input" value="1950-05-15">
+                </div>
+
+                <div class="fo-field">
+                    <label for="address" class="fo-label">Address</label>
+                    <textarea id="address" name="address" class="fo-textarea" rows="3">123 Main Street, Apt 4B
+New York, NY 10001</textarea>
+                </div>
+
+                <button type="submit" class="fo-btn fo-btnPrimary" style="width: 100%;">Save Changes</button>
+            </form>
+        </div>
+
+        <!-- Account Settings -->
+        <div>
+            <div class="fo-card">
+                <div class="fo-cardTitle">⚙️ Account Settings</div>
+                <div class="fo-cardHint">Customize your experience</div>
+
+                <form class="fo-form">
+                    <div class="fo-field">
+                        <label class="fo-label">Account Type</label>
+                        <div class="fo-profileSelector">
+                            <label class="fo-profileOption selected">
+                                <input type="radio" name="accountType" value="elderly" checked hidden>
+                                <div class="fo-profileIcon">👴</div>
+                                <div class="fo-profileLabel">Elderly User</div>
+                            </label>
+                            <label class="fo-profileOption">
+                                <input type="radio" name="accountType" value="relative" hidden>
+                                <div class="fo-profileIcon">👨‍👩‍👧‍👦</div>
+                                <div class="fo-profileLabel">Family / Caregiver</div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="fo-field">
+                        <label for="language" class="fo-label">Language</label>
+                        <select id="language" name="language" class="fo-select">
+                            <option value="en" selected>English</option>
+                            <option value="fr">Français</option>
+                            <option value="es">Español</option>
+                            <option value="de">Deutsch</option>
+                        </select>
+                    </div>
+
+                    <div class="fo-field">
+                        <label for="timezone" class="fo-label">Timezone</label>
+                        <select id="timezone" name="timezone" class="fo-select">
+                            <option value="est" selected>Eastern Time (ET)</option>
+                            <option value="cst">Central Time (CT)</option>
+                            <option value="mst">Mountain Time (MT)</option>
+                            <option value="pst">Pacific Time (PT)</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+
+            <div class="fo-card" style="margin-top: 16px;">
+                <div class="fo-cardTitle">🔔 Notification Preferences</div>
+                <div class="fo-cardHint">Control how you receive alerts</div>
+
+                <div style="display: grid; gap: 12px;">
+                    <label class="fo-checkbox">
+                        <input type="checkbox" checked>
+                        <span>Email notifications</span>
+                    </label>
+                    <label class="fo-checkbox">
+                        <input type="checkbox" checked>
+                        <span>Push notifications</span>
+                    </label>
+                    <label class="fo-checkbox">
+                        <input type="checkbox">
+                        <span>SMS alerts for critical reminders</span>
+                    </label>
+                    <label class="fo-checkbox">
+                        <input type="checkbox" checked>
+                        <span>Weekly progress reports</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Security Settings -->
+    <div class="fo-card" style="margin-top: 22px;">
+        <div class="fo-cardTitle">🔐 Security & Privacy</div>
+        <div class="fo-cardHint">Manage your password and privacy settings</div>
+
+        <div class="fo-grid cols-2">
+            <form class="fo-form">
+                <div class="fo-field">
+                    <label for="currentPassword" class="fo-label">Current Password</label>
+                    <input type="password" id="currentPassword" name="currentPassword" class="fo-input" placeholder="Enter current password">
+                </div>
+
+                <div class="fo-field">
+                    <label for="newPassword" class="fo-label">New Password</label>
+                    <input type="password" id="newPassword" name="newPassword" class="fo-input" placeholder="Create new password">
+                    <div class="fo-help">Minimum 8 characters with letters and numbers</div>
+                </div>
+
+                <div class="fo-field">
+                    <label for="confirmPassword" class="fo-label">Confirm New Password</label>
+                    <input type="password" id="confirmPassword" name="confirmPassword" class="fo-input" placeholder="Confirm new password">
+                </div>
+
+                <button type="submit" class="fo-btn fo-btnIndigo" style="width: 100%;">Update Password</button>
+            </form>
+
+            <div>
+                <div class="fo-alert info">
+                    <div class="fo-alertIcon">🛡️</div>
+                    <div class="fo-alertContent">
+                        <div class="fo-alertTitle">Your Data is Secure</div>
+                        <div class="fo-alertText">All your health information is encrypted and protected. We never share your data without your explicit consent.</div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 14px; display: grid; gap: 10px;">
+                    <label class="fo-checkbox">
+                        <input type="checkbox" checked>
+                        <span>Share my progress with family members</span>
+                    </label>
+                    <label class="fo-checkbox">
+                        <input type="checkbox">
+                        <span>Allow anonymous data for research</span>
+                    </label>
+                    <label class="fo-checkbox">
+                        <input type="checkbox" checked>
+                        <span>Show me on community leaderboard</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Emergency Contacts -->
+    <div class="fo-card" style="margin-top: 22px;">
+        <div class="fo-cardTitle">🚨 Emergency Contacts</div>
+        <div class="fo-cardHint">People to notify in case of emergencies</div>
+
+        <ul class="fo-list">
+            <li class="fo-row">
+                <div style="flex: 1;">
+                    <div class="fo-rowTitle">Sarah Doe (Daughter)</div>
+                    <div class="fo-rowMeta">+1 (555) 234-5678 • sarah.doe@email.com</div>
+                </div>
+                <div class="fo-rowRight">
+                    <span class="fo-pill ok">Primary</span>
+                    <button class="fo-btn fo-btnSecondary" style="padding: 8px 14px; font-size: 15px;">Edit</button>
+                </div>
+            </li>
+            <li class="fo-row">
+                <div style="flex: 1;">
+                    <div class="fo-rowTitle">Michael Doe (Son)</div>
+                    <div class="fo-rowMeta">+1 (555) 345-6789 • michael.doe@email.com</div>
+                </div>
+                <div class="fo-rowRight">
+                    <button class="fo-btn fo-btnSecondary" style="padding: 8px 14px; font-size: 15px;">Edit</button>
+                </div>
+            </li>
+            <li class="fo-row">
+                <div style="flex: 1;">
+                    <div class="fo-rowTitle">Dr. Robert Smith (Physician)</div>
+                    <div class="fo-rowMeta">+1 (555) 456-7890 • Memorial Hospital</div>
+                </div>
+                <div class="fo-rowRight">
+                    <button class="fo-btn fo-btnSecondary" style="padding: 8px 14px; font-size: 15px;">Edit</button>
+                </div>
+            </li>
+        </ul>
+
+        <button class="fo-btn fo-btnPrimary" style="margin-top: 12px;">+ Add Contact</button>
+    </div>
+
+    <!-- Danger Zone -->
+    <div class="fo-card" style="margin-top: 22px; border-color: rgba(239,68,68,.2);">
+        <div class="fo-cardTitle" style="color: var(--danger);">⚠️ Danger Zone</div>
+        <div class="fo-cardHint">Irreversible actions - proceed with caution</div>
+
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px; border-radius: 12px; background: rgba(239,68,68,.06); border: 1px solid rgba(239,68,68,.15); margin-top: 12px;">
+            <div>
+                <div style="font-weight: 900; color: var(--text); margin-bottom: 4px;">Delete Account</div>
+                <div style="color: var(--muted); font-size: 15px;">Permanently delete your account and all associated data</div>
+            </div>
+            <button class="fo-btn fo-btnDanger" style="flex-shrink: 0;">Delete Account</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// Profile selector interaction
+document.querySelectorAll('.fo-profileOption').forEach(option => {
+    option.addEventListener('click', () => {
+        document.querySelectorAll('.fo-profileOption').forEach(o => o.classList.remove('selected'));
+        option.classList.add('selected');
+    });
+});
+</script>
+{% endblock %}

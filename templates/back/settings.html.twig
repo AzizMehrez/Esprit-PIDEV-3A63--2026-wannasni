@@ -1,0 +1,203 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Settings – AssistIQ Admin{% endblock %}
+
+{% block body %}
+{% include 'back/_nav.html.twig' %}
+
+<div class="bo-shell">
+    <div class="bo-header">
+        <div>
+            <h1 class="bo-title">⚙️ Platform Settings</h1>
+            <p class="bo-subtitle">Configure system settings and preferences</p>
+        </div>
+        <div class="bo-actions">
+            <button class="bo-btn bo-btnSecondary">🔄 Reset to Defaults</button>
+            <button class="bo-btn bo-btnSuccess">💾 Save Changes</button>
+        </div>
+    </div>
+
+    <div class="bo-grid cols-2">
+        <!-- General Settings -->
+        <div class="bo-card">
+            <div class="bo-cardHeader">
+                <div class="bo-cardTitle">🏠 General Settings</div>
+            </div>
+
+            <form class="bo-form">
+                <div class="bo-field">
+                    <label class="bo-label">Platform Name</label>
+                    <input type="text" class="bo-input" value="AssistIQ">
+                </div>
+
+                <div class="bo-field">
+                    <label class="bo-label">Support Email</label>
+                    <input type="email" class="bo-input" value="support@assistiq.com">
+                </div>
+
+                <div class="bo-field">
+                    <label class="bo-label">Default Language</label>
+                    <select class="bo-select">
+                        <option selected>English (US)</option>
+                        <option>English (UK)</option>
+                        <option>French</option>
+                        <option>Spanish</option>
+                        <option>German</option>
+                    </select>
+                </div>
+
+                <div class="bo-field">
+                    <label class="bo-label">Timezone</label>
+                    <select class="bo-select">
+                        <option selected>UTC (Coordinated Universal Time)</option>
+                        <option>EST (Eastern Standard Time)</option>
+                        <option>PST (Pacific Standard Time)</option>
+                        <option>CET (Central European Time)</option>
+                    </select>
+                </div>
+            </form>
+        </div>
+
+        <!-- Alert Settings -->
+        <div class="bo-card">
+            <div class="bo-cardHeader">
+                <div class="bo-cardTitle">🔔 Alert Configuration</div>
+            </div>
+
+            <form class="bo-form">
+                <div class="bo-field">
+                    <label class="bo-label">High Blood Pressure Threshold</label>
+                    <input type="text" class="bo-input" value="140/90 mmHg">
+                </div>
+
+                <div class="bo-field">
+                    <label class="bo-label">Low Activity Threshold (Steps)</label>
+                    <input type="number" class="bo-input" value="2000">
+                </div>
+
+                <div class="bo-field">
+                    <label class="bo-label">Medication Reminder Lead Time</label>
+                    <select class="bo-select">
+                        <option>15 minutes before</option>
+                        <option selected>30 minutes before</option>
+                        <option>1 hour before</option>
+                    </select>
+                </div>
+
+                <div class="bo-field">
+                    <label class="bo-label">Critical Alert Escalation Time</label>
+                    <select class="bo-select">
+                        <option>5 minutes</option>
+                        <option selected>10 minutes</option>
+                        <option>15 minutes</option>
+                        <option>30 minutes</option>
+                    </select>
+                </div>
+            </form>
+        </div>
+
+        <!-- Notification Settings -->
+        <div class="bo-card">
+            <div class="bo-cardHeader">
+                <div class="bo-cardTitle">📧 Notification Settings</div>
+            </div>
+
+            <form class="bo-form">
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--bo-border);">
+                    <div>
+                        <div style="font-weight: 700; color: var(--bo-dark);">Email Notifications</div>
+                        <div style="font-size: 13px; color: var(--bo-muted);">Send alerts via email</div>
+                    </div>
+                    <label style="position: relative; width: 52px; height: 28px;">
+                        <input type="checkbox" checked style="opacity: 0; width: 0; height: 0;">
+                        <span style="position: absolute; inset: 0; background: var(--bo-success); border-radius: 999px; cursor: pointer;"></span>
+                    </label>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--bo-border);">
+                    <div>
+                        <div style="font-weight: 700; color: var(--bo-dark);">SMS Notifications</div>
+                        <div style="font-size: 13px; color: var(--bo-muted);">Send critical alerts via SMS</div>
+                    </div>
+                    <label style="position: relative; width: 52px; height: 28px;">
+                        <input type="checkbox" checked style="opacity: 0; width: 0; height: 0;">
+                        <span style="position: absolute; inset: 0; background: var(--bo-success); border-radius: 999px; cursor: pointer;"></span>
+                    </label>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--bo-border);">
+                    <div>
+                        <div style="font-weight: 700; color: var(--bo-dark);">Push Notifications</div>
+                        <div style="font-size: 13px; color: var(--bo-muted);">Send browser push notifications</div>
+                    </div>
+                    <label style="position: relative; width: 52px; height: 28px;">
+                        <input type="checkbox" style="opacity: 0; width: 0; height: 0;">
+                        <span style="position: absolute; inset: 0; background: var(--bo-border); border-radius: 999px; cursor: pointer;"></span>
+                    </label>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0;">
+                    <div>
+                        <div style="font-weight: 700; color: var(--bo-dark);">Family Alert Forwarding</div>
+                        <div style="font-size: 13px; color: var(--bo-muted);">Automatically notify family members</div>
+                    </div>
+                    <label style="position: relative; width: 52px; height: 28px;">
+                        <input type="checkbox" checked style="opacity: 0; width: 0; height: 0;">
+                        <span style="position: absolute; inset: 0; background: var(--bo-success); border-radius: 999px; cursor: pointer;"></span>
+                    </label>
+                </div>
+            </form>
+        </div>
+
+        <!-- Security Settings -->
+        <div class="bo-card">
+            <div class="bo-cardHeader">
+                <div class="bo-cardTitle">🔒 Security Settings</div>
+            </div>
+
+            <form class="bo-form">
+                <div class="bo-field">
+                    <label class="bo-label">Session Timeout</label>
+                    <select class="bo-select">
+                        <option>15 minutes</option>
+                        <option selected>30 minutes</option>
+                        <option>1 hour</option>
+                        <option>4 hours</option>
+                    </select>
+                </div>
+
+                <div class="bo-field">
+                    <label class="bo-label">Password Policy</label>
+                    <select class="bo-select">
+                        <option>Standard (8+ characters)</option>
+                        <option selected>Strong (8+ chars, mixed case, numbers)</option>
+                        <option>Very Strong (12+ chars, special characters)</option>
+                    </select>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--bo-border);">
+                    <div>
+                        <div style="font-weight: 700; color: var(--bo-dark);">Two-Factor Authentication</div>
+                        <div style="font-size: 13px; color: var(--bo-muted);">Require 2FA for admin accounts</div>
+                    </div>
+                    <label style="position: relative; width: 52px; height: 28px;">
+                        <input type="checkbox" checked style="opacity: 0; width: 0; height: 0;">
+                        <span style="position: absolute; inset: 0; background: var(--bo-success); border-radius: 999px; cursor: pointer;"></span>
+                    </label>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0;">
+                    <div>
+                        <div style="font-weight: 700; color: var(--bo-dark);">Login Audit Logging</div>
+                        <div style="font-size: 13px; color: var(--bo-muted);">Track all login attempts</div>
+                    </div>
+                    <label style="position: relative; width: 52px; height: 28px;">
+                        <input type="checkbox" checked style="opacity: 0; width: 0; height: 0;">
+                        <span style="position: absolute; inset: 0; background: var(--bo-success); border-radius: 999px; cursor: pointer;"></span>
+                    </label>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

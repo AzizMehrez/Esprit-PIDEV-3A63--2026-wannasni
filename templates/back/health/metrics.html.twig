@@ -1,0 +1,104 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Métriques Santé – AssistIQ Admin{% endblock %}
+
+{% block body %}
+{% include 'back/_nav.html.twig' %}
+
+<div class="bo-shell">
+    <div class="bo-header">
+        <div>
+            <h1 class="bo-title">📊 Métriques de Santé Détaillées</h1>
+            <p class="bo-subtitle">Analyse approfondie des indicateurs de santé</p>
+        </div>
+        <div class="bo-actions">
+            <a href="{{ path('app_admin_health') }}" class="bo-btn bo-btnSecondary">← Retour</a>
+            <button class="bo-btn bo-btnPrimary">📥 Exporter Rapport</button>
+        </div>
+    </div>
+
+    <!-- Types de Métriques -->
+    <div class="bo-stats">
+        <div class="bo-stat" style="cursor: pointer;">
+            <div class="bo-statTop">
+                <span class="bo-statLabel">Tension Artérielle</span>
+                <div class="bo-statIcon danger">🩺</div>
+            </div>
+            <div class="bo-statValue" style="font-size: 20px;">Systolique/Diastolique</div>
+            <div class="bo-statChange">0 mesures</div>
+        </div>
+        <div class="bo-stat" style="cursor: pointer;">
+            <div class="bo-statTop">
+                <span class="bo-statLabel">Rythme Cardiaque</span>
+                <div class="bo-statIcon danger">❤️</div>
+            </div>
+            <div class="bo-statValue" style="font-size: 20px;">BPM</div>
+            <div class="bo-statChange">0 mesures</div>
+        </div>
+        <div class="bo-stat" style="cursor: pointer;">
+            <div class="bo-statTop">
+                <span class="bo-statLabel">Glycémie</span>
+                <div class="bo-statIcon warn">🩸</div>
+            </div>
+            <div class="bo-statValue" style="font-size: 20px;">mg/dL</div>
+            <div class="bo-statChange">0 mesures</div>
+        </div>
+        <div class="bo-stat" style="cursor: pointer;">
+            <div class="bo-statTop">
+                <span class="bo-statLabel">Poids</span>
+                <div class="bo-statIcon info">⚖️</div>
+            </div>
+            <div class="bo-statValue" style="font-size: 20px;">kg</div>
+            <div class="bo-statChange">0 mesures</div>
+        </div>
+    </div>
+
+    <div class="bo-stats">
+        <div class="bo-stat" style="cursor: pointer;">
+            <div class="bo-statTop">
+                <span class="bo-statLabel">Activité Physique</span>
+                <div class="bo-statIcon success">🚶</div>
+            </div>
+            <div class="bo-statValue" style="font-size: 20px;">Pas/Jour</div>
+            <div class="bo-statChange">0 mesures</div>
+        </div>
+        <div class="bo-stat" style="cursor: pointer;">
+            <div class="bo-statTop">
+                <span class="bo-statLabel">Sommeil</span>
+                <div class="bo-statIcon primary">😴</div>
+            </div>
+            <div class="bo-statValue" style="font-size: 20px;">Heures</div>
+            <div class="bo-statChange">0 mesures</div>
+        </div>
+        <div class="bo-stat" style="cursor: pointer;">
+            <div class="bo-statTop">
+                <span class="bo-statLabel">Hydratation</span>
+                <div class="bo-statIcon info">💧</div>
+            </div>
+            <div class="bo-statValue" style="font-size: 20px;">Litres</div>
+            <div class="bo-statChange">0 mesures</div>
+        </div>
+        <div class="bo-stat" style="cursor: pointer;">
+            <div class="bo-statTop">
+                <span class="bo-statLabel">Médicaments</span>
+                <div class="bo-statIcon warn">💊</div>
+            </div>
+            <div class="bo-statValue" style="font-size: 20px;">Observance</div>
+            <div class="bo-statChange">0 prises</div>
+        </div>
+    </div>
+
+    <!-- Historique -->
+    <div class="bo-card" style="margin-top: 24px;">
+        <div class="bo-cardHeader">
+            <div class="bo-cardTitle">📋 Historique des Mesures</div>
+        </div>
+
+        <div class="bo-empty">
+            <div class="bo-emptyIcon">📊</div>
+            <div class="bo-emptyTitle">Aucune Donnée Disponible</div>
+            <div class="bo-emptyText">Les mesures de santé des utilisateurs seront listées ici une fois enregistrées</div>
+        </div>
+    </div>
+</div>
+{% endblock %}

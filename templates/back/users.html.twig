@@ -1,0 +1,51 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}User Management – AssistIQ Admin{% endblock %}
+
+{% block body %}
+{% include 'back/_nav.html.twig' %}
+
+<div class="bo-shell">
+    <div class="bo-header">
+        <div>
+            <h1 class="bo-title">👥 User Management</h1>
+            <p class="bo-subtitle">Manage all registered users on the platform</p>
+        </div>
+        <div class="bo-actions">
+            <button class="bo-btn bo-btnSecondary">📥 Export CSV</button>
+            <button class="bo-btn bo-btnPrimary">+ Add New User</button>
+        </div>
+    </div>
+
+    <!-- Search & Filters -->
+    <div class="bo-card" style="margin-bottom: 24px;">
+        <div style="display: flex; gap: 16px; flex-wrap: wrap; align-items: center;">
+            <div class="bo-search" style="flex: 1; min-width: 250px;">
+                <input type="text" placeholder="Search users by name, email...">
+            </div>
+            <select class="bo-select" style="min-width: 150px;">
+                <option>All Types</option>
+                <option>Elderly Users</option>
+                <option>Family Members</option>
+                <option>Caregivers</option>
+            </select>
+            <select class="bo-select" style="min-width: 150px;">
+                <option>All Status</option>
+                <option>Active</option>
+                <option>Pending</option>
+                <option>Inactive</option>
+            </select>
+            <button class="bo-btn bo-btnSecondary">🔄 Reset</button>
+        </div>
+    </div>
+
+    <!-- Users Table -->
+    <div class="bo-card">
+        <div class="bo-empty">
+            <div class="bo-emptyIcon">👥</div>
+            <div class="bo-emptyTitle">No Users Found</div>
+            <div class="bo-emptyText">Registered users will appear here. Click "+ Add New User" to get started.</div>
+        </div>
+    </div>
+</div>
+{% endblock %}

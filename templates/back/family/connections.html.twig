@@ -1,0 +1,56 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Connexions Familiales – AssistIQ Admin{% endblock %}
+
+{% block body %}
+{% include 'back/_nav.html.twig' %}
+
+<div class="bo-shell">
+    <div class="bo-header">
+        <div>
+            <h1 class="bo-title">🔗 Connexions Familiales</h1>
+            <p class="bo-subtitle">Gérer les liens entre personnes âgées et leurs proches</p>
+        </div>
+        <div class="bo-actions">
+            <a href="{{ path('app_admin_family') }}" class="bo-btn bo-btnSecondary">← Retour</a>
+            <button class="bo-btn bo-btnPrimary">+ Créer une Connexion</button>
+        </div>
+    </div>
+
+    <!-- Filtres -->
+    <div class="bo-card" style="margin-bottom: 24px;">
+        <div style="display: flex; gap: 16px; flex-wrap: wrap; align-items: center;">
+            <div class="bo-search" style="flex: 1; min-width: 250px;">
+                <input type="text" placeholder="Rechercher par nom...">
+            </div>
+            <select class="bo-select" style="min-width: 150px;">
+                <option>Tous les statuts</option>
+                <option>✅ Actif</option>
+                <option>⏳ En attente</option>
+                <option>❌ Désactivé</option>
+            </select>
+            <select class="bo-select" style="min-width: 150px;">
+                <option>Tous les types</option>
+                <option>Parent/Enfant</option>
+                <option>Conjoint</option>
+                <option>Soignant</option>
+                <option>Autre</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Liste des Connexions -->
+    <div class="bo-card">
+        <div class="bo-cardHeader">
+            <div class="bo-cardTitle">📋 Liste des Connexions</div>
+        </div>
+
+        <div class="bo-empty">
+            <div class="bo-emptyIcon">🔗</div>
+            <div class="bo-emptyTitle">Aucune Connexion</div>
+            <div class="bo-emptyText">Les liens familiaux apparaîtront ici. Créez une connexion pour lier un proche à une personne âgée.</div>
+            <button class="bo-btn bo-btnPrimary" style="margin-top: 20px;">+ Créer une Connexion</button>
+        </div>
+    </div>
+</div>
+{% endblock %}

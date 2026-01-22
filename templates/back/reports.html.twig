@@ -1,0 +1,116 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Reports – AssistIQ Admin{% endblock %}
+
+{% block body %}
+{% include 'back/_nav.html.twig' %}
+
+<div class="bo-shell">
+    <div class="bo-header">
+        <div>
+            <h1 class="bo-title">📈 Reports & Analytics</h1>
+            <p class="bo-subtitle">Generate and view detailed platform reports</p>
+        </div>
+        <div class="bo-actions">
+            <button class="bo-btn bo-btnSecondary">📅 Schedule Report</button>
+            <button class="bo-btn bo-btnPrimary">+ Generate Report</button>
+        </div>
+    </div>
+
+    <!-- Quick Reports -->
+    <div class="bo-stats">
+        <div class="bo-stat" style="cursor: pointer;">
+            <div class="bo-statTop">
+                <span class="bo-statLabel">User Report</span>
+                <div class="bo-statIcon primary">👥</div>
+            </div>
+            <div class="bo-statValue" style="font-size: 24px;">User Analytics</div>
+            <div style="color: var(--bo-muted); font-size: 14px; margin-top: 8px;">Registration, activity, retention</div>
+        </div>
+
+        <div class="bo-stat" style="cursor: pointer;">
+            <div class="bo-statTop">
+                <span class="bo-statLabel">Health Report</span>
+                <div class="bo-statIcon danger">❤️</div>
+            </div>
+            <div class="bo-statValue" style="font-size: 24px;">Health Metrics</div>
+            <div style="color: var(--bo-muted); font-size: 14px; margin-top: 8px;">Vitals, trends, compliance</div>
+        </div>
+
+        <div class="bo-stat" style="cursor: pointer;">
+            <div class="bo-statTop">
+                <span class="bo-statLabel">Alert Report</span>
+                <div class="bo-statIcon warn">🔔</div>
+            </div>
+            <div class="bo-statValue" style="font-size: 24px;">Alert Summary</div>
+            <div style="color: var(--bo-muted); font-size: 14px; margin-top: 8px;">Response times, resolution</div>
+        </div>
+
+        <div class="bo-stat" style="cursor: pointer;">
+            <div class="bo-statTop">
+                <span class="bo-statLabel">Engagement</span>
+                <div class="bo-statIcon success">🎯</div>
+            </div>
+            <div class="bo-statValue" style="font-size: 24px;">Engagement</div>
+            <div style="color: var(--bo-muted); font-size: 14px; margin-top: 8px;">Challenges, habits, streaks</div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="bo-grid cols-2">
+        <!-- Recent Reports -->
+        <div class="bo-card">
+            <div class="bo-cardHeader">
+                <div>
+                    <div class="bo-cardTitle">📋 Recent Reports</div>
+                    <div class="bo-cardHint">Previously generated reports</div>
+                </div>
+            </div>
+
+            <div class="bo-empty">
+                <div class="bo-emptyIcon">📋</div>
+                <div class="bo-emptyTitle">No Reports Generated</div>
+                <div class="bo-emptyText">Click "+ Generate Report" to create your first report</div>
+            </div>
+        </div>
+
+        <!-- Scheduled Reports -->
+        <div class="bo-card">
+            <div class="bo-cardHeader">
+                <div>
+                    <div class="bo-cardTitle">🗓️ Scheduled Reports</div>
+                    <div class="bo-cardHint">Automated report generation</div>
+                </div>
+                <button class="bo-btn bo-btnSecondary bo-btnSm">+ Add Schedule</button>
+            </div>
+
+            <div class="bo-empty">
+                <div class="bo-emptyIcon">🗓️</div>
+                <div class="bo-emptyTitle">No Scheduled Reports</div>
+                <div class="bo-emptyText">Click "+ Add Schedule" to automate reports</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="bo-grid cols-equal" style="margin-top: 24px;">
+        <div class="bo-card">
+            <div class="bo-cardHeader">
+                <div class="bo-cardTitle">📈 Platform Growth (12 Months)</div>
+            </div>
+            <div class="bo-chart">
+                📊 Growth trend chart would go here
+            </div>
+        </div>
+
+        <div class="bo-card">
+            <div class="bo-cardHeader">
+                <div class="bo-cardTitle">🎯 User Engagement Breakdown</div>
+            </div>
+            <div class="bo-chart">
+                📊 Engagement pie chart would go here
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

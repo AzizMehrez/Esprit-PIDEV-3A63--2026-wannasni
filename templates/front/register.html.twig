@@ -1,0 +1,468 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Inscription – AssistIQ{% endblock %}
+
+{% block body %}
+<div class="auth-page">
+    <!-- Enhanced Animated Background -->
+    <div class="auth-bg">
+        <div class="auth-bg-gradient auth-bg-gradient-register"></div>
+        <div class="auth-bg-pattern"></div>
+        <div class="auth-orb auth-orb-1"></div>
+        <div class="auth-orb auth-orb-2"></div>
+        <div class="auth-orb auth-orb-3"></div>
+        <div class="auth-orb auth-orb-4"></div>
+        <!-- Floating particles -->
+        <div class="auth-particles" id="particles"></div>
+        <!-- Animated shapes -->
+        <div class="auth-shape auth-shape-1"></div>
+        <div class="auth-shape auth-shape-2"></div>
+        <div class="auth-shape auth-shape-3"></div>
+        <!-- Grid lines -->
+        <div class="auth-grid-lines"></div>
+    </div>
+
+    <div class="auth-container">
+        <!-- Left Panel - Branding & Features -->
+        <div class="auth-panel auth-panel-left">
+            <div class="auth-panel-content">
+                <a href="{{ path('app_home') }}" class="auth-logo auth-logo-animated">
+                    <span class="auth-logo-icon">💙</span>
+                    <span class="auth-logo-text">AssistIQ</span>
+                    <span class="auth-logo-sparkle">✨</span>
+                </a>
+
+                <div class="auth-hero">
+                    <div class="auth-hero-badge auth-hero-badge-new">
+                        <span class="auth-badge-dot"></span>
+                        <span>🎉 Inscription gratuite</span>
+                    </div>
+                    <h1 class="auth-hero-title auth-title-animated">
+                        <span class="auth-title-line">Rejoignez</span>
+                        <span class="auth-title-line auth-hero-gradient">AssistIQ</span>
+                    </h1>
+                    <p class="auth-hero-desc auth-desc-animated">
+                        Commencez votre parcours vers une meilleure santé et une vie quotidienne plus sereine.
+                    </p>
+                </div>
+
+                <!-- Animated Stats Counter -->
+                <div class="auth-stats auth-stats-animated">
+                    <div class="auth-stat">
+                        <div class="auth-stat-icon">👥</div>
+                        <div class="auth-stat-value" data-count="10000">0</div>
+                        <div class="auth-stat-label">Utilisateurs actifs</div>
+                        <div class="auth-stat-bar"><div class="auth-stat-progress"></div></div>
+                    </div>
+                    <div class="auth-stat">
+                        <div class="auth-stat-icon">⭐</div>
+                        <div class="auth-stat-value" data-count="98">0</div>
+                        <div class="auth-stat-label">% Satisfaction</div>
+                        <div class="auth-stat-bar"><div class="auth-stat-progress"></div></div>
+                    </div>
+                    <div class="auth-stat">
+                        <div class="auth-stat-icon">🛡️</div>
+                        <div class="auth-stat-value" data-count="24">0</div>
+                        <div class="auth-stat-label">/7 Support</div>
+                        <div class="auth-stat-bar"><div class="auth-stat-progress"></div></div>
+                    </div>
+                </div>
+
+                <!-- Animated Benefits with Checkmarks -->
+                <div class="auth-benefits auth-benefits-animated">
+                    <div class="auth-benefit">
+                        <span class="auth-benefit-check">
+                            <svg viewBox="0 0 12 10"><polyline points="1.5 6 4.5 9 10.5 1"></polyline></svg>
+                        </span>
+                        <span>Suivi de santé personnalisé</span>
+                    </div>
+                    <div class="auth-benefit">
+                        <span class="auth-benefit-check">
+                            <svg viewBox="0 0 12 10"><polyline points="1.5 6 4.5 9 10.5 1"></polyline></svg>
+                        </span>
+                        <span>Rappels de médicaments intelligents</span>
+                    </div>
+                    <div class="auth-benefit">
+                        <span class="auth-benefit-check">
+                            <svg viewBox="0 0 12 10"><polyline points="1.5 6 4.5 9 10.5 1"></polyline></svg>
+                        </span>
+                        <span>Connexion avec vos proches</span>
+                    </div>
+                    <div class="auth-benefit">
+                        <span class="auth-benefit-check">
+                            <svg viewBox="0 0 12 10"><polyline points="1.5 6 4.5 9 10.5 1"></polyline></svg>
+                        </span>
+                        <span>Défis quotidiens motivants</span>
+                    </div>
+                    <div class="auth-benefit">
+                        <span class="auth-benefit-check">
+                            <svg viewBox="0 0 12 10"><polyline points="1.5 6 4.5 9 10.5 1"></polyline></svg>
+                        </span>
+                        <span>100% gratuit pour commencer</span>
+                    </div>
+                </div>
+
+                <!-- Floating icons decoration -->
+                <div class="auth-floating-icons">
+                    <span class="auth-float-icon" style="--delay: 0s; --x: 10%; --y: 20%;">🚀</span>
+                    <span class="auth-float-icon" style="--delay: 1s; --x: 85%; --y: 15%;">💪</span>
+                    <span class="auth-float-icon" style="--delay: 2s; --x: 75%; --y: 80%;">🎯</span>
+                    <span class="auth-float-icon" style="--delay: 0.5s; --x: 12%; --y: 75%;">❤️</span>
+                    <span class="auth-float-icon" style="--delay: 1.5s; --x: 50%; --y: 10%;">✨</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Panel - Register Form -->
+        <div class="auth-panel auth-panel-right">
+            <div class="auth-form-wrapper auth-form-animated">
+                <!-- Glow effect -->
+                <div class="auth-form-glow auth-form-glow-register"></div>
+                
+                <!-- Mobile Logo -->
+                <a href="{{ path('app_home') }}" class="auth-logo auth-logo-mobile">
+                    <span class="auth-logo-icon">💙</span>
+                    <span class="auth-logo-text">AssistIQ</span>
+                </a>
+
+                <div class="auth-form-header">
+                    <div class="auth-form-icon-wrapper">
+                        <div class="auth-form-icon">🎉</div>
+                        <div class="auth-form-icon-ring auth-form-icon-ring-register"></div>
+                        <div class="auth-form-confetti"></div>
+                    </div>
+                    <h2 class="auth-form-title">Créer un compte</h2>
+                    <p class="auth-form-subtitle">Commencez gratuitement en quelques secondes</p>
+                </div>
+
+                <!-- Profile Type Selector with Animation -->
+                <div class="auth-profile-selector auth-profile-animated">
+                    <label class="auth-profile-option selected" data-profile="elderly">
+                        <input type="radio" name="profile" value="elderly" checked hidden>
+                        <div class="auth-profile-bg"></div>
+                        <div class="auth-profile-icon">👴</div>
+                        <div class="auth-profile-info">
+                            <strong>Senior</strong>
+                            <span>Pour moi-même</span>
+                        </div>
+                        <div class="auth-profile-check">
+                            <svg viewBox="0 0 12 10"><polyline points="1.5 6 4.5 9 10.5 1"></polyline></svg>
+                        </div>
+                        <div class="auth-profile-glow"></div>
+                    </label>
+                    <label class="auth-profile-option" data-profile="family">
+                        <input type="radio" name="profile" value="family" hidden>
+                        <div class="auth-profile-bg"></div>
+                        <div class="auth-profile-icon">👨‍👩‍👧</div>
+                        <div class="auth-profile-info">
+                            <strong>Famille</strong>
+                            <span>Pour un proche</span>
+                        </div>
+                        <div class="auth-profile-check">
+                            <svg viewBox="0 0 12 10"><polyline points="1.5 6 4.5 9 10.5 1"></polyline></svg>
+                        </div>
+                        <div class="auth-profile-glow"></div>
+                    </label>
+                </div>
+
+                <form class="auth-form" action="{{ path('app_front_dashboard') }}" method="post">
+                    <div class="auth-field-row">
+                        <div class="auth-field auth-field-animated" style="--field-delay: 0.1s;">
+                            <label for="firstName" class="auth-label">
+                                <span class="auth-label-icon">👤</span>
+                                Prénom
+                            </label>
+                            <div class="auth-input-wrapper">
+                                <input type="text" id="firstName" name="firstName" class="auth-input" placeholder="Jean" required>
+                                <div class="auth-input-border"></div>
+                                <div class="auth-input-glow"></div>
+                            </div>
+                        </div>
+                        <div class="auth-field auth-field-animated" style="--field-delay: 0.15s;">
+                            <label for="lastName" class="auth-label">
+                                <span class="auth-label-icon">👤</span>
+                                Nom
+                            </label>
+                            <div class="auth-input-wrapper">
+                                <input type="text" id="lastName" name="lastName" class="auth-input" placeholder="Dupont" required>
+                                <div class="auth-input-border"></div>
+                                <div class="auth-input-glow"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="auth-field auth-field-animated" style="--field-delay: 0.2s;">
+                        <label for="email" class="auth-label">
+                            <span class="auth-label-icon">📧</span>
+                            Adresse email
+                        </label>
+                        <div class="auth-input-wrapper">
+                            <input type="email" id="email" name="email" class="auth-input" placeholder="vous@exemple.com" required autocomplete="email">
+                            <div class="auth-input-border"></div>
+                            <div class="auth-input-glow"></div>
+                        </div>
+                    </div>
+
+                    <div class="auth-field auth-field-animated" style="--field-delay: 0.25s;">
+                        <label for="password" class="auth-label">
+                            <span class="auth-label-icon">🔐</span>
+                            Mot de passe
+                        </label>
+                        <div class="auth-input-wrapper">
+                            <input type="password" id="password" name="password" class="auth-input" placeholder="Min. 8 caractères" required autocomplete="new-password" minlength="8">
+                            <button type="button" class="auth-toggle-password" onclick="togglePassword(this)">
+                                <span class="eye-open">👁️</span>
+                                <span class="eye-closed" style="display:none;">🙈</span>
+                            </button>
+                            <div class="auth-input-border"></div>
+                            <div class="auth-input-glow"></div>
+                        </div>
+                        <div class="auth-password-strength">
+                            <div class="auth-strength-bar">
+                                <div class="auth-strength-fill"></div>
+                            </div>
+                            <span class="auth-strength-text">Force du mot de passe</span>
+                        </div>
+                    </div>
+
+                    <div class="auth-terms auth-field-animated" style="--field-delay: 0.3s;">
+                        <label class="auth-checkbox">
+                            <input type="checkbox" name="terms" required>
+                            <span class="auth-checkbox-mark">
+                                <svg viewBox="0 0 12 10"><polyline points="1.5 6 4.5 9 10.5 1"></polyline></svg>
+                            </span>
+                            <span class="auth-checkbox-text">
+                                J'accepte les <a href="#" class="auth-link">Conditions d'utilisation</a> et la <a href="#" class="auth-link">Politique de confidentialité</a>
+                            </span>
+                        </label>
+                    </div>
+
+                    <button type="submit" class="auth-submit auth-submit-register auth-submit-animated" style="--field-delay: 0.35s;">
+                        <span class="auth-submit-bg"></span>
+                        <span class="auth-submit-text">Créer mon compte</span>
+                        <span class="auth-submit-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+                            </svg>
+                        </span>
+                        <div class="auth-submit-loader"></div>
+                        <div class="auth-submit-ripple"></div>
+                        <div class="auth-submit-particles"></div>
+                    </button>
+                </form>
+
+                <div class="auth-divider auth-divider-animated">
+                    <span>ou continuer avec</span>
+                </div>
+
+                <div class="auth-social auth-social-animated">
+                    <button type="button" class="auth-social-btn">
+                        <span class="auth-social-icon">🌐</span>
+                        <span>Google</span>
+                        <div class="auth-social-shine"></div>
+                    </button>
+                    <button type="button" class="auth-social-btn">
+                        <span class="auth-social-icon">🍎</span>
+                        <span>Apple</span>
+                        <div class="auth-social-shine"></div>
+                    </button>
+                </div>
+
+                <div class="auth-footer auth-footer-animated">
+                    <p>Vous avez déjà un compte ?</p>
+                    <a href="{{ path('app_front_login') }}" class="auth-footer-link">
+                        <span>Se connecter</span>
+                        <span class="auth-footer-arrow">→</span>
+                    </a>
+                </div>
+
+                <a href="{{ path('app_home') }}" class="auth-back">
+                    <span class="auth-back-icon">←</span>
+                    <span>Retour à l'accueil</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Create floating particles
+function createParticles() {
+    const container = document.getElementById('particles');
+    if (!container) return;
+    
+    for (let i = 0; i < 50; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'auth-particle';
+        particle.style.left = Math.random() * 100 + '%';
+        particle.style.top = Math.random() * 100 + '%';
+        particle.style.animationDelay = Math.random() * 5 + 's';
+        particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
+        container.appendChild(particle);
+    }
+}
+createParticles();
+
+// Animated counter for stats
+function animateCounters() {
+    document.querySelectorAll('.auth-stat-value[data-count]').forEach(counter => {
+        const target = parseInt(counter.dataset.count);
+        const duration = 2000;
+        const start = Date.now();
+        
+        function update() {
+            const elapsed = Date.now() - start;
+            const progress = Math.min(elapsed / duration, 1);
+            const eased = 1 - Math.pow(1 - progress, 4);
+            
+            let value = Math.floor(eased * target);
+            if (target >= 1000) {
+                counter.textContent = (value / 1000).toFixed(1) + 'k+';
+            } else if (counter.parentElement.querySelector('.auth-stat-label').textContent.includes('%')) {
+                counter.textContent = value + '%';
+            } else {
+                counter.textContent = value;
+            }
+            
+            if (progress < 1) requestAnimationFrame(update);
+        }
+        update();
+    });
+}
+setTimeout(animateCounters, 500);
+
+// Toggle password visibility
+function togglePassword(btn) {
+    const input = btn.parentElement.querySelector('input');
+    const eyeOpen = btn.querySelector('.eye-open');
+    const eyeClosed = btn.querySelector('.eye-closed');
+    
+    if (input.type === 'password') {
+        input.type = 'text';
+        eyeOpen.style.display = 'none';
+        eyeClosed.style.display = 'inline';
+    } else {
+        input.type = 'password';
+        eyeOpen.style.display = 'inline';
+        eyeClosed.style.display = 'none';
+    }
+}
+
+// Profile selector with animation
+document.querySelectorAll('.auth-profile-option').forEach(option => {
+    option.addEventListener('click', () => {
+        document.querySelectorAll('.auth-profile-option').forEach(o => {
+            o.classList.remove('selected');
+            o.querySelector('.auth-profile-glow').style.opacity = '0';
+        });
+        option.classList.add('selected');
+        option.querySelector('input').checked = true;
+        option.querySelector('.auth-profile-glow').style.opacity = '1';
+        
+        // Add bounce animation
+        option.style.animation = 'none';
+        setTimeout(() => option.style.animation = 'profileBounce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)', 10);
+    });
+});
+
+// Enhanced focus animations
+document.querySelectorAll('.auth-input').forEach(input => {
+    input.addEventListener('focus', () => {
+        input.parentElement.classList.add('focused');
+        const glow = input.parentElement.querySelector('.auth-input-glow');
+        if (glow) glow.style.opacity = '1';
+    });
+    input.addEventListener('blur', () => {
+        if (!input.value) {
+            input.parentElement.classList.remove('focused');
+        }
+        const glow = input.parentElement.querySelector('.auth-input-glow');
+        if (glow) glow.style.opacity = '0';
+    });
+});
+
+// Password strength indicator with animation
+const passwordInput = document.getElementById('password');
+const strengthFill = document.querySelector('.auth-strength-fill');
+const strengthText = document.querySelector('.auth-strength-text');
+
+if (passwordInput && strengthFill) {
+    passwordInput.addEventListener('input', function() {
+        const password = this.value;
+        let strength = 0;
+        
+        if (password.length >= 8) strength += 25;
+        if (password.match(/[a-z]/)) strength += 25;
+        if (password.match(/[A-Z]/)) strength += 25;
+        if (password.match(/[0-9]/) || password.match(/[^a-zA-Z0-9]/)) strength += 25;
+        
+        strengthFill.style.width = strength + '%';
+        
+        if (strength <= 25) {
+            strengthFill.style.background = 'linear-gradient(90deg, #ef4444, #f87171)';
+            strengthText.textContent = 'Faible';
+            strengthText.style.color = '#ef4444';
+        } else if (strength <= 50) {
+            strengthFill.style.background = 'linear-gradient(90deg, #f59e0b, #fbbf24)';
+            strengthText.textContent = 'Moyen';
+            strengthText.style.color = '#f59e0b';
+        } else if (strength <= 75) {
+            strengthFill.style.background = 'linear-gradient(90deg, #10b981, #34d399)';
+            strengthText.textContent = 'Bon';
+            strengthText.style.color = '#10b981';
+        } else {
+            strengthFill.style.background = 'linear-gradient(90deg, #10b981, #6366f1)';
+            strengthText.textContent = 'Excellent !';
+            strengthText.style.color = '#6366f1';
+        }
+    });
+}
+
+// Ripple effect on submit button
+document.querySelector('.auth-submit').addEventListener('click', function(e) {
+    const ripple = this.querySelector('.auth-submit-ripple');
+    const rect = this.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    
+    ripple.style.left = x + 'px';
+    ripple.style.top = y + 'px';
+    ripple.classList.add('active');
+    
+    setTimeout(() => ripple.classList.remove('active'), 600);
+});
+
+// Submit button loading animation
+document.querySelector('.auth-form').addEventListener('submit', function(e) {
+    const btn = this.querySelector('.auth-submit');
+    btn.classList.add('loading');
+});
+
+// Magnetic button effect
+document.querySelectorAll('.auth-submit, .auth-social-btn').forEach(btn => {
+    btn.addEventListener('mousemove', function(e) {
+        const rect = this.getBoundingClientRect();
+        const x = e.clientX - rect.left - rect.width / 2;
+        const y = e.clientY - rect.top - rect.height / 2;
+        
+        this.style.transform = `translate(${x * 0.1}px, ${y * 0.1}px)`;
+    });
+    
+    btn.addEventListener('mouseleave', function() {
+        this.style.transform = '';
+    });
+});
+
+// Parallax effect on orbs
+document.addEventListener('mousemove', function(e) {
+    const orbs = document.querySelectorAll('.auth-orb');
+    const x = e.clientX / window.innerWidth;
+    const y = e.clientY / window.innerHeight;
+    
+    orbs.forEach((orb, i) => {
+        const speed = (i + 1) * 20;
+        orb.style.transform = `translate(${x * speed}px, ${y * speed}px)`;
+    });
+});
+</script>
+{% endblock %}
