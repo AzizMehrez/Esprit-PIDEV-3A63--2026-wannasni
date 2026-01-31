@@ -1,0 +1,53 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}New Activity - Admin WANNASNI{% endblock %}
+{% block page_title %}Create New Activity{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 1rem;">
+    <a href="{{ path('admin_activities_list') }}" class="btn btn-secondary">← Back to Activities</a>
+</div>
+
+<div class="card" style="max-width: 600px;">
+    <div class="card-header">
+        <h2 class="card-title">Create New Activity</h2>
+    </div>
+    
+    <form method="post">
+        <div class="form-group">
+            <label class="form-label">Activity Name *</label>
+            <input type="text" class="form-input" name="name" placeholder="e.g., Morning Walk" required>
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">Description</label>
+            <textarea class="form-input" name="description" rows="3" placeholder="Describe the activity..."></textarea>
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">Type</label>
+            <select class="form-input" name="type">
+                <option value="physical">Physical</option>
+                <option value="cognitive">Cognitive</option>
+                <option value="creative">Creative</option>
+                <option value="social">Social</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">Duration (minutes)</label>
+            <input type="number" class="form-input" name="duration" value="30" min="5" max="180">
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">Schedule</label>
+            <input type="text" class="form-input" name="schedule" placeholder="e.g., Daily 8:00 AM">
+        </div>
+        
+        <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+            <button type="submit" class="btn btn-primary">Create Activity</button>
+            <a href="{{ path('admin_activities_list') }}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

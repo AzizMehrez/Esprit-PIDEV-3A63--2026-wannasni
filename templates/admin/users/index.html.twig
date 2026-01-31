@@ -1,0 +1,68 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Utilisateurs - Admin WANNASNI{% endblock %}
+{% block page_title %}Gestion des Utilisateurs{% endblock %}
+
+{% block header_actions %}
+<a href="{{ path('admin_users_new') }}" class="btn btn-primary">➕ Nouvel Utilisateur</a>
+{% endblock %}
+
+{% block content %}
+<div class="admin-card">
+    <div class="card-header">
+        <h2 class="card-title">👥 Liste des Utilisateurs</h2>
+        <span class="badge badge-info">{{ users|length }} utilisateurs</span>
+    </div>
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th>Utilisateur</th>
+                <th>Email</th>
+                <th>Rôle</th>
+                <th>Statut</th>
+                <th>Inscrit le</th>
+                <th style="width: 120px;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+            <tr>
+                <td>
+                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                        <div style="width: 36px; height: 36px; border-radius: 8px; background: linear-gradient(135deg, #3b82f6, #8b5cf6); display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 0.85rem;">
+                            {{ user.firstName|first }}{{ user.lastName|first }}
+                        </div>
+                        <div>
+                            <div style="font-weight: 600;">{{ user.firstName }} {{ user.lastName }}</div>
+                        </div>
+                    </div>
+                </td>
+                <td>{{ user.email }}</td>
+                <td>
+                    {% if 'ROLE_ADMIN' in user.roles %}
+                        <span class="badge badge-danger">Admin</span>
+                    {% elseif 'ROLE_CAREGIVER' in user.roles %}
+                        <span class="badge badge-info">Aidant</span>
+                    {% else %}
+                        <span class="badge badge-success">Utilisateur</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if user.status == 'active' %}
+                        <span class="badge badge-success">✓ Actif</span>
+                    {% else %}
+                        <span class="badge badge-warning">⏸ Inactif</span>
+                    {% endif %}
+                </td>
+                <td>{{ user.createdAt|date('d/m/Y') }}</td>
+                <td>
+                    <a href="{{ path('admin_users_show', {id: user.id}) }}" class="action-btn" title="Voir">👁️</a>
+                    <a href="{{ path('admin_users_edit', {id: user.id}) }}" class="action-btn" title="Modifier">✏️</a>
+                    <button class="action-btn danger" title="Supprimer">🗑️</button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

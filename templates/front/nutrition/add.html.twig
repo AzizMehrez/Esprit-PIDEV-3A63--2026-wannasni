@@ -1,0 +1,270 @@
+{% extends 'base_dashboard.html.twig' %}
+
+{% block title %}Ajouter un repas - WANNASNI{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    :root {
+        --nutri-primary: #22c55e;
+        --nutri-primary-light: #4ade80;
+        --nutri-bg: #f0fdf4;
+        --nutri-card: #ffffff;
+        --nutri-text: #1a1a2e;
+        --nutri-text-muted: #64748b;
+    }
+
+    .add-meal-wrapper {
+        min-height: 100vh;
+        padding: 2rem 1.5rem 4rem;
+        background: linear-gradient(180deg, var(--nutri-bg) 0%, #f8fafc 30%);
+    }
+
+    .add-meal-container {
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--nutri-primary);
+        text-decoration: none;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        font-size: 1rem;
+    }
+
+    .back-link:hover { text-decoration: underline; }
+
+    .form-card {
+        background: var(--nutri-card);
+        border-radius: 24px;
+        padding: 2rem;
+        box-shadow: 0 8px 32px rgba(34, 197, 94, 0.1);
+    }
+
+    .form-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.75rem;
+        color: var(--nutri-text);
+        margin-bottom: 1.5rem;
+        text-align: center;
+    }
+
+    .meal-type-selector {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .meal-type-btn {
+        padding: 1.25rem;
+        border: 2px solid #e2e8f0;
+        border-radius: 16px;
+        background: #f8fafc;
+        cursor: pointer;
+        text-align: center;
+        transition: all 0.2s;
+    }
+
+    .meal-type-btn:hover, .meal-type-btn.active {
+        border-color: var(--nutri-primary);
+        background: var(--nutri-bg);
+    }
+
+    .meal-type-btn.active {
+        box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2);
+    }
+
+    .meal-type-icon { font-size: 2rem; display: block; margin-bottom: 0.5rem; }
+    .meal-type-label { font-weight: 600; color: var(--nutri-text); }
+
+    .form-group {
+        margin-bottom: 1.25rem;
+    }
+
+    .form-label {
+        display: block;
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--nutri-text);
+        margin-bottom: 0.5rem;
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 1rem 1.25rem;
+        font-size: 1.1rem;
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        background: #f8fafc;
+        color: var(--nutri-text);
+        transition: all 0.2s;
+    }
+
+    .form-input:focus {
+        outline: none;
+        border-color: var(--nutri-primary);
+        box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2);
+    }
+
+    .form-input::placeholder { color: #94a3b8; }
+
+    .food-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 0.75rem;
+    }
+
+    .food-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.5rem 1rem;
+        background: #dcfce7;
+        color: #166534;
+        border-radius: 50px;
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+
+    .food-tag button {
+        background: none;
+        border: none;
+        color: #166534;
+        cursor: pointer;
+        font-size: 1rem;
+    }
+
+    .quick-foods {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 1rem;
+    }
+
+    .quick-food {
+        padding: 0.5rem 1rem;
+        background: #f1f5f9;
+        border: 1px solid #e2e8f0;
+        border-radius: 50px;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .quick-food:hover {
+        background: #e2e8f0;
+    }
+
+    .submit-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        width: 100%;
+        padding: 1.25rem;
+        background: linear-gradient(135deg, var(--nutri-primary), var(--nutri-primary-light));
+        color: white;
+        border: none;
+        border-radius: 14px;
+        font-size: 1.15rem;
+        font-weight: 600;
+        cursor: pointer;
+        margin-top: 1.5rem;
+        box-shadow: 0 4px 16px rgba(34, 197, 94, 0.3);
+        transition: all 0.3s;
+    }
+
+    .submit-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(34, 197, 94, 0.4);
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="add-meal-wrapper">
+    <div class="add-meal-container">
+        
+        <a href="{{ path('app_my_nutrition', {'_locale': app.request.locale}) }}" class="back-link">
+            ← Retour à ma nutrition
+        </a>
+        
+        <div class="form-card">
+            <h1 class="form-title">🍽️ Enregistrer un repas</h1>
+            
+            <form method="post">
+                <!-- Meal Type Selector -->
+                <div class="form-group">
+                    <label class="form-label">Type de repas</label>
+                    <div class="meal-type-selector">
+                        <label class="meal-type-btn">
+                            <input type="radio" name="meal_type" value="breakfast" hidden>
+                            <span class="meal-type-icon">☕</span>
+                            <span class="meal-type-label">Petit-déjeuner</span>
+                        </label>
+                        <label class="meal-type-btn">
+                            <input type="radio" name="meal_type" value="lunch" hidden>
+                            <span class="meal-type-icon">🍽️</span>
+                            <span class="meal-type-label">Déjeuner</span>
+                        </label>
+                        <label class="meal-type-btn">
+                            <input type="radio" name="meal_type" value="snack" hidden>
+                            <span class="meal-type-icon">🍎</span>
+                            <span class="meal-type-label">Collation</span>
+                        </label>
+                        <label class="meal-type-btn">
+                            <input type="radio" name="meal_type" value="dinner" hidden>
+                            <span class="meal-type-icon">🌙</span>
+                            <span class="meal-type-label">Dîner</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Food Items -->
+                <div class="form-group">
+                    <label class="form-label">Qu'avez-vous mangé ?</label>
+                    <input type="text" class="form-input" name="food_item" placeholder="Ex: Salade de tomates, pain complet...">
+                    
+                    <div class="quick-foods">
+                        <span class="quick-food">🥖 Pain</span>
+                        <span class="quick-food">☕ Café</span>
+                        <span class="quick-food">🥛 Lait</span>
+                        <span class="quick-food">🍎 Fruits</span>
+                        <span class="quick-food">🥗 Salade</span>
+                        <span class="quick-food">🍗 Poulet</span>
+                        <span class="quick-food">🍚 Riz</span>
+                        <span class="quick-food">🥕 Légumes</span>
+                    </div>
+                </div>
+
+                <!-- Notes -->
+                <div class="form-group">
+                    <label class="form-label">Notes (optionnel)</label>
+                    <textarea class="form-input" name="notes" rows="3" placeholder="Comment vous êtes-vous senti après ce repas ?"></textarea>
+                </div>
+
+                <button type="submit" class="submit-btn">
+                    ✓ Enregistrer ce repas
+                </button>
+            </form>
+        </div>
+        
+    </div>
+</div>
+
+<script>
+    // Meal type selector interaction
+    document.querySelectorAll('.meal-type-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.meal-type-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        });
+    });
+</script>
+{% endblock %}

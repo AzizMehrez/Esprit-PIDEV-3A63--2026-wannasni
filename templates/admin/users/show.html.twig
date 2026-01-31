@@ -1,0 +1,160 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}{{ user.firstName }} {{ user.lastName }} - Admin WANNASNI{% endblock %}
+{% block page_title %}Détails Utilisateur{% endblock %}
+
+{% block header_actions %}
+<a href="{{ path('admin_users_edit', {id: user.id}) }}" class="btn btn-primary">✏️ Modifier</a>
+<a href="{{ path('admin_users') }}" class="btn btn-outline">← Retour</a>
+{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .user-profile {
+        display: grid;
+        grid-template-columns: 300px 1fr;
+        gap: 1.5rem;
+    }
+
+    .profile-sidebar {
+        background: var(--admin-card);
+        border-radius: var(--admin-radius);
+        border: 1px solid var(--admin-border);
+        padding: 2rem;
+        text-align: center;
+    }
+
+    .profile-avatar {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin: 0 auto 1rem;
+    }
+
+    .profile-name {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+    }
+
+    .profile-email {
+        color: var(--admin-text-muted);
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+    }
+
+    .info-section {
+        margin-bottom: 1.5rem;
+    }
+
+    .info-section h3 {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--admin-text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid var(--admin-border);
+    }
+
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.65rem 0;
+        border-bottom: 1px solid var(--admin-border);
+    }
+
+    .info-row:last-child {
+        border-bottom: none;
+    }
+
+    .info-label {
+        color: var(--admin-text-muted);
+        font-size: 0.875rem;
+    }
+
+    .info-value {
+        font-weight: 600;
+        font-size: 0.875rem;
+    }
+
+    @media (max-width: 900px) {
+        .user-profile {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="user-profile">
+    <div class="profile-sidebar">
+        <div class="profile-avatar">{{ user.firstName|first }}{{ user.lastName|first }}</div>
+        <h2 class="profile-name">{{ user.firstName }} {{ user.lastName }}</h2>
+        <p class="profile-email">{{ user.email }}</p>
+        {% if 'ROLE_ADMIN' in user.roles %}
+            <span class="badge badge-danger">Admin</span>
+        {% elseif 'ROLE_CAREGIVER' in user.roles %}
+            <span class="badge badge-info">Aidant</span>
+        {% else %}
+            <span class="badge badge-success">Utilisateur</span>
+        {% endif %}
+    </div>
+
+    <div>
+        <div class="admin-card" style="margin-bottom: 1.5rem;">
+            <div class="card-body">
+                <div class="info-section">
+                    <h3>Informations Personnelles</h3>
+                    <div class="info-row">
+                        <span class="info-label">Prénom</span>
+                        <span class="info-value">{{ user.firstName }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Nom</span>
+                        <span class="info-value">{{ user.lastName }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Email</span>
+                        <span class="info-value">{{ user.email }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Téléphone</span>
+                        <span class="info-value">{{ user.phone }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Adresse</span>
+                        <span class="info-value">{{ user.address }}</span>
+                    </div>
+                </div>
+
+                <div class="info-section">
+                    <h3>Compte</h3>
+                    <div class="info-row">
+                        <span class="info-label">Statut</span>
+                        <span class="info-value">
+                            {% if user.isActive %}
+                                <span class="badge badge-success">✓ Actif</span>
+                            {% else %}
+                                <span class="badge badge-warning">⏸ Inactif</span>
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Inscrit le</span>
+                        <span class="info-value">{{ user.createdAt|date('d/m/Y H:i') }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
