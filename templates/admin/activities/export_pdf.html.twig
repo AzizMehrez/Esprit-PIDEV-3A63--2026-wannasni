@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Activities Report</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            color: #333;
+        }
+        h1 {
+            color: #007bff;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+        .header {
+            margin-bottom: 20px;
+        }
+        .date-generated {
+            color: #666;
+            font-size: 0.9em;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th {
+            background-color: #007bff;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: bold;
+            border: 1px solid #0056b3;
+        }
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            border: 1px solid #ddd;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .status-active {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .status-inactive {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        .type-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            font-weight: bold;
+        }
+        .type-social {
+            background-color: #e2e3e5;
+            color: #383d41;
+        }
+        .type-physical {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+        .type-cultural {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        .type-educational {
+            background-color: #d1e7dd;
+            color: #0f5132;
+        }
+        .footer {
+            margin-top: 30px;
+            font-size: 0.9em;
+            color: #666;
+            border-top: 1px solid #ddd;
+            padding-top: 10px;
+        }
+        @media print {
+            body {
+                margin: 0;
+            }
+            @page {
+                margin: 20mm;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📋 Activities Report</h1>
+        <p class="date-generated">Generated on: <strong>{{ "now"|date('Y-m-d H:i:s') }}</strong></p>
+        <p>Total Activities: <strong>{{ activities|length }}</strong></p>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Type</th>
+                <th>Location</th>
+                <th>Start Time</th>
+                <th>End Time</th>
+                <th>Participants</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for activity in activities %}
+            <tr>
+                <td><strong>{{ activity.title }}</strong></td>
+                <td><span class="type-badge type-{{ activity.type }}">{{ activity.type|capitalize }}</span></td>
+                <td>{{ activity.location ?? '-' }}</td>
+                <td>{{ activity.startTime|date('Y-m-d H:i') }}</td>
+                <td>{{ activity.endTime|date('Y-m-d H:i') }}</td>
+                <td>{{ activity.currentParticipants }}{% if activity.maxParticipants %}/{{ activity.maxParticipants }}{% endif %}</td>
+                <td>
+                    {% if activity.isActive %}
+                        <span class="status-active">✓ Active</span>
+                    {% else %}
+                        <span class="status-inactive">✗ Inactive</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="7" style="text-align: center; color: #999;">No activities found</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="footer">
+        <p>This report was generated from the WANNASSNI Activities Management System.</p>
+    </div>
+
+    <script>
+        // Auto-print on page load
+        window.print();
+    </script>
+</body>
+</html>

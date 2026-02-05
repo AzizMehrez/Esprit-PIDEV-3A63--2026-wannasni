@@ -216,6 +216,91 @@
         box-shadow: 0 6px 20px rgba(46, 125, 50, 0.4);
     }
 
+    .btn-join:disabled {
+        background: #ccc;
+        color: #666;
+        cursor: not-allowed;
+        opacity: 0.6;
+        box-shadow: none;
+    }
+
+    .btn-join:disabled:hover {
+        transform: none;
+        box-shadow: none;
+    }
+
+    .btn-cancel {
+        padding: 1rem 2rem;
+        background: linear-gradient(135deg, #dc2626, #ef4444);
+        color: white;
+        border: none;
+        border-radius: 50px;
+        font-size: 1.15rem;
+        font-weight: 700;
+        cursor: pointer;
+        box-shadow: 0 4px 16px rgba(220, 38, 38, 0.3);
+        transition: all 0.3s;
+        margin-left: 1rem;
+    }
+
+    .btn-cancel:hover {
+        transform: scale(1.05);
+        box-shadow: 0 6px 20px rgba(220, 38, 38, 0.4);
+    }
+
+    .btn-cancel:disabled {
+        background: #ccc;
+        color: #666;
+        cursor: not-allowed;
+        opacity: 0.6;
+        box-shadow: none;
+    }
+
+    .btn-cancel:disabled:hover {
+        transform: none;
+        box-shadow: none;
+    }
+
+    /* Flash messages */
+    .flash-messages {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 1000;
+        max-width: 400px;
+    }
+
+    .alert {
+        padding: 1.25rem;
+        border-radius: 12px;
+        margin-bottom: 1rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        animation: slideIn 0.3s ease-out;
+    }
+
+    .alert-success {
+        background: #dcfce7;
+        color: #166534;
+        border-left: 5px solid #22c55e;
+    }
+
+    .alert-error {
+        background: #fee2e2;
+        color: #991b1b;
+        border-left: 5px solid #ef4444;
+    }
+
+    @keyframes slideIn {
+        from {
+            transform: translateX(400px);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+
     @media (max-width: 640px) {
         .activities-title { font-size: 2rem; }
         .activity-top { flex-direction: column; text-align: center; }
@@ -226,11 +311,27 @@
 
 {% block body %}
 <div class="activities-wrapper">
+    <!-- Flash Messages -->
+    {% if app.flashes %}
+    <div class="flash-messages">
+        {% for type, messages in app.flashes %}
+            {% for message in messages %}
+            <div class="alert alert-{{ type }}">{{ message }}</div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+    {% endif %}
+
     <div class="activities-container">
         
-        <a href="{{ path('app_dashboard', {'_locale': app.request.locale}) }}" class="back-link">
-            ← Retour au tableau de bord
-        </a>
+        <div style="display: flex; gap: 1rem; align-items: center; margin-bottom: 1.5rem;">
+            <a href="{{ path('app_dashboard', {'_locale': app.request.locale}) }}" class="back-link">
+                ← Retour au tableau de bord
+            </a>
+            <a href="{{ path('app_participation_history', {'_locale': app.request.locale}) }}" style="display: inline-flex; align-items: center; gap: 0.5rem; color: #8b5cf6; text-decoration: none; font-weight: 600; font-size: 1.1rem; padding: 0.75rem 1.25rem; border-radius: 50px; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.08); transition: all 0.2s;">
+                📊 Mon Historique
+            </a>
+        </div>
         
         <!-- Header -->
         <div class="activities-header">
@@ -244,27 +345,41 @@
             <div class="section-header">
                 <span class="section-icon">✅</span>
                 <span class="section-title">Mes Inscriptions</span>
-                <span class="section-count">{{ enrolled_activities|length }} activités</span>
+                <span class="section-count">{{ enrolled_activities|length }}</span>
             </div>
             <div class="activity-list">
-                {% for activity in enrolled_activities %}
-                <div class="activity-card">
-                    <div class="activity-top">
-                        <div class="activity-icon {{ activity.type }}">
-                            {% if activity.type == 'physical' %}🏃
-                            {% elseif activity.type == 'cognitive' %}🧠
-                            {% elseif activity.type == 'creative' %}🎨
-                            {% else %}👥{% endif %}
+                {% if enrolled_activities|length > 0 %}
+                    {% for activity in enrolled_activities %}
+                    <div class="activity-card">
+                        <div class="activity-top">
+                            <div class="activity-icon {{ activity.type }}">
+                                {% if activity.type == 'physical' %}🏃
+                                {% elseif activity.type == 'cultural' %}🎭
+                                {% elseif activity.type == 'educational' %}📚
+                                {% else %}👥{% endif %}
+                            </div>
+                            <div>
+                                <div class="activity-name">{{ activity.name }}</div>
+                                <div style="color: var(--act-text-muted); font-size: 0.95rem;">{{ activity.location ?? 'Location TBA' }}</div>
+                            </div>
                         </div>
-                        <div class="activity-name">{{ activity.name }}</div>
+                        <div class="activity-details">
+                            <span class="activity-info">📅 {{ activity.schedule }}</span>
+                            <span class="activity-badge">✓ Inscrit</span>
+                            <form method="POST" action="{{ path('app_cancel_activity', {id: activity.id}) }}" style="display: inline;">
+                                <button type="submit" class="btn-cancel" onclick="return confirm('Are you sure you want to cancel your enrollment?');">
+                                    Annuler
+                                </button>
+                            </form>
+                        </div>
                     </div>
-                    <div class="activity-details">
-                        <span class="activity-info">📅 {{ activity.schedule }}</span>
-                        <span class="activity-info">🕐 Prochaine: {{ activity.nextSession|date('d/m/Y') }}</span>
-                        <span class="activity-badge">✓ Inscrit</span>
+                    {% endfor %}
+                {% else %}
+                    <div style="text-align: center; padding: 3rem 2rem; color: var(--act-text-muted);">
+                        <p style="font-size: 1.2rem; margin-bottom: 0.5rem;">Vous n'êtes inscrit à aucune activité</p>
+                        <p>Explorez les activités disponibles ci-dessous!</p>
                     </div>
-                </div>
-                {% endfor %}
+                {% endif %}
             </div>
         </div>
 
@@ -273,26 +388,46 @@
             <div class="section-header">
                 <span class="section-icon">🌟</span>
                 <span class="section-title">Activités Disponibles</span>
+                <span class="section-count">{{ available_activities|length }}</span>
             </div>
             <div class="activity-list">
-                {% for activity in available_activities %}
-                <div class="activity-card">
-                    <div class="activity-top">
-                        <div class="activity-icon {{ activity.type }}">
-                            {% if activity.type == 'physical' %}🏃
-                            {% elseif activity.type == 'cognitive' %}🧠
-                            {% elseif activity.type == 'creative' %}🎨
-                            {% else %}👥{% endif %}
+                {% if available_activities|length > 0 %}
+                    {% for activity in available_activities %}
+                    <div class="activity-card">
+                        <div class="activity-top">
+                            <div class="activity-icon {{ activity.type }}">
+                                {% if activity.type == 'physical' %}🏃
+                                {% elseif activity.type == 'cultural' %}🎭
+                                {% elseif activity.type == 'educational' %}📚
+                                {% else %}👥{% endif %}
+                            </div>
+                            <div>
+                                <div class="activity-name">{{ activity.name }}</div>
+                                <div style="color: var(--act-text-muted); font-size: 0.95rem;">{{ activity.location ?? 'Location TBA' }}</div>
+                            </div>
                         </div>
-                        <div class="activity-name">{{ activity.name }}</div>
+                        <p style="color: var(--act-text-muted); margin: 0.75rem 0; font-size: 0.95rem;">{{ activity.description }}</p>
+                        <div class="activity-details">
+                            <span class="activity-info">📅 {{ activity.schedule }}</span>
+                            <span class="activity-info">👥 {{ activity.participants }}{% if activity.maxParticipants %}/{{ activity.maxParticipants }}{% endif %}</span>
+                            <form method="POST" action="{{ path('app_enroll_activity', {id: activity.id}) }}" style="display: inline;">
+                                <button type="submit" class="btn-join" {% if activity.maxParticipants and activity.participants >= activity.maxParticipants %}disabled{% endif %}>
+                                    {% if activity.maxParticipants and activity.participants >= activity.maxParticipants %}
+                                        Complet
+                                    {% else %}
+                                        S'inscrire
+                                    {% endif %}
+                                </button>
+                            </form>
+                        </div>
                     </div>
-                    <div class="activity-details">
-                        <span class="activity-info">📅 {{ activity.schedule }}</span>
-                        <span class="activity-info">👥 {{ activity.participants }} participants</span>
-                        <button class="btn-join">S'inscrire</button>
+                    {% endfor %}
+                {% else %}
+                    <div style="text-align: center; padding: 3rem 2rem; color: var(--act-text-muted);">
+                        <p style="font-size: 1.5rem; margin-bottom: 1rem;">Aucune activité disponible</p>
+                        <p>Revenez vérifier plus tard!</p>
                     </div>
-                </div>
-                {% endfor %}
+                {% endif %}
             </div>
         </div>
 

@@ -1,0 +1,299 @@
+{% extends 'base_dashboard.html.twig' %}
+
+{% block title %}Mon Historique de Participation - WANNASNI{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    :root {
+        --part-primary: #2563eb;
+        --part-secondary: #1e40af;
+        --part-success: #16a34a;
+        --part-warning: #ea580c;
+        --part-danger: #dc2626;
+        --part-bg: #f0f9ff;
+        --part-card: #ffffff;
+        --part-border: #bfdbfe;
+    }
+
+    .participation-wrapper {
+        min-height: 100vh;
+        padding: 2rem 1.5rem 4rem;
+        background: linear-gradient(180deg, var(--part-bg) 0%, #f8fafc 30%);
+    }
+
+    .participation-container {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--part-primary);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 1.1rem;
+        margin-bottom: 1.5rem;
+        padding: 0.75rem 1.25rem;
+        border-radius: 50px;
+        background: white;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        transition: all 0.2s;
+    }
+
+    .back-link:hover {
+        background: var(--part-bg);
+        transform: translateX(-4px);
+    }
+
+    .header {
+        background: linear-gradient(135deg, var(--part-primary), var(--part-secondary));
+        border-radius: 24px;
+        padding: 2.5rem;
+        margin-bottom: 2rem;
+        color: white;
+        text-align: center;
+        box-shadow: 0 8px 32px rgba(37, 99, 235, 0.3);
+    }
+
+    .header-icon {
+        font-size: 3.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .header-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .header-subtitle {
+        font-size: 1.1rem;
+        opacity: 0.9;
+    }
+
+    .participation-list {
+        display: grid;
+        gap: 1.5rem;
+    }
+
+    .participation-card {
+        background: white;
+        border-radius: 16px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+        border-left: 5px solid var(--part-primary);
+        transition: all 0.3s;
+        cursor: pointer;
+    }
+
+    .participation-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 32px rgba(37, 99, 235, 0.15);
+    }
+
+    .participation-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+    }
+
+    .participation-title {
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: #1a1a2e;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    .status-inscrit {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+
+    .status-annulé {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .status-present {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .status-absent {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .participation-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+        margin-bottom: 1rem;
+        color: #666;
+        font-size: 0.95rem;
+    }
+
+    .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .rating {
+        color: var(--part-warning);
+        font-weight: 600;
+    }
+
+    .btn-view {
+        display: inline-block;
+        padding: 0.75rem 1.5rem;
+        background: var(--part-primary);
+        color: white;
+        text-decoration: none;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: all 0.2s;
+        margin-top: 1rem;
+    }
+
+    .btn-view:hover {
+        background: var(--part-secondary);
+        transform: translateX(2px);
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem 2rem;
+        color: #666;
+    }
+
+    .empty-state-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+
+    .flash-messages {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 1000;
+        max-width: 400px;
+    }
+
+    .alert {
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        animation: slideIn 0.3s ease-out;
+    }
+
+    .alert-success {
+        background: #dcfce7;
+        color: #166534;
+        border-left: 5px solid #22c55e;
+    }
+
+    @keyframes slideIn {
+        from {
+            transform: translateX(400px);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="participation-wrapper">
+    {% if app.flashes %}
+    <div class="flash-messages">
+        {% for type, messages in app.flashes %}
+            {% for message in messages %}
+            <div class="alert alert-{{ type }}">{{ message }}</div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="participation-container">
+        <a href="{{ path('app_dashboard', {'_locale': app.request.locale}) }}" class="back-link">
+            ← Retour au tableau de bord
+        </a>
+
+        <div class="header">
+            <div class="header-icon">📊</div>
+            <h1 class="header-title">Mon Historique de Participation</h1>
+            <p class="header-subtitle">Consultez toutes vos participations et vos retours d'expérience</p>
+        </div>
+
+        {% if participations|length > 0 %}
+        <div class="participation-list">
+            {% for item in participations %}
+            <a href="{{ path('app_participation_show', {id: item.participation.id}) }}" class="participation-card" style="text-decoration: none; color: inherit;">
+                <div class="participation-header">
+                    <div class="participation-title">
+                        {{ item.activity.title ?? 'Activity' }}
+                    </div>
+                    <span class="status-badge status-{{ item.participation.status|lower|replace({'_': ''}) }}">
+                        {% if item.participation.status == 'inscrit' %}
+                            ✓ Inscrit
+                        {% elseif item.participation.status == 'annulé' %}
+                            ✗ Annulé
+                        {% elseif item.participation.status == 'présent' %}
+                            ✓ Présent
+                        {% elseif item.participation.status == 'absent_excusé' %}
+                            ⚠ Absent (excusé)
+                        {% else %}
+                            ✗ Absent
+                        {% endif %}
+                    </span>
+                </div>
+
+                <div class="participation-meta">
+                    <div class="meta-item">📅 {{ item.participation.registrationDate|date('d/m/Y H:i') }}</div>
+                    {% if item.activity.activityDate %}
+                    <div class="meta-item">🎯 {{ item.activity.activityDate|date('d/m/Y') }}</div>
+                    {% endif %}
+                    {% if item.participation.feedbackRating %}
+                    <div class="meta-item rating">
+                        ⭐ {{ item.participation.feedbackRating }}/5
+                    </div>
+                    {% endif %}
+                </div>
+
+                {% if item.participation.feedbackComment %}
+                <div style="color: #666; font-size: 0.95rem; margin-top: 0.5rem; font-style: italic;">
+                    "{{ (item.participation.feedbackComment|length > 100) ? item.participation.feedbackComment|slice(0, 100) ~ '...' : item.participation.feedbackComment }}"
+                </div>
+                {% endif %}
+
+                <div class="btn-view">Voir détails →</div>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-state-icon">📭</div>
+            <p style="font-size: 1.2rem; margin-bottom: 0.5rem;">Aucune participation enregistrée</p>
+            <p>Inscrivez-vous à une activité pour commencer!</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

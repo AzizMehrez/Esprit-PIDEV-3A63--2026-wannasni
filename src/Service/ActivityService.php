@@ -7,6 +7,7 @@ use App\Entity\Participation;
 use App\Exception\ValidationException;
 use App\Exception\BusinessRuleException;
 use App\Exception\UnauthorizedException;
+use App\Repository\ActivityRepository;
 
 /**
  * ActivityService - Business logic for activities and events
@@ -14,6 +15,10 @@ use App\Exception\UnauthorizedException;
 class ActivityService
 {
     private const VALID_TYPES = ['social', 'physical', 'cultural', 'educational'];
+
+    public function __construct(private ActivityRepository $activityRepository)
+    {
+    }
 
     /**
      * Create activity (coaches and admins only)
@@ -44,7 +49,6 @@ class ActivityService
         }
 
         $activity = new Activity();
-        $activity->setId(rand(1, 10000));
         $activity->setTitle($data['title']);
         $activity->setDescription($data['description'] ?? '');
         $activity->setType($type);
@@ -54,6 +58,9 @@ class ActivityService
         $activity->setMaxParticipants($data['max_participants'] ?? null);
         $activity->setCoachId($creatorId);
         $activity->setIsActive(true);
+
+        // Persist to database
+        $this->activityRepository->save($activity, true);
 
         return $activity;
     }

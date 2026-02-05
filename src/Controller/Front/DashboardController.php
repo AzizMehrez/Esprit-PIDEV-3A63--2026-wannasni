@@ -2,12 +2,17 @@
 
 namespace App\Controller\Front;
 
+use App\Repository\ActivityRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 class DashboardController extends AbstractController
 {
+    public function __construct(private ActivityRepository $activityRepository)
+    {
+    }
+
     #[Route('/{_locale}/dashboard', name: 'app_dashboard', requirements: ['_locale' => 'fr|en|ar'])]
     public function index(): Response
     {
@@ -18,12 +23,21 @@ class DashboardController extends AbstractController
             'email' => 'marie.dupont@email.com',
         ];
 
-        // Mock dashboard data
-        $upcomingActivities = [
-            ['name' => 'Morning Walk', 'time' => '8:00', 'date' => 'Demain', 'type' => 'physical'],
-            ['name' => 'Memory Games', 'time' => '10:00', 'date' => 'Mer 5 Fév', 'type' => 'cognitive'],
-            ['name' => 'Yoga Class', 'time' => '9:00', 'date' => 'Jeu 6 Fév', 'type' => 'physical'],
-        ];
+        // Get upcoming activities from database
+        $activities = $this->activityRepository->findUpcoming();
+        $upcomingActivities = array_slice(
+            array_map(function($activity) {
+                return [
+                    'name' => $activity->getTitle(),
+                    'time' => $activity->getStartTime()?->format('H:i') ?? 'TBA',
+                    'date' => $activity->getStartTime()?->format('D d M') ?? 'TBA',
+                    'type' => $activity->getType(),
+                    'location' => $activity->getLocation(),
+                ];
+            }, $activities),
+            0,
+            3 // Show only 3 upcoming
+        );
 
         $recentHealth = [
             'date' => new \DateTime('-1 day'),
@@ -58,4 +72,3 @@ class DashboardController extends AbstractController
         ]);
     }
 }
-
