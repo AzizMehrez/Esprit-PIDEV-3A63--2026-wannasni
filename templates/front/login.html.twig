@@ -42,13 +42,22 @@
                 </div>
             {% endif %}
             
-            <form method="post" class="auth-form">
+            {% if app.flashes('success') %}
+                <div class="alert alert-success">
+                    {% for message in app.flashes('success') %}
+                        <p>{{ message }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            
+            <form method="post" action="{{ path('app_login', {_locale: app.request.locale}) }}" class="auth-form">
                 <div class="form-group">
                     <label for="inputEmail" class="form-label">{{ 'auth.email'|trans|default('Adresse email') }}</label>
                     <input type="email" 
                            id="inputEmail" 
-                           name="email" 
+                           name="_username" 
                            class="form-input" 
+                           value="{{ last_username }}"
                            placeholder="exemple@email.com"
                            autocomplete="email"
                            required 
@@ -59,7 +68,7 @@
                     <label for="inputPassword" class="form-label">{{ 'auth.password'|trans|default('Mot de passe') }}</label>
                     <input type="password" 
                            id="inputPassword" 
-                           name="password" 
+                           name="_password" 
                            class="form-input" 
                            placeholder="••••••••"
                            autocomplete="current-password"

@@ -76,16 +76,72 @@
             grid-column: span 1;
         }
     }
+    
+    .alert {
+        padding: 1rem 1.5rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-weight: 500;
+        animation: slideIn 0.3s ease-out;
+    }
+    
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .alert-error {
+        background-color: #fee2e2;
+        color: #991b1b;
+        border: 1px solid #fca5a5;
+    }
+    
+    .alert-warning {
+        background-color: #fef3c7;
+        color: #92400e;
+        border: 1px solid #fcd34d;
+    }
 </style>
 {% endblock %}
 
 {% block content %}
+{% for message in app.flashes('error') %}
+    <div class="alert alert-error">
+        <span style="font-size: 1.5rem;">❌</span>
+        <span>{{ message }}</span>
+    </div>
+{% endfor %}
+
+{% for message in app.flashes('warning') %}
+    <div class="alert alert-warning">
+        <span style="font-size: 1.5rem;">⚠️</span>
+        <span>{{ message }}</span>
+    </div>
+{% endfor %}
+
 <div class="form-container">
     <div class="admin-card">
         <div class="card-header">
             <h2 class="card-title">✏️ Modifier {{ user.firstName }} {{ user.lastName }}</h2>
         </div>
         <div class="card-body">
+            {% if app.flashes('success') %}
+                <div class="alert alert-success" style="margin-bottom: 1rem;">
+                    {% for message in app.flashes('success') %}
+                        <p>{{ message }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            
             <form method="post">
                 <div class="form-grid">
                     <div class="form-group">
@@ -98,23 +154,32 @@
                     </div>
                     <div class="form-group full">
                         <label class="form-label">Email *</label>
-                        <input type="email" class="form-input" name="email" value="{{ user.email }}" required>
+                        <input type="email" class="form-input" name="email" value="{{ user.email }}" readonly style="background: #f7fafc;">
                     </div>
                     <div class="form-group">
                         <label class="form-label">Téléphone</label>
                         <input type="tel" class="form-input" name="phone" value="{{ user.phone }}">
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Rôle</label>
-                        <select class="form-input form-select" name="role">
-                            <option value="ROLE_USER" {% if 'ROLE_USER' in user.roles %}selected{% endif %}>Utilisateur</option>
-                            <option value="ROLE_CAREGIVER" {% if 'ROLE_CAREGIVER' in user.roles %}selected{% endif %}>Aidant</option>
-                            <option value="ROLE_ADMIN" {% if 'ROLE_ADMIN' in user.roles %}selected{% endif %}>Admin</option>
+                        <label class="form-label">Statut *</label>
+                        <select class="form-input form-select" name="status" required>
+                            <option value="active" {% if user.status == 'active' %}selected{% endif %}>Actif</option>
+                            <option value="inactive" {% if user.status == 'inactive' %}selected{% endif %}>Inactif</option>
+                            <option value="suspended" {% if user.status == 'suspended' %}selected{% endif %}>Suspendu</option>
                         </select>
                     </div>
                     <div class="form-group full">
-                        <label class="form-label">Adresse</label>
-                        <input type="text" class="form-input" name="address" value="{{ user.address }}">
+                        <label class="form-label">Rôles</label>
+                        <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.5rem;">
+                            <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                <input type="checkbox" name="role_admin" value="1" {% if 'ROLE_ADMIN' in user.roles %}checked{% endif %}>
+                                <span>Administrateur</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                <input type="checkbox" name="role_caregiver" value="1" {% if 'ROLE_CAREGIVER' in user.roles %}checked{% endif %}>
+                                <span>Aidant / Professionnel</span>
+                            </label>
+                        </div>
                     </div>
                 </div>
 

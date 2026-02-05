@@ -10,6 +10,47 @@
 
 {% block extra_styles %}
 <style>
+    .alert {
+        padding: 1rem 1.5rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-weight: 500;
+        animation: slideIn 0.3s ease-out;
+    }
+    
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .alert-success {
+        background-color: #d1fae5;
+        color: #065f46;
+        border: 1px solid #6ee7b7;
+    }
+    
+    .alert-success::before {
+        content: "✓";
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 24px;
+        height: 24px;
+        background: #10b981;
+        color: white;
+        border-radius: 50%;
+        font-weight: bold;
+    }
+
     .user-profile {
         display: grid;
         grid-template-columns: 300px 1fr;
@@ -95,9 +136,49 @@
 {% endblock %}
 
 {% block content %}
+{% for message in app.flashes('success') %}
+    <div class="alert alert-success" role="alert">
+        <div style="display: flex; align-items: center; gap: 1rem; width: 100%;">
+            <span style="font-size: 1.75rem;">✅</span>
+            <div style="flex: 1;">
+                <strong style="display: block; font-size: 1.05rem; margin-bottom: 0.25rem;">Mise à jour réussie !</strong>
+                <span>{{ message }}</span>
+            </div>
+        </div>
+    </div>
+{% endfor %}
+
+{% for message in app.flashes('info') %}
+    <div class="alert" style="background-color: #dbeafe; color: #1e40af; border: 1px solid #93c5fd;">
+        <span style="font-size: 1.5rem;">ℹ️</span>
+        <span>{{ message }}</span>
+    </div>
+{% endfor %}
+
+{% for message in app.flashes('warning') %}
+    <div class="alert" style="background-color: #fef3c7; color: #92400e; border: 1px solid #fcd34d;">
+        <span style="font-size: 1.5rem;">⚠️</span>
+        <span>{{ message }}</span>
+    </div>
+{% endfor %}
+
+{% if app.flashes('success') %}
+    <div class="alert alert-success">
+        {% for message in app.flashes('success') %}
+            {{ message }}
+        {% endfor %}
+    </div>
+{% endif %}
+
 <div class="user-profile">
     <div class="profile-sidebar">
-        <div class="profile-avatar">{{ user.firstName|first }}{{ user.lastName|first }}</div>
+        <div class="profile-avatar" style="overflow: hidden; color: white;">
+            {% if user.imageProfil %}
+                <img src="{{ user.imageProfil }}" alt="{{ user.firstName }}" style="width: 100%; height: 100%; object-fit: cover;">
+            {% else %}
+                {{ user.firstName|first }}{{ user.lastName|first }}
+            {% endif %}
+        </div>
         <h2 class="profile-name">{{ user.firstName }} {{ user.lastName }}</h2>
         <p class="profile-email">{{ user.email }}</p>
         {% if 'ROLE_ADMIN' in user.roles %}
@@ -128,11 +209,35 @@
                     </div>
                     <div class="info-row">
                         <span class="info-label">Téléphone</span>
-                        <span class="info-value">{{ user.phone }}</span>
+                        <span class="info-value">{{ user.phone ?? 'N/A' }}</span>
                     </div>
                     <div class="info-row">
+                        <span class="info-label">Date de Naissance</span>
+                        <span class="info-value">{{ user.dateNaissance ? user.dateNaissance|date('d/m/Y') : 'N/A' }}</span>
+                    </div>
+                </div>
+
+                <div class="info-section">
+                    <h3>Adresse</h3>
+                    <div class="info-row">
                         <span class="info-label">Adresse</span>
-                        <span class="info-value">{{ user.address }}</span>
+                        <span class="info-value">{{ user.adresse ?? 'N/A' }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Ville</span>
+                        <span class="info-value">{{ user.ville ?? 'N/A' }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Code Postal</span>
+                        <span class="info-value">{{ user.codePostal ?? 'N/A' }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Pays</span>
+                        <span class="info-value">{{ user.pays ?? 'N/A' }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Location</span>
+                        <span class="info-value">{{ user.location ?? 'N/A' }}</span>
                     </div>
                 </div>
 
@@ -141,7 +246,7 @@
                     <div class="info-row">
                         <span class="info-label">Statut</span>
                         <span class="info-value">
-                            {% if user.isActive %}
+                            {% if user.status == 'active' %}
                                 <span class="badge badge-success">✓ Actif</span>
                             {% else %}
                                 <span class="badge badge-warning">⏸ Inactif</span>

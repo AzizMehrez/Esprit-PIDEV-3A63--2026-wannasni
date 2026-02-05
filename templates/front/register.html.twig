@@ -31,46 +31,76 @@
             </div>
             
             <div class="auth-form-header">
-                <h1 class="auth-title">{{ 'auth.register.title'|trans|default('Créez votre compte') }}</h1>
-                <p class="auth-subtitle">{{ 'auth.register.subtitle'|trans|default('Rejoignez la famille WANNASNI en quelques étapes.') }}</p>
+                <h1 class="auth-title">{{ 'register'|trans|default('Créez votre compte') }}</h1>
+                <p class="auth-subtitle">{{ 'register'|trans|default('Rejoignez la famille WANNASNI en quelques étapes.') }}</p>
             </div>
             
-            {# Role Selection - Big Icon Cards #}
-            <div class="role-selection">
-                <p class="role-label">{{ 'auth.select_role'|trans|default('Je suis...') }}</p>
-                <div class="role-cards">
-                    <label class="role-card-option">
-                        <input type="radio" name="role" value="senior" required>
-                        <div class="role-card-content">
-                            <span class="role-emoji">👴</span>
-                            <span class="role-name">{{ 'role.senior'|trans|default('Senior') }}</span>
-                        </div>
-                    </label>
-                    <label class="role-card-option">
-                        <input type="radio" name="role" value="family">
-                        <div class="role-card-content">
-                            <span class="role-emoji">👨‍👩‍👧</span>
-                            <span class="role-name">{{ 'role.family'|trans|default('Famille') }}</span>
-                        </div>
-                    </label>
-                    <label class="role-card-option">
-                        <input type="radio" name="role" value="doctor">
-                        <div class="role-card-content">
-                            <span class="role-emoji">👨‍⚕️</span>
-                            <span class="role-name">{{ 'role.doctor'|trans|default('Médecin') }}</span>
-                        </div>
-                    </label>
-                    <label class="role-card-option">
-                        <input type="radio" name="role" value="coach">
-                        <div class="role-card-content">
-                            <span class="role-emoji">🏋️</span>
-                            <span class="role-name">{{ 'role.coach'|trans|default('Coach') }}</span>
-                        </div>
-                    </label>
+            {% for message in app.flashes('error') %}
+                {% if loop.first %}
+                <div class="alert alert-error" style="padding: 1rem; background: #fed7d7; color: #c53030; border: 1px solid #fc8181; border-radius: 8px; margin-bottom: 1rem;">
+                {% endif %}
+                    <p style="margin: 0;">⚠️ {{ message }}</p>
+                {% if loop.last %}
                 </div>
-            </div>
+                {% endif %}
+            {% endfor %}
             
-            <form method="post" class="auth-form">
+            {% for message in app.flashes('success') %}
+                {% if loop.first %}
+                <div class="alert alert-success" style="padding: 1rem; background: #c6f6d5; color: #276749; border: 1px solid #9ae6b4; border-radius: 8px; margin-bottom: 1rem;">
+                {% endif %}
+                    <p style="margin: 0;">✓ {{ message }}</p>
+                {% if loop.last %}
+                </div>
+                {% endif %}
+            {% endfor %}
+            
+            {% for message in app.flashes('info') %}
+                {% if loop.first %}
+                <div class="alert alert-info" style="padding: 1rem; background: #bee3f8; color: #2b6cb0; border: 1px solid #90cdf4; border-radius: 8px; margin-bottom: 1rem;">
+                {% endif %}
+                    <p style="margin: 0;">ℹ️ {{ message }}</p>
+                {% if loop.last %}
+                </div>
+                {% endif %}
+            {% endfor %}
+            
+            <form method="post" action="{{ path('app_register', {_locale: app.request.locale}) }}" class="auth-form">
+                {# Role Selection - Big Icon Cards #}
+                <div class="role-selection">
+                    <p class="role-label">{{ 'select_role'|trans|default('Je suis...') }}</p>
+                    <div class="role-cards">
+                        <label class="role-card-option">
+                            <input type="radio" name="role" value="senior" checked>
+                            <div class="role-card-content">
+                                <span class="role-emoji">👴</span>
+                                <span class="role-name">{{ 'role.senior'|trans|default('Senior') }}</span>
+                            </div>
+                        </label>
+                        <label class="role-card-option">
+                            <input type="radio" name="role" value="family">
+                            <div class="role-card-content">
+                                <span class="role-emoji">👨‍👩‍👧</span>
+                                <span class="role-name">{{ 'role.family'|trans|default('Famille') }}</span>
+                            </div>
+                        </label>
+                        <label class="role-card-option">
+                            <input type="radio" name="role" value="doctor">
+                            <div class="role-card-content">
+                                <span class="role-emoji">👨‍⚕️</span>
+                                <span class="role-name">{{ 'role.doctor'|trans|default('Médecin') }}</span>
+                            </div>
+                        </label>
+                        <label class="role-card-option">
+                            <input type="radio" name="role" value="coach">
+                            <div class="role-card-content">
+                                <span class="role-emoji">🏋️</span>
+                                <span class="role-name">{{ 'role.coach'|trans|default('Coach') }}</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+                
                 <div class="form-row-2col">
                     <div class="form-group">
                         <label for="inputFirstName" class="form-label">{{ 'auth.first_name'|trans|default('Prénom') }}</label>
@@ -81,6 +111,7 @@
                                placeholder="Jean"
                                autocomplete="given-name"
                                required>
+                        <span class="error-message" id="firstNameError" style="display: none; color: #c53030; font-size: 0.875rem; margin-top: 0.25rem;"></span>
                     </div>
                     <div class="form-group">
                         <label for="inputLastName" class="form-label">{{ 'auth.last_name'|trans|default('Nom') }}</label>
@@ -91,6 +122,7 @@
                                placeholder="Dupont"
                                autocomplete="family-name"
                                required>
+                        <span class="error-message" id="lastNameError" style="display: none; color: #c53030; font-size: 0.875rem; margin-top: 0.25rem;"></span>
                     </div>
                 </div>
                 
@@ -103,6 +135,7 @@
                            placeholder="exemple@email.com"
                            autocomplete="email"
                            required>
+                    <span class="error-message" id="emailError" style="display: none; color: #c53030; font-size: 0.875rem; margin-top: 0.25rem;"></span>
                 </div>
                 
                 <div class="form-group">
@@ -113,6 +146,7 @@
                            class="form-input" 
                            placeholder="+216 XX XXX XXX"
                            autocomplete="tel">
+                    <span class="error-message" id="phoneError" style="display: none; color: #c53030; font-size: 0.875rem; margin-top: 0.25rem;"></span>
                 </div>
                 
                 <div class="form-group">
@@ -138,14 +172,12 @@
                 </div>
                 
                 <label class="form-checkbox terms-checkbox">
-                    <input type="checkbox" name="agreeTerms" required>
+                    <input type="checkbox" name="agreeTerms">
                     <span class="checkbox-label">
                         {{ 'auth.agree_terms'|trans|default("J'accepte les") }} 
                         <a href="#terms" class="auth-link">{{ 'auth.terms'|trans|default("conditions d'utilisation") }}</a>
                     </span>
                 </label>
-                
-                <input type="hidden" name="_csrf_token" value="{{ csrf_token('register') }}">
                 
                 <button type="submit" class="btn btn-primary btn-large btn-full">
                     {{ 'auth.create_account'|trans|default('Créer mon compte') }}
@@ -195,4 +227,111 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const firstNameInput = document.getElementById('inputFirstName');
+    const lastNameInput = document.getElementById('inputLastName');
+    const emailInput = document.getElementById('inputEmail');
+    const phoneInput = document.getElementById('inputPhone');
+
+    const firstNameError = document.getElementById('firstNameError');
+    const lastNameError = document.getElementById('lastNameError');
+    const emailError = document.getElementById('emailError');
+    const phoneError = document.getElementById('phoneError');
+
+    // Validate first name - only letters
+    function validateFirstName() {
+        const value = firstNameInput.value.trim();
+        const letterPattern = /^[a-zA-ZÀ-ÿ\s\-']+$/;
+        
+        if (value && !letterPattern.test(value)) {
+            firstNameError.textContent = '⚠️ Le prénom ne doit contenir que des lettres.';
+            firstNameError.style.display = 'block';
+            firstNameInput.style.borderColor = '#c53030';
+            return false;
+        } else {
+            firstNameError.style.display = 'none';
+            firstNameInput.style.borderColor = '';
+            return true;
+        }
+    }
+
+    // Validate last name - only letters
+    function validateLastName() {
+        const value = lastNameInput.value.trim();
+        const letterPattern = /^[a-zA-ZÀ-ÿ\s\-']+$/;
+        
+        if (value && !letterPattern.test(value)) {
+            lastNameError.textContent = '⚠️ Le nom ne doit contenir que des lettres.';
+            lastNameError.style.display = 'block';
+            lastNameInput.style.borderColor = '#c53030';
+            return false;
+        } else {
+            lastNameError.style.display = 'none';
+            lastNameInput.style.borderColor = '';
+            return true;
+        }
+    }
+
+    // Validate email
+    function validateEmail() {
+        const value = emailInput.value.trim();
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        
+        if (value && !emailPattern.test(value)) {
+            emailError.textContent = '⚠️ Veuillez entrer une adresse email valide (exemple: nom@gmail.com).';
+            emailError.style.display = 'block';
+            emailInput.style.borderColor = '#c53030';
+            return false;
+        } else {
+            emailError.style.display = 'none';
+            emailInput.style.borderColor = '';
+            return true;
+        }
+    }
+
+    // Validate phone - only numbers and at least 8 digits
+    function validatePhone() {
+        const value = phoneInput.value.trim();
+        if (!value) {
+            phoneError.style.display = 'none';
+            phoneInput.style.borderColor = '';
+            return true;
+        }
+
+        const phonePattern = /^[0-9\s\-\+\(\)]+$/;
+        const digitsOnly = value.replace(/\D/g, '');
+        
+        if (!phonePattern.test(value)) {
+            phoneError.textContent = '⚠️ Le numéro de téléphone ne doit contenir que des chiffres.';
+            phoneError.style.display = 'block';
+            phoneInput.style.borderColor = '#c53030';
+            return false;
+        } else if (digitsOnly.length < 8) {
+            phoneError.textContent = '⚠️ Le numéro de téléphone doit contenir au moins 8 chiffres.';
+            phoneError.style.display = 'block';
+            phoneInput.style.borderColor = '#c53030';
+            return false;
+        } else {
+            phoneError.style.display = 'none';
+            phoneInput.style.borderColor = '';
+            return true;
+        }
+    }
+
+    // Add event listeners for real-time validation
+    firstNameInput.addEventListener('input', validateFirstName);
+    firstNameInput.addEventListener('blur', validateFirstName);
+    
+    lastNameInput.addEventListener('input', validateLastName);
+    lastNameInput.addEventListener('blur', validateLastName);
+    
+    emailInput.addEventListener('input', validateEmail);
+    emailInput.addEventListener('blur', validateEmail);
+    
+    phoneInput.addEventListener('input', validatePhone);
+    phoneInput.addEventListener('blur', validatePhone);
+});
+</script>
 {% endblock %}

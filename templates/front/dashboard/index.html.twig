@@ -107,6 +107,13 @@
         opacity: 0.85;
     }
 
+    .welcome-actions {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
     .welcome-date {
         display: inline-flex;
         align-items: center;
@@ -118,6 +125,33 @@
         color: white;
         font-size: 0.9rem;
         font-weight: 500;
+    }
+
+    .btn-admin-dashboard {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        background: rgba(255, 255, 255, 0.95);
+        color: var(--dash-primary);
+        text-decoration: none;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        backdrop-filter: blur(10px);
+    }
+
+    .btn-admin-dashboard:hover {
+        background: white;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        border-color: white;
+    }
+
+    .btn-admin-dashboard span {
+        font-size: 1.1rem;
     }
 
     /* Stats Bar */
@@ -620,6 +654,47 @@
 <div class="dashboard-wrapper">
     <div class="dashboard-container">
         
+        {% if profile_incomplete %}
+        <!-- Profile Completion Modal -->
+        <div id="profileModal" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 9999; display: flex; align-items: center; justify-content: center; animation: fadeIn 0.3s;">
+            <div style="background: white; border-radius: 20px; padding: 2.5rem; max-width: 500px; width: 90%; box-shadow: 0 20px 60px rgba(0,0,0,0.3); animation: slideUp 0.4s;">
+                <div style="text-align: center;">
+                    <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #2E7D32, #4CAF50); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; font-size: 2.5rem; overflow: hidden; color: white; font-weight: 700;">
+                        {% if user.imageProfil %}
+                            <img src="{{ user.imageProfil }}" alt="{{ user.firstName }}" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+                        {% else %}
+                            <span>{{ user.firstName|first }}{{ user.lastName|first }}</span>
+                        {% endif %}
+                    </div>
+                    <h2 style="font-family: 'Playfair Display', serif; font-size: 1.75rem; color: #1a1a2e; margin-bottom: 1rem;">
+                        Complétez votre profil
+                    </h2>
+                    <p style="color: #64748b; font-size: 1.1rem; line-height: 1.6; margin-bottom: 2rem;">
+                        Nous avons remarqué que certaines informations de votre profil sont manquantes. Souhaitez-vous les compléter maintenant pour une meilleure expérience ?
+                    </p>
+                    <div style="display: flex; gap: 1rem; justify-content: center;">
+                        <a href="{{ path('app_profile', {'_locale': app.request.locale}) }}" style="flex: 1; padding: 1rem 1.5rem; background: linear-gradient(135deg, #2E7D32, #4CAF50); color: white; text-decoration: none; border-radius: 12px; font-weight: 600; text-align: center; transition: all 0.2s; box-shadow: 0 4px 12px rgba(46, 125, 50, 0.3);">
+                            ✅ Oui, compléter
+                        </a>
+                        <button onclick="document.getElementById('profileModal').style.display='none'" style="flex: 1; padding: 1rem 1.5rem; background: #f1f5f9; color: #64748b; border: none; border-radius: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s;">
+                            ⏭️ Plus tard
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <style>
+            @keyframes fadeIn {
+                from { opacity: 0; }
+                to { opacity: 1; }
+            }
+            @keyframes slideUp {
+                from { transform: translateY(50px); opacity: 0; }
+                to { transform: translateY(0); opacity: 1; }
+            }
+        </style>
+        {% endif %}
+        
         <!-- Welcome Hero -->
         <section class="welcome-hero">
             <div class="welcome-content">
@@ -628,8 +703,15 @@
                     <h1 class="welcome-name">{{ user.firstName }} {{ user.lastName }}</h1>
                     <p class="welcome-subtitle">Voici votre espace personnel WANNASNI</p>
                 </div>
-                <div class="welcome-date">
-                    📅 {{ "now"|date("l d F Y") }}
+                <div class="welcome-actions">
+                    <div class="welcome-date">
+                        📅 {{ "now"|date("l d F Y") }}
+                    </div>
+                    {% if is_granted('ROLE_ADMIN') %}
+                    <a href="{{ path('admin_dashboard') }}" class="btn-admin-dashboard">
+                        <span>⚙️</span> Panneau Admin
+                    </a>
+                    {% endif %}
                 </div>
             </div>
         </section>

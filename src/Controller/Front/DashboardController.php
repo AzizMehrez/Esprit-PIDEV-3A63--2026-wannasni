@@ -11,12 +11,12 @@ class DashboardController extends AbstractController
     #[Route('/{_locale}/dashboard', name: 'app_dashboard', requirements: ['_locale' => 'fr|en|ar'])]
     public function index(): Response
     {
-        // Mock user data (in production, get from logged-in user)
-        $user = [
-            'firstName' => 'Marie',
-            'lastName' => 'Dupont',
-            'email' => 'marie.dupont@email.com',
-        ];
+        // Get the currently logged-in user
+        $user = $this->getUser();
+
+        // Check if profile is incomplete
+        $profileIncomplete = !$user->getDateNaissance() || !$user->getAdresse() || 
+                           !$user->getVille() || !$user->getCodePostal() || !$user->getPays();
 
         // Mock dashboard data
         $upcomingActivities = [
@@ -55,6 +55,7 @@ class DashboardController extends AbstractController
             'recent_health' => $recentHealth,
             'services' => $services,
             'nutrition' => $nutrition,
+            'profile_incomplete' => $profileIncomplete,
         ]);
     }
 }

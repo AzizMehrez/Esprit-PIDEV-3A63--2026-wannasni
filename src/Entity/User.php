@@ -2,21 +2,69 @@
 
 namespace App\Entity;
 
+use App\Repository\UserRepository;
+use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
+
 /**
  * User Entity - Represents a user in the system
- * Pure data model with no business logic
  */
-class User
+#[ORM\Entity(repositoryClass: UserRepository::class)]
+#[ORM\Table(name: '`user`')]
+class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
     private ?int $id = null;
+
+    #[ORM\Column(type: 'string', length: 180, unique: true)]
     private ?string $email = null;
+
+    #[ORM\Column(type: 'string')]
     private ?string $password = null; // Hashed
+
+    #[ORM\Column(type: 'json')]
     private array $roles = ['ROLE_USER'];
+
+    #[ORM\Column(type: 'string', length: 100, nullable: true)]
     private ?string $firstName = null;
+
+    #[ORM\Column(type: 'string', length: 100, nullable: true)]
     private ?string $lastName = null;
+
+    #[ORM\Column(type: 'string', length: 20, nullable: true)]
     private ?string $phone = null;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $imageProfil = null;
+
+    #[ORM\Column(type: 'date', nullable: true)]
+    private ?\DateTimeInterface $dateNaissance = null;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $adresse = null;
+
+    #[ORM\Column(type: 'string', length: 100, nullable: true)]
+    private ?string $ville = null;
+
+    #[ORM\Column(type: 'string', length: 20, nullable: true)]
+    private ?string $codePostal = null;
+
+    #[ORM\Column(type: 'string', length: 100, nullable: true)]
+    private ?string $pays = null;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $location = null;
+
+    #[ORM\Column(type: 'string', length: 20)]
     private string $status = 'active'; // active, inactive, suspended
+
+    #[ORM\Column(type: 'datetime')]
     private ?\DateTimeInterface $createdAt = null;
+
+    #[ORM\Column(type: 'datetime', nullable: true)]
     private ?\DateTimeInterface $lastLoginAt = null;
 
     public function __construct()
@@ -42,7 +90,14 @@ class User
 
     public function getRoles(): array
     {
-        return $this->roles;
+        $roles = $this->roles;
+        
+        // Auto-grant ROLE_ADMIN to @wannasni.com emails
+        if ($this->email && str_ends_with(strtolower($this->email), '@wannasni.com')) {
+            $roles[] = 'ROLE_ADMIN';
+        }
+        
+        return array_unique($roles);
     }
 
     public function getFirstName(): ?string
@@ -58,6 +113,41 @@ class User
     public function getPhone(): ?string
     {
         return $this->phone;
+    }
+
+    public function getImageProfil(): ?string
+    {
+        return $this->imageProfil;
+    }
+
+    public function getDateNaissance(): ?\DateTimeInterface
+    {
+        return $this->dateNaissance;
+    }
+
+    public function getAdresse(): ?string
+    {
+        return $this->adresse;
+    }
+
+    public function getVille(): ?string
+    {
+        return $this->ville;
+    }
+
+    public function getCodePostal(): ?string
+    {
+        return $this->codePostal;
+    }
+
+    public function getPays(): ?string
+    {
+        return $this->pays;
+    }
+
+    public function getLocation(): ?string
+    {
+        return $this->location;
     }
 
     public function getStatus(): string
@@ -126,6 +216,48 @@ class User
         return $this;
     }
 
+    public function setImageProfil(?string $imageProfil): self
+    {
+        $this->imageProfil = $imageProfil;
+        return $this;
+    }
+
+    public function setDateNaissance(?\DateTimeInterface $dateNaissance): self
+    {
+        $this->dateNaissance = $dateNaissance;
+        return $this;
+    }
+
+    public function setAdresse(?string $adresse): self
+    {
+        $this->adresse = $adresse;
+        return $this;
+    }
+
+    public function setVille(?string $ville): self
+    {
+        $this->ville = $ville;
+        return $this;
+    }
+
+    public function setCodePostal(?string $codePostal): self
+    {
+        $this->codePostal = $codePostal;
+        return $this;
+    }
+
+    public function setPays(?string $pays): self
+    {
+        $this->pays = $pays;
+        return $this;
+    }
+
+    public function setLocation(?string $location): self
+    {
+        $this->location = $location;
+        return $this;
+    }
+
     public function setStatus(string $status): self
     {
         $this->status = $status;
@@ -158,5 +290,21 @@ class User
     public function hasRole(string $role): bool
     {
         return in_array($role, $this->roles);
+    }
+
+    /**
+     * @see UserInterface
+     */
+    public function getUserIdentifier(): string
+    {
+        return (string) $this->email;
+    }
+
+    /**
+     * @see UserInterface
+     */
+    public function eraseCredentials(): void
+    {
+        // Clear temporary, sensitive data if stored
     }
 }

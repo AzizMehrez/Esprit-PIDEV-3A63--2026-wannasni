@@ -1,4 +1,4 @@
-{% extends 'base.html.twig' %}
+{% extends 'base_dashboard.html.twig' %}
 
 {% block title %}Modifier Mon Profil - WANNASNI{% endblock %}
 
@@ -177,7 +177,7 @@
                 </h1>
             </div>
             <div class="form-body">
-                <form method="post">
+                <form method="post" enctype="multipart/form-data">
                     <div class="form-group">
                         <label class="form-label">Prénom</label>
                         <input type="text" class="form-input" name="firstName" value="{{ user.firstName }}" required>
@@ -199,13 +199,44 @@
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label">Adresse</label>
-                        <input type="text" class="form-input" name="address" value="{{ user.address }}">
+                        <label class="form-label">Image de Profil</label>
+                        {% if user.imageProfil %}
+                            <div style="margin-bottom: 1rem;">
+                                <img src="{{ user.imageProfil }}" alt="Profile" style="width: 100px; height: 100px; object-fit: cover; border-radius: 50%; border: 2px solid #e2e8f0;">
+                            </div>
+                        {% endif %}
+                        <input type="file" class="form-input" name="imageProfil" accept="image/*" style="padding: 0.75rem;">
+                        <small style="color: #64748b; display: block; margin-top: 0.5rem;">Formats acceptés: JPG, PNG, GIF (Max 2MB)</small>
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label">Contact d'Urgence</label>
-                        <input type="text" class="form-input" name="emergencyContact" value="{{ user.emergencyContact }}">
+                        <label class="form-label">Date de Naissance</label>
+                        <input type="date" class="form-input" name="dateNaissance" value="{{ user.dateNaissance ? user.dateNaissance|date('Y-m-d') : '' }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Adresse</label>
+                        <input type="text" class="form-input" name="adresse" value="{{ user.adresse }}" placeholder="123 Rue Example">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Ville</label>
+                        <input type="text" class="form-input" name="ville" value="{{ user.ville }}" placeholder="Paris">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Code Postal</label>
+                        <input type="text" class="form-input" name="codePostal" value="{{ user.codePostal }}" placeholder="75001">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Pays</label>
+                        <input type="text" class="form-input" name="pays" value="{{ user.pays }}" placeholder="France">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Location</label>
+                        <input type="text" class="form-input" name="location" value="{{ user.location }}" placeholder="Paris, France">
                     </div>
 
                     <div class="btn-group">

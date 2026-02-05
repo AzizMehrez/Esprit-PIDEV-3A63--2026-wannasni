@@ -1,0 +1,190 @@
+{% extends 'base_auth.html.twig' %}
+
+{% block title %}{{ 'admin_choice.title'|trans|default('Choisir votre espace') }} — {{ 'site.name'|trans }}{% endblock %}
+
+{% block body %}
+<div class="auth-page">
+    {# Left Side - Image & Quote #}
+    <div class="auth-image-side">
+        <div class="auth-image-overlay"></div>
+        <img src="/images/hero.png" alt="" class="auth-bg-image" aria-hidden="true">
+        <div class="auth-image-content">
+            <div class="auth-logo">
+                <img src="/images/logo.png" alt="WANNASNI" class="auth-logo-img">
+            </div>
+            <blockquote class="auth-quote">
+                <p>"{{ 'auth.quote.admin_choice'|trans|default('Bienvenue dans l\'équipe WANNASNI !') }}"</p>
+                <cite>— WANNASNI</cite>
+            </blockquote>
+        </div>
+    </div>
+    
+    {# Right Side - Choice Cards #}
+    <div class="auth-form-side">
+        <div class="auth-form-container">
+            {# Mobile Logo (shown on small screens only) #}
+            <div class="auth-mobile-header">
+                <img src="/images/logo.png" alt="WANNASNI" class="auth-mobile-logo">
+            </div>
+            
+            <div class="auth-form-header">
+                <h1 class="auth-title">{{ 'admin_choice.welcome'|trans|default('Bonjour') }}, {{ app.user.firstName }} 👋</h1>
+                <p class="auth-subtitle">{{ 'admin_choice.subtitle'|trans|default('Où souhaitez-vous aller ?') }}</p>
+            </div>
+            
+            <div class="choice-cards">
+                <a href="{{ path('app_dashboard', {_locale: app.request.locale}) }}" class="choice-card choice-card--user">
+                    <div class="choice-card-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                        </svg>
+                    </div>
+                    <div class="choice-card-content">
+                        <h2 class="choice-card-title">{{ 'admin_choice.user_dashboard'|trans|default('Mon Espace Personnel') }}</h2>
+                        <p class="choice-card-description">{{ 'admin_choice.user_description'|trans|default('Accéder à mon tableau de bord utilisateur, mes activités et mon suivi santé.') }}</p>
+                    </div>
+                    <div class="choice-card-arrow">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="9 18 15 12 9 6"></polyline>
+                        </svg>
+                    </div>
+                </a>
+                
+                <a href="{{ path('admin_dashboard') }}" class="choice-card choice-card--admin">
+                    <div class="choice-card-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="14" width="7" height="7"></rect>
+                            <rect x="3" y="14" width="7" height="7"></rect>
+                        </svg>
+                    </div>
+                    <div class="choice-card-content">
+                        <h2 class="choice-card-title">{{ 'admin_choice.admin_panel'|trans|default('Panneau d\'Administration') }}</h2>
+                        <p class="choice-card-description">{{ 'admin_choice.admin_description'|trans|default('Gérer les utilisateurs, les activités et l\'ensemble de la plateforme.') }}</p>
+                    </div>
+                    <div class="choice-card-arrow">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="9 18 15 12 9 6"></polyline>
+                        </svg>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="auth-footer" style="margin-top: 2rem;">
+                <p>
+                    <a href="{{ path('app_logout', {_locale: app.request.locale}) }}" class="auth-link-strong">
+                        ← {{ 'nav.logout'|trans|default('Se déconnecter') }}
+                    </a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.choice-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.choice-card {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    padding: 1.5rem;
+    background: #fff;
+    border: 2px solid #e2e8f0;
+    border-radius: 16px;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.3s ease;
+}
+
+.choice-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+}
+
+.choice-card--user:hover {
+    border-color: #3182ce;
+    background: linear-gradient(135deg, #ebf8ff 0%, #fff 100%);
+}
+
+.choice-card--admin:hover {
+    border-color: #805ad5;
+    background: linear-gradient(135deg, #faf5ff 0%, #fff 100%);
+}
+
+.choice-card-icon {
+    flex-shrink: 0;
+    width: 64px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+}
+
+.choice-card--user .choice-card-icon {
+    background: #ebf8ff;
+    color: #3182ce;
+}
+
+.choice-card--admin .choice-card-icon {
+    background: #faf5ff;
+    color: #805ad5;
+}
+
+.choice-card-content {
+    flex: 1;
+}
+
+.choice-card-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0 0 0.5rem 0;
+    color: #1a202c;
+}
+
+.choice-card-description {
+    font-size: 0.9rem;
+    color: #718096;
+    margin: 0;
+    line-height: 1.5;
+}
+
+.choice-card-arrow {
+    flex-shrink: 0;
+    color: #a0aec0;
+    transition: transform 0.3s ease, color 0.3s ease;
+}
+
+.choice-card:hover .choice-card-arrow {
+    transform: translateX(4px);
+}
+
+.choice-card--user:hover .choice-card-arrow {
+    color: #3182ce;
+}
+
+.choice-card--admin:hover .choice-card-arrow {
+    color: #805ad5;
+}
+
+@media (max-width: 640px) {
+    .choice-card {
+        flex-direction: column;
+        text-align: center;
+        padding: 1.5rem 1rem;
+    }
+    
+    .choice-card-arrow {
+        display: none;
+    }
+}
+</style>
+{% endblock %}

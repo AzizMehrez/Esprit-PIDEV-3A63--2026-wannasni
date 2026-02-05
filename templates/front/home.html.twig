@@ -25,14 +25,21 @@
                 <p class="hero-subtitle">{{ 'hero.subtitle'|trans }}</p>
                 
                 <div class="hero-cta">
-                    <a href="{{ path('app_login') }}" class="btn btn-primary btn-large" id="ctaLogin">
-                        <span class="btn-icon" aria-hidden="true">🔐</span>
-                        {{ 'cta.login'|trans|default('Connexion') }}
-                    </a>
-                    <a href="{{ path('app_register') }}" class="btn btn-outline btn-large" id="ctaSignup">
-                        <span class="btn-icon" aria-hidden="true">✨</span>
-                        {{ 'cta.signup'|trans|default("S'inscrire") }}
-                    </a>
+                    {% if app.user %}
+                        <a href="{{ path('app_dashboard', {_locale: app.request.locale|default('fr')}) }}" class="btn btn-primary btn-large" id="ctaLogin">
+                            <span class="btn-icon" aria-hidden="true">🏠</span>
+                            {{ 'nav.dashboard'|trans|default('Mon espace') }}
+                        </a>
+                    {% else %}
+                        <a href="{{ path('app_login', {_locale: app.request.locale|default('fr')}) }}" class="btn btn-primary btn-large" id="ctaLogin">
+                            <span class="btn-icon" aria-hidden="true"><img src="/images/lock.png" alt="" style="width: 1.2em; height: 1.2em; vertical-align: middle;"></span>
+                            {{ 'cta.login'|trans|default('Connexion') }}
+                        </a>
+                        <a href="{{ path('app_register', {_locale: app.request.locale|default('fr')}) }}" class="btn btn-outline btn-large" id="ctaSignup">
+                            <span class="btn-icon" aria-hidden="true"><img src="/images/sign.png" alt="" style="width: 1.2em; height: 1.2em; vertical-align: middle;"></span>
+                            {{ 'cta.signup'|trans|default("S'inscrire") }}
+                        </a>
+                    {% endif %}
                 </div>
             </div>
             

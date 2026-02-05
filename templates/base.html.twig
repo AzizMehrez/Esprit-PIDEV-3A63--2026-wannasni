@@ -38,12 +38,23 @@
                 
                 {# Auth Buttons #}
                 <div class="header-auth">
-                    <a href="{{ path('app_login') }}" class="btn btn-sm btn-ghost">
-                        {{ 'cta.login'|trans|default('Connexion') }}
-                    </a>
-                    <a href="{{ path('app_register') }}" class="btn btn-sm btn-primary">
-                        {{ 'cta.signup'|trans|default("S'inscrire") }}
-                    </a>
+                    {% if app.user %}
+                        {# User is logged in - show dashboard button #}
+                        <a href="{{ path('app_dashboard', {_locale: app.request.locale|default('fr')}) }}" class="btn btn-sm btn-ghost">
+                            {{ 'nav.dashboard'|trans|default('Mon espace') }}
+                        </a>
+                        <a href="{{ path('app_logout', {_locale: app.request.locale|default('fr')}) }}" class="btn btn-sm btn-primary">
+                            {{ 'nav.logout'|trans|default('Déconnexion') }}
+                        </a>
+                    {% else %}
+                        {# User is not logged in - show login/register buttons #}
+                        <a href="{{ path('app_login', {_locale: app.request.locale|default('fr')}) }}" class="btn btn-sm btn-ghost">
+                            {{ 'cta.login'|trans|default('Connexion') }}
+                        </a>
+                        <a href="{{ path('app_register', {_locale: app.request.locale|default('fr')}) }}" class="btn btn-sm btn-primary">
+                            {{ 'cta.signup'|trans|default("S'inscrire") }}
+                        </a>
+                    {% endif %}
                 </div>
                 
                 <div class="lang-switcher" role="navigation" aria-label="Language selection">
@@ -67,6 +78,58 @@
         <main class="site-main" role="main" id="main-content">
             {% block body %}{% endblock %}
         </main>
+
+        {# Login Modal #}
+        <div id="loginModal" class="modal-overlay" style="display: none;" onclick="closeLoginModal(event)">
+            <div class="modal-content" onclick="event.stopPropagation()">
+                <div class="modal-header">
+                    <h2>{{ 'cta.login'|trans|default('Connexion') }}</h2>
+                    <button onclick="closeLoginModal()" class="modal-close" aria-label="Close">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <p style="margin-bottom: 1.5rem; color: var(--text-secondary);">
+                        {{ 'login.description'|trans|default('Connectez-vous à votre compte WANNASNI.') }}
+                    </p>
+                    <form action="{{ path('app_login', {_locale: app.request.locale|default('fr')}) }}" method="get">
+                        <button type="submit" class="btn btn-primary btn-block">
+                            {{ 'cta.login'|trans|default('Se connecter') }}
+                        </button>
+                    </form>
+                    <p style="margin-top: 1rem; text-align: center; font-size: 0.9rem; color: var(--text-muted);">
+                        {{ 'login.no_account'|trans|default('Pas encore de compte ?') }}
+                        <a href="javascript:void(0)" onclick="closeLoginModal(); openSignupModal();" style="color: var(--primary-color); font-weight: 600;">
+                            {{ 'cta.signup'|trans|default("S'inscrire") }}
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        {# Signup Modal #}
+        <div id="signupModal" class="modal-overlay" style="display: none;" onclick="closeSignupModal(event)">
+            <div class="modal-content" onclick="event.stopPropagation()">
+                <div class="modal-header">
+                    <h2>{{ 'cta.signup'|trans|default("S'inscrire") }}</h2>
+                    <button onclick="closeSignupModal()" class="modal-close" aria-label="Close">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <p style="margin-bottom: 1.5rem; color: var(--text-secondary);">
+                        {{ 'signup.description'|trans|default('Créez votre compte WANNASNI et profitez de tous nos services.') }}
+                    </p>
+                    <form action="{{ path('app_register', {_locale: app.request.locale|default('fr')}) }}" method="get">
+                        <button type="submit" class="btn btn-primary btn-block">
+                            {{ 'cta.create_account'|trans|default('Créer mon compte') }}
+                        </button>
+                    </form>
+                    <p style="margin-top: 1rem; text-align: center; font-size: 0.9rem; color: var(--text-muted);">
+                        {{ 'signup.already_member'|trans|default('Déjà membre ?') }}
+                        <a href="javascript:void(0)" onclick="closeSignupModal(); openLoginModal();" style="color: var(--primary-color); font-weight: 600;">
+                            {{ 'cta.login'|trans|default('Connexion') }}
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
 
         {# Footer #}
         <footer class="site-footer" id="contact" role="contentinfo">
@@ -152,13 +215,6 @@
                         <span class="help-option-text">
                             <strong>Envoyer un email</strong>
                             <small>Réponse sous 24h</small>
-                        </span>
-                    </a>
-                    <a href="{{ path('app_services_request', {'_locale': current_locale}) }}" class="help-option">
-                        <span class="help-option-icon">🛎️</span>
-                        <span class="help-option-text">
-                            <strong>Demander un service</strong>
-                            <small>Transport, aide, courses...</small>
                         </span>
                     </a>
                 </div>
@@ -316,6 +372,92 @@
                 font-size: 0.85rem;
                 color: #64748b;
             }
+
+            /* Signup Modal */
+            .modal-overlay {
+                position: fixed;
+                inset: 0;
+                background: rgba(0, 0, 0, 0.6);
+                backdrop-filter: blur(8px);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 10000;
+                animation: fadeIn 0.3s ease;
+            }
+
+            .modal-content {
+                background: white;
+                border-radius: 20px;
+                max-width: 500px;
+                width: 90%;
+                max-height: 90vh;
+                overflow-y: auto;
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+                animation: slideUp 0.3s ease;
+            }
+
+            .modal-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 1.5rem;
+                border-bottom: 1px solid #e2e8f0;
+            }
+
+            .modal-header h2 {
+                font-size: 1.5rem;
+                font-weight: 700;
+                color: #1a1a2e;
+                margin: 0;
+            }
+
+            .modal-close {
+                background: none;
+                border: none;
+                font-size: 2rem;
+                color: #64748b;
+                cursor: pointer;
+                padding: 0;
+                width: 32px;
+                height: 32px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 50%;
+                transition: all 0.2s;
+            }
+
+            .modal-close:hover {
+                background: #f1f5f9;
+                color: #1a1a2e;
+            }
+
+            .modal-body {
+                padding: 2rem 1.5rem;
+            }
+
+            .btn-block {
+                width: 100%;
+                padding: 1rem;
+                font-size: 1.1rem;
+            }
+
+            @keyframes fadeIn {
+                from { opacity: 0; }
+                to { opacity: 1; }
+            }
+
+            @keyframes slideUp {
+                from {
+                    opacity: 0;
+                    transform: translateY(30px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
             
             @media (max-width: 768px) {
                 .floating-help { bottom: 1.5rem; right: 1rem; }
@@ -466,6 +608,40 @@
                         }
                     });
                 });
+            });
+
+            // Login Modal Functions
+            function openLoginModal() {
+                document.getElementById('loginModal').style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+            }
+
+            function closeLoginModal(event) {
+                if (!event || event.target === event.currentTarget) {
+                    document.getElementById('loginModal').style.display = 'none';
+                    document.body.style.overflow = 'auto';
+                }
+            }
+
+            // Signup Modal Functions
+            function openSignupModal() {
+                document.getElementById('signupModal').style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+            }
+
+            function closeSignupModal(event) {
+                if (!event || event.target === event.currentTarget) {
+                    document.getElementById('signupModal').style.display = 'none';
+                    document.body.style.overflow = 'auto';
+                }
+            }
+
+            // Close modals with Escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    closeLoginModal();
+                    closeSignupModal();
+                }
             });
         </script>
     </body>
