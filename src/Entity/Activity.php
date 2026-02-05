@@ -2,21 +2,49 @@
 
 namespace App\Entity;
 
+use Doctrine\ORM\Mapping as ORM;
+use App\Repository\ActivityRepository;
+
 /**
  * Activity Entity - Represents a social/physical activity or event
  */
+#[ORM\Entity(repositoryClass: ActivityRepository::class)]
+#[ORM\Table(name: 'activites')]
 class Activity
 {
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
     private ?int $id = null;
+
+    #[ORM\Column(type: 'string', length: 255)]
     private ?string $title = null;
+
+    #[ORM\Column(type: 'text', nullable: true)]
     private ?string $description = null;
+
+    #[ORM\Column(type: 'string', length: 50)]
     private ?string $type = 'social'; // social, physical, cultural, educational
+
+    #[ORM\Column(type: 'datetime')]
     private ?\DateTimeInterface $startTime = null;
+
+    #[ORM\Column(type: 'datetime', nullable: true)]
     private ?\DateTimeInterface $endTime = null;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $location = null;
+
+    #[ORM\Column(type: 'integer', nullable: true)]
     private ?int $maxParticipants = null;
+
+    #[ORM\Column(type: 'integer')]
     private int $currentParticipants = 0;
+
+    #[ORM\Column(type: 'integer', nullable: true)]
     private ?int $coachId = null;
+
+    #[ORM\Column(type: 'boolean')]
     private bool $isActive = true;
 
     // Getters
@@ -31,6 +59,11 @@ class Activity
     public function getCurrentParticipants(): int { return $this->currentParticipants; }
     public function getCoachId(): ?int { return $this->coachId; }
     public function isActive(): bool { return $this->isActive; }
+    public function getIsActive(): bool { return $this->isActive; }
+    
+    // Template compatibility aliases
+    public function getStatus(): string { return $this->isActive ? 'active' : 'inactive'; }
+    public function getParticipants(): int { return $this->currentParticipants; }
 
     // Setters
     public function setId(?int $id): self { $this->id = $id; return $this; }

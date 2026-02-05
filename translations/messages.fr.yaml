@@ -12,6 +12,7 @@ nav:
     features: "Fonctionnalités"
     why: "Pourquoi nous"
     contact: "Contact"
+    back_to_login: "Retour à la connexion"
 
 # Greetings (Time-based)
 greeting:
@@ -163,3 +164,28 @@ auth:
     continue_google: "Continuer avec Google"
     continue_x: "Continuer avec X"
     continue_facebook: "Continuer avec Facebook"
+    forgot_password_link: "Mot de passe oublié ?"
+    send_reset_link: "Envoyer le lien de réinitialisation"
+    remember_password: "Vous vous souvenez de votre mot de passe ?"
+    reset_password_title: "Réinitialiser le mot de passe"
+    reset_password_button: "Réinitialiser le mot de passe"
+    new_password: "Nouveau mot de passe"
+    password_requirements: "Minimum 6 caractères"
+    verification_code: "Code de vérification"
+    verify_button: "Vérifier le code"
+    code_expires: "Le code expire dans 15 minutes"
+    no_code: "Vous n'avez pas reçu le code ?"
+    resend_code: "Renvoyer"
+    quote:
+        forgot: "Ne vous inquiétez pas, nous allons vous aider à récupérer votre compte."
+        reset: "Créez un nouveau mot de passe sécurisé pour votre compte."
+        verify: "Entrez le code que nous avons envoyé à votre email."
+    forgot_password:
+        title: "Mot de passe oublié ?"
+        subtitle: "Entrez votre adresse email et nous vous enverrons un lien pour réinitialiser votre mot de passe."
+    reset_password:
+        subtitle: "Entrez votre nouveau mot de passe ci-dessous."
+    verify_code:
+        title: "Vérifiez votre email"
+        subtitle: "Nous avons envoyé un code de vérification à"
+        instruction: "Entrez le code à 6 chiffres envoyé par email"

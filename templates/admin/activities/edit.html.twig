@@ -5,18 +5,18 @@
 
 {% block content %}
 <div style="margin-bottom: 1rem;">
-    <a href="{{ path('admin_activities_list') }}" class="btn btn-secondary">← Back to Activities</a>
+    <a href="{{ path('admin_activities') }}" class="btn btn-secondary">← Back to Activities</a>
 </div>
 
 <div class="card" style="max-width: 600px;">
     <div class="card-header">
-        <h2 class="card-title">Edit: {{ activity.name }}</h2>
+        <h2 class="card-title">Edit: {{ activity.title }}</h2>
     </div>
     
-    <form method="post">
+    <form method="post" action="{{ path('admin_activities_update', {id: activity.id}) }}">
         <div class="form-group">
-            <label class="form-label">Activity Name</label>
-            <input type="text" class="form-input" name="name" value="{{ activity.name }}" required>
+            <label class="form-label">Activity Title</label>
+            <input type="text" class="form-input" name="title" value="{{ activity.title }}" required>
         </div>
         
         <div class="form-group">
@@ -26,30 +26,40 @@
         
         <div class="form-group">
             <label class="form-label">Type</label>
-            <select class="form-input" name="type">
-                <option value="physical" {{ activity.type == 'physical' ? 'selected' : '' }}>Physical</option>
-                <option value="cognitive" {{ activity.type == 'cognitive' ? 'selected' : '' }}>Cognitive</option>
-                <option value="creative" {{ activity.type == 'creative' ? 'selected' : '' }}>Creative</option>
+            <select class="form-input" name="type" required>
                 <option value="social" {{ activity.type == 'social' ? 'selected' : '' }}>Social</option>
+                <option value="physical" {{ activity.type == 'physical' ? 'selected' : '' }}>Physical</option>
+                <option value="cultural" {{ activity.type == 'cultural' ? 'selected' : '' }}>Cultural</option>
+                <option value="educational" {{ activity.type == 'educational' ? 'selected' : '' }}>Educational</option>
             </select>
         </div>
         
         <div class="form-group">
-            <label class="form-label">Duration (minutes)</label>
-            <input type="number" class="form-input" name="duration" value="{{ activity.duration }}" min="5" max="180">
+            <label class="form-label">Location</label>
+            <input type="text" class="form-input" name="location" value="{{ activity.location }}" placeholder="e.g., Community Center">
         </div>
         
         <div class="form-group">
-            <label class="form-label">Schedule</label>
-            <input type="text" class="form-input" name="schedule" value="{{ activity.schedule }}" placeholder="e.g., Daily 8:00 AM">
+            <label class="form-label">Start Time</label>
+            <input type="datetime-local" class="form-input" name="start_time" value="{{ activity.startTime|date('Y-m-d\\TH:i') }}" required>
         </div>
         
         <div class="form-group">
-            <label class="form-label">Status</label>
-            <select class="form-input" name="status">
-                <option value="active" {{ activity.status == 'active' ? 'selected' : '' }}>Active</option>
-                <option value="inactive" {{ activity.status == 'inactive' ? 'selected' : '' }}>Inactive</option>
-            </select>
+            <label class="form-label">End Time</label>
+            <input type="datetime-local" class="form-input" name="end_time" value="{{ activity.endTime|date('Y-m-d\\TH:i') }}">
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">Max Participants</label>
+            <input type="number" class="form-input" name="max_participants" value="{{ activity.maxParticipants }}" min="1" placeholder="Leave blank for unlimited">
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">
+                <input type="hidden" name="is_active" value="0">
+                <input type="checkbox" name="is_active" value="1" {{ activity.isActive ? 'checked' : '' }}>
+                Active
+            </label>
         </div>
         
         <div style="display: flex; gap: 1rem; margin-top: 2rem;">

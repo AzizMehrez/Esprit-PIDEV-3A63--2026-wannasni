@@ -2,6 +2,7 @@
 
 namespace App\Controller\Admin;
 
+use App\Repository\ParticipationRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -9,13 +10,28 @@ use Symfony\Component\Routing\Annotation\Route;
 #[Route('/admin')]
 class DashboardController extends AbstractController
 {
+    public function __construct(
+        private ParticipationRepository $participationRepository
+    ) {
+    }
+
     #[Route('/', name: 'admin_dashboard')]
     public function index(): Response
     {
-        // Mock statistics data
+        // Get real participation statistics
+        $totalParticipations = $this->participationRepository->count([]);
+        $presentParticipations = $this->participationRepository->count(['status' => 'présent']);
+        $pendingParticipations = $this->participationRepository->count(['status' => 'inscrit']);
+        $withFeedback = $this->participationRepository->countWithFeedback();
+
+        // Mock statistics data (you can replace with real data later)
         $stats = [
             'total_users' => 1247,
             'active_users' => 892,
+            'total_participations' => $totalParticipations,
+            'present_participations' => $presentParticipations,
+            'pending_participations' => $pendingParticipations,
+            'participations_with_feedback' => $withFeedback,
             'services_pending' => 23,
             'activities_today' => 45,
             'health_records' => 3456,

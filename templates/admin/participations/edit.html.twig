@@ -1,0 +1,185 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Modifier la Participation - Admin WANNASNI{% endblock %}
+{% block page_title %}Modifier la Participation{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 1.5rem;">
+    <a href="{{ path('admin_participation_show', {id: participation.id}) }}" class="btn btn-secondary">← Retour aux détails</a>
+</div>
+
+<div class="card" style="max-width: 700px;">
+    <div class="card-header">
+        <h2 class="card-title">Modification de la participation #{{ participation.id }}</h2>
+    </div>
+
+    <form method="post" action="{{ path('admin_participation_edit', {id: participation.id}) }}" style="padding: 0;">
+        <!-- Status -->
+        <div class="form-group">
+            <label class="form-label">📊 Statut *</label>
+            <select class="form-input" name="status" required>
+                <option value="inscrit" {% if participation.status == 'inscrit' %}selected{% endif %}>✓ Inscrit</option>
+                <option value="annulé" {% if participation.status == 'annulé' %}selected{% endif %}>✗ Annulé</option>
+                <option value="présent" {% if participation.status == 'présent' %}selected{% endif %}>✓ Présent</option>
+                <option value="absent_excusé" {% if participation.status == 'absent_excusé' %}selected{% endif %}>⚠ Absent (excusé)</option>
+                <option value="absent_non_excusé" {% if participation.status == 'absent_non_excusé' %}selected{% endif %}>✗ Absent</option>
+            </select>
+        </div>
+
+        <!-- Registration Method -->
+        <div class="form-group">
+            <label class="form-label">📍 Méthode d'inscription</label>
+            <select class="form-input" name="registration_method">
+                <option value="">-- Choisir --</option>
+                <option value="appli" {% if participation.registrationMethod == 'appli' %}selected{% endif %}>📱 App</option>
+                <option value="telephone" {% if participation.registrationMethod == 'telephone' %}selected{% endif %}>☎️ Téléphone</option>
+                <option value="en_personne" {% if participation.registrationMethod == 'en_personne' %}selected{% endif %}>👤 En personne</option>
+            </select>
+        </div>
+
+        <div style="margin: 2rem 0; padding: 1.5rem; background: #f0f9ff; border-radius: 8px; border-left: 4px solid #2563eb;">
+            <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 1rem; color: #1a1a2e;">💬 Retours de participation</h3>
+
+            <!-- Rating -->
+            <div class="form-group">
+                <label class="form-label">⭐ Note de l'activité (1-5)</label>
+                <input type="number" class="form-input" name="feedback_rating" min="1" max="5" value="{{ participation.feedbackRating }}" placeholder="Ex: 4">
+            </div>
+
+            <!-- Feedback Comment -->
+            <div class="form-group">
+                <label class="form-label">💭 Commentaire</label>
+                <textarea class="form-input" name="feedback_comment" rows="3" placeholder="Ce qu'a pensé l'utilisateur...">{{ participation.feedbackComment }}</textarea>
+            </div>
+
+            <!-- Mood Before -->
+            <div class="form-group">
+                <label class="form-label">😔 Humeur avant (1-5)</label>
+                <input type="number" class="form-input" name="mood_before" min="1" max="5" value="{{ participation.moodBefore }}" placeholder="1 = très triste, 5 = très heureux">
+            </div>
+
+            <!-- Mood After -->
+            <div class="form-group">
+                <label class="form-label">😊 Humeur après (1-5)</label>
+                <input type="number" class="form-input" name="mood_after" min="1" max="5" value="{{ participation.moodAfter }}" placeholder="1 = très triste, 5 = très heureux">
+            </div>
+
+            <!-- Problems -->
+            <div class="form-group">
+                <label class="form-label">⚠️ Problèmes rencontrés</label>
+                <textarea class="form-input" name="problems_encountered" rows="3" placeholder="Décrire tout problème rencontré...">{{ participation.problemsEncountered }}</textarea>
+            </div>
+        </div>
+
+        <div style="margin: 2rem 0; padding: 1.5rem; background: #f0fdf4; border-radius: 8px; border-left: 4px solid #16a34a;">
+            <h3 style="font-size: 1rem; font-weight: 700; margin-bottom: 1rem; color: #1a1a2e;">📋 Préférences</h3>
+
+            <!-- Recommend -->
+            <div class="form-group" style="margin-bottom: 1rem;">
+                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                    <input type="hidden" name="recommend_to_friends" value="0">
+                    <input type="checkbox" name="recommend_to_friends" value="1" {% if participation.recommendToFriends %}checked{% endif %} style="width: 18px; height: 18px; cursor: pointer;">
+                    <span>👥 Recommande l'activité à des amis</span>
+                </label>
+            </div>
+
+            <!-- Share with Family -->
+            <div class="form-group">
+                <label class="form-label">👨‍👩‍👧 Partager avec la famille</label>
+                <select class="form-input" name="share_with_family">
+                    <option value="">-- Choisir --</option>
+                    <option value="oui" {% if participation.shareWithFamily == 'oui' %}selected{% endif %}>✓ Oui</option>
+                    <option value="non" {% if participation.shareWithFamily == 'non' %}selected{% endif %}>✗ Non</option>
+                </select>
+            </div>
+        </div>
+
+        <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+            <button type="submit" class="btn btn-primary">💾 Enregistrer</button>
+            <a href="{{ path('admin_participation_show', {id: participation.id}) }}" class="btn btn-secondary">Annuler</a>
+        </div>
+    </form>
+</div>
+
+<style>
+    .btn {
+        padding: 0.75rem 1.5rem;
+        border-radius: 6px;
+        font-weight: 600;
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-size: 0.95rem;
+    }
+
+    .btn-primary {
+        background: #2563eb;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background: #1d4ed8;
+    }
+
+    .btn-secondary {
+        background: #6b7280;
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        background: #4b5563;
+    }
+</style>
+
+<style>
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        color: #374151;
+        font-size: 0.95rem;
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        font-size: 0.95rem;
+        transition: all 0.2s;
+        font-family: inherit;
+        background: white;
+    }
+
+    .form-input:focus {
+        outline: none;
+        border-color: #2563eb;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    .card {
+        border-radius: 12px;
+        background: white;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+
+    .card-header {
+        padding: 1.5rem;
+        background: #f9fafb;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .card-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin: 0;
+        color: #1a1a2e;
+    }
+</style>
+{% endblock %}

@@ -80,7 +80,7 @@
                         <input type="checkbox" name="_remember_me">
                         <span class="checkbox-label">{{ 'auth.remember_me'|trans|default('Se souvenir de moi') }}</span>
                     </label>
-                    <a href="#forgot" class="auth-link">{{ 'auth.forgot_password'|trans|default('Mot de passe oublié ?') }}</a>
+                    <a href="{{ path('app_forgot_password', {_locale: app.request.locale}) }}" class="auth-link">{{ 'auth.forgot_password_link'|trans|default('Mot de passe oublié ?') }}</a>
                 </div>
                 
                 <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">

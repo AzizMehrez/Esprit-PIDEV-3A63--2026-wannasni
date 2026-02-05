@@ -182,4 +182,225 @@ class SecurityController extends AbstractController
         
         return $this->render('front/register.html.twig');
     }
+
+    #[Route(path: '/{_locale}/forgot-password', name: 'app_forgot_password', requirements: ['_locale' => 'fr|en|ar'], methods: ['GET', 'POST'])]
+    public function forgotPassword(
+        Request $request,
+        EntityManagerInterface $entityManager
+    ): Response {
+        if ($request->isMethod('POST')) {
+            $email = $request->request->get('email');
+            
+            if (empty($email)) {
+                $this->addFlash('error', 'Veuillez entrer votre adresse email.');
+                return $this->redirectToRoute('app_forgot_password', ['_locale' => $request->getLocale()]);
+            }
+            
+            // Validate email format
+            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                $this->addFlash('error', 'Veuillez entrer une adresse email valide.');
+                return $this->redirectToRoute('app_forgot_password', ['_locale' => $request->getLocale()]);
+            }
+            
+            // Generate 6-digit verification code
+            $verificationCode = str_pad((string)random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+            
+            // Generate reset token
+            $resetToken = bin2hex(random_bytes(32));
+            
+            // Check if user exists, if not create a temporary session-based verification
+            $user = $entityManager->getRepository(User::class)->findOneBy(['email' => $email]);
+            
+            if ($user) {
+                $user->setVerificationCode($verificationCode);
+                $user->setResetToken($resetToken);
+                $user->setResetTokenExpiresAt(new \DateTime('+15 minutes'));
+                $entityManager->flush();
+            }
+            
+            // Store in session for any email (even non-existing users)
+            $request->getSession()->set('reset_email', $email);
+            $request->getSession()->set('reset_code', $verificationCode);
+            $request->getSession()->set('reset_token', $resetToken);
+            $request->getSession()->set('reset_expires', (new \DateTime('+15 minutes'))->getTimestamp());
+            
+            // Send email using Python script to ANY email entered
+            try {
+                $pythonPath = 'python';
+                $scriptPath = $this->getParameter('kernel.project_dir') . '/send_email.py';
+                
+                // Execute Python script
+                $command = sprintf(
+                    '%s "%s" "%s" "%s"',
+                    $pythonPath,
+                    $scriptPath,
+                    $email,
+                    $verificationCode
+                );
+                
+                $output = [];
+                $returnCode = 0;
+                exec($command, $output, $returnCode);
+                
+                if ($returnCode === 0 && !empty($output) && $output[0] === 'SUCCESS') {
+                    $this->addFlash('success', 'Un code de vérification a été envoyé à ' . $email);
+                    return $this->redirectToRoute('app_verify_code', ['_locale' => $request->getLocale()]);
+                } else {
+                    // If email fails, show the code for development/testing
+                    $this->addFlash('error', 'Erreur lors de l\'envoi de l\'email.');
+                    $this->addFlash('info', 'Code de test : ' . $verificationCode);
+                    return $this->redirectToRoute('app_verify_code', ['_locale' => $request->getLocale()]);
+                }
+            } catch (\Exception $e) {
+                // If email fails, show the code for development
+                $this->addFlash('error', 'Erreur : ' . $e->getMessage());
+                $this->addFlash('info', 'Code de test : ' . $verificationCode);
+                return $this->redirectToRoute('app_verify_code', ['_locale' => $request->getLocale()]);
+            }
+        }
+        
+        return $this->render('front/forgot_password.html.twig');
+    }
+
+    #[Route(path: '/{_locale}/verify-code', name: 'app_verify_code', requirements: ['_locale' => 'fr|en|ar'], methods: ['GET', 'POST'])]
+    public function verifyCode(
+        Request $request,
+        EntityManagerInterface $entityManager
+    ): Response {
+        $email = $request->getSession()->get('reset_email');
+        
+        if (!$email) {
+            $this->addFlash('error', 'Session expirée. Veuillez recommencer.');
+            return $this->redirectToRoute('app_forgot_password', ['_locale' => $request->getLocale()]);
+        }
+        
+        if ($request->isMethod('POST')) {
+            $code = $request->request->get('code');
+            
+            if (empty($code)) {
+                $this->addFlash('error', 'Veuillez entrer le code de vérification.');
+                return $this->redirectToRoute('app_verify_code', ['_locale' => $request->getLocale()]);
+            }
+            
+            // Check session expiration
+            $expiresAt = $request->getSession()->get('reset_expires');
+            if (!$expiresAt || $expiresAt < time()) {
+                $this->addFlash('error', 'Le code de vérification a expiré. Veuillez recommencer.');
+                $request->getSession()->remove('reset_email');
+                $request->getSession()->remove('reset_code');
+                $request->getSession()->remove('reset_token');
+                $request->getSession()->remove('reset_expires');
+                return $this->redirectToRoute('app_forgot_password', ['_locale' => $request->getLocale()]);
+            }
+            
+            // Verify code from session
+            $sessionCode = $request->getSession()->get('reset_code');
+            
+            if ($sessionCode !== $code) {
+                $this->addFlash('error', 'Code de vérification invalide.');
+                return $this->redirectToRoute('app_verify_code', ['_locale' => $request->getLocale()]);
+            }
+            
+            // Code is valid - check if user exists
+            $user = $entityManager->getRepository(User::class)->findOneBy(['email' => $email]);
+            
+            if ($user) {
+                // Existing user - redirect to reset password
+                $request->getSession()->set('verified_email', $email);
+                return $this->redirectToRoute('app_reset_password', [
+                    '_locale' => $request->getLocale(),
+                    'token' => $user->getResetToken()
+                ]);
+            } else {
+                // New user - redirect to registration with email pre-filled
+                $request->getSession()->set('verified_email', $email);
+                $this->addFlash('info', 'Aucun compte trouvé avec cet email. Créez votre compte maintenant !');
+                return $this->redirectToRoute('app_register', ['_locale' => $request->getLocale()]);
+            }
+        }
+        
+        return $this->render('front/verify_code.html.twig', [
+            'email' => $email
+        ]);
+    }
+
+    #[Route(path: '/{_locale}/reset-password/{token}', name: 'app_reset_password', requirements: ['_locale' => 'fr|en|ar'], methods: ['GET', 'POST'])]
+    public function resetPassword(
+        string $token,
+        Request $request,
+        EntityManagerInterface $entityManager,
+        UserPasswordHasherInterface $passwordHasher
+    ): Response {
+        // Check if user has verified their code
+        $verifiedEmail = $request->getSession()->get('verified_email');
+        
+        if (!$verifiedEmail) {
+            $this->addFlash('error', 'Veuillez d\'abord vérifier votre code.');
+            return $this->redirectToRoute('app_forgot_password', ['_locale' => $request->getLocale()]);
+        }
+        
+        // Find user by email
+        $user = $entityManager->getRepository(User::class)->findOneBy([
+            'email' => $verifiedEmail
+        ]);
+        
+        if (!$user) {
+            $this->addFlash('error', 'Utilisateur introuvable.');
+            $request->getSession()->remove('verified_email');
+            return $this->redirectToRoute('app_forgot_password', ['_locale' => $request->getLocale()]);
+        }
+        
+        if ($request->isMethod('POST')) {
+            $password = $request->request->get('password');
+            $passwordConfirm = $request->request->get('passwordConfirm');
+            
+            $errors = [];
+            
+            if (empty($password)) {
+                $errors[] = 'Le mot de passe est obligatoire.';
+            }
+            
+            if (strlen($password) < 6) {
+                $errors[] = 'Le mot de passe doit contenir au moins 6 caractères.';
+            }
+            
+            if ($password !== $passwordConfirm) {
+                $errors[] = 'Les mots de passe ne correspondent pas.';
+            }
+            
+            if (!empty($errors)) {
+                foreach ($errors as $error) {
+                    $this->addFlash('error', $error);
+                }
+                return $this->redirectToRoute('app_reset_password', [
+                    '_locale' => $request->getLocale(),
+                    'token' => $token
+                ]);
+            }
+            
+            // Update password in database
+            $hashedPassword = $passwordHasher->hashPassword($user, $password);
+            $user->setPassword($hashedPassword);
+            $user->setResetToken(null);
+            $user->setResetTokenExpiresAt(null);
+            $user->setVerificationCode(null);
+            
+            $entityManager->flush();
+            
+            // Clear all session data
+            $request->getSession()->remove('verified_email');
+            $request->getSession()->remove('reset_email');
+            $request->getSession()->remove('reset_code');
+            $request->getSession()->remove('reset_token');
+            $request->getSession()->remove('reset_expires');
+            
+            $this->addFlash('success', 'Votre mot de passe a été réinitialisé avec succès ! Vous pouvez maintenant vous connecter.');
+            return $this->redirectToRoute('app_login', ['_locale' => $request->getLocale()]);
+        }
+        
+        return $this->render('front/reset_password.html.twig', [
+            'token' => $token,
+            'email' => $verifiedEmail
+        ]);
+    }
 }

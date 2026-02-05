@@ -74,7 +74,9 @@
 
     .stat-icon.users { background: linear-gradient(135deg, #3b82f6, #60a5fa); }
     .stat-icon.activities { background: linear-gradient(135deg, #22c55e, #4ade80); }
-    .stat-icon.services { background: linear-gradient(135deg, #f59e0b, #fbbf24); }
+    .stat-icon.participations { background: linear-gradient(135deg, #8b5cf6, #a78bfa); }
+    .stat-icon.feedback { background: linear-gradient(135deg, #f59e0b, #fbbf24); }
+    .stat-icon.services { background: linear-gradient(135deg, #06b6d4, #22d3ee); }
     .stat-icon.health { background: linear-gradient(135deg, #ef4444, #f87171); }
 
     .stat-info {
@@ -199,6 +201,22 @@
         </div>
     </div>
     <div class="stat-card">
+        <div class="stat-icon participations">📝</div>
+        <div class="stat-info">
+            <div class="stat-value">{{ stats.total_participations }}</div>
+            <div class="stat-label">Total Participations</div>
+            <div class="stat-change up">↑ {{ stats.present_participations }} présents</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon feedback">⭐</div>
+        <div class="stat-info">
+            <div class="stat-value">{{ stats.participations_with_feedback }}</div>
+            <div class="stat-label">Avis Collectés</div>
+            <div class="stat-change up">↑ {{ stats.pending_participations }} en attente</div>
+        </div>
+    </div>
+    <div class="stat-card">
         <div class="stat-icon services">🛎️</div>
         <div class="stat-info">
             <div class="stat-value">{{ stats.services_pending }}</div>
@@ -255,8 +273,8 @@
             <a href="{{ path('admin_activities_new') }}" class="quick-action">
                 ➕ Nouvelle Activité
             </a>
-            <a href="{{ path('admin_nutrition_new') }}" class="quick-action">
-                ➕ Nouveau Plan Nutrition
+            <a href="{{ path('admin_participations') }}" class="quick-action">
+                📝 Gérer les Participations
             </a>
             <a href="{{ path('admin_services') }}" class="quick-action">
                 📋 Gérer les Services

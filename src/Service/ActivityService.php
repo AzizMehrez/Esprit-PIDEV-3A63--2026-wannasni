@@ -4,9 +4,12 @@ namespace App\Service;
 
 use App\Entity\Activity;
 use App\Entity\Participation;
+use App\Repository\ActivityRepository;
+use App\Repository\ParticipationRepository;
 use App\Exception\ValidationException;
 use App\Exception\BusinessRuleException;
 use App\Exception\UnauthorizedException;
+use Doctrine\ORM\EntityManagerInterface;
 
 /**
  * ActivityService - Business logic for activities and events
@@ -14,6 +17,13 @@ use App\Exception\UnauthorizedException;
 class ActivityService
 {
     private const VALID_TYPES = ['social', 'physical', 'cultural', 'educational'];
+
+    public function __construct(
+        private EntityManagerInterface $em,
+        private ActivityRepository $activityRepository,
+        private ParticipationRepository $participationRepository
+    ) {
+    }
 
     /**
      * Create activity (coaches and admins only)
@@ -44,7 +54,6 @@ class ActivityService
         }
 
         $activity = new Activity();
-        $activity->setId(rand(1, 10000));
         $activity->setTitle($data['title']);
         $activity->setDescription($data['description'] ?? '');
         $activity->setType($type);
@@ -55,6 +64,9 @@ class ActivityService
         $activity->setCoachId($creatorId);
         $activity->setIsActive(true);
 
+        $this->em->persist($activity);
+        $this->em->flush();
+
         return $activity;
     }
 
@@ -63,30 +75,8 @@ class ActivityService
      */
     public function getUpcomingActivities(): array
     {
-        // Mock: Return sample activities
-        $activities = [];
-
-        $activity1 = new Activity();
-        $activity1->setId(1);
-        $activity1->setTitle('Yoga doux');
-        $activity1->setType('physical');
-        $activity1->setLocation('Salle de sport');
-        $activity1->setStartTime(new \DateTime('+1 day 10:00'));
-        $activity1->setMaxParticipants(15);
-        $activity1->setCurrentParticipants(8);
-        $activities[] = $this->activityToArray($activity1);
-
-        $activity2 = new Activity();
-        $activity2->setId(2);
-        $activity2->setTitle('Atelier cuisine');
-        $activity2->setType('social');
-        $activity2->setLocation('Centre social');
-        $activity2->setStartTime(new \DateTime('+3 days 14:00'));
-        $activity2->setMaxParticipants(10);
-        $activity2->setCurrentParticipants(6);
-        $activities[] = $this->activityToArray($activity2);
-
-        return $activities;
+        $activities = $this->activityRepository->findUpcoming();
+        return array_map([$this, 'activityToArray'], $activities);
     }
 
     /**
@@ -117,13 +107,17 @@ class ActivityService
         }
 
         $participation = new Participation();
-        $participation->setId(rand(1, 10000));
-        $participation->setActivityId($activityId);
+        $participation->setActivity($activity);
         $participation->setSeniorId($seniorId);
-        $participation->setStatus('registered');
+        $participation->setStatus('inscrit');
+        $participation->setRegistrationDate(new \DateTime());
+
+        $this->em->persist($participation);
 
         // Update participant count
         $activity->setCurrentParticipants($activity->getCurrentParticipants() + 1);
+
+        $this->em->flush();
 
         return $participation;
     }
@@ -140,17 +134,20 @@ class ActivityService
             throw new UnauthorizedException('Cannot cancel someone else\'s participation');
         }
 
-        $activity = $this->findActivityById($participation->getActivityId());
-
         // Business rule: Cannot cancel if activity already started
-        if ($activity->getStartTime() <= new \DateTime()) {
+        if ($participation->getActivity() && $participation->getActivity()->getStartTime() <= new \DateTime()) {
             throw new BusinessRuleException('Cannot cancel after activity has started');
         }
 
-        $participation->setStatus('cancelled');
+        $participation->setStatus('annulé');
 
-        // Update participant count
-        $activity->setCurrentParticipants($activity->getCurrentParticipants() - 1);
+        // Update participant count on the activity
+        $activity = $participation->getActivity();
+        if ($activity) {
+            $activity->setCurrentParticipants(max(0, $activity->getCurrentParticipants() - 1));
+        }
+
+        $this->em->flush();
     }
 
     /**
@@ -161,7 +158,7 @@ class ActivityService
         $participation = $this->findParticipationById($participationId);
 
         // Business rule: Can only rate attended activities
-        if ($participation->getStatus() !== 'attended') {
+        if ($participation->getStatus() !== 'présent' && $participation->getStatus() !== 'attended') {
             throw new BusinessRuleException('Can only rate attended activities');
         }
 
@@ -170,8 +167,10 @@ class ActivityService
             throw new ValidationException('Rating must be between 1 and 5');
         }
 
-        $participation->setRating($rating);
-        $participation->setFeedback($feedback);
+        $participation->setFeedbackRating($rating);
+        $participation->setFeedbackComment($feedback);
+
+        $this->em->flush();
 
         return $participation;
     }
@@ -181,19 +180,16 @@ class ActivityService
      */
     public function getUserParticipations(int $seniorId): array
     {
-        // Mock: Return sample participations
-        $participation = new Participation();
-        $participation->setId(1);
-        $participation->setActivityId(1);
-        $participation->setSeniorId($seniorId);
-        $participation->setStatus('registered');
+        $participations = $this->participationRepository->findBySeniorId($seniorId);
 
-        return [[
-            'id' => $participation->getId(),
-            'activity_id' => $participation->getActivityId(),
-            'status' => $participation->getStatus(),
-            'registered_at' => $participation->getRegisteredAt()?->format('Y-m-d H:i:s'),
-        ]];
+        return array_map(function(Participation $p) {
+            return [
+                'id' => $p->getId(),
+                'activity_id' => $p->getId(),
+                'status' => $p->getStatus(),
+                'registered_at' => $p->getRegistrationDate()?->format('Y-m-d H:i:s'),
+            ];
+        }, $participations);
     }
 
     /**
@@ -215,31 +211,26 @@ class ActivityService
         ];
     }
 
-    // Mock methods
     private function findActivityById(int $id): Activity
     {
-        $activity = new Activity();
-        $activity->setId($id);
-        $activity->setTitle('Sample Activity');
-        $activity->setStartTime(new \DateTime('+1 day'));
-        $activity->setMaxParticipants(15);
-        $activity->setCurrentParticipants(5);
-        $activity->setIsActive(true);
+        $activity = $this->activityRepository->find($id);
+        if (!$activity) {
+            throw new BusinessRuleException('Activity not found');
+        }
         return $activity;
     }
 
     private function findParticipationById(int $id): Participation
     {
-        $participation = new Participation();
-        $participation->setId($id);
-        $participation->setActivityId(1);
-        $participation->setSeniorId(1);
-        $participation->setStatus('attended');
+        $participation = $this->participationRepository->find($id);
+        if (!$participation) {
+            throw new BusinessRuleException('Participation not found');
+        }
         return $participation;
     }
 
     private function isAlreadyRegistered(int $activityId, int $seniorId): bool
     {
-        return false; // Mock
+        return $this->participationRepository->isRegistered($activityId, $seniorId);
     }
 }

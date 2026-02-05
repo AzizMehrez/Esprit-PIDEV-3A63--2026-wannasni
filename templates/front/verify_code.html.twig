@@ -1,0 +1,111 @@
+{% extends 'base_auth.html.twig' %}
+
+{% block title %}{{ 'auth.verify_code.title'|trans|default('Vérification du code') }} — {{ 'site.name'|trans }}{% endblock %}
+
+{% block body %}
+<div class="auth-page">
+    {# Left Side - Image & Quote #}
+    <div class="auth-image-side">
+        <div class="auth-image-overlay"></div>
+        <img src="/images/hero.png" alt="" class="auth-bg-image" aria-hidden="true">
+        <div class="auth-image-content">
+            <div class="auth-logo">
+                <img src="/images/logo.png" alt="WANNASNI" class="auth-logo-img">
+            </div>
+            <blockquote class="auth-quote">
+                <p>"{{ 'auth.quote.verify'|trans|default('Entrez le code que nous avons envoyé à votre email.') }}"</p>
+                <cite>— WANNASNI</cite>
+            </blockquote>
+        </div>
+    </div>
+    
+    {# Right Side - Verification Code Form #}
+    <div class="auth-form-side">
+        <div class="auth-form-container">
+            {# Mobile Logo (shown on small screens only) #}
+            <div class="auth-mobile-header">
+                <a href="{{ path('app_forgot_password', {_locale: app.request.locale}) }}" class="auth-back-link">
+                    ← {{ 'nav.back'|trans|default('Retour') }}
+                </a>
+                <img src="/images/logo.png" alt="WANNASNI" class="auth-mobile-logo">
+            </div>
+            
+            <div class="auth-form-header">
+                <h1 class="auth-title">{{ 'auth.verify_code.title'|trans|default('Vérifiez votre email') }}</h1>
+                <p class="auth-subtitle">
+                    {{ 'auth.verify_code.subtitle'|trans|default('Nous avons envoyé un code de vérification à') }}
+                    <br><strong>{{ email }}</strong>
+                </p>
+            </div>
+            
+            {% for message in app.flashes('error') %}
+                {% if loop.first %}
+                <div class="alert alert-error" style="padding: 1rem; background: #fed7d7; color: #c53030; border: 1px solid #fc8181; border-radius: 8px; margin-bottom: 1rem;">
+                {% endif %}
+                    <p style="margin: 0;">⚠️ {{ message }}</p>
+                {% if loop.last %}
+                </div>
+                {% endif %}
+            {% endfor %}
+            
+            {% for message in app.flashes('success') %}
+                {% if loop.first %}
+                <div class="alert alert-success" style="padding: 1rem; background: #c6f6d5; color: #276749; border: 1px solid #9ae6b4; border-radius: 8px; margin-bottom: 1rem;">
+                {% endif %}
+                    <p style="margin: 0;">✓ {{ message }}</p>
+                {% if loop.last %}
+                </div>
+                {% endif %}
+            {% endfor %}
+            
+            <form method="post" action="{{ path('app_verify_code', {_locale: app.request.locale}) }}" class="auth-form">
+                <div class="form-group">
+                    <label for="inputCode" class="form-label">{{ 'auth.verification_code'|trans|default('Code de vérification') }}</label>
+                    <input type="text" 
+                           id="inputCode" 
+                           name="code" 
+                           class="form-input" 
+                           placeholder="000000"
+                           maxlength="6"
+                           pattern="[0-9]{6}"
+                           style="font-size: 24px; letter-spacing: 8px; text-align: center; font-weight: bold;"
+                           autocomplete="off"
+                           required 
+                           autofocus>
+                    <small style="display: block; margin-top: 0.5rem; color: #6b7280; font-size: 0.875rem; text-align: center;">
+                        {{ 'auth.verify_code.instruction'|trans|default('Entrez le code à 6 chiffres envoyé par email') }}
+                    </small>
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-large btn-full">
+                    {{ 'auth.verify_button'|trans|default('Vérifier le code') }}
+                </button>
+            </form>
+            
+            <div class="auth-footer" style="margin-top: 1.5rem; text-align: center;">
+                <p style="color: #6b7280; font-size: 0.875rem; margin-bottom: 0.5rem;">
+                    ⏱️ {{ 'auth.code_expires'|trans|default('Le code expire dans 15 minutes') }}
+                </p>
+                <p>{{ 'auth.no_code'|trans|default("Vous n'avez pas reçu le code ?") }} 
+                   <a href="{{ path('app_forgot_password', {_locale: app.request.locale}) }}" class="auth-link-strong">{{ 'auth.resend_code'|trans|default('Renvoyer') }}</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Auto-format input to accept only numbers
+document.getElementById('inputCode').addEventListener('input', function(e) {
+    this.value = this.value.replace(/[^0-9]/g, '');
+});
+
+// Auto-submit when 6 digits are entered
+document.getElementById('inputCode').addEventListener('input', function(e) {
+    if (this.value.length === 6) {
+        // Optionally auto-submit
+        // this.form.submit();
+    }
+});
+</script>
+{% endblock %}
