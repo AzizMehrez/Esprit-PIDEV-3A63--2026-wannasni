@@ -267,6 +267,9 @@
         faceLoginCanvas.width = faceLoginVideo.videoWidth;
         faceLoginCanvas.height = faceLoginVideo.videoHeight;
         
+        // Flip horizontally to match mirror view (consistent with registration)
+        context.translate(faceLoginCanvas.width, 0);
+        context.scale(-1, 1);
         context.drawImage(faceLoginVideo, 0, 0);
         
         capturedFaceData = faceLoginCanvas.toDataURL('image/jpeg', 0.8);

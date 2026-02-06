@@ -187,6 +187,10 @@ class SecurityController extends AbstractController
                 $hashedPassword = $passwordHasher->hashPassword($user, $password);
                 $user->setPassword($hashedPassword);
 
+                // First persist and flush user so we have an ID
+                $entityManager->persist($user);
+                $entityManager->flush();
+
                 // Handle Face ID enrollment if face data provided
                 if (!empty($faceImageData) && $faceVerified && $faceConsent) {
                     try {
@@ -221,18 +225,14 @@ class SecurityController extends AbstractController
                         // Store face encoding on user
                         $user->setFaceEncoding($faceEncoding);
                         
-                        // Persist user with face data
-                        $entityManager->persist($user);
+                        // Update user with face data
                         $entityManager->flush();
                         
                     } catch (\Exception $e) {
-                        // Face enrollment failed, log but don't block registration
-                        // User can re-enroll face later
+                        // Face enrollment failed, log error but don't block registration
+                        // The user account is already created, face can be added later
+                        $this->addFlash('warning', 'Votre compte a été créé mais l\'enregistrement du visage a échoué. Vous pourrez réessayer plus tard.');
                     }
-                } else {
-                    // Persist user without face data
-                    $entityManager->persist($user);
-                    $entityManager->flush();
                 }
                 
                 $this->addFlash('success', 'Votre compte a été créé avec succès ! Vous pouvez maintenant vous connecter.');
