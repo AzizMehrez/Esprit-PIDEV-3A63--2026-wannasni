@@ -1,0 +1,333 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Demander un Service - WANNASNI{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    :root {
+        --dash-primary: #2E7D32;
+        --dash-primary-light: #4CAF50;
+        --dash-primary-soft: rgba(46, 125, 50, 0.08);
+        --dash-bg: #f8faf8;
+        --dash-card: #ffffff;
+        --dash-text: #1a1a2e;
+        --dash-text-muted: #64748b;
+        --dash-border: #e2e8f0;
+        --dash-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+        --dash-radius: 20px;
+        --dash-radius-sm: 12px;
+    }
+
+    body { background: var(--dash-bg); }
+
+    .page-wrapper {
+        min-height: 100vh;
+        padding: 2rem 1.5rem 4rem;
+        background: linear-gradient(180deg, #eff6ff 0%, var(--dash-bg) 30%);
+    }
+
+    .page-container {
+        max-width: 700px;
+        margin: 0 auto;
+    }
+
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #2563eb;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.95rem;
+        margin-bottom: 1.5rem;
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        transition: all 0.2s;
+    }
+
+    .back-link:hover {
+        background: rgba(37, 99, 235, 0.08);
+    }
+
+    .form-card {
+        background: var(--dash-card);
+        border-radius: var(--dash-radius);
+        box-shadow: var(--dash-shadow);
+        border: 1px solid var(--dash-border);
+        overflow: hidden;
+    }
+
+    .form-header {
+        padding: 1.5rem 2rem;
+        border-bottom: 1px solid var(--dash-border);
+        background: linear-gradient(to right, rgba(37, 99, 235, 0.08), transparent);
+    }
+
+    .form-title {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-family: 'Playfair Display', serif;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--dash-text);
+    }
+
+    .form-title-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
+        background: linear-gradient(135deg, #2563eb, #1d4ed8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.25rem;
+    }
+
+    .form-body {
+        padding: 2rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        display: block;
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: var(--dash-text);
+        margin-bottom: 0.75rem;
+    }
+
+    .service-types {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+
+    .service-type-option {
+        padding: 1.5rem;
+        border: 2px solid var(--dash-border);
+        border-radius: var(--dash-radius-sm);
+        cursor: pointer;
+        transition: all 0.2s;
+        text-align: center;
+    }
+
+    .service-type-option:hover {
+        border-color: #2563eb;
+    }
+
+    .service-type-option.selected {
+        border-color: #2563eb;
+        background: rgba(37, 99, 235, 0.05);
+        box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+    }
+
+    .service-type-option input {
+        display: none;
+    }
+
+    .type-icon {
+        font-size: 2.5rem;
+        display: block;
+        margin-bottom: 0.75rem;
+    }
+
+    .type-name {
+        font-weight: 700;
+        font-size: 1rem;
+        color: var(--dash-text);
+        margin-bottom: 0.35rem;
+    }
+
+    .type-desc {
+        font-size: 0.8rem;
+        color: var(--dash-text-muted);
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 1rem 1.25rem;
+        font-size: 1rem;
+        border: 2px solid var(--dash-border);
+        border-radius: var(--dash-radius-sm);
+        background: white;
+        transition: all 0.2s;
+        font-family: inherit;
+    }
+
+    .form-input:focus {
+        outline: none;
+        border-color: #2563eb;
+        box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+    }
+
+    .priority-options {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.75rem;
+    }
+
+    .priority-option {
+        text-align: center;
+        padding: 1rem;
+        border: 2px solid var(--dash-border);
+        border-radius: var(--dash-radius-sm);
+        cursor: pointer;
+        transition: all 0.2s;
+        font-weight: 600;
+        font-size: 0.95rem;
+    }
+
+    .priority-option:hover {
+        border-color: #2563eb;
+    }
+
+    .priority-option.selected {
+        border-color: #2563eb;
+        background: rgba(37, 99, 235, 0.05);
+    }
+
+    .priority-option input { display: none; }
+
+    .btn-group {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+
+    .btn {
+        padding: 1rem 2rem;
+        font-size: 1rem;
+        font-weight: 600;
+        border-radius: var(--dash-radius-sm);
+        cursor: pointer;
+        text-decoration: none;
+        text-align: center;
+        transition: all 0.2s;
+        border: none;
+    }
+
+    .btn-primary {
+        flex: 1;
+        background: linear-gradient(135deg, #2563eb, #1d4ed8);
+        color: white;
+        box-shadow: 0 4px 16px rgba(37, 99, 235, 0.25);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(37, 99, 235, 0.35);
+    }
+
+    .btn-secondary {
+        background: white;
+        color: var(--dash-text-muted);
+        border: 2px solid var(--dash-border);
+    }
+
+    .btn-secondary:hover {
+        border-color: #2563eb;
+        color: #2563eb;
+    }
+
+    @media (max-width: 480px) {
+        .service-types {
+            grid-template-columns: 1fr;
+        }
+
+        .priority-options {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="page-wrapper">
+    <div class="page-container">
+        <a href="{{ path('app_my_services', {'_locale': app.request.locale}) }}" class="back-link">
+            ← Retour aux services
+        </a>
+
+        <div class="form-card">
+            <div class="form-header">
+                <h1 class="form-title">
+                    <span class="form-title-icon">🛎️</span>
+                    Demander un Service
+                </h1>
+            </div>
+            <div class="form-body">
+                <form method="post">
+                    <div class="form-group">
+                        <label class="form-label">Type de Service *</label>
+                        <div class="service-types">
+                            {% for type in service_types %}
+                            <label class="service-type-option">
+                                <input type="radio" name="service_type" value="{{ type.id }}" required>
+                                <span class="type-icon">{{ type.icon }}</span>
+                                <div class="type-name">{{ type.name }}</div>
+                                <div class="type-desc">{{ type.description }}</div>
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">📝 Description de votre besoin *</label>
+                        <textarea class="form-input" name="description" rows="4" placeholder="Décrivez votre demande en détail..." required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">📅 Date souhaitée</label>
+                        <input type="date" class="form-input" name="preferred_date">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">⚡ Priorité</label>
+                        <div class="priority-options">
+                            <label class="priority-option">
+                                <input type="radio" name="priority" value="low">
+                                🟢 Normale
+                            </label>
+                            <label class="priority-option selected">
+                                <input type="radio" name="priority" value="medium" checked>
+                                🟡 Moyenne
+                            </label>
+                            <label class="priority-option">
+                                <input type="radio" name="priority" value="high">
+                                🔴 Urgente
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="btn-group">
+                        <button type="submit" class="btn btn-primary">📤 Envoyer la Demande</button>
+                        <a href="{{ path('app_my_services', {'_locale': app.request.locale}) }}" class="btn btn-secondary">Annuler</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.querySelectorAll('.service-type-option').forEach(option => {
+    option.addEventListener('click', () => {
+        document.querySelectorAll('.service-type-option').forEach(o => o.classList.remove('selected'));
+        option.classList.add('selected');
+    });
+});
+
+document.querySelectorAll('.priority-option').forEach(option => {
+    option.addEventListener('click', () => {
+        document.querySelectorAll('.priority-option').forEach(o => o.classList.remove('selected'));
+        option.classList.add('selected');
+    });
+});
+</script>
+{% endblock %}

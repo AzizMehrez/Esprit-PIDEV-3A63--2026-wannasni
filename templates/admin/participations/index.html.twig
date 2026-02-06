@@ -1,0 +1,199 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Gestion des Participations - Admin WANNASNI{% endblock %}
+{% block page_title %}Gestion des Participations{% endblock %}
+
+{% block content %}
+<div class="card" style="margin-bottom: 1.5rem;">
+    <div class="card-header">
+        <h2 class="card-title">Toutes les Participations</h2>
+    </div>
+
+    <!-- Filters -->
+    <div style="padding: 2rem; background: #f9fafb; border-bottom: 1px solid #e5e7eb;">
+        <form method="get" style="display: flex; gap: 1.5rem; flex-wrap: wrap; align-items: flex-end;">
+            <div style="flex: 1; min-width: 200px;">
+                <label class="form-label">🎯 Activité</label>
+                <select class="form-input" name="activity_id">
+                    <option value="">Toutes les activités</option>
+                    {% for act in activities %}
+                        <option value="{{ act.id }}" {% if search_activity_id == act.id %}selected{% endif %}>{{ act.title }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div style="flex: 1; min-width: 200px;">
+                <label class="form-label">📊 Statut</label>
+                <select class="form-input" name="status">
+                    <option value="">Tous les statuts</option>
+                    <option value="inscrit" {% if search_status == 'inscrit' %}selected{% endif %}>✓ Inscrit</option>
+                    <option value="annulé" {% if search_status == 'annulé' %}selected{% endif %}>✗ Annulé</option>
+                    <option value="présent" {% if search_status == 'présent' %}selected{% endif %}>✓ Présent</option>
+                    <option value="absent_excusé" {% if search_status == 'absent_excusé' %}selected{% endif %}>⚠ Absent (excusé)</option>
+                    <option value="absent_non_excusé" {% if search_status == 'absent_non_excusé' %}selected{% endif %}>✗ Absent</option>
+                </select>
+            </div>
+
+            <div style="flex: 1; min-width: 200px;">
+                <label class="form-label">🆔 ID Participant</label>
+                <input type="text" class="form-input" name="participant_id" placeholder="Ex: 1, 42..." value="{{ search_participant_id }}">
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="height: 44px;">Filtrer</button>
+            <a href="{{ path('admin_participations') }}" class="btn btn-secondary" style="height: 44px;">Réinitialiser</a>
+        </form>
+    </div>
+
+    <!-- Table -->
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th style="width: 60px;">ID</th>
+                <th>Participant</th>
+                <th>Activité</th>
+                <th>Statut</th>
+                <th>Inscrit le</th>
+                <th style="width: 80px;">Note</th>
+                <th style="width: 200px;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if participations|length > 0 %}
+                {% for participation in participations %}
+                <tr>
+                    <td style="font-weight: 600; color: #2563eb;">#{{ participation.id }}</td>
+                    <td>{{ participation.participantId ?? participation.seniorId }}</td>
+                    <td>{{ participation.activity ? participation.activity.title : 'N/A' }}</td>
+                    <td>
+                        <span class="status-badge status-{{ participation.status|lower|replace({'_': ''}) }}">
+                            {% if participation.status == 'inscrit' %}✓ Inscrit
+                            {% elseif participation.status == 'annulé' %}✗ Annulé
+                            {% elseif participation.status == 'présent' %}✓ Présent
+                            {% elseif participation.status == 'absent_excusé' %}⚠ Excusé
+                            {% else %}✗ Absent{% endif %}
+                        </span>
+                    </td>
+                    <td style="font-size: 0.9rem; color: #666;">{{ participation.registrationDate|date('d/m/Y') }}</td>
+                    <td>
+                        {% if participation.feedbackRating %}
+                            <span style="color: #ea580c; font-weight: 600;">⭐ {{ participation.feedbackRating }}/5</span>
+                        {% else %}
+                            <span style="color: #ccc;">—</span>
+                        {% endif %}
+                    </td>
+                    <td style="display: flex; gap: 0.5rem;">
+                        <a href="{{ path('admin_participation_show', {id: participation.id}) }}" class="btn btn-sm btn-primary" title="Voir">👁️</a>
+                        <a href="{{ path('admin_participation_edit', {id: participation.id}) }}" class="btn btn-sm btn-secondary" title="Modifier">✏️</a>
+                        <form method="post" action="{{ path('admin_participation_delete', {id: participation.id}) }}" style="display: inline;" onsubmit="return confirm('Supprimer cette participation ?');">
+                            <button type="submit" class="btn btn-sm btn-danger" title="Supprimer">🗑</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="7" style="text-align: center; padding: 3rem; color: #999;">
+                        ℹ️ Aucune participation trouvée
+                    </td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+
+<style>
+    .admin-table {
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+    .admin-table th {
+        background: #f9fafb;
+        padding: 1.2rem;
+        text-align: left;
+        font-weight: 700;
+        border-bottom: 2px solid #e5e7eb;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        color: #666;
+    }
+
+    .admin-table td {
+        padding: 1.2rem;
+        border-bottom: 1px solid #e5e7eb;
+        vertical-align: middle;
+    }
+
+    .admin-table tbody tr {
+        transition: background 0.2s;
+    }
+
+    .admin-table tbody tr:hover {
+        background: #f0f9ff;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 0.4rem 0.8rem;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.85rem;
+    }
+
+    .status-inscrit {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+
+    .status-present {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .status-absente,
+    .status-absentexcuse {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .btn-sm {
+        padding: 0.5rem 0.75rem;
+        font-size: 1rem;
+        border-radius: 6px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .btn-danger {
+        background: #dc2626;
+        color: white;
+    }
+
+    .btn-danger:hover {
+        background: #b91c1c;
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        transition: all 0.2s;
+    }
+
+    .form-input:focus {
+        outline: none;
+        border-color: #2563eb;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        color: #374151;
+    }
+</style>
+{% endblock %}

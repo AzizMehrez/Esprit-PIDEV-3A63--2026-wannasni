@@ -1,0 +1,415 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'site.name'|trans }} — {{ 'hero.tagline'|trans }}{% endblock %}
+
+{% block body %}
+
+{# ==================== HERO SECTION ==================== #}
+<section class="hero hero-centered" id="hero">
+    {# Decorative Background Elements #}
+    <div class="hero-bg-pattern" aria-hidden="true"></div>
+    
+    {# Video Background #}
+    <div class="hero-bg-video" aria-hidden="true">
+        <video autoplay muted loop playsinline>
+            <source src="/images/Video_for_Elderly_Care_Website.mp4" type="video/mp4">
+        </video>
+        <div class="hero-video-overlay"></div>
+    </div>
+    
+    <div class="container">
+        <div class="hero-layout">
+            {# Main Content - Centered #}
+            <div class="hero-text-content animate-fade-in">
+                <h1 class="hero-title">{{ 'hero.title'|trans }}</h1>
+                <p class="hero-subtitle">{{ 'hero.subtitle'|trans }}</p>
+                
+                <div class="hero-cta">
+                    <a href="{{ path('app_login') }}" class="btn btn-primary btn-large" id="ctaLogin">
+                        <span class="btn-icon" aria-hidden="true">🔐</span>
+                        {{ 'cta.login'|trans|default('Connexion') }}
+                    </a>
+                    <a href="{{ path('app_register') }}" class="btn btn-outline btn-large" id="ctaSignup">
+                        <span class="btn-icon" aria-hidden="true">✨</span>
+                        {{ 'cta.signup'|trans|default("S'inscrire") }}
+                    </a>
+                </div>
+            </div>
+            
+            {# Image Card with Greeting #}
+            <div class="hero-image-card animate-fade-in" style="animation-delay: 300ms;">
+                <div class="hero-image-wrapper">
+                    <img src="/images/hero.png" alt="Famille heureuse avec WANNASNI" loading="eager">
+                </div>
+                <div class="hero-image-caption">
+                    <span class="greeting-badge" id="heroGreeting">
+                        {% set hour = "now"|date("H") %}
+                        {% if hour < 12 %}
+                            {{ 'greeting.morning'|trans|default('Good morning') }} 🌅
+                        {% elseif hour < 18 %}
+                            {{ 'greeting.afternoon'|trans|default('Good afternoon') }} ☀️
+                        {% else %}
+                            {{ 'greeting.evening'|trans|default('Good evening') }} 🌙
+                        {% endif %}
+                    </span>
+                    <p class="hero-description">
+                        {{ 'hero.description'|trans|default('We are here when you need us.') }}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    {# Scroll Indicator #}
+    <div class="scroll-indicator" aria-hidden="true">
+        <span class="scroll-arrow">↓</span>
+    </div>
+</section>
+
+{# ==================== STATS SECTION ==================== #}
+<section class="stats-section" id="stats">
+    <div class="container">
+        <div class="stats-grid">
+            <div class="stat-item animate-on-scroll">
+                <span class="stat-number" data-target="2847">0</span>
+                <span class="stat-label">{{ 'stats.families'|trans|default('Familles accompagnées') }}</span>
+            </div>
+            <div class="stat-item animate-on-scroll" style="animation-delay: 100ms;">
+                <span class="stat-number" data-target="24">0</span>
+                <span class="stat-suffix">/7</span>
+                <span class="stat-label">{{ 'stats.support'|trans|default('Support disponible') }}</span>
+            </div>
+            <div class="stat-item animate-on-scroll" style="animation-delay: 200ms;">
+                <span class="stat-number" data-target="98">0</span>
+                <span class="stat-suffix">%</span>
+                <span class="stat-label">{{ 'stats.satisfaction'|trans|default('Taux de satisfaction') }}</span>
+            </div>
+            <div class="stat-item animate-on-scroll" style="animation-delay: 300ms;">
+                <span class="stat-number" data-target="15">0</span>
+                <span class="stat-suffix">+</span>
+                <span class="stat-label">{{ 'stats.experience'|trans|default("Années d'expérience") }}</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+{# ==================== HOW IT WORKS SECTION ==================== #}
+<section class="how-it-works" id="how-it-works">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">{{ 'howitworks.title'|trans|default('Comment ça marche') }}</h2>
+            <p class="section-subtitle">{{ 'howitworks.subtitle'|trans|default('Un accompagnement simple en 3 étapes') }}</p>
+        </div>
+        
+        <div class="steps-grid">
+            <div class="step-card animate-on-scroll">
+                <div class="step-number">1</div>
+                <div class="step-icon">📝</div>
+                <h3 class="step-title">{{ 'howitworks.step1.title'|trans|default('Inscription') }}</h3>
+                <p class="step-description">{{ 'howitworks.step1.description'|trans|default("Créez votre profil familial en quelques minutes. C'est simple et sécurisé.") }}</p>
+            </div>
+            
+            <div class="step-connector" aria-hidden="true">
+                <svg viewBox="0 0 100 20" preserveAspectRatio="none">
+                    <path d="M0,10 L100,10" stroke="currentColor" stroke-width="2" stroke-dasharray="5,5"/>
+                </svg>
+            </div>
+            
+            <div class="step-card animate-on-scroll" style="animation-delay: 150ms;">
+                <div class="step-number">2</div>
+                <div class="step-icon">⚙️</div>
+                <h3 class="step-title">{{ 'howitworks.step2.title'|trans|default('Personnalisation') }}</h3>
+                <p class="step-description">{{ 'howitworks.step2.description'|trans|default('Configurez les alertes, les rappels et les préférences selon vos besoins.') }}</p>
+            </div>
+            
+            <div class="step-connector" aria-hidden="true">
+                <svg viewBox="0 0 100 20" preserveAspectRatio="none">
+                    <path d="M0,10 L100,10" stroke="currentColor" stroke-width="2" stroke-dasharray="5,5"/>
+                </svg>
+            </div>
+            
+            <div class="step-card animate-on-scroll" style="animation-delay: 300ms;">
+                <div class="step-number">3</div>
+                <div class="step-icon">💚</div>
+                <h3 class="step-title">{{ 'howitworks.step3.title'|trans|default('Sérénité') }}</h3>
+                <p class="step-description">{{ 'howitworks.step3.description'|trans|default('Profitez de la tranquillité d\'esprit. Nous veillons sur vos proches.') }}</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+{# ==================== FEATURES SECTION ==================== #}
+<section class="features" id="features">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">{{ 'features.title'|trans }}</h2>
+            <p class="section-subtitle">{{ 'features.subtitle'|trans }}</p>
+        </div>
+        
+        <div class="features-grid">
+            {# Feature 1: Profiles & Security #}
+            <article class="feature-card animate-on-scroll">
+                <div class="feature-icon" aria-hidden="true">🔐</div>
+                <h3 class="feature-title">{{ 'features.profiles.title'|trans }}</h3>
+                <p class="feature-description">{{ 'features.profiles.description'|trans }}</p>
+            </article>
+
+            {# Feature 2: Services & Interventions #}
+            <article class="feature-card animate-on-scroll" style="animation-delay: 100ms;">
+                <div class="feature-icon" aria-hidden="true">🛠️</div>
+                <h3 class="feature-title">{{ 'features.services.title'|trans }}</h3>
+                <p class="feature-description">{{ 'features.services.description'|trans }}</p>
+            </article>
+
+            {# Feature 3: Health & Well-Being #}
+            <article class="feature-card animate-on-scroll" style="animation-delay: 200ms;">
+                <div class="feature-icon" aria-hidden="true">🩺</div>
+                <h3 class="feature-title">{{ 'features.health.title'|trans }}</h3>
+                <p class="feature-description">{{ 'features.health.description'|trans }}</p>
+            </article>
+
+            {# Feature 4: Food & Nutrition #}
+            <article class="feature-card animate-on-scroll" style="animation-delay: 100ms;">
+                <div class="feature-icon" aria-hidden="true">🥗</div>
+                <h3 class="feature-title">{{ 'features.nutrition.title'|trans }}</h3>
+                <p class="feature-description">{{ 'features.nutrition.description'|trans }}</p>
+            </article>
+
+            {# Feature 5: Activities & Events #}
+            <article class="feature-card animate-on-scroll" style="animation-delay: 200ms;">
+                <div class="feature-icon" aria-hidden="true">🎯</div>
+                <h3 class="feature-title">{{ 'features.activities.title'|trans }}</h3>
+                <p class="feature-description">{{ 'features.activities.description'|trans }}</p>
+            </article>
+
+            {# Feature 6: Family Connection #}
+            <article class="feature-card animate-on-scroll" style="animation-delay: 300ms;">
+                <div class="feature-icon" aria-hidden="true">👨‍👩‍👧‍👦</div>
+                <h3 class="feature-title">{{ 'features.family.title'|trans }}</h3>
+                <p class="feature-description">{{ 'features.family.description'|trans }}</p>
+            </article>
+        </div>
+    </div>
+</section>
+
+{# ==================== TESTIMONIALS SECTION ==================== #}
+<section class="testimonials" id="testimonials">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">{{ 'testimonials.title'|trans|default('Stories from Our Families') }}</h2>
+            <p class="section-subtitle">{{ 'testimonials.subtitle'|trans|default('Real experiences from caregivers who found peace of mind') }}</p>
+        </div>
+        
+        <div class="testimonials-grid">
+            <article class="testimonial-card animate-on-scroll">
+                <img src="/images/testimonial1.png" alt="Marie" class="testimonial-photo">
+                <blockquote>{{ 'testimonials.quote1'|trans|default('Finally, I can sleep peacefully knowing Mom is safe. WANNASNI changed our family\'s life.') }}</blockquote>
+                <cite>— {{ 'testimonials.author1'|trans|default('Marie, daughter of Fatima (78)') }}</cite>
+            </article>
+            
+            <article class="testimonial-card animate-on-scroll" style="animation-delay: 150ms;">
+                <img src="/images/testimonial2.png" alt="Ahmed" class="testimonial-photo">
+                <blockquote>{{ 'testimonials.quote2'|trans|default('The care my father receives is exceptional. The team truly understands what seniors need.') }}</blockquote>
+                <cite>— {{ 'testimonials.author2'|trans|default('Ahmed, son of Hassan (82)') }}</cite>
+            </article>
+            
+            <article class="testimonial-card animate-on-scroll" style="animation-delay: 300ms;">
+                <img src="/images/testimonial3.png" alt="Leila" class="testimonial-photo">
+                <blockquote>{{ 'testimonials.quote3'|trans|default('What I love most is the warmth and respect they show to my grandmother. It feels like family.') }}</blockquote>
+                <cite>— {{ 'testimonials.author3'|trans|default('Leila, granddaughter of Kheira (85)') }}</cite>
+            </article>
+        </div>
+    </div>
+</section>
+
+{# ==================== ROLES SECTION ==================== #}
+<section class="roles" id="roles">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">{{ 'roles.title'|trans }}</h2>
+            <p class="section-subtitle">{{ 'roles.subtitle'|trans }}</p>
+        </div>
+        
+        <div class="roles-grid">
+            <article class="role-card animate-on-scroll">
+                <span class="role-icon" aria-hidden="true">👴</span>
+                <h3 class="role-title">{{ 'roles.seniors.title'|trans }}</h3>
+                <p class="role-description">{{ 'roles.seniors.description'|trans }}</p>
+            </article>
+            
+            <article class="role-card animate-on-scroll" style="animation-delay: 100ms;">
+                <span class="role-icon" aria-hidden="true">👨‍👩‍👧</span>
+                <h3 class="role-title">{{ 'roles.family.title'|trans }}</h3>
+                <p class="role-description">{{ 'roles.family.description'|trans }}</p>
+            </article>
+            
+            <article class="role-card animate-on-scroll" style="animation-delay: 200ms;">
+                <span class="role-icon" aria-hidden="true">👨‍⚕️</span>
+                <h3 class="role-title">{{ 'roles.doctors.title'|trans }}</h3>
+                <p class="role-description">{{ 'roles.doctors.description'|trans }}</p>
+            </article>
+            
+            <article class="role-card animate-on-scroll" style="animation-delay: 300ms;">
+                <span class="role-icon" aria-hidden="true">🏋️</span>
+                <h3 class="role-title">{{ 'roles.coaches.title'|trans }}</h3>
+                <p class="role-description">{{ 'roles.coaches.description'|trans }}</p>
+            </article>
+        </div>
+    </div>
+</section>
+
+{# ==================== WHY IT MATTERS SECTION ==================== #}
+<section class="why-section" id="why">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">{{ 'why.title'|trans }}</h2>
+        </div>
+        
+        <div class="why-content">
+            <div class="why-text animate-on-scroll">
+                <p class="why-lead">{{ 'why.lead'|trans }}</p>
+                <ul class="why-list">
+                    <li>
+                        <span class="check-icon" aria-hidden="true">✓</span>
+                        <span>{{ 'why.point1'|trans }}</span>
+                    </li>
+                    <li>
+                        <span class="check-icon" aria-hidden="true">✓</span>
+                        <span>{{ 'why.point2'|trans }}</span>
+                    </li>
+                    <li>
+                        <span class="check-icon" aria-hidden="true">✓</span>
+                        <span>{{ 'why.point3'|trans }}</span>
+                    </li>
+                    <li>
+                        <span class="check-icon" aria-hidden="true">✓</span>
+                        <span>{{ 'why.point4'|trans }}</span>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="why-visual animate-on-scroll" style="animation-delay: 200ms;">
+                <div class="why-card">
+                    <span class="why-emoji" aria-hidden="true">💚</span>
+                    <p>{{ 'why.tagline'|trans }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{# ==================== TRUST BADGES SECTION ==================== #}
+<section class="trust-badges-section" id="trust">
+    <div class="container">
+        <div class="trust-badges-grid">
+            <div class="trust-badge-item animate-on-scroll">
+                <span class="trust-badge-icon">🔒</span>
+                <span class="trust-badge-text">{{ 'trust.badge.data'|trans|default('Données protégées') }}</span>
+            </div>
+            <div class="trust-badge-item animate-on-scroll" style="animation-delay: 100ms;">
+                <span class="trust-badge-icon">👨‍👩‍👧</span>
+                <span class="trust-badge-text">{{ 'trust.badge.family'|trans|default('Famille d\'abord') }}</span>
+            </div>
+            <div class="trust-badge-item animate-on-scroll" style="animation-delay: 200ms;">
+                <span class="trust-badge-icon">👴</span>
+                <span class="trust-badge-text">{{ 'trust.badge.senior'|trans|default('Adapté aux seniors') }}</span>
+            </div>
+            <div class="trust-badge-item animate-on-scroll" style="animation-delay: 300ms;">
+                <span class="trust-badge-icon">✅</span>
+                <span class="trust-badge-text">{{ 'trust.badge.certified'|trans|default('Certifié qualité') }}</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+{# ==================== CTA SECTION ==================== #}
+<section class="cta-section" id="cta">
+    <div class="container">
+        <div class="cta-content animate-on-scroll">
+            <h2 class="cta-title">{{ 'cta.title'|trans }}</h2>
+            <p class="cta-subtitle">{{ 'cta.subtitle'|trans }}</p>
+            
+            <div class="cta-buttons">
+                <a href="mailto:wannasni@gmail.com" class="btn btn-primary btn-large" id="ctaEmailBottom">
+                    <span class="btn-icon" aria-hidden="true">✉️</span>
+                    {{ 'cta.contact_us'|trans }}
+                </a>
+                <a href="tel:+2161223445" class="btn btn-outline btn-large" id="ctaPhoneBottom">
+                    <span class="btn-icon" aria-hidden="true">📞</span>
+                    +216 12 234 45
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+{# ==================== EXIT INTENT COMFORT MESSAGE ==================== #}
+<div class="comfort-message" id="comfortMessage" role="status" aria-live="polite">
+    <p>{{ 'comfort.message'|trans|default('You\'re doing great. We\'re here when you need us. 💚') }}</p>
+</div>
+
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+// Scroll Animation Observer
+document.addEventListener('DOMContentLoaded', function() {
+    // Intersection Observer for scroll animations
+    const observerOptions = {
+        root: null,
+        rootMargin: '0px',
+        threshold: 0.1
+    };
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('animate-visible');
+                
+                // Animate numbers when stats come into view
+                if (entry.target.querySelector('.stat-number')) {
+                    animateNumbers(entry.target);
+                }
+            }
+        });
+    }, observerOptions);
+    
+    // Observe all animate-on-scroll elements
+    document.querySelectorAll('.animate-on-scroll').forEach(el => {
+        observer.observe(el);
+    });
+    
+    // Number animation function
+    function animateNumbers(container) {
+        const numbers = container.querySelectorAll('.stat-number[data-target]');
+        numbers.forEach(num => {
+            if (num.classList.contains('animated')) return;
+            num.classList.add('animated');
+            
+            const target = parseInt(num.dataset.target);
+            const duration = 2000;
+            const steps = 60;
+            const stepDuration = duration / steps;
+            let current = 0;
+            const increment = target / steps;
+            
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    num.textContent = target.toLocaleString();
+                    clearInterval(timer);
+                } else {
+                    num.textContent = Math.floor(current).toLocaleString();
+                }
+            }, stepDuration);
+        });
+    }
+    
+    // Also observe stat items for number animation
+    document.querySelectorAll('.stat-item').forEach(el => {
+        observer.observe(el);
+    });
+});
+</script>
+{% endblock %}

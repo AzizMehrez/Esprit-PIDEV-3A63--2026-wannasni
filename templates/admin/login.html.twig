@@ -1,0 +1,226 @@
+{% extends 'base_admin.html.twig' %}
+
+{% block title %}Connexion Admin — WANNASNI{% endblock %}
+
+{% block body %}
+<div class="admin-login-page">
+    <div class="admin-login-container">
+        <div class="admin-login-header">
+            <img src="/images/logo.png" alt="WANNASNI" class="admin-login-logo">
+            <h1 class="admin-login-title">Administration WANNASNI</h1>
+            <p class="admin-login-subtitle">Connectez-vous à votre espace administrateur</p>
+        </div>
+
+        {% if error %}
+            <div class="alert alert-error">
+                <p>{{ error.messageKey|trans(error.messageData, 'security') }}</p>
+            </div>
+        {% endif %}
+
+        {% if app.flashes('success') %}
+            <div class="alert alert-success">
+                {% for message in app.flashes('success') %}
+                    <p>{{ message }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <form method="post" action="{{ path('admin_login') }}" class="admin-login-form">
+            <div class="form-group">
+                <label for="inputEmail" class="form-label">Email</label>
+                <input type="email" 
+                       id="inputEmail" 
+                       name="_username" 
+                       class="form-input" 
+                       value="{{ last_username }}"
+                       placeholder="admin@wannasni.com"
+                       autocomplete="email"
+                       required 
+                       autofocus>
+            </div>
+
+            <div class="form-group">
+                <label for="inputPassword" class="form-label">Mot de passe</label>
+                <input type="password" 
+                       id="inputPassword" 
+                       name="_password" 
+                       class="form-input" 
+                       placeholder="••••••••"
+                       autocomplete="current-password"
+                       required>
+            </div>
+
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+            <input type="hidden" name="_target_path" value="{{ path('admin_dashboard') }}">
+
+            <div class="form-checkbox">
+                <label>
+                    <input type="checkbox" name="_remember_me">
+                    <span>Se souvenir de moi</span>
+                </label>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-large btn-full">
+                Se connecter
+            </button>
+        </form>
+
+        <div class="admin-login-footer">
+            <p>
+                <a href="{{ path('app_home') }}" class="admin-link">
+                    ← Retour à l'accueil
+                </a>
+            </p>
+        </div>
+    </div>
+</div>
+
+<style>
+.admin-login-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 2rem;
+}
+
+.admin-login-container {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    padding: 3rem;
+    max-width: 450px;
+    width: 100%;
+}
+
+.admin-login-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.admin-login-logo {
+    height: 60px;
+    margin-bottom: 1.5rem;
+}
+
+.admin-login-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #1a202c;
+    margin-bottom: 0.5rem;
+}
+
+.admin-login-subtitle {
+    color: #718096;
+    font-size: 0.95rem;
+}
+
+.admin-login-form {
+    margin-top: 2rem;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-label {
+    display: block;
+    font-weight: 600;
+    color: #2d3748;
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+}
+
+.form-input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.2s;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.form-checkbox {
+    margin-bottom: 1.5rem;
+}
+
+.form-checkbox label {
+    display: flex;
+    align-items: center;
+    color: #4a5568;
+    font-size: 0.9rem;
+}
+
+.form-checkbox input[type="checkbox"] {
+    margin-right: 0.5rem;
+}
+
+.btn {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+}
+
+.btn-large {
+    padding: 1rem 2rem;
+    font-size: 1.05rem;
+}
+
+.btn-full {
+    width: 100%;
+}
+
+.admin-login-footer {
+    margin-top: 2rem;
+    text-align: center;
+}
+
+.admin-link {
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.admin-link:hover {
+    text-decoration: underline;
+}
+
+.alert {
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+}
+
+.alert-error {
+    background-color: #fed7d7;
+    color: #c53030;
+    border: 1px solid #fc8181;
+}
+
+.alert-success {
+    background-color: #c6f6d5;
+    color: #276749;
+    border: 1px solid #9ae6b4;
+}
+</style>
+{% endblock %}

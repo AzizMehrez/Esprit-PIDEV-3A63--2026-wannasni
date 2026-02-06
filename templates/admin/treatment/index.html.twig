@@ -1,0 +1,67 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Traitements - Admin WANNASNI{% endblock %}
+{% block page_title %}Traitements{% endblock %}
+
+{% block header_actions %}
+<a href="{{ path('admin_treatment_new') }}" class="btn btn-primary">➕ Nouveau Traitement</a>
+{% endblock %}
+
+{% block content %}
+<div class="admin-toolbar" style="margin-bottom:1rem;">
+    <form method="get" action="{{ path('admin_treatment') }}" style="display:flex; gap:0.75rem; align-items:center;">
+        <input type="search" name="q" placeholder="Rechercher patient, médecin, médicament..." value="{{ q|default('') }}" style="padding:0.5rem; border-radius:6px; border:1px solid #e2e8f0;">
+        <select name="sort" style="padding:0.5rem; border-radius:6px; border:1px solid #e2e8f0;">
+            <option value="desc" {% if sort is not defined or sort == 'desc' %}selected{% endif %}>Plus récentes</option>
+            <option value="asc" {% if sort == 'asc' %}selected{% endif %}>Plus anciennes</option>
+        </select>
+        <button class="btn btn-outline">🔎 Rechercher</button>
+        <div style="margin-left:auto;">
+            <a href="{{ path('admin_treatment_export', {'q': q|default(''), 'sort': sort|default('desc')}) }}" class="btn btn-primary">📄 Exporter PDF</a>
+        </div>
+    </form>
+</div>
+
+<div class="admin-card">
+    <div class="card-header">
+        <h2 class="card-title">Traitements</h2>
+        <span class="badge badge-info">{{ records|length }} items</span>
+    </div>
+
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th>Patient</th>
+                <th>Médecin</th>
+                <th>Médicaments</th>
+                <th>Date Prescription</th>
+                <th>Statut</th>
+                <th style="width:120px;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for record in records %}
+            <tr>
+                <td>{{ record.senior ? record.senior.getFullName() : '—' }}</td>
+                <td>{{ record.docteur ? record.docteur.getFullName() : '—' }}</td>
+                <td>{{ record.medicaments|slice(0,40) }}{% if record.medicaments|length > 40 %}…{% endif %}</td>
+                <td>{{ record.datePrescription ? record.datePrescription|date('d/m/Y') : '—' }}</td>
+                <td>{{ record.statut ?: '—' }}</td>
+                <td>
+                    <a href="{{ path('admin_treatment_show', {id: record.id}) }}" class="action-btn">👁️</a>
+                    <a href="{{ path('admin_treatment_edit', {id: record.id}) }}" class="action-btn">✏️</a>
+                    <form method="post" action="{{ path('admin_treatment_delete', {id: record.id}) }}" style="display:inline" onsubmit="return confirm('Supprimer ce traitement ?');">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ record.id) }}">
+                        <button class="action-btn">🗑️</button>
+                    </form>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="6">Aucun traitement trouvé.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

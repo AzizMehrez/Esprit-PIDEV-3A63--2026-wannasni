@@ -1,0 +1,279 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Activités - Admin WANNASNI{% endblock %}
+{% block page_title %}Gestion des Activités{% endblock %}
+
+{% block header_actions %}
+<a href="{{ path('admin_activities_new') }}" class="btn btn-primary">➕ Nouvelle Activité</a>
+{% endblock %}
+
+{% block content %}
+{# Statistics Cards #}
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon green">🎯</div>
+        <div class="stat-info">
+            <div class="stat-value">{{ activities|length }}</div>
+            <div class="stat-label">Total Activities</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon blue">✓</div>
+        <div class="stat-info">
+            <div class="stat-value">{{ activities|filter(a => a.isActive)|length }}</div>
+            <div class="stat-label">Active</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon purple">👥</div>
+        <div class="stat-info">
+            <div class="stat-value">{{ activities|reduce((carry, a) => carry + a.currentParticipants, 0) }}</div>
+            <div class="stat-label">Participants</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon orange">📅</div>
+        <div class="stat-info">
+            <div class="stat-value">{{ activities|length }}</div>
+            <div class="stat-label">Upcoming Events</div>
+        </div>
+    </div>
+</div>
+
+{# Toolbar #}
+<div class="admin-toolbar">
+    <form method="get" action="{{ path('admin_activities') }}" style="display: flex; gap: 1rem; flex: 1;">
+        <input type="text" name="q" placeholder="Rechercher une activité..." value="{{ search_query }}" style="flex: 1; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
+        
+        <select name="type" style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
+            <option value="">All Types</option>
+            <option value="social" {{ search_type == 'social' ? 'selected' : '' }}>Social</option>
+            <option value="physical" {{ search_type == 'physical' ? 'selected' : '' }}>Physical</option>
+            <option value="cultural" {{ search_type == 'cultural' ? 'selected' : '' }}>Cultural</option>
+            <option value="educational" {{ search_type == 'educational' ? 'selected' : '' }}>Educational</option>
+        </select>
+
+        <select name="status" style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
+            <option value="">All Status</option>
+            <option value="active" {{ search_status == 'active' ? 'selected' : '' }}>Active</option>
+            <option value="inactive" {{ search_status == 'inactive' ? 'selected' : '' }}>Inactive</option>
+        </select>
+
+        <button type="submit" class="btn btn-sm btn-primary">🔍 Search</button>
+        {% if search_query or search_type or search_status %}
+            <a href="{{ path('admin_activities') }}" class="btn btn-sm btn-secondary">Clear</a>
+        {% endif %}
+    </form>
+
+    <div class="toolbar-actions">
+        <select id="sortSelect" onchange="applySortOption(this.value)" style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
+            <option value="">Sort By...</option>
+            <option value="title">📝 Title (A-Z)</option>
+            <option value="title-desc">📝 Title (Z-A)</option>
+            <option value="date">📅 Coming Soon</option>
+            <option value="date-old">📅 Oldest First</option>
+            <option value="participants">👥 Most Participants</option>
+            <option value="participants-asc">👥 Least Participants</option>
+            <option value="available">🎯 Most Available Spots</option>
+        </select>
+        
+        <a href="{{ path('admin_activities_export_pdf', {q: search_query, type: search_type, status: search_status}) }}" class="export-btn pdf" target="_blank">
+            📄 PDF
+        </a>
+    </div>
+</div>
+
+{# Table #}
+<div class="admin-card">
+    <div class="card-header">
+        <h2 class="card-title">🎯 Liste des Activités</h2>
+        <span class="badge badge-success">{{ activities|length }} activités</span>
+    </div>
+    <table class="admin-table" id="dataTable">
+        <thead>
+            <tr>
+                <th class="sortable" onclick="sortTable(0)">Title <span class="sort-icon">🔄</span></th>
+                <th class="sortable" onclick="sortTable(1)">Type <span class="sort-icon">🔄</span></th>
+                <th class="sortable" onclick="sortTable(2)">Start Time <span class="sort-icon">🔄</span></th>
+                <th class="sortable" onclick="sortTable(3)">Participants <span class="sort-icon">🔄</span></th>
+                <th class="sortable" onclick="sortTable(4)">Status <span class="sort-icon">🔄</span></th>
+                <th style="width: 120px;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for activity in activities %}
+            <tr>
+                <td>
+                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                        <div style="width: 40px; height: 40px; border-radius: 10px; background: linear-gradient(135deg, #22c55e, #4ade80); display: flex; align-items: center; justify-content: center; font-size: 1.1rem;">
+                            {% if activity.type == 'physical' %}🏃
+                            {% elseif activity.type == 'cultural' %}🎭
+                            {% elseif activity.type == 'educational' %}📚
+                            {% else %}👥{% endif %}
+                        </div>
+                        <div>
+                            <div style="font-weight: 600;">{{ activity.title }}</div>
+                            <div style="font-size: 0.8rem; color: var(--admin-text-muted);">{{ activity.description|slice(0, 40) }}</div>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <span class="badge badge-info">{{ activity.type|capitalize }}</span>
+                </td>
+                <td>{{ activity.startTime|date('Y-m-d H:i') }}</td>
+                <td>
+                    <span style="font-weight: 600;">{{ activity.currentParticipants }}{% if activity.maxParticipants %}/{{ activity.maxParticipants }}{% endif %}</span>
+                </td>
+                <td>
+                    {% if activity.isActive %}
+                        <span class="badge badge-success">✓ Active</span>
+                    {% else %}
+                        <span class="badge badge-warning">⏸ Inactive</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{{ path('admin_activities_show', {id: activity.id}) }}" class="action-btn" title="View">👁️</a>
+                    <a href="{{ path('admin_activities_edit', {id: activity.id}) }}" class="action-btn" title="Edit">✏️</a>
+                    <form method="post" action="{{ path('admin_activities_delete', {id: activity.id}) }}" style="display:inline;" onsubmit="return confirm('Are you sure?');">
+                        <button type="submit" class="action-btn danger" title="Delete">🗑️</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+let sortDirection = {};
+
+function applySortOption(sortOption) {
+    const table = document.getElementById('dataTable');
+    const tbody = table.getElementsByTagName('tbody')[0];
+    const rows = Array.from(tbody.getElementsByTagName('tr'));
+
+    if (!sortOption) return;
+
+    rows.sort((a, b) => {
+        let compareValue = 0;
+
+        switch(sortOption) {
+            case 'title':
+                compareValue = a.cells[0].textContent.trim().localeCompare(b.cells[0].textContent.trim());
+                break;
+            case 'title-desc':
+                compareValue = b.cells[0].textContent.trim().localeCompare(a.cells[0].textContent.trim());
+                break;
+            case 'date':
+                // Sort by start time - coming soon (soonest first)
+                const dateA = new Date(a.cells[2].textContent.trim());
+                const dateB = new Date(b.cells[2].textContent.trim());
+                compareValue = dateA - dateB;
+                break;
+            case 'date-old':
+                // Sort by start time - oldest first
+                const dateA2 = new Date(a.cells[2].textContent.trim());
+                const dateB2 = new Date(b.cells[2].textContent.trim());
+                compareValue = dateB2 - dateA2;
+                break;
+            case 'participants':
+                // Most participants first
+                const partA = getParticipantCount(a.cells[3].textContent.trim());
+                const partB = getParticipantCount(b.cells[3].textContent.trim());
+                compareValue = partB - partA;
+                break;
+            case 'participants-asc':
+                // Least participants first
+                const partA2 = getParticipantCount(a.cells[3].textContent.trim());
+                const partB2 = getParticipantCount(b.cells[3].textContent.trim());
+                compareValue = partA2 - partB2;
+                break;
+            case 'available':
+                // Most available spots
+                const spotA = getAvailableSpots(a.cells[3].textContent.trim());
+                const spotB = getAvailableSpots(b.cells[3].textContent.trim());
+                compareValue = spotB - spotA;
+                break;
+        }
+
+        return compareValue;
+    });
+
+    rows.forEach(row => tbody.appendChild(row));
+    
+    // Reset sort indicator on column headers
+    const headers = table.getElementsByTagName('th');
+    for (let i = 0; i < headers.length; i++) {
+        const icon = headers[i].querySelector('.sort-icon');
+        if (icon) icon.textContent = '🔄';
+    }
+}
+
+function getParticipantCount(text) {
+    // Extract first number from text like "5/10"
+    const match = text.match(/(\d+)/);
+    return match ? parseInt(match[1]) : 0;
+}
+
+function getAvailableSpots(text) {
+    // Extract numbers from text like "5/10"
+    const match = text.match(/(\d+)\/(\d+)/);
+    if (match) {
+        const current = parseInt(match[1]) || 0;
+        const max = parseInt(match[2]) || 0;
+        return max - current;
+    }
+    return 999; // Unlimited
+}
+
+function sortTable(columnIndex) {
+    const table = document.getElementById('dataTable');
+    const tbody = table.getElementsByTagName('tbody')[0];
+    const rows = Array.from(tbody.getElementsByTagName('tr'));
+    const headers = table.getElementsByTagName('th');
+    
+    sortDirection[columnIndex] = !sortDirection[columnIndex];
+    const ascending = sortDirection[columnIndex];
+    
+    // Reset all sort icons
+    for (let i = 0; i < headers.length; i++) {
+        const icon = headers[i].querySelector('.sort-icon');
+        if (icon) icon.textContent = '🔄';
+    }
+    
+    // Update current column icon
+    const currentHeader = headers[columnIndex];
+    const currentIcon = currentHeader.querySelector('.sort-icon');
+    if (currentIcon) {
+        currentIcon.textContent = ascending ? '⬆️' : '⬇️';
+    }
+    
+    rows.sort((a, b) => {
+        const aText = a.cells[columnIndex].textContent.trim().toLowerCase();
+        const bText = b.cells[columnIndex].textContent.trim().toLowerCase();
+        return ascending ? aText.localeCompare(bText) : bText.localeCompare(aText);
+    });
+    
+    rows.forEach(row => tbody.appendChild(row));
+    
+    // Reset sort dropdown
+    document.getElementById('sortSelect').value = '';
+}
+
+// Add hover effect for sortable headers
+document.addEventListener('DOMContentLoaded', function() {
+    const table = document.getElementById('dataTable');
+    const headers = table.querySelectorAll('th.sortable');
+    headers.forEach(header => {
+        header.style.cursor = 'pointer';
+        header.style.userSelect = 'none';
+        header.addEventListener('mouseover', function() {
+            this.style.backgroundColor = '#f0f0f0';
+        });
+        header.addEventListener('mouseout', function() {
+            this.style.backgroundColor = '';
+        });
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,270 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nouvelle Entrée Santé - WANNASNI{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    :root {
+        --dash-primary: #2E7D32;
+        --dash-primary-light: #4CAF50;
+        --dash-primary-soft: rgba(46, 125, 50, 0.08);
+        --dash-bg: #f8faf8;
+        --dash-card: #ffffff;
+        --dash-text: #1a1a2e;
+        --dash-text-muted: #64748b;
+        --dash-border: #e2e8f0;
+        --dash-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+        --dash-radius: 20px;
+        --dash-radius-sm: 12px;
+    }
+
+    body { background: var(--dash-bg); }
+
+    .page-wrapper {
+        min-height: 100vh;
+        padding: 2rem 1.5rem 4rem;
+        background: linear-gradient(180deg, #fef2f2 0%, var(--dash-bg) 30%);
+    }
+
+    .page-container {
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #dc2626;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.95rem;
+        margin-bottom: 1.5rem;
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        transition: all 0.2s;
+    }
+
+    .back-link:hover {
+        background: rgba(220, 38, 38, 0.08);
+    }
+
+    .form-card {
+        background: var(--dash-card);
+        border-radius: var(--dash-radius);
+        box-shadow: var(--dash-shadow);
+        border: 1px solid var(--dash-border);
+        overflow: hidden;
+    }
+
+    .form-header {
+        padding: 1.5rem 2rem;
+        border-bottom: 1px solid var(--dash-border);
+        background: linear-gradient(to right, rgba(220, 38, 38, 0.08), transparent);
+    }
+
+    .form-title {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-family: 'Playfair Display', serif;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--dash-text);
+    }
+
+    .form-title-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
+        background: linear-gradient(135deg, #dc2626, #b91c1c);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.25rem;
+    }
+
+    .form-body {
+        padding: 2rem;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        display: block;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--dash-text);
+        margin-bottom: 0.5rem;
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 1rem 1.25rem;
+        font-size: 1.1rem;
+        border: 2px solid var(--dash-border);
+        border-radius: var(--dash-radius-sm);
+        background: white;
+        transition: all 0.2s;
+        font-family: inherit;
+    }
+
+    .form-input:focus {
+        outline: none;
+        border-color: #dc2626;
+        box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.1);
+    }
+
+    .mood-selector {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.75rem;
+    }
+
+    .mood-option {
+        text-align: center;
+        padding: 1.25rem;
+        border: 2px solid var(--dash-border);
+        border-radius: var(--dash-radius-sm);
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .mood-option:hover {
+        border-color: #dc2626;
+    }
+
+    .mood-option.selected {
+        border-color: #dc2626;
+        background: rgba(220, 38, 38, 0.05);
+    }
+
+    .mood-option input {
+        display: none;
+    }
+
+    .mood-emoji {
+        font-size: 2.5rem;
+        display: block;
+        margin-bottom: 0.5rem;
+    }
+
+    .mood-text {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--dash-text);
+    }
+
+    .btn-group {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+
+    .btn {
+        padding: 1rem 2rem;
+        font-size: 1rem;
+        font-weight: 600;
+        border-radius: var(--dash-radius-sm);
+        cursor: pointer;
+        text-decoration: none;
+        text-align: center;
+        transition: all 0.2s;
+        border: none;
+    }
+
+    .btn-primary {
+        flex: 1;
+        background: linear-gradient(135deg, #dc2626, #b91c1c);
+        color: white;
+        box-shadow: 0 4px 16px rgba(220, 38, 38, 0.25);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(220, 38, 38, 0.35);
+    }
+
+    .btn-secondary {
+        background: white;
+        color: var(--dash-text-muted);
+        border: 2px solid var(--dash-border);
+    }
+
+    .btn-secondary:hover {
+        border-color: #dc2626;
+        color: #dc2626;
+    }
+
+    @media (max-width: 480px) {
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+
+        .mood-selector {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="page-wrapper">
+    <div class="page-container">
+        <a href="{{ path('app_my_health', {'_locale': app.request.locale}) }}" class="back-link">
+            ← Retour au journal
+        </a>
+
+        <div class="form-card">
+            <div class="form-header">
+                <h1 class="form-title">
+                    <span class="form-title-icon">❤️</span>
+                    Nouvelle Entrée Santé
+                </h1>
+            </div>
+            <div class="form-body">
+                {% if form is defined %}
+                    {{ form_start(form) }}
+                        <div class="form-row">
+                            <div class="form-group">{{ form_row(form.tensionArterielle, {'attr': {'class': 'form-input', 'placeholder': 'ex: 120/80'}}) }}</div>
+                            <div class="form-group">{{ form_row(form.frequenceCardiaque, {'attr': {'class': 'form-input', 'placeholder': 'bpm'}}) }}</div>
+                        </div>
+
+                        <div class="form-group">{{ form_row(form.temperature, {'attr': {'class': 'form-input', 'placeholder': '°C'}}) }}</div>
+
+                        <div class="form-group">{{ form_row(form.humeur, {'attr': {'class': 'form-input'}}) }}</div>
+
+                        <div class="form-group">{{ form_row(form.notes, {'attr': {'class': 'form-input', 'rows': 3}}) }}</div>
+
+                        <div class="btn-group">
+                            <button type="submit" class="btn btn-primary">💾 Enregistrer</button>
+                            <a href="{{ path('app_my_health', {'_locale': app.request.locale}) }}" class="btn btn-secondary">Annuler</a>
+                        </div>
+                    {{ form_end(form) }}
+                {% else %}
+                    <p>Formulaire non disponible.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.querySelectorAll('.mood-option').forEach(option => {
+    option.addEventListener('click', () => {
+        document.querySelectorAll('.mood-option').forEach(o => o.classList.remove('selected'));
+        option.classList.add('selected');
+    });
+});
+</script>
+{% endblock %}

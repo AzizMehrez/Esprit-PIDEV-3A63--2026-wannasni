@@ -1,0 +1,451 @@
+{% extends 'base_dashboard.html.twig' %}
+
+{% block title %}Ma Nutrition - WANNASNI{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    /* ============================================
+       NUTRITION PAGE - Senior-Friendly Design
+       ============================================ */
+    
+    :root {
+        --nutri-primary: #22c55e;
+        --nutri-primary-light: #4ade80;
+        --nutri-bg: #f0fdf4;
+        --nutri-card: #ffffff;
+        --nutri-text: #1a1a2e;
+        --nutri-text-muted: #64748b;
+        --nutri-border: #dcfce7;
+        --nutri-shadow: 0 4px 24px rgba(34, 197, 94, 0.1);
+    }
+
+    .nutrition-wrapper {
+        min-height: 100vh;
+        padding: 2rem 1.5rem 4rem;
+        background: linear-gradient(180deg, var(--nutri-bg) 0%, #f8fafc 30%);
+    }
+
+    .nutrition-container {
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+
+    /* Header */
+    .nutrition-header {
+        background: linear-gradient(135deg, var(--nutri-primary), #16a34a);
+        border-radius: 24px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        color: white;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .nutrition-header::before {
+        content: '🥗';
+        position: absolute;
+        right: 1.5rem;
+        bottom: 0.5rem;
+        font-size: 5rem;
+        opacity: 0.2;
+    }
+
+    .nutrition-header-content {
+        position: relative;
+        z-index: 2;
+    }
+
+    .nutrition-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .nutrition-subtitle {
+        opacity: 0.9;
+        font-size: 1.1rem;
+    }
+
+    /* Stats Bar */
+    .nutrition-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .nutrition-stat {
+        background: var(--nutri-card);
+        border-radius: 16px;
+        padding: 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        box-shadow: var(--nutri-shadow);
+        border: 1px solid var(--nutri-border);
+    }
+
+    .nutrition-stat-icon {
+        width: 56px;
+        height: 56px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+    }
+
+    .nutrition-stat-icon.calories { background: linear-gradient(135deg, #fef3c7, #fde68a); }
+    .nutrition-stat-icon.water { background: linear-gradient(135deg, #dbeafe, #bfdbfe); }
+    .nutrition-stat-icon.plan { background: linear-gradient(135deg, #dcfce7, #bbf7d0); }
+
+    .nutrition-stat-info h3 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--nutri-text);
+    }
+
+    .nutrition-stat-info p {
+        font-size: 0.85rem;
+        color: var(--nutri-text-muted);
+    }
+
+    /* Meals Grid */
+    .meals-section {
+        margin-bottom: 2rem;
+    }
+
+    .section-title {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+    }
+
+    .section-title h2 {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: var(--nutri-text);
+    }
+
+    .meals-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1rem;
+    }
+
+    .meal-card {
+        background: var(--nutri-card);
+        border-radius: 20px;
+        padding: 1.5rem;
+        box-shadow: var(--nutri-shadow);
+        border: 2px solid var(--nutri-border);
+        transition: all 0.3s ease;
+    }
+
+    .meal-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 32px rgba(34, 197, 94, 0.15);
+    }
+
+    .meal-card.completed {
+        border-color: var(--nutri-primary);
+    }
+
+    .meal-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+    }
+
+    .meal-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+    }
+
+    .meal-icon.breakfast { background: linear-gradient(135deg, #fef3c7, #fde68a); }
+    .meal-icon.lunch { background: linear-gradient(135deg, #fed7aa, #fdba74); }
+    .meal-icon.snack { background: linear-gradient(135deg, #f3e8ff, #e9d5ff); }
+    .meal-icon.dinner { background: linear-gradient(135deg, #fce7f3, #fbcfe8); }
+
+    .meal-time {
+        font-size: 0.85rem;
+        color: var(--nutri-text-muted);
+        background: #f1f5f9;
+        padding: 0.35rem 0.75rem;
+        border-radius: 50px;
+    }
+
+    .meal-name {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: var(--nutri-text);
+        margin-bottom: 0.75rem;
+    }
+
+    .meal-items {
+        margin-bottom: 1rem;
+    }
+
+    .meal-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.95rem;
+        color: var(--nutri-text-muted);
+        padding: 0.35rem 0;
+    }
+
+    .meal-item::before {
+        content: '✓';
+        color: var(--nutri-primary);
+        font-weight: 600;
+    }
+
+    .meal-empty {
+        color: var(--nutri-text-muted);
+        font-style: italic;
+        padding: 1rem 0;
+        text-align: center;
+    }
+
+    .meal-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        width: 100%;
+        padding: 0.85rem;
+        border-radius: 12px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.2s;
+        border: none;
+        cursor: pointer;
+    }
+
+    .meal-btn.add {
+        background: linear-gradient(135deg, var(--nutri-primary), var(--nutri-primary-light));
+        color: white;
+    }
+
+    .meal-btn.completed {
+        background: #f0fdf4;
+        color: var(--nutri-primary);
+        border: 2px solid var(--nutri-border);
+    }
+
+    .meal-btn:hover {
+        transform: translateY(-2px);
+    }
+
+    /* Water Tracker */
+    .water-tracker {
+        background: var(--nutri-card);
+        border-radius: 20px;
+        padding: 1.5rem;
+        box-shadow: var(--nutri-shadow);
+        border: 1px solid var(--nutri-border);
+        margin-bottom: 2rem;
+    }
+
+    .water-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1.5rem;
+    }
+
+    .water-title {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: var(--nutri-text);
+    }
+
+    .water-title-icon {
+        font-size: 1.5rem;
+    }
+
+    .water-progress {
+        flex: 1;
+        margin: 0 1rem;
+    }
+
+    .water-glasses {
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .water-glass {
+        width: 48px;
+        height: 60px;
+        background: #e2e8f0;
+        border-radius: 8px 8px 16px 16px;
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .water-glass.filled {
+        background: #dbeafe;
+    }
+
+    .water-glass.filled::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 80%;
+        background: linear-gradient(180deg, #60a5fa, #3b82f6);
+        border-radius: 0 0 12px 12px;
+    }
+
+    .water-glass:hover {
+        transform: scale(1.1);
+    }
+
+    .water-count {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #3b82f6;
+    }
+
+    /* Back Link */
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--nutri-primary);
+        text-decoration: none;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        font-size: 1rem;
+    }
+
+    .back-link:hover {
+        text-decoration: underline;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="nutrition-wrapper">
+    <div class="nutrition-container">
+        
+        <a href="{{ path('app_dashboard', {'_locale': app.request.locale}) }}" class="back-link">
+            ← Retour au tableau de bord
+        </a>
+        
+        <!-- Header -->
+        <section class="nutrition-header">
+            <div class="nutrition-header-content">
+                <h1 class="nutrition-title">Ma Nutrition</h1>
+                <p class="nutrition-subtitle">Suivez vos repas et votre hydratation au quotidien</p>
+            </div>
+        </section>
+
+        <!-- Stats Bar -->
+        <section class="nutrition-stats">
+            <div class="nutrition-stat">
+                <div class="nutrition-stat-icon calories">🔥</div>
+                <div class="nutrition-stat-info">
+                    <h3>{{ nutrition_plan.currentCalories }} / {{ nutrition_plan.dailyCalories }}</h3>
+                    <p>Calories aujourd'hui</p>
+                </div>
+            </div>
+            <div class="nutrition-stat">
+                <div class="nutrition-stat-icon water">💧</div>
+                <div class="nutrition-stat-info">
+                    <h3>{{ water_intake }} / {{ water_goal }}</h3>
+                    <p>Verres d'eau</p>
+                </div>
+            </div>
+            <div class="nutrition-stat">
+                <div class="nutrition-stat-icon plan">📋</div>
+                <div class="nutrition-stat-info">
+                    <h3>{{ nutrition_plan.name }}</h3>
+                    <p>{{ nutrition_plan.notes }}</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Water Tracker -->
+        <section class="water-tracker">
+            <div class="water-header">
+                <div class="water-title">
+                    <span class="water-title-icon">💧</span>
+                    Hydratation
+                </div>
+                <div class="water-count">{{ water_intake }} / {{ water_goal }} verres</div>
+            </div>
+            <div class="water-glasses">
+                {% for i in 1..water_goal %}
+                <div class="water-glass {{ i <= water_intake ? 'filled' : '' }}" title="{{ i <= water_intake ? 'Bu' : 'Cliquer pour ajouter' }}"></div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <!-- Meals -->
+        <section class="meals-section">
+            <div class="section-title">
+                <h2>🍽️ Repas du jour</h2>
+                <a href="{{ path('app_my_nutrition_add', {'_locale': app.request.locale}) }}" class="meal-btn add" style="width: auto; padding: 0.75rem 1.5rem;">
+                    ➕ Ajouter un repas
+                </a>
+            </div>
+            <div class="meals-grid">
+                {% for meal in today_meals %}
+                <div class="meal-card {{ meal.completed ? 'completed' : '' }}">
+                    <div class="meal-header">
+                        <div class="meal-icon {{ meal.type }}">
+                            {% if meal.type == 'breakfast' %}☕
+                            {% elseif meal.type == 'lunch' %}🍽️
+                            {% elseif meal.type == 'snack' %}🍎
+                            {% else %}🌙{% endif %}
+                        </div>
+                        <span class="meal-time">{{ meal.time }}</span>
+                    </div>
+                    <h3 class="meal-name">{{ meal.name }}</h3>
+                    <div class="meal-items">
+                        {% if meal.items|length > 0 %}
+                            {% for item in meal.items %}
+                            <div class="meal-item">{{ item }}</div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="meal-empty">Pas encore renseigné</div>
+                        {% endif %}
+                    </div>
+                    {% if meal.completed %}
+                        <button class="meal-btn completed">✓ {{ meal.calories }} kcal</button>
+                    {% else %}
+                        <a href="{{ path('app_my_nutrition_add', {'_locale': app.request.locale}) }}?meal={{ meal.type }}" class="meal-btn add">
+                            ➕ Enregistrer ce repas
+                        </a>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+
+    </div>
+</div>
+{% endblock %}

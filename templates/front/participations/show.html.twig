@@ -1,0 +1,496 @@
+{% extends 'base_dashboard.html.twig' %}
+
+{% block title %}Détails de Participation - WANNASNI{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    :root {
+        --show-primary: #8b5cf6;
+        --show-secondary: #7c3aed;
+        --show-bg: #faf5ff;
+        --show-card: #ffffff;
+    }
+
+    .show-wrapper {
+        min-height: 100vh;
+        padding: 2rem 1.5rem 4rem;
+        background: linear-gradient(180deg, var(--show-bg) 0%, #f8fafc 30%);
+    }
+
+    .show-container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--show-primary);
+        text-decoration: none;
+        font-weight: 600;
+        margin-bottom: 2rem;
+        padding: 0.75rem 1.25rem;
+        border-radius: 50px;
+        background: white;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .back-link:hover {
+        background: var(--show-bg);
+        transform: translateX(-4px);
+    }
+
+    .card {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+        margin-bottom: 2rem;
+    }
+
+    .card-header {
+        border-bottom: 2px solid var(--show-bg);
+        padding-bottom: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .card-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #1a1a2e;
+        margin-bottom: 0.5rem;
+    }
+
+    .activity-info {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-top: 1.5rem;
+    }
+
+    .info-block {
+        padding: 1rem;
+        background: var(--show-bg);
+        border-radius: 12px;
+    }
+
+    .info-label {
+        font-size: 0.85rem;
+        color: #666;
+        text-transform: uppercase;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .info-value {
+        font-size: 1.1rem;
+        color: #1a1a2e;
+        font-weight: 600;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 0.75rem 1.5rem;
+        border-radius: 50px;
+        font-weight: 700;
+        margin-bottom: 1rem;
+    }
+
+    .status-inscrit {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+
+    .status-present {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .status-absent {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .section {
+        margin-bottom: 2rem;
+    }
+
+    .section-title {
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: #1a1a2e;
+        margin-bottom: 1rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 2px solid var(--show-primary);
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        color: #1a1a2e;
+    }
+
+    .form-input, .form-textarea, .form-select {
+        width: 100%;
+        padding: 0.75rem;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: border-color 0.2s;
+    }
+
+    .form-input:focus, .form-textarea:focus, .form-select:focus {
+        outline: none;
+        border-color: var(--show-primary);
+        box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+    }
+
+    .form-textarea {
+        resize: vertical;
+        min-height: 100px;
+    }
+
+    .rating-group {
+        display: flex;
+        gap: 1rem;
+        margin-top: 0.5rem;
+    }
+
+    .rating-btn {
+        width: 50px;
+        height: 50px;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        background: white;
+        cursor: pointer;
+        font-size: 1.5rem;
+        transition: all 0.2s;
+    }
+
+    .rating-btn:hover {
+        border-color: var(--show-primary);
+        transform: scale(1.1);
+    }
+
+    .rating-btn.active {
+        background: var(--show-primary);
+        border-color: var(--show-primary);
+        color: white;
+    }
+
+    .checkbox-group {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .checkbox-group input {
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+    }
+
+    .btn {
+        padding: 1rem 2rem;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, var(--show-primary), var(--show-secondary));
+        color: white;
+        box-shadow: 0 4px 16px rgba(139, 92, 246, 0.3);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+    }
+
+    .btn-secondary {
+        background: #e5e7eb;
+        color: #1a1a2e;
+    }
+
+    .btn-secondary:hover {
+        background: #d1d5db;
+    }
+
+    .feedback-display {
+        background: var(--show-bg);
+        border-radius: 12px;
+        padding: 1.5rem;
+    }
+
+    .feedback-item {
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .feedback-item:last-child {
+        border-bottom: none;
+    }
+
+    .feedback-label {
+        font-weight: 600;
+        color: #666;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        margin-bottom: 0.5rem;
+    }
+
+    .feedback-value {
+        color: #1a1a2e;
+        font-size: 1rem;
+    }
+
+    .mood-indicator {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        background: white;
+        border-radius: 50px;
+        border: 2px solid var(--show-primary);
+    }
+
+    .empty-feedback {
+        color: #999;
+        font-style: italic;
+    }
+
+    @media (max-width: 640px) {
+        .activity-info {
+            grid-template-columns: 1fr;
+        }
+
+        .rating-group {
+            flex-wrap: wrap;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="show-wrapper">
+    <div class="show-container">
+        <a href="{{ path('app_participation_history', {'_locale': app.request.locale}) }}" class="back-link">
+            ← Retour à l'historique
+        </a>
+
+        <div class="card">
+            <div class="card-header">
+                <span class="status-badge status-{{ participation.status|lower|replace({'_': ''}) }}">
+                    {% if participation.status == 'inscrit' %}Inscrit
+                    {% elseif participation.status == 'présent' %}Présent
+                    {% elseif participation.status == 'absent_excusé' %}Absent (excusé)
+                    {% else %}Absent{% endif %}
+                </span>
+                <h1 class="card-title">{{ participation.title ?? 'Activité' }}</h1>
+                
+                <div class="activity-info">
+                    <div class="info-block">
+                        <div class="info-label">📅 Date d'inscription</div>
+                        <div class="info-value">{{ participation.registrationDate|date('d/m/Y H:i') }}</div>
+                    </div>
+                    {% if participation.startTime %}
+                    <div class="info-block">
+                        <div class="info-label">🎯 Date de l'activité</div>
+                        <div class="info-value">{{ participation.startTime|date('d/m/Y') }}</div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Existing Feedback Display -->
+            {% if participation.feedbackRating or participation.feedbackComment %}
+            <div class="section">
+                <h2 class="section-title">📊 Mon Retour d'Expérience</h2>
+                <div class="feedback-display">
+                    {% if participation.feedbackRating %}
+                    <div class="feedback-item">
+                        <div class="feedback-label">Évaluation</div>
+                        <div class="feedback-value">
+                            {% for i in 1..participation.feedbackRating %}⭐{% endfor %}
+                            {{ participation.feedbackRating }}/5
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if participation.feedbackComment %}
+                    <div class="feedback-item">
+                        <div class="feedback-label">Commentaire</div>
+                        <div class="feedback-value">{{ participation.feedbackComment }}</div>
+                    </div>
+                    {% endif %}
+
+                    {% if participation.problemsEncountered %}
+                    <div class="feedback-item">
+                        <div class="feedback-label">Problèmes rencontrés</div>
+                        <div class="feedback-value">{{ participation.problemsEncountered }}</div>
+                    </div>
+                    {% endif %}
+
+                    {% if participation.recommendToFriends %}
+                    <div class="feedback-item">
+                        <div class="feedback-label">Recommandation</div>
+                        <div class="feedback-value">✓ Je recommanderais cette activité à mes amis</div>
+                    </div>
+                    {% endif %}
+
+                    {% if participation.moodBefore %}
+                    <div class="feedback-item">
+                        <div class="feedback-label">Humeur avant</div>
+                        <div class="feedback-value">{{ participation.moodBefore }}/5 😊</div>
+                    </div>
+                    {% endif %}
+
+                    {% if participation.moodAfter %}
+                    <div class="feedback-item">
+                        <div class="feedback-label">Humeur après</div>
+                        <div class="feedback-value">{{ participation.moodAfter }}/5 😊</div>
+                    </div>
+                    {% endif %}
+
+                    {% if participation.shareWithFamily %}
+                    <div class="feedback-item">
+                        <div class="feedback-label">Partage famille</div>
+                        <div class="feedback-value">{{ participation.shareWithFamily|capitalize }}</div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% elseif participation.status == 'présent' or participation.status == 'inscrit' %}
+            <!-- Feedback Form - For registered and attended activities -->
+            <div class="section">
+                <h2 class="section-title">📝 Donnez votre avis</h2>
+                
+                <form method="POST" action="{{ path('app_participation_feedback', {id: participation.id}) }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('feedback_' ~ participation.id) }}">
+                    
+                    <div class="form-group">
+                        <label class="form-label">Évaluation de l'activité ⭐</label>
+                        <div class="rating-group">
+                            {% for i in 1..5 %}
+                            <button type="button" class="rating-btn" data-rating="{{ i }}" onclick="setRating(this)">
+                                {{ i }}
+                            </button>
+                            {% endfor %}
+                        </div>
+                        <input type="hidden" name="rating" id="rating-input" value="">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Votre humeur avant l'activité 😊</label>
+                        <div class="rating-group">
+                            {% for i in 1..5 %}
+                            <button type="button" class="rating-btn" data-mood="before" data-value="{{ i }}" onclick="setMood(this, 'before')">
+                                {{ i }}
+                            </button>
+                            {% endfor %}
+                        </div>
+                        <input type="hidden" name="mood_before" id="mood-before-input" value="">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Votre humeur après l'activité 😊</label>
+                        <div class="rating-group">
+                            {% for i in 1..5 %}
+                            <button type="button" class="rating-btn" data-mood="after" data-value="{{ i }}" onclick="setMood(this, 'after')">
+                                {{ i }}
+                            </button>
+                            {% endfor %}
+                        </div>
+                        <input type="hidden" name="mood_after" id="mood-after-input" value="">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Commentaires</label>
+                        <textarea name="comment" class="form-textarea" rows="4" placeholder="Partagez votre expérience..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Avez-vous rencontré des problèmes?</label>
+                        <textarea name="problems_encountered" class="form-textarea" rows="3" placeholder="Décrivez les problèmes rencontrés (optionnel)..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="checkbox-group">
+                            <input type="checkbox" name="recommend_to_friends" id="recommend" value="1">
+                            <label for="recommend">Je recommanderais cette activité à mes amis</label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Partager avec mes proches?</label>
+                        <select class="form-select" name="share_with_family">
+                            <option value="">Choisir...</option>
+                            <option value="oui">Oui</option>
+                            <option value="non">Non</option>
+                        </select>
+                    </div>
+
+                    <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                        <button type="submit" class="btn btn-primary" onclick="return validateForm()">Soumettre mon avis</button>
+                        <a href="{{ path('app_participation_history', {'_locale': app.request.locale}) }}" class="btn btn-secondary" style="text-decoration: none;">Annuler</a>
+                    </div>
+                </form>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+    function setRating(btn) {
+        document.querySelectorAll('[data-rating]').forEach(b => {
+            b.classList.remove('active');
+            b.style.backgroundColor = '#fff';
+            b.style.borderColor = '#ddd';
+        });
+        btn.classList.add('active');
+        btn.style.backgroundColor = '#007bff';
+        btn.style.borderColor = '#007bff';
+        btn.style.color = 'white';
+        document.getElementById('rating-input').value = btn.dataset.rating;
+        console.log('Rating set to:', btn.dataset.rating);
+    }
+
+    function validateForm() {
+        const rating = document.getElementById('rating-input').value;
+        console.log('Validating form, rating value:', rating);
+        if (!rating) {
+            alert('Veuillez sélectionner une note avant de soumettre votre avis.');
+            return false;
+        }
+        return true;
+    }
+
+    function setMood(btn, type) {
+        document.querySelectorAll(`[data-mood="${type}"]`).forEach(b => {
+            b.classList.remove('active');
+            b.style.backgroundColor = '#fff';
+            b.style.borderColor = '#ddd';
+            b.style.color = '#000';
+        });
+        btn.classList.add('active');
+        btn.style.backgroundColor = '#28a745';
+        btn.style.borderColor = '#28a745';
+        btn.style.color = 'white';
+        document.getElementById(`mood-${type}-input`).value = btn.dataset.value;
+        console.log(`Mood ${type} set to:`, btn.dataset.value);
+    }
+</script>
+{% endblock %}

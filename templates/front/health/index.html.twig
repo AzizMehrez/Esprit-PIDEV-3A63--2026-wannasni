@@ -1,0 +1,282 @@
+{% extends 'base_dashboard.html.twig' %}
+
+{% block title %}Mon Journal de Santé - WANNASNI{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    /* ============================================
+       HEALTH PAGE - Senior-Friendly Design
+       Large fonts, simple layout, clear actions
+       ============================================ */
+    
+    :root {
+        --health-primary: #dc2626;
+        --health-primary-light: #ef4444;
+        --health-bg: #fef2f2;
+        --health-card: #ffffff;
+        --health-text: #1a1a2e;
+        --health-text-muted: #64748b;
+        --health-border: #fecaca;
+    }
+
+    .health-wrapper {
+        min-height: 100vh;
+        padding: 2rem 1.5rem 4rem;
+        background: linear-gradient(180deg, var(--health-bg) 0%, #f8fafc 30%);
+    }
+
+    .health-container {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    /* Back Link */
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--health-primary);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 1.1rem;
+        margin-bottom: 1.5rem;
+        padding: 0.75rem 1.25rem;
+        border-radius: 50px;
+        background: white;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        transition: all 0.2s;
+    }
+
+    .back-link:hover {
+        background: var(--health-bg);
+        transform: translateX(-4px);
+    }
+
+    /* Header */
+    .health-header {
+        background: linear-gradient(135deg, var(--health-primary), var(--health-primary-light));
+        border-radius: 24px;
+        padding: 2.5rem;
+        margin-bottom: 2rem;
+        color: white;
+        text-align: center;
+        box-shadow: 0 8px 32px rgba(220, 38, 38, 0.3);
+    }
+
+    .health-header-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+    }
+
+    .health-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .health-subtitle {
+        font-size: 1.25rem;
+        opacity: 0.9;
+        margin-bottom: 1.5rem;
+    }
+
+    .btn-new-entry {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1.25rem 2.5rem;
+        background: white;
+        color: var(--health-primary);
+        border-radius: 50px;
+        font-size: 1.25rem;
+        font-weight: 700;
+        text-decoration: none;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+        transition: all 0.3s;
+    }
+
+    .btn-new-entry:hover {
+        transform: scale(1.05);
+        box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    }
+
+    /* Health Records */
+    .record-list {
+        display: grid;
+        gap: 1.25rem;
+    }
+
+    .record-card {
+        background: var(--health-card);
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+        border: 2px solid var(--health-border);
+        transition: all 0.3s;
+    }
+
+    .record-card:hover {
+        border-color: var(--health-primary);
+        transform: translateY(-4px);
+        box-shadow: 0 8px 32px rgba(220, 38, 38, 0.15);
+    }
+
+    .record-date {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--health-text);
+        margin-bottom: 1.25rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px dashed var(--health-border);
+    }
+
+    .record-date-icon {
+        font-size: 1.5rem;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .stat-card {
+        text-align: center;
+        padding: 1.25rem;
+        background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+        border-radius: 16px;
+        border: 1px solid #e2e8f0;
+    }
+
+    .stat-icon {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-value {
+        font-size: 1.75rem;
+        font-weight: 700;
+        line-height: 1.2;
+        margin-bottom: 0.25rem;
+    }
+
+    .stat-value.bp { color: #dc2626; }
+    .stat-value.hr { color: #2563eb; }
+    .stat-value.weight { color: #16a34a; }
+
+    .stat-label {
+        font-size: 0.9rem;
+        color: var(--health-text-muted);
+        text-transform: uppercase;
+        font-weight: 600;
+    }
+
+    .mood-display {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+        padding: 1rem;
+        background: linear-gradient(135deg, #fef3c7, #fefce8);
+        border-radius: 16px;
+    }
+
+    .mood-emoji {
+        font-size: 2.5rem;
+    }
+
+    .mood-text {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #92400e;
+    }
+
+    @media (max-width: 640px) {
+        .health-title { font-size: 2rem; }
+        .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="health-wrapper">
+    <div class="health-container">
+        
+        <a href="{{ path('app_dashboard', {'_locale': app.request.locale}) }}" class="back-link">
+            ← Retour au tableau de bord
+        </a>
+        
+        <!-- Header -->
+        <div class="health-header">
+            <div class="health-header-icon">❤️</div>
+            <h1 class="health-title">Mon Journal de Santé</h1>
+            <p class="health-subtitle">Suivez vos indicateurs de bien-être</p>
+            <div style="display:flex; gap:1rem; align-items:center; justify-content:center; margin-top:1rem;">
+                <a href="{{ path('app_my_health_add', {'_locale': app.request.locale}) }}" class="btn-new-entry">➕ Nouvelle entrée</a>
+                <form method="get" action="{{ path('app_my_health', {'_locale': app.request.locale}) }}" style="display:flex; gap:0.5rem; align-items:center;">
+                    <input type="search" name="q" placeholder="Rechercher (notes, humeur, tension...)" value="{{ q|default('') }}" style="padding:0.6rem 0.85rem; border-radius:8px; border:1px solid #e2e8f0;">
+                    <select name="sort" onchange="this.form.submit()" style="padding:0.6rem 0.85rem; border-radius:8px; border:1px solid #e2e8f0;">
+                        <option value="desc" {% if sort is not defined or sort == 'desc' %}selected{% endif %}>Date: plus récentes</option>
+                        <option value="asc" {% if sort == 'asc' %}selected{% endif %}>Date: plus anciennes</option>
+                    </select>
+                    <button type="submit" class="btn btn-outline" style="padding:0.6rem 1rem;">🔎 Rechercher</button>
+                </form>
+                <a href="{{ path('app_my_health_export', {'_locale': app.request.locale, 'q': q|default(''), 'sort': sort|default('desc')}) }}" class="btn btn-primary" style="padding:0.6rem 1rem; margin-left:0.5rem; background:white; color:var(--health-primary);">📄 Exporter PDF</a>
+            </div>
+        </div>
+
+        <!-- Records List -->
+        <div class="record-list">
+            {% for record in health_records %}
+            <div class="record-card">
+                <div class="record-date">
+                    <span class="record-date-icon">📅</span>
+                    {{ record.date ? record.date|date('l d F Y') : '—' }}
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">🩺</div>
+                        <div class="stat-value bp">{{ record.tensionArterielle ?: '—' }}</div>
+                        <div class="stat-label">Tension</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">💓</div>
+                        <div class="stat-value hr">{{ record.frequenceCardiaque ?: '—' }}</div>
+                        <div class="stat-label">Pouls (BPM)</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🌡️</div>
+                        <div class="stat-value weight">{{ record.temperature ?: '—' }} °C</div>
+                        <div class="stat-label">Température</div>
+                    </div>
+                </div>
+                <div style="margin-top:1rem;">
+                    <strong>Notes:</strong> {{ record.notes ?: '—' }}
+                </div>
+                <div class="mood-display" style="margin-top:1rem;">
+                    <span class="mood-emoji">
+                        {% if record.humeur == 'excellent' %}😊
+                        {% elseif record.humeur == 'good' %}🙂
+                        {% else %}😐{% endif %}
+                    </span>
+                    <span class="mood-text">
+                        Humeur: {% if record.humeur == 'excellent' %}Excellente{% elseif record.humeur == 'good' %}Bonne{% else %}Correcte{% endif %}
+                    </span>
+                </div>
+            </div>
+            {% else %}
+            <div class="record-card">
+                <p>Aucune entrée trouvée.</p>
+            </div>
+            {% endfor %}
+        </div>
+
+    </div>
+</div>
+{% endblock %}
