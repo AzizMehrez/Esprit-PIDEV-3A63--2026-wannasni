@@ -145,7 +145,7 @@ class SecurityController extends AbstractController
                 if (!empty($faceImageData) && $faceVerified) {
                     try {
                         $match = $faceService->detectAndIdentify($faceImageData);
-                        if ($match && !isset($match['matched']) || $match['matched'] !== false) {
+                        if ($match && isset($match['personId'])) {
                             // Match found - the personId is the actual user ID from the database
                             $existingFaceUser = $entityManager->getRepository(User::class)->find($match['personId']);
                             if ($existingFaceUser) {

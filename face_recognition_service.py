@@ -146,15 +146,39 @@ def detect_faces(image_path: str) -> dict:
         }
 
 
+def compute_lbp(image, radius=1, n_points=8):
+    """
+    Compute Local Binary Pattern (LBP) for a grayscale image.
+    LBP captures texture/structure rather than raw pixel values.
+    """
+    rows, cols = image.shape
+    lbp = np.zeros_like(image, dtype=np.uint8)
+    
+    for i in range(radius, rows - radius):
+        for j in range(radius, cols - radius):
+            center = image[i, j]
+            binary = 0
+            for k in range(n_points):
+                angle = 2 * np.pi * k / n_points
+                y = int(round(i + radius * np.sin(angle)))
+                x = int(round(j + radius * np.cos(angle)))
+                if 0 <= y < rows and 0 <= x < cols:
+                    binary |= (1 << k) if image[y, x] >= center else 0
+            lbp[i, j] = binary
+    
+    return lbp
+
+
 def compute_face_encoding(image, face_rect) -> list:
     """
-    Compute a face encoding compatible with the 1024-dimensional format in database.
-    This creates a feature vector that matches the existing registration data.
+    Compute a face encoding using LBP histograms for robust face comparison.
+    Uses structural features (texture) rather than raw pixels.
+    Produces a 1024-dimensional feature vector.
     """
     x, y, w, h = face_rect
     
     # Extract face region with some margin
-    margin = int(min(w, h) * 0.1)
+    margin = int(min(w, h) * 0.15)
     y1 = max(0, y - margin)
     y2 = min(image.shape[0], y + h + margin)
     x1 = max(0, x - margin)
@@ -162,8 +186,8 @@ def compute_face_encoding(image, face_rect) -> list:
     
     face_region = image[y1:y2, x1:x2]
     
-    # Resize to a larger standard size for more features (32x32 = 1024)
-    face_resized = cv2.resize(face_region, (32, 32))
+    # Resize to standard size for consistent encoding
+    face_resized = cv2.resize(face_region, (128, 128))
     
     # Convert to grayscale
     if len(face_resized.shape) == 3:
@@ -171,18 +195,31 @@ def compute_face_encoding(image, face_rect) -> list:
     else:
         gray_face = face_resized
     
-    # Apply histogram equalization for normalization
+    # Apply histogram equalization for lighting normalization
     gray_face = cv2.equalizeHist(gray_face)
     
-    # Create 1024-dimensional encoding by flattening normalized pixel values
-    # This matches the database format: 1024 dimensions, values 0-1
-    encoding = gray_face.astype(np.float32).flatten()
+    # Compute LBP texture features
+    lbp_image = compute_lbp(gray_face, radius=1, n_points=8)
     
-    # Normalize to 0-1 range to match database values
-    encoding = encoding / 255.0
+    # Divide face into a 4x4 grid and compute histogram per cell
+    # Each cell produces a 256-bin histogram => 4*4*256 total but we reduce to 64 bins per cell
+    cell_h = lbp_image.shape[0] // 4
+    cell_w = lbp_image.shape[1] // 4
     
-    # Apply some smoothing to reduce noise
-    encoding = np.convolve(encoding, np.ones(3)/3, mode='same')
+    histograms = []
+    for row in range(4):
+        for col in range(4):
+            cell = lbp_image[row*cell_h:(row+1)*cell_h, col*cell_w:(col+1)*cell_w]
+            hist, _ = np.histogram(cell, bins=64, range=(0, 256), density=True)
+            histograms.extend(hist.tolist())
+    
+    # histograms has 4*4*64 = 1024 dimensions
+    encoding = np.array(histograms, dtype=np.float32)
+    
+    # Normalize the full vector to unit length
+    norm = np.linalg.norm(encoding)
+    if norm > 0:
+        encoding = encoding / norm
     
     return encoding.tolist()
 
@@ -248,45 +285,51 @@ def encode_face(image_path: str) -> dict:
         }
 
 
-def compare_encodings(encoding1: list, encoding2: list, tolerance: float = 0.15) -> tuple:
+def compare_encodings(encoding1: list, encoding2: list, tolerance: float = 0.45) -> tuple:
     """
-    Compare two face encodings using normalized correlation.
-    Lower tolerance for more strict matching (good for 1024-dim pixel-based encodings).
+    Compare two face encodings using cosine similarity on LBP histograms.
+    
+    For LBP histogram-based encodings:
+    - Same person: cosine distance typically < 0.35
+    - Different persons: cosine distance typically > 0.5
+    - tolerance=0.45 is a good threshold
+    
     Returns: (is_match: bool, distance: float)
     """
-    arr1 = np.array(encoding1)
-    arr2 = np.array(encoding2)
+    arr1 = np.array(encoding1, dtype=np.float32)
+    arr2 = np.array(encoding2, dtype=np.float32)
     
     # Ensure both arrays have the same dimensions
     if len(arr1) != len(arr2):
         return False, 1.0
     
-    # For 1024-dimensional pixel-based encodings, use correlation coefficient
-    # This works better for pixel intensity comparisons
-    mean1 = np.mean(arr1)
-    mean2 = np.mean(arr2)
+    # Cosine similarity
+    dot = np.dot(arr1, arr2)
+    norm1 = np.linalg.norm(arr1)
+    norm2 = np.linalg.norm(arr2)
     
-    # Compute correlation coefficient
-    numerator = np.sum((arr1 - mean1) * (arr2 - mean2))
-    denominator = np.sqrt(np.sum((arr1 - mean1) ** 2) * np.sum((arr2 - mean2) ** 2))
-    
-    if denominator == 0:
+    if norm1 == 0 or norm2 == 0:
         return False, 1.0
     
-    correlation = numerator / denominator
-    distance = 1 - abs(correlation)  # Convert correlation to distance
+    cosine_sim = dot / (norm1 * norm2)
+    cosine_distance = 1.0 - cosine_sim
     
-    # Also compute euclidean distance as backup
-    euclidean_dist = np.linalg.norm(arr1 - arr2) / len(arr1)
+    # Chi-squared distance (good for histogram comparison)
+    # Avoid division by zero
+    denom = arr1 + arr2
+    mask = denom > 0
+    chi2 = np.sum(((arr1[mask] - arr2[mask]) ** 2) / denom[mask]) / 2.0
+    # Normalize chi2 to 0-1 range (cap at 1)
+    chi2_norm = min(chi2, 1.0)
     
-    # Use the better of the two measures
-    final_distance = min(distance, euclidean_dist)
+    # Combined distance: weighted average of cosine and chi-squared
+    final_distance = 0.5 * cosine_distance + 0.5 * chi2_norm
     
     # A match if distance is below tolerance
-    return final_distance < tolerance, final_distance
+    return final_distance < tolerance, float(final_distance)
 
 
-def match_against_users(image_path: str, users_json_path: str, tolerance: float = 0.25) -> dict:
+def match_against_users(image_path: str, users_json_path: str, tolerance: float = 0.45) -> dict:
     """
     Match a face against stored user face encodings.
     
