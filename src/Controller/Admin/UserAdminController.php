@@ -9,6 +9,8 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mime\Email;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -17,7 +19,9 @@ class UserAdminController extends AbstractController
 {
     public function __construct(
         private UserRepository $userRepository,
-        private EntityManagerInterface $entityManager
+        private EntityManagerInterface $entityManager,
+        private MailerInterface $mailer,
+        private UserPasswordHasherInterface $passwordHasher
     ) {
     }
 
@@ -138,6 +142,9 @@ class UserAdminController extends AbstractController
     public function edit(Request $request, User $user): Response
     {
         if ($request->isMethod('POST')) {
+            // Store original email before any changes
+            $originalEmail = $user->getEmail();
+            
             $user->setFirstName($request->request->get('firstName'));
             $user->setLastName($request->request->get('lastName'));
             $user->setPhone($request->request->get('phone'));
@@ -162,6 +169,10 @@ class UserAdminController extends AbstractController
             }
             $user->setRoles($roles);
             
+            // Variables for email notification
+            $newAdminEmail = null;
+            $newPassword = null;
+            
             // If user is becoming admin and doesn't have @wannasni.com, update email
             if ($isBecomingAdmin && !str_ends_with(strtolower($currentEmail), '@wannasni.com')) {
                 $newEmail = $username . '@wannasni.com';
@@ -171,8 +182,32 @@ class UserAdminController extends AbstractController
                 if ($existingUser && $existingUser->getId() !== $user->getId()) {
                     $this->addFlash('warning', 'L\'email ' . $newEmail . ' existe déjà. Le domaine n\'a pas été modifié.');
                 } else {
+                    $newAdminEmail = $newEmail;
                     $user->setEmail($newEmail);
                     $this->addFlash('info', 'Email mis à jour vers ' . $newEmail . ' car l\'utilisateur est maintenant administrateur.');
+                }
+            }
+            
+            // If user wasn't admin before but is becoming admin now, generate new password and send email
+            if (!$wasAdmin && $isBecomingAdmin) {
+                // Generate a random password
+                $newPassword = $this->generateRandomPassword(12);
+                
+                // Hash and set the new password
+                $hashedPassword = $this->passwordHasher->hashPassword($user, $newPassword);
+                $user->setPassword($hashedPassword);
+                
+                // Send welcome email to the original email address
+                try {
+                    $this->sendAdminWelcomeEmail(
+                        $originalEmail,
+                        $user->getFirstName() ?? 'Utilisateur',
+                        $newAdminEmail ?? $user->getEmail(),
+                        $newPassword
+                    );
+                    $this->addFlash('success', 'Un email de bienvenue avec les nouvelles informations d\'identification a été envoyé à ' . $originalEmail);
+                } catch (\Exception $e) {
+                    $this->addFlash('warning', 'L\'utilisateur a été promu administrateur mais l\'email n\'a pas pu être envoyé: ' . $e->getMessage());
                 }
             }
             
@@ -364,5 +399,39 @@ class UserAdminController extends AbstractController
         $response->headers->set('Content-Disposition', 'attachment; filename="WANNASNI_Utilisateurs_' . date('Y-m-d_His') . '.csv"');
 
         return $response;
+    }
+
+    /**
+     * Generate a random secure password
+     */
+    private function generateRandomPassword(int $length = 12): string
+    {
+        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()';
+        $charactersLength = strlen($characters);
+        $randomPassword = '';
+        
+        for ($i = 0; $i < $length; $i++) {
+            $randomPassword .= $characters[random_int(0, $charactersLength - 1)];
+        }
+        
+        return $randomPassword;
+    }
+
+    /**
+     * Send welcome email to newly promoted admin
+     */
+    private function sendAdminWelcomeEmail(string $recipientEmail, string $firstName, string $newAdminEmail, string $password): void
+    {
+        $email = (new Email())
+            ->from('noreply@wannasni.com')
+            ->to($recipientEmail)
+            ->subject('Bienvenue en tant qu\'Administrateur WANNASNI')
+            ->html($this->renderView('emails/admin_welcome.html.twig', [
+                'firstName' => $firstName,
+                'adminEmail' => $newAdminEmail,
+                'password' => $password,
+            ]));
+
+        $this->mailer->send($email);
     }
 }

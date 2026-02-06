@@ -8,6 +8,11 @@ use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @extends ServiceEntityRepository<Activity>
+ *
+ * @method Activity|null find($id, $lockMode = null, $lockVersion = null)
+ * @method Activity|null findOneBy(array $criteria, array $orderBy = null)
+ * @method Activity[]    findAll()
+ * @method Activity[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
 class ActivityRepository extends ServiceEntityRepository
 {
@@ -22,8 +27,7 @@ class ActivityRepository extends ServiceEntityRepository
     public function findActive(): array
     {
         return $this->createQueryBuilder('a')
-            ->where('a.isActive = :active')
-
+            ->andWhere('a.isActive = :active')
             ->setParameter('active', true)
             ->orderBy('a.startTime', 'ASC')
             ->getQuery()
@@ -36,56 +40,11 @@ class ActivityRepository extends ServiceEntityRepository
     public function findUpcoming(): array
     {
         return $this->createQueryBuilder('a')
-            ->where('a.startTime >= :now')
             ->andWhere('a.isActive = :active')
-
-            ->setParameter('now', new \DateTime())
+            ->andWhere('a.startTime > :now')
             ->setParameter('active', true)
+            ->setParameter('now', new \DateTime())
             ->orderBy('a.startTime', 'ASC')
-            ->getQuery()
-            ->getResult();
-    }
-
-    /**
-     * Find activities by type
-     */
-    public function findByType(string $type): array
-    {
-        return $this->createQueryBuilder('a')
-            ->where('a.type = :type')
-
-            ->setParameter('type', $type)
-            ->orderBy('a.startTime', 'ASC')
-            ->getQuery()
-            ->getResult();
-    }
-
-    /**
-     * Search activities by query
-     */
-    public function search(?string $query, ?string $type, ?string $status): array
-    {
-        $qb = $this->createQueryBuilder('a');
-
-        if ($query) {
-            $qb->andWhere('a.title LIKE :query OR a.description LIKE :query')
-               ->setParameter('query', '%' . $query . '%');
-        }
-
-        if ($type) {
-            $qb->andWhere('a.type = :type')
-               ->setParameter('type', $type);
-        }
-
-        if ($status === 'active') {
-            $qb->andWhere('a.isActive = :active')
-               ->setParameter('active', true);
-        } elseif ($status === 'inactive') {
-            $qb->andWhere('a.isActive = :active')
-               ->setParameter('active', false);
-        }
-
-        return $qb->orderBy('a.startTime', 'DESC')
             ->getQuery()
             ->getResult();
     }

@@ -2,8 +2,8 @@
 
 namespace App\Entity;
 
-use Doctrine\ORM\Mapping as ORM;
 use App\Repository\ActivityRepository;
+use Doctrine\ORM\Mapping as ORM;
 
 /**
  * Activity Entity - Represents a social/physical activity or event
@@ -26,25 +26,25 @@ class Activity
     #[ORM\Column(type: 'string', length: 50)]
     private ?string $type = 'social'; // social, physical, cultural, educational
 
-    #[ORM\Column(type: 'datetime')]
+    #[ORM\Column(type: 'datetime', name: 'start_time')]
     private ?\DateTimeInterface $startTime = null;
 
-    #[ORM\Column(type: 'datetime', nullable: true)]
+    #[ORM\Column(type: 'datetime', name: 'end_time', nullable: true)]
     private ?\DateTimeInterface $endTime = null;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $location = null;
 
-    #[ORM\Column(type: 'integer', nullable: true)]
+    #[ORM\Column(type: 'integer', name: 'max_participants', nullable: true)]
     private ?int $maxParticipants = null;
 
-    #[ORM\Column(type: 'integer')]
+    #[ORM\Column(type: 'integer', name: 'current_participants')]
     private int $currentParticipants = 0;
 
-    #[ORM\Column(type: 'integer', nullable: true)]
+    #[ORM\Column(type: 'integer', name: 'coach_id', nullable: true)]
     private ?int $coachId = null;
 
-    #[ORM\Column(type: 'boolean')]
+    #[ORM\Column(type: 'boolean', name: 'is_active')]
     private bool $isActive = true;
 
     // Getters
@@ -59,11 +59,6 @@ class Activity
     public function getCurrentParticipants(): int { return $this->currentParticipants; }
     public function getCoachId(): ?int { return $this->coachId; }
     public function isActive(): bool { return $this->isActive; }
-    public function getIsActive(): bool { return $this->isActive; }
-    
-    // Template compatibility aliases
-    public function getStatus(): string { return $this->isActive ? 'active' : 'inactive'; }
-    public function getParticipants(): int { return $this->currentParticipants; }
 
     // Setters
     public function setId(?int $id): self { $this->id = $id; return $this; }

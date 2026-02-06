@@ -139,3 +139,47 @@ auth:
     continue_google: "تابع مع Google"
     continue_x: "تابع مع X"
     continue_facebook: "تابع مع Facebook"
+    # التعرف على الوجه
+    face_id: "التعرف على الوجه"
+    face_id_desc: "التقط وجهك لتسجيل دخول آمن."
+    capture_face: "التقاط وجهي"
+    retake_face: "إعادة التقاط الصورة"
+    face_captured: "تم التقاط الوجه"
+    capture_face_title: "التقط وجهك"
+    capture_face_instructions: "ضع وجهك في الإطار وانقر على التقاط."
+    capture: "التقاط"
+    retake: "إعادة"
+    # Face ID Login
+    face_login: "تسجيل الدخول بـ Face ID"
+    face_login_title: "تسجيل الدخول بـ Face ID"
+    face_instruction: "ضع وجهك في الإطار وانقر على التقاط"
+    face_captured_login: "تم التقاط الوجه! يمكنك الآن تسجيل الدخول."
+    confirm: "تأكيد"
+    cancel: "إلغاء"
+    verifying_face: "جاري التحقق من الوجه..."
+    face_verify_error: "خطأ في التحقق"
+    face_already_registered: "هذا الوجه مسجل بالفعل لـ"
+    use_login: "يرجى تسجيل الدخول."
+    face_verified: "تم التحقق من الوجه بنجاح!"
+    no_face_detected: "لم يتم اكتشاف أي وجه. يرجى المحاولة مرة أخرى."
+    face_verify_network_error: "خطأ في الشبكة. يرجى المحاولة مرة أخرى."
+    face_consent: "أوافق على معالجة بياناتي البيومترية للوجه للمصادقة."
+    face_consent_required: "يجب أن توافق على معالجة بياناتك البيومترية."
+    camera_error: "تعذر الوصول إلى الكاميرا. يرجى السماح بالوصول."
+
+# Success messages
+success:
+    face_login: "تم تسجيل الدخول بنجاح بـ Face ID!"
+
+# Error messages
+error:
+    face_not_recognized: "لم يتم التعرف على الوجه. يرجى المحاولة مرة أخرى أو استخدام كلمة المرور."
+    camera_access: "تعذر الوصول إلى الكاميرا"
+    network: "خطأ في الاتصال"
+
+# Action labels
+action:
+    processing: "معالجة..."
+    login: "تسجيل الدخول"
+    capture_face: "التقاط الوجه"
+    retake: "إعادة التقاط"

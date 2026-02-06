@@ -1,199 +1,255 @@
 {% extends 'admin/base_admin.html.twig' %}
 
-{% block title %}Gestion des Participations - Admin WANNASNI{% endblock %}
+{% block title %}Participations - Admin WANNASNI{% endblock %}
 {% block page_title %}Gestion des Participations{% endblock %}
 
 {% block content %}
-<div class="card" style="margin-bottom: 1.5rem;">
+{# Flash Messages #}
+{% for message in app.flashes('success') %}
+    <div style="background: rgba(34,197,94,0.15); color: #4ade80; border: 1px solid rgba(34,197,94,0.3); padding: 1rem 1.25rem; border-radius: 10px; margin-bottom: 1.5rem; font-weight: 600;">
+        ✅ {{ message }}
+    </div>
+{% endfor %}
+
+{# Statistics Cards #}
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon blue">📋</div>
+        <div class="stat-info">
+            <div class="stat-value">{{ stats.total }}</div>
+            <div class="stat-label">Total Participations</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon green">✅</div>
+        <div class="stat-info">
+            <div class="stat-value">{{ stats.registered }}</div>
+            <div class="stat-label">Inscrits</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon red">❌</div>
+        <div class="stat-info">
+            <div class="stat-value">{{ stats.cancelled }}</div>
+            <div class="stat-label">Annulés</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon purple">⭐</div>
+        <div class="stat-info">
+            <div class="stat-value">{{ stats.withFeedback }}</div>
+            <div class="stat-label">Avec Avis</div>
+        </div>
+    </div>
+</div>
+
+{# Toolbar #}
+<div class="admin-toolbar">
+    <div class="toolbar-search">
+        <input type="text" id="searchInput" placeholder="Rechercher une participation..." onkeyup="filterTable()">
+    </div>
+    <div class="toolbar-actions">
+        <button class="filter-btn">
+            🔽 Filtrer
+        </button>
+        <a href="#" class="export-btn pdf" onclick="exportPDF(); return false;">
+            📄 PDF
+        </a>
+        <a href="#" class="export-btn excel" onclick="exportExcel(); return false;">
+            📊 Excel
+        </a>
+    </div>
+</div>
+
+{# Table #}
+<div class="admin-card">
     <div class="card-header">
-        <h2 class="card-title">Toutes les Participations</h2>
+        <h2 class="card-title">📋 Liste des Participations</h2>
+        <span class="badge badge-info">{{ participations|length }} participations</span>
     </div>
-
-    <!-- Filters -->
-    <div style="padding: 2rem; background: #f9fafb; border-bottom: 1px solid #e5e7eb;">
-        <form method="get" style="display: flex; gap: 1.5rem; flex-wrap: wrap; align-items: flex-end;">
-            <div style="flex: 1; min-width: 200px;">
-                <label class="form-label">🎯 Activité</label>
-                <select class="form-input" name="activity_id">
-                    <option value="">Toutes les activités</option>
-                    {% for act in activities %}
-                        <option value="{{ act.id }}" {% if search_activity_id == act.id %}selected{% endif %}>{{ act.title }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-
-            <div style="flex: 1; min-width: 200px;">
-                <label class="form-label">📊 Statut</label>
-                <select class="form-input" name="status">
-                    <option value="">Tous les statuts</option>
-                    <option value="inscrit" {% if search_status == 'inscrit' %}selected{% endif %}>✓ Inscrit</option>
-                    <option value="annulé" {% if search_status == 'annulé' %}selected{% endif %}>✗ Annulé</option>
-                    <option value="présent" {% if search_status == 'présent' %}selected{% endif %}>✓ Présent</option>
-                    <option value="absent_excusé" {% if search_status == 'absent_excusé' %}selected{% endif %}>⚠ Absent (excusé)</option>
-                    <option value="absent_non_excusé" {% if search_status == 'absent_non_excusé' %}selected{% endif %}>✗ Absent</option>
-                </select>
-            </div>
-
-            <div style="flex: 1; min-width: 200px;">
-                <label class="form-label">🆔 ID Participant</label>
-                <input type="text" class="form-input" name="participant_id" placeholder="Ex: 1, 42..." value="{{ search_participant_id }}">
-            </div>
-
-            <button type="submit" class="btn btn-primary" style="height: 44px;">Filtrer</button>
-            <a href="{{ path('admin_participations') }}" class="btn btn-secondary" style="height: 44px;">Réinitialiser</a>
-        </form>
-    </div>
-
-    <!-- Table -->
-    <table class="admin-table">
+    <table class="admin-table" id="dataTable">
         <thead>
             <tr>
-                <th style="width: 60px;">ID</th>
-                <th>Participant</th>
-                <th>Activité</th>
-                <th>Statut</th>
-                <th>Inscrit le</th>
-                <th style="width: 80px;">Note</th>
-                <th style="width: 200px;">Actions</th>
+                <th class="sortable" onclick="sortTable(0)">Participant</th>
+                <th class="sortable" onclick="sortTable(1)">Activité</th>
+                <th class="sortable" onclick="sortTable(2)">Statut</th>
+                <th class="sortable" onclick="sortTable(3)">Date Inscription</th>
+                <th class="sortable" onclick="sortTable(4)">Note</th>
+                <th class="sortable" onclick="sortTable(5)">Humeur</th>
+                <th style="width: 120px;">Actions</th>
             </tr>
         </thead>
         <tbody>
-            {% if participations|length > 0 %}
-                {% for participation in participations %}
-                <tr>
-                    <td style="font-weight: 600; color: #2563eb;">#{{ participation.id }}</td>
-                    <td>{{ participation.participantId ?? participation.seniorId }}</td>
-                    <td>{{ participation.activity ? participation.activity.title : 'N/A' }}</td>
-                    <td>
-                        <span class="status-badge status-{{ participation.status|lower|replace({'_': ''}) }}">
-                            {% if participation.status == 'inscrit' %}✓ Inscrit
-                            {% elseif participation.status == 'annulé' %}✗ Annulé
-                            {% elseif participation.status == 'présent' %}✓ Présent
-                            {% elseif participation.status == 'absent_excusé' %}⚠ Excusé
-                            {% else %}✗ Absent{% endif %}
+            {% for p in participations %}
+            <tr>
+                <td>
+                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                        <div style="width: 36px; height: 36px; border-radius: 8px; background: linear-gradient(135deg, #3b82f6, #8b5cf6); display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 0.85rem;">
+                            {{ p.seniorName|first|upper }}
+                        </div>
+                        <div>
+                            <div style="font-weight: 600;">{{ p.seniorName }}</div>
+                            <div style="font-size: 0.75rem; color: var(--admin-text-muted);">ID #{{ p.seniorId }}</div>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <span style="font-size: 1.1rem;">🎯</span>
+                        <a href="{{ path('admin_activities_show', {id: p.activityId}) }}" style="color: var(--admin-primary-light); text-decoration: none; font-weight: 500;">
+                            {{ p.activityName }}
+                        </a>
+                    </div>
+                </td>
+                <td>
+                    {% if p.status in ['registered', 'inscrit'] %}
+                        <span class="badge badge-success">✅ Inscrit</span>
+                    {% elseif p.status == 'attended' %}
+                        <span class="badge badge-info">🎓 Présent</span>
+                    {% elseif p.status in ['cancelled', 'annulé'] %}
+                        <span class="badge badge-danger">❌ Annulé</span>
+                    {% else %}
+                        <span class="badge badge-warning">{{ p.status|capitalize }}</span>
+                    {% endif %}
+                </td>
+                <td>{{ p.registeredAt ? p.registeredAt|date('d/m/Y H:i') : 'N/A' }}</td>
+                <td>
+                    {% if p.rating %}
+                        <span style="color: #fbbf24; font-weight: 600;">
+                            {% for i in 1..5 %}{{ i <= p.rating ? '★' : '☆' }}{% endfor %}
                         </span>
-                    </td>
-                    <td style="font-size: 0.9rem; color: #666;">{{ participation.registrationDate|date('d/m/Y') }}</td>
-                    <td>
-                        {% if participation.feedbackRating %}
-                            <span style="color: #ea580c; font-weight: 600;">⭐ {{ participation.feedbackRating }}/5</span>
-                        {% else %}
-                            <span style="color: #ccc;">—</span>
-                        {% endif %}
-                    </td>
-                    <td style="display: flex; gap: 0.5rem;">
-                        <a href="{{ path('admin_participation_show', {id: participation.id}) }}" class="btn btn-sm btn-primary" title="Voir">👁️</a>
-                        <a href="{{ path('admin_participation_edit', {id: participation.id}) }}" class="btn btn-sm btn-secondary" title="Modifier">✏️</a>
-                        <form method="post" action="{{ path('admin_participation_delete', {id: participation.id}) }}" style="display: inline;" onsubmit="return confirm('Supprimer cette participation ?');">
-                            <button type="submit" class="btn btn-sm btn-danger" title="Supprimer">🗑</button>
-                        </form>
-                    </td>
-                </tr>
-                {% endfor %}
+                    {% else %}
+                        <span style="color: var(--admin-text-muted);">—</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if p.moodBefore is not null and p.moodAfter is not null %}
+                        <span title="Avant: {{ p.moodBefore }}/5 → Après: {{ p.moodAfter }}/5">
+                            {% if p.moodAfter > p.moodBefore %}📈{% elseif p.moodAfter < p.moodBefore %}📉{% else %}➡️{% endif %}
+                            {{ p.moodBefore }}→{{ p.moodAfter }}
+                        </span>
+                    {% else %}
+                        <span style="color: var(--admin-text-muted);">—</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{{ path('admin_participations_show', {id: p.id}) }}" class="action-btn" title="Voir">👁️</a>
+                    <a href="{{ path('admin_participations_edit', {id: p.id}) }}" class="action-btn" title="Modifier">✏️</a>
+                    <form method="post" action="{{ path('admin_participations_delete', {id: p.id}) }}" style="display:inline;" onsubmit="return confirm('Supprimer cette participation ?')">
+                        <button type="submit" class="action-btn danger" title="Supprimer">🗑️</button>
+                    </form>
+                </td>
+            </tr>
             {% else %}
-                <tr>
-                    <td colspan="7" style="text-align: center; padding: 3rem; color: #999;">
-                        ℹ️ Aucune participation trouvée
-                    </td>
-                </tr>
-            {% endif %}
+            <tr>
+                <td colspan="7" style="text-align: center; padding: 2rem; color: var(--admin-text-muted);">
+                    Aucune participation trouvée.
+                </td>
+            </tr>
+            {% endfor %}
         </tbody>
     </table>
 </div>
 
-<style>
-    .admin-table {
-        border-collapse: collapse;
-        width: 100%;
-    }
+<script>
+/* ── Search ── */
+function filterTable() {
+    const filter = document.getElementById('searchInput').value.toLowerCase();
+    const tbody  = document.querySelector('#dataTable tbody');
+    const rows   = tbody.querySelectorAll('tr');
+    rows.forEach(row => {
+        const cells = row.querySelectorAll('td');
+        let found = false;
+        cells.forEach((cell, idx) => {
+            if (idx < cells.length - 1 && cell.textContent.toLowerCase().includes(filter)) found = true;
+        });
+        row.style.display = found ? '' : 'none';
+    });
+}
 
-    .admin-table th {
-        background: #f9fafb;
-        padding: 1.2rem;
-        text-align: left;
-        font-weight: 700;
-        border-bottom: 2px solid #e5e7eb;
-        font-size: 0.9rem;
-        text-transform: uppercase;
-        color: #666;
-    }
+/* ── Sort ── */
+let sortDirection = {};
+function sortTable(columnIndex) {
+    const table   = document.getElementById('dataTable');
+    const tbody   = table.querySelector('tbody');
+    const rows    = Array.from(tbody.querySelectorAll('tr'));
+    const headers = table.querySelectorAll('thead th');
 
-    .admin-table td {
-        padding: 1.2rem;
-        border-bottom: 1px solid #e5e7eb;
-        vertical-align: middle;
-    }
+    sortDirection[columnIndex] = !sortDirection[columnIndex];
+    const ascending = sortDirection[columnIndex];
+    headers.forEach(h => h.classList.remove('asc', 'desc'));
+    headers[columnIndex].classList.add(ascending ? 'asc' : 'desc');
 
-    .admin-table tbody tr {
-        transition: background 0.2s;
-    }
+    // Date column: 3, Numeric: 4
+    rows.sort((a, b) => {
+        let aText = a.cells[columnIndex].textContent.trim();
+        let bText = b.cells[columnIndex].textContent.trim();
+        if (columnIndex === 3) {
+            const parse = t => { const p = t.split(/[\/\s:]/); return new Date(p[2],p[1]-1,p[0],p[3]||0,p[4]||0); };
+            return ascending ? parse(aText) - parse(bText) : parse(bText) - parse(aText);
+        }
+        if (columnIndex === 4) {
+            const count = t => (t.match(/★/g) || []).length;
+            return ascending ? count(aText) - count(bText) : count(bText) - count(aText);
+        }
+        return ascending
+            ? aText.toLowerCase().localeCompare(bText.toLowerCase())
+            : bText.toLowerCase().localeCompare(aText.toLowerCase());
+    });
+    rows.forEach(row => tbody.appendChild(row));
+}
 
-    .admin-table tbody tr:hover {
-        background: #f0f9ff;
-    }
+/* ── PDF Export ── */
+function exportPDF() {
+    const table = document.getElementById('dataTable');
+    const rows  = table.querySelectorAll('tbody tr');
+    const date  = new Date().toLocaleDateString('fr-FR');
+    let tableHTML = '';
+    rows.forEach(row => {
+        if (row.style.display === 'none') return;
+        const c = row.querySelectorAll('td');
+        tableHTML += '<tr>';
+        tableHTML += '<td>' + c[0].textContent.trim().replace(/\s+/g, ' ') + '</td>';
+        tableHTML += '<td>' + c[1].textContent.trim() + '</td>';
+        tableHTML += '<td>' + c[2].textContent.trim() + '</td>';
+        tableHTML += '<td>' + c[3].textContent.trim() + '</td>';
+        tableHTML += '<td>' + c[4].textContent.trim() + '</td>';
+        tableHTML += '<td>' + c[5].textContent.trim() + '</td>';
+        tableHTML += '</tr>';
+    });
+    const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Participations - WANNASNI</title>
+<style>body{font-family:Arial,sans-serif;padding:30px;color:#1e293b}h1{text-align:center;margin-bottom:4px;color:#1e40af}.subtitle{text-align:center;color:#64748b;margin-bottom:24px;font-size:14px}table{width:100%;border-collapse:collapse;margin-top:10px}th{background:#1e40af;color:#fff;padding:10px 12px;text-align:left;font-size:13px}td{padding:9px 12px;border-bottom:1px solid #e2e8f0;font-size:13px}tr:nth-child(even){background:#f8fafc}.footer{text-align:center;margin-top:30px;font-size:11px;color:#94a3b8}</style></head><body>
+<h1>📋 Participations</h1><p class="subtitle">WANNASNI – Généré le ${date}</p>
+<table><thead><tr><th>Participant</th><th>Activité</th><th>Statut</th><th>Date Inscription</th><th>Note</th><th>Humeur</th></tr></thead><tbody>${tableHTML}</tbody></table>
+<p class="footer">WANNASNI – Système de Gestion – ${date}</p></body></html>`;
+    const win = window.open('', '_blank');
+    win.document.write(html); win.document.close(); win.focus();
+    setTimeout(() => win.print(), 400);
+}
 
-    .status-badge {
-        display: inline-block;
-        padding: 0.4rem 0.8rem;
-        border-radius: 20px;
-        font-weight: 600;
-        font-size: 0.85rem;
-    }
-
-    .status-inscrit {
-        background: #dbeafe;
-        color: #1e40af;
-    }
-
-    .status-present {
-        background: #dcfce7;
-        color: #166534;
-    }
-
-    .status-absente,
-    .status-absentexcuse {
-        background: #fee2e2;
-        color: #991b1b;
-    }
-
-    .btn-sm {
-        padding: 0.5rem 0.75rem;
-        font-size: 1rem;
-        border-radius: 6px;
-        border: none;
-        cursor: pointer;
-        transition: all 0.2s;
-    }
-
-    .btn-danger {
-        background: #dc2626;
-        color: white;
-    }
-
-    .btn-danger:hover {
-        background: #b91c1c;
-    }
-
-    .form-input {
-        width: 100%;
-        padding: 0.75rem;
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        font-size: 0.95rem;
-        transition: all 0.2s;
-    }
-
-    .form-input:focus {
-        outline: none;
-        border-color: #2563eb;
-        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-    }
-
-    .form-label {
-        display: block;
-        margin-bottom: 0.5rem;
-        font-weight: 600;
-        color: #374151;
-    }
-</style>
+/* ── Excel / CSV Export ── */
+function exportExcel() {
+    const table = document.getElementById('dataTable');
+    const rows  = table.querySelectorAll('tbody tr');
+    const BOM   = '\uFEFF';
+    let csv     = BOM + 'Participant;Activité;Statut;Date Inscription;Note;Humeur\n';
+    rows.forEach(row => {
+        if (row.style.display === 'none') return;
+        const c = row.querySelectorAll('td');
+        csv += [
+            c[0].textContent.trim().replace(/\s+/g, ' ').replace(/;/g, ','),
+            c[1].textContent.trim(),
+            c[2].textContent.trim(),
+            c[3].textContent.trim(),
+            c[4].textContent.trim(),
+            c[5].textContent.trim()
+        ].join(';') + '\n';
+    });
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href = url; a.download = 'participations_wannasni_' + new Date().toISOString().slice(0,10) + '.csv';
+    a.click(); URL.revokeObjectURL(url);
+}
+</script>
 {% endblock %}

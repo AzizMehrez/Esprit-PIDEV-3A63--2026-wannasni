@@ -8,6 +8,11 @@ use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @extends ServiceEntityRepository<Participation>
+ *
+ * @method Participation|null find($id, $lockMode = null, $lockVersion = null)
+ * @method Participation|null findOneBy(array $criteria, array $orderBy = null)
+ * @method Participation[]    findAll()
+ * @method Participation[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
 class ParticipationRepository extends ServiceEntityRepository
 {
@@ -17,115 +22,43 @@ class ParticipationRepository extends ServiceEntityRepository
     }
 
     /**
-     * Find participations by senior/user ID
+     * Find participations by activity ID
      */
-    public function findBySeniorId(int $seniorId): array
+    public function findByActivity(int $activityId): array
     {
         return $this->createQueryBuilder('p')
-            ->where('p.seniorId = :seniorId')
-            ->setParameter('seniorId', $seniorId)
-            ->orderBy('p.registrationDate', 'DESC')
+            ->andWhere('p.activityId = :activityId')
+            ->setParameter('activityId', $activityId)
+            ->orderBy('p.registeredAt', 'DESC')
             ->getQuery()
             ->getResult();
     }
 
     /**
-     * Find participations by status
+     * Count active participations for an activity
      */
-    public function findByStatus(string $status): array
+    public function countActiveByActivity(int $activityId): int
     {
-        return $this->createQueryBuilder('p')
-            ->where('p.status = :status')
-            ->setParameter('status', $status)
-            ->orderBy('p.registrationDate', 'DESC')
-            ->getQuery()
-            ->getResult();
-    }
-
-    /**
-     * Search participations with filters
-     */
-    public function search(?int $activityId, ?string $status, ?int $participantId): array
-    {
-        $qb = $this->createQueryBuilder('p')
-            ->leftJoin('p.activity', 'a')
-            ->addSelect('a');
-
-        if ($activityId) {
-            $qb->andWhere('a.id = :activityId')
-               ->setParameter('activityId', $activityId);
-        }
-
-        if ($status) {
-            $qb->andWhere('p.status = :status')
-               ->setParameter('status', $status);
-        }
-
-        if ($participantId) {
-            $qb->andWhere('p.seniorId = :participantId')
-               ->setParameter('participantId', $participantId);
-        }
-
-        return $qb->orderBy('p.registrationDate', 'DESC')
-            ->getQuery()
-            ->getResult();
-    }
-
-    /**
-     * Check if a senior is already registered for an activity
-     */
-    public function isRegistered(int $activityId, int $seniorId): bool
-    {
-        $count = $this->createQueryBuilder('p')
+        return (int) $this->createQueryBuilder('p')
             ->select('COUNT(p.id)')
-            ->where('p.id = :activityId')
-            ->andWhere('p.seniorId = :seniorId')
+            ->andWhere('p.activityId = :activityId')
             ->andWhere('p.status IN (:statuses)')
             ->setParameter('activityId', $activityId)
-            ->setParameter('seniorId', $seniorId)
-            ->setParameter('statuses', ['inscrit', 'présent'])
+            ->setParameter('statuses', ['registered', 'inscrit', 'attended'])
             ->getQuery()
             ->getSingleScalarResult();
-
-        return $count > 0;
     }
 
     /**
-     * Find all participations with activity relationships
+     * Find participations by senior
      */
-    public function findAllWithActivity(): array
+    public function findBySenior(int $seniorId): array
     {
         return $this->createQueryBuilder('p')
-            ->leftJoin('p.activity', 'a')
-            ->addSelect('a')
-            ->orderBy('p.registrationDate', 'DESC')
+            ->andWhere('p.seniorId = :seniorId')
+            ->setParameter('seniorId', $seniorId)
+            ->orderBy('p.registeredAt', 'DESC')
             ->getQuery()
             ->getResult();
-    }
-
-    /**
-     * Find participation with activity relationship
-     */
-    public function findWithActivity(int $id): ?Participation
-    {
-        return $this->createQueryBuilder('p')
-            ->leftJoin('p.activity', 'a')
-            ->addSelect('a')
-            ->where('p.id = :id')
-            ->setParameter('id', $id)
-            ->getQuery()
-            ->getOneOrNullResult();
-    }
-
-    /**
-     * Count participations with feedback
-     */
-    public function countWithFeedback(): int
-    {
-        return $this->createQueryBuilder('p')
-            ->select('COUNT(p.id)')
-            ->where('p.feedbackRating IS NOT NULL')
-            ->getQuery()
-            ->getSingleScalarResult();
     }
 }

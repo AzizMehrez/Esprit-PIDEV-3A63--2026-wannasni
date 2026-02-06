@@ -1,159 +1,132 @@
 {% extends 'admin/base_admin.html.twig' %}
 
-{% block title %}Détail de la Participation - Admin WANNASNI{% endblock %}
-{% block page_title %}Détail de la Participation{% endblock %}
+{% block title %}Participation #{{ participation.id }} - Admin WANNASNI{% endblock %}
+{% block page_title %}Détails de la Participation{% endblock %}
 
 {% block content %}
-<div style="margin-bottom: 1.5rem;">
-    <a href="{{ path('admin_participations') }}" class="btn btn-secondary">← Retour à la liste</a>
+<div style="margin-bottom: 1rem; display: flex; gap: 0.5rem;">
+    <a href="{{ path('admin_participations') }}" class="btn btn-secondary">← Retour aux Participations</a>
+    <a href="{{ path('admin_participations_edit', {id: participation.id}) }}" class="btn btn-primary">✏️ Modifier</a>
+    <form method="post" action="{{ path('admin_participations_delete', {id: participation.id}) }}" style="display:inline;" onsubmit="return confirm('Supprimer cette participation ?')">
+        <button type="submit" class="btn" style="background: var(--admin-danger); color: white;">🗑️ Supprimer</button>
+    </form>
 </div>
 
-<div class="card" style="max-width: 900px;">
-    <div class="card-header">
-        <h2 class="card-title">
-            Participation #{{ participation.id }}
-            <span class="status-badge status-{{ participation.status|lower|replace({'_': ''}) }}" style="margin-left: 1rem;">
-                {% if participation.status == 'inscrit' %}✓ Inscrit
-                {% elseif participation.status == 'annulé' %}✗ Annulé
-                {% elseif participation.status == 'présent' %}✓ Présent
-                {% elseif participation.status == 'absent_excusé' %}⚠ Absent (excusé)
-                {% else %}✗ Absent{% endif %}
-            </span>
-        </h2>
-    </div>
-
-    <!-- Info Grid -->
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; padding: 2rem; background: #f9fafb; border-bottom: 1px solid #e5e7eb;">
-        <div>
-            <div style="color: #666; font-size: 0.85rem; text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;">🆔 ID Participant</div>
-            <div style="font-size: 1.1rem; font-weight: 600; color: #1a1a2e;">{{ participation.participantId ?? participation.seniorId }}</div>
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+    {# Info Card #}
+    <div class="admin-card">
+        <div class="card-header">
+            <h2 class="card-title">📋 Informations</h2>
         </div>
-        <div>
-            <div style="color: #666; font-size: 0.85rem; text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;">🎯 Activité</div>
-            <div style="font-size: 1.1rem; font-weight: 600;">
-                {% if participation.activity %}
-                    <a href="{{ path('admin_activities_show', {id: participation.activity.id}) }}" style="color: #2563eb; text-decoration: none;">
-                        {{ participation.activity.title }}
-                    </a>
+        <div style="padding: 1.5rem; display: grid; gap: 1rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="color: var(--admin-text-muted);">Participant</span>
+                <span style="font-weight: 600;">{{ participation.seniorName }}</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="color: var(--admin-text-muted);">Activité</span>
+                <a href="{{ path('admin_activities_show', {id: participation.activityId}) }}" style="color: var(--admin-primary-light); text-decoration: none; font-weight: 600;">
+                    🎯 {{ participation.activityName }}
+                </a>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="color: var(--admin-text-muted);">Statut</span>
+                {% if participation.status in ['registered', 'inscrit'] %}
+                    <span class="badge badge-success">✅ Inscrit</span>
+                {% elseif participation.status == 'attended' %}
+                    <span class="badge badge-info">🎓 Présent</span>
+                {% elseif participation.status in ['cancelled', 'annulé'] %}
+                    <span class="badge badge-danger">❌ Annulé</span>
                 {% else %}
-                    <span style="color: #999;">N/A</span>
+                    <span class="badge badge-warning">{{ participation.status|capitalize }}</span>
                 {% endif %}
             </div>
-        </div>
-        <div>
-            <div style="color: #666; font-size: 0.85rem; text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;">📅 Inscrit le</div>
-            <div style="font-size: 1.1rem; font-weight: 600; color: #1a1a2e;">{{ participation.registrationDate|date('d/m/Y à H:i') }}</div>
-        </div>
-        <div>
-            <div style="color: #666; font-size: 0.85rem; text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;">📍 Méthode</div>
-            <div style="font-size: 1.1rem; font-weight: 600; color: #1a1a2e;">
-                {% if participation.registrationMethod == 'appli' %}📱 App
-                {% elseif participation.registrationMethod == 'telephone' %}☎️ Téléphone
-                {% else %}👤 En personne{% endif %}
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="color: var(--admin-text-muted);">Date d'inscription</span>
+                <span>{{ participation.registeredAt ? participation.registeredAt|date('d/m/Y H:i') : 'N/A' }}</span>
             </div>
-        </div>
-    </div>
-
-    <!-- Feedback Section -->
-    <div style="padding: 2rem;">
-        <h3 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 2px solid #2563eb;">💬 Retours et Évaluations</h3>
-
-        <!-- Ratings Row -->
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
-            <div style="padding: 1rem; background: #fef3c7; border-radius: 8px; border-left: 4px solid #ea580c;">
-                <div style="color: #666; font-size: 0.85rem; text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;">⭐ Note de l'activité</div>
-                <div style="font-size: 1.4rem; font-weight: 700; color: #ea580c;">
-                    {% if participation.feedbackRating %}{{ participation.feedbackRating }}/5{% else %}<span style="color: #999;">—</span>{% endif %}
-                </div>
+            {% if participation.registrationMethod %}
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="color: var(--admin-text-muted);">Méthode</span>
+                <span>{{ participation.registrationMethod }}</span>
             </div>
-            <div style="padding: 1rem; background: #dbeafe; border-radius: 8px; border-left: 4px solid #2563eb;">
-                <div style="color: #666; font-size: 0.85rem; text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;">😔 Humeur avant</div>
-                <div style="font-size: 1.4rem; font-weight: 700; color: #1e40af;">
-                    {% if participation.moodBefore %}{{ participation.moodBefore }}/5{% else %}<span style="color: #999;">—</span>{% endif %}
-                </div>
+            {% endif %}
+            {% if participation.presenceConfirmationDate %}
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="color: var(--admin-text-muted);">Présence confirmée</span>
+                <span>{{ participation.presenceConfirmationDate|date('d/m/Y H:i') }}</span>
             </div>
-            <div style="padding: 1rem; background: #dcfce7; border-radius: 8px; border-left: 4px solid #16a34a;">
-                <div style="color: #666; font-size: 0.85rem; text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;">😊 Humeur après</div>
-                <div style="font-size: 1.4rem; font-weight: 700; color: #166534;">
-                    {% if participation.moodAfter %}{{ participation.moodAfter }}/5{% else %}<span style="color: #999;">—</span>{% endif %}
-                </div>
+            {% endif %}
+            {% if participation.hasCertificate is not null %}
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="color: var(--admin-text-muted);">Certificat</span>
+                <span>{{ participation.hasCertificate ? '✅ Oui' : '❌ Non' }}</span>
             </div>
-        </div>
-
-        <!-- Comments -->
-        {% if participation.feedbackComment %}
-        <div style="margin-bottom: 1.5rem;">
-            <div style="color: #666; font-size: 0.85rem; text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;">💭 Commentaire</div>
-            <div style="padding: 1rem; background: #f9fafb; border-radius: 8px; border-left: 4px solid #2563eb; color: #1a1a2e; line-height: 1.6;">
-                {{ participation.feedbackComment }}
-            </div>
-        </div>
-        {% endif %}
-
-        <!-- Problems -->
-        {% if participation.problemsEncountered %}
-        <div style="margin-bottom: 2rem;">
-            <div style="color: #666; font-size: 0.85rem; text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;">⚠️ Problèmes signalés</div>
-            <div style="padding: 1rem; background: #fef3c7; border-radius: 8px; border-left: 4px solid #ea580c; color: #92400e; line-height: 1.6;">
-                {{ participation.problemsEncountered }}
-            </div>
-        </div>
-        {% endif %}
-
-        <!-- Metadata -->
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; padding-top: 1rem; border-top: 1px solid #e5e7eb;">
-            <div style="padding: 1rem; background: #f0f9ff; border-radius: 6px;">
-                <div style="color: #666; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.3rem;">👥 Recommande</div>
-                <div>{% if participation.recommendToFriends %}<span style="color: #16a34a; font-weight: 600;">✓ Oui</span>{% else %}<span style="color: #ccc;">Non</span>{% endif %}</div>
-            </div>
-            <div style="padding: 1rem; background: #f0f9ff; border-radius: 6px;">
-                <div style="color: #666; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.3rem;">👨‍👩‍👧 Partager</div>
-                <div>{% if participation.shareWithFamily == 'oui' %}<span style="color: #16a34a; font-weight: 600;">✓ Oui</span>{% else %}<span style="color: #ccc;">Non</span>{% endif %}</div>
-            </div>
-            <div style="padding: 1rem; background: #f0f9ff; border-radius: 6px;">
-                <div style="color: #666; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.3rem;">📜 Certificat</div>
-                <div>{% if participation.hasCertificate %}<span style="color: #16a34a; font-weight: 600;">✓ Délivré</span>{% else %}<span style="color: #ccc;">À émettre</span>{% endif %}</div>
-            </div>
+            {% endif %}
         </div>
     </div>
 
-    <!-- Actions -->
-    <div style="padding: 2rem; background: #f9fafb; border-top: 1px solid #e5e7eb; display: flex; gap: 1rem; flex-wrap: wrap; align-items: center;">
-        <a href="{{ path('admin_participation_edit', {id: participation.id}) }}" class="btn btn-primary">✏️ Modifier</a>
-
-        <form method="post" action="{{ path('admin_participation_delete', {id: participation.id}) }}" style="display: inline; margin-left: auto;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette participation ?');">
-            <button type="submit" class="btn btn-danger">🗑 Supprimer</button>
-        </form>
+    {# Feedback Card #}
+    <div class="admin-card">
+        <div class="card-header">
+            <h2 class="card-title">⭐ Feedback</h2>
+        </div>
+        <div style="padding: 1.5rem; display: grid; gap: 1rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="color: var(--admin-text-muted);">Note</span>
+                {% if participation.rating %}
+                    <span style="color: #fbbf24; font-size: 1.2rem;">
+                        {% for i in 1..5 %}{{ i <= participation.rating ? '★' : '☆' }}{% endfor %}
+                    </span>
+                {% else %}
+                    <span style="color: var(--admin-text-muted);">Pas de note</span>
+                {% endif %}
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="color: var(--admin-text-muted);">Humeur Avant</span>
+                <span>{{ participation.moodBefore is not null ? participation.moodBefore ~ '/5' : '—' }}</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="color: var(--admin-text-muted);">Humeur Après</span>
+                <span>{{ participation.moodAfter is not null ? participation.moodAfter ~ '/5' : '—' }}</span>
+            </div>
+            {% if participation.moodBefore is not null and participation.moodAfter is not null %}
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="color: var(--admin-text-muted);">Évolution</span>
+                <span style="font-weight: 700; font-size: 1.1rem; color: {% if participation.moodAfter > participation.moodBefore %}#4ade80{% elseif participation.moodAfter < participation.moodBefore %}#f87171{% else %}#fbbf24{% endif %};">
+                    {% if participation.moodAfter > participation.moodBefore %}📈 Amélioré{% elseif participation.moodAfter < participation.moodBefore %}📉 Détérioré{% else %}➡️ Stable{% endif %}
+                </span>
+            </div>
+            {% endif %}
+            {% if participation.recommendToFriends is not null %}
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="color: var(--admin-text-muted);">Recommande</span>
+                <span>{{ participation.recommendToFriends ? '👍 Oui' : '👎 Non' }}</span>
+            </div>
+            {% endif %}
+            {% if participation.shareWithFamily %}
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="color: var(--admin-text-muted);">Partage famille</span>
+                <span>{{ participation.shareWithFamily }}</span>
+            </div>
+            {% endif %}
+            {% if participation.feedback %}
+            <div>
+                <span style="color: var(--admin-text-muted); display: block; margin-bottom: 0.5rem;">Commentaire</span>
+                <div style="background: var(--admin-bg); padding: 1rem; border-radius: 8px; border: 1px solid var(--admin-border); font-size: 0.9rem; line-height: 1.6;">
+                    {{ participation.feedback }}
+                </div>
+            </div>
+            {% endif %}
+            {% if participation.problemsEncountered %}
+            <div>
+                <span style="color: var(--admin-text-muted); display: block; margin-bottom: 0.5rem;">Problèmes rencontrés</span>
+                <div style="background: rgba(239,68,68,0.1); padding: 1rem; border-radius: 8px; border: 1px solid rgba(239,68,68,0.2); font-size: 0.9rem; line-height: 1.6;">
+                    {{ participation.problemsEncountered }}
+                </div>
+            </div>
+            {% endif %}
+        </div>
     </div>
 </div>
-
-<style>
-    .status-badge {
-        display: inline-block;
-        padding: 0.5rem 1rem;
-        border-radius: 50px;
-        font-weight: 600;
-        font-size: 0.9rem;
-    }
-
-    .status-inscrit {
-        background: #dbeafe;
-        color: #1e40af;
-    }
-
-    .status-annulé {
-        background: #fee2e2;
-        color: #991b1b;
-    }
-
-    .status-present {
-        background: #dcfce7;
-        color: #166534;
-    }
-
-    .status-absent {
-        background: #fee2e2;
-        color: #991b1b;
-    }
-</style>
 {% endblock %}

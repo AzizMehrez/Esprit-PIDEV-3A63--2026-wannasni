@@ -14,71 +14,46 @@
         <div class="stat-icon green">🎯</div>
         <div class="stat-info">
             <div class="stat-value">{{ activities|length }}</div>
-            <div class="stat-label">Total Activities</div>
+            <div class="stat-label">Total Activités</div>
         </div>
     </div>
     <div class="stat-card">
         <div class="stat-icon blue">✓</div>
         <div class="stat-info">
-            <div class="stat-value">{{ activities|filter(a => a.isActive)|length }}</div>
-            <div class="stat-label">Active</div>
+            <div class="stat-value">{{ activities|filter(a => a.status == 'active')|length }}</div>
+            <div class="stat-label">Actives</div>
         </div>
     </div>
     <div class="stat-card">
         <div class="stat-icon purple">👥</div>
         <div class="stat-info">
-            <div class="stat-value">{{ activities|reduce((carry, a) => carry + a.currentParticipants, 0) }}</div>
+            <div class="stat-value">{{ activities|reduce((carry, a) => carry + a.participants, 0) }}</div>
             <div class="stat-label">Participants</div>
         </div>
     </div>
     <div class="stat-card">
-        <div class="stat-icon orange">📅</div>
+        <div class="stat-icon orange">⏱️</div>
         <div class="stat-info">
-            <div class="stat-value">{{ activities|length }}</div>
-            <div class="stat-label">Upcoming Events</div>
+            <div class="stat-value">{{ (activities|reduce((carry, a) => carry + a.duration, 0) / activities|length)|round }}min</div>
+            <div class="stat-label">Durée Moyenne</div>
         </div>
     </div>
 </div>
 
 {# Toolbar #}
 <div class="admin-toolbar">
-    <form method="get" action="{{ path('admin_activities') }}" style="display: flex; gap: 1rem; flex: 1;">
-        <input type="text" name="q" placeholder="Rechercher une activité..." value="{{ search_query }}" style="flex: 1; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
-        
-        <select name="type" style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
-            <option value="">All Types</option>
-            <option value="social" {{ search_type == 'social' ? 'selected' : '' }}>Social</option>
-            <option value="physical" {{ search_type == 'physical' ? 'selected' : '' }}>Physical</option>
-            <option value="cultural" {{ search_type == 'cultural' ? 'selected' : '' }}>Cultural</option>
-            <option value="educational" {{ search_type == 'educational' ? 'selected' : '' }}>Educational</option>
-        </select>
-
-        <select name="status" style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
-            <option value="">All Status</option>
-            <option value="active" {{ search_status == 'active' ? 'selected' : '' }}>Active</option>
-            <option value="inactive" {{ search_status == 'inactive' ? 'selected' : '' }}>Inactive</option>
-        </select>
-
-        <button type="submit" class="btn btn-sm btn-primary">🔍 Search</button>
-        {% if search_query or search_type or search_status %}
-            <a href="{{ path('admin_activities') }}" class="btn btn-sm btn-secondary">Clear</a>
-        {% endif %}
-    </form>
-
+    <div class="toolbar-search">
+        <input type="text" id="searchInput" placeholder="Rechercher une activité..." onkeyup="filterTable()">
+    </div>
     <div class="toolbar-actions">
-        <select id="sortSelect" onchange="applySortOption(this.value)" style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
-            <option value="">Sort By...</option>
-            <option value="title">📝 Title (A-Z)</option>
-            <option value="title-desc">📝 Title (Z-A)</option>
-            <option value="date">📅 Coming Soon</option>
-            <option value="date-old">📅 Oldest First</option>
-            <option value="participants">👥 Most Participants</option>
-            <option value="participants-asc">👥 Least Participants</option>
-            <option value="available">🎯 Most Available Spots</option>
-        </select>
-        
-        <a href="{{ path('admin_activities_export_pdf', {q: search_query, type: search_type, status: search_status}) }}" class="export-btn pdf" target="_blank">
+        <button class="filter-btn">
+            🔽 Filtrer
+        </button>
+        <a href="#" class="export-btn pdf" onclick="exportPDF(); return false;">
             📄 PDF
+        </a>
+        <a href="#" class="export-btn excel" onclick="exportExcel(); return false;">
+            📊 Excel
         </a>
     </div>
 </div>
@@ -92,11 +67,11 @@
     <table class="admin-table" id="dataTable">
         <thead>
             <tr>
-                <th class="sortable" onclick="sortTable(0)">Title <span class="sort-icon">🔄</span></th>
-                <th class="sortable" onclick="sortTable(1)">Type <span class="sort-icon">🔄</span></th>
-                <th class="sortable" onclick="sortTable(2)">Start Time <span class="sort-icon">🔄</span></th>
-                <th class="sortable" onclick="sortTable(3)">Participants <span class="sort-icon">🔄</span></th>
-                <th class="sortable" onclick="sortTable(4)">Status <span class="sort-icon">🔄</span></th>
+                <th class="sortable" onclick="sortTable(0)">Activité</th>
+                <th class="sortable" onclick="sortTable(1)">Type</th>
+                <th class="sortable" onclick="sortTable(2)">Horaire</th>
+                <th class="sortable" onclick="sortTable(3)">Participants</th>
+                <th class="sortable" onclick="sortTable(4)">Statut</th>
                 <th style="width: 120px;">Actions</th>
             </tr>
         </thead>
@@ -107,35 +82,35 @@
                     <div style="display: flex; align-items: center; gap: 0.75rem;">
                         <div style="width: 40px; height: 40px; border-radius: 10px; background: linear-gradient(135deg, #22c55e, #4ade80); display: flex; align-items: center; justify-content: center; font-size: 1.1rem;">
                             {% if activity.type == 'physical' %}🏃
-                            {% elseif activity.type == 'cultural' %}🎭
-                            {% elseif activity.type == 'educational' %}📚
+                            {% elseif activity.type == 'cognitive' %}🧠
+                            {% elseif activity.type == 'creative' %}🎨
                             {% else %}👥{% endif %}
                         </div>
                         <div>
-                            <div style="font-weight: 600;">{{ activity.title }}</div>
-                            <div style="font-size: 0.8rem; color: var(--admin-text-muted);">{{ activity.description|slice(0, 40) }}</div>
+                            <div style="font-weight: 600;">{{ activity.name }}</div>
+                            <div style="font-size: 0.8rem; color: var(--admin-text-muted);">{{ activity.description|slice(0, 40) }}...</div>
                         </div>
                     </div>
                 </td>
                 <td>
                     <span class="badge badge-info">{{ activity.type|capitalize }}</span>
                 </td>
-                <td>{{ activity.startTime|date('Y-m-d H:i') }}</td>
+                <td>{{ activity.schedule }}</td>
                 <td>
-                    <span style="font-weight: 600;">{{ activity.currentParticipants }}{% if activity.maxParticipants %}/{{ activity.maxParticipants }}{% endif %}</span>
+                    <span style="font-weight: 600;">{{ activity.participants }}</span>
                 </td>
                 <td>
-                    {% if activity.isActive %}
+                    {% if activity.status == 'active' %}
                         <span class="badge badge-success">✓ Active</span>
                     {% else %}
                         <span class="badge badge-warning">⏸ Inactive</span>
                     {% endif %}
                 </td>
                 <td>
-                    <a href="{{ path('admin_activities_show', {id: activity.id}) }}" class="action-btn" title="View">👁️</a>
-                    <a href="{{ path('admin_activities_edit', {id: activity.id}) }}" class="action-btn" title="Edit">✏️</a>
-                    <form method="post" action="{{ path('admin_activities_delete', {id: activity.id}) }}" style="display:inline;" onsubmit="return confirm('Are you sure?');">
-                        <button type="submit" class="action-btn danger" title="Delete">🗑️</button>
+                    <a href="{{ path('admin_activities_show', {id: activity.id}) }}" class="action-btn" title="Voir">👁️</a>
+                    <a href="{{ path('admin_activities_edit', {id: activity.id}) }}" class="action-btn" title="Modifier">✏️</a>
+                    <form method="post" action="{{ path('admin_activities_delete', {id: activity.id}) }}" style="display:inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette activité ?')">
+                        <button type="submit" class="action-btn danger" title="Supprimer">🗑️</button>
                     </form>
                 </td>
             </tr>
@@ -145,135 +120,130 @@
 </div>
 
 <script>
-let sortDirection = {};
+/* ── Search / Filter ── */
+function filterTable() {
+    const filter = document.getElementById('searchInput').value.toLowerCase();
+    const tbody  = document.querySelector('#dataTable tbody');
+    const rows   = tbody.querySelectorAll('tr');
 
-function applySortOption(sortOption) {
-    const table = document.getElementById('dataTable');
-    const tbody = table.getElementsByTagName('tbody')[0];
-    const rows = Array.from(tbody.getElementsByTagName('tr'));
-
-    if (!sortOption) return;
-
-    rows.sort((a, b) => {
-        let compareValue = 0;
-
-        switch(sortOption) {
-            case 'title':
-                compareValue = a.cells[0].textContent.trim().localeCompare(b.cells[0].textContent.trim());
-                break;
-            case 'title-desc':
-                compareValue = b.cells[0].textContent.trim().localeCompare(a.cells[0].textContent.trim());
-                break;
-            case 'date':
-                // Sort by start time - coming soon (soonest first)
-                const dateA = new Date(a.cells[2].textContent.trim());
-                const dateB = new Date(b.cells[2].textContent.trim());
-                compareValue = dateA - dateB;
-                break;
-            case 'date-old':
-                // Sort by start time - oldest first
-                const dateA2 = new Date(a.cells[2].textContent.trim());
-                const dateB2 = new Date(b.cells[2].textContent.trim());
-                compareValue = dateB2 - dateA2;
-                break;
-            case 'participants':
-                // Most participants first
-                const partA = getParticipantCount(a.cells[3].textContent.trim());
-                const partB = getParticipantCount(b.cells[3].textContent.trim());
-                compareValue = partB - partA;
-                break;
-            case 'participants-asc':
-                // Least participants first
-                const partA2 = getParticipantCount(a.cells[3].textContent.trim());
-                const partB2 = getParticipantCount(b.cells[3].textContent.trim());
-                compareValue = partA2 - partB2;
-                break;
-            case 'available':
-                // Most available spots
-                const spotA = getAvailableSpots(a.cells[3].textContent.trim());
-                const spotB = getAvailableSpots(b.cells[3].textContent.trim());
-                compareValue = spotB - spotA;
-                break;
-        }
-
-        return compareValue;
+    rows.forEach(row => {
+        const cells = row.querySelectorAll('td');
+        let found = false;
+        cells.forEach((cell, idx) => {
+            if (idx < cells.length - 1 && cell.textContent.toLowerCase().includes(filter)) {
+                found = true;
+            }
+        });
+        row.style.display = found ? '' : 'none';
     });
-
-    rows.forEach(row => tbody.appendChild(row));
-    
-    // Reset sort indicator on column headers
-    const headers = table.getElementsByTagName('th');
-    for (let i = 0; i < headers.length; i++) {
-        const icon = headers[i].querySelector('.sort-icon');
-        if (icon) icon.textContent = '🔄';
-    }
 }
 
-function getParticipantCount(text) {
-    // Extract first number from text like "5/10"
-    const match = text.match(/(\d+)/);
-    return match ? parseInt(match[1]) : 0;
-}
-
-function getAvailableSpots(text) {
-    // Extract numbers from text like "5/10"
-    const match = text.match(/(\d+)\/(\d+)/);
-    if (match) {
-        const current = parseInt(match[1]) || 0;
-        const max = parseInt(match[2]) || 0;
-        return max - current;
-    }
-    return 999; // Unlimited
-}
-
+/* ── Sort ── */
+let sortDirection = {};
 function sortTable(columnIndex) {
-    const table = document.getElementById('dataTable');
-    const tbody = table.getElementsByTagName('tbody')[0];
-    const rows = Array.from(tbody.getElementsByTagName('tr'));
-    const headers = table.getElementsByTagName('th');
-    
+    const table   = document.getElementById('dataTable');
+    const tbody   = table.querySelector('tbody');
+    const rows    = Array.from(tbody.querySelectorAll('tr'));
+    const headers = table.querySelectorAll('thead th');
+
     sortDirection[columnIndex] = !sortDirection[columnIndex];
     const ascending = sortDirection[columnIndex];
-    
-    // Reset all sort icons
-    for (let i = 0; i < headers.length; i++) {
-        const icon = headers[i].querySelector('.sort-icon');
-        if (icon) icon.textContent = '🔄';
-    }
-    
-    // Update current column icon
-    const currentHeader = headers[columnIndex];
-    const currentIcon = currentHeader.querySelector('.sort-icon');
-    if (currentIcon) {
-        currentIcon.textContent = ascending ? '⬆️' : '⬇️';
-    }
-    
+
+    headers.forEach(h => h.classList.remove('asc', 'desc'));
+    headers[columnIndex].classList.add(ascending ? 'asc' : 'desc');
+
+    // Numeric columns: Participants (index 3)
+    const numericCols = [3];
+
     rows.sort((a, b) => {
-        const aText = a.cells[columnIndex].textContent.trim().toLowerCase();
-        const bText = b.cells[columnIndex].textContent.trim().toLowerCase();
-        return ascending ? aText.localeCompare(bText) : bText.localeCompare(aText);
+        let aText = a.cells[columnIndex].textContent.trim();
+        let bText = b.cells[columnIndex].textContent.trim();
+
+        if (numericCols.includes(columnIndex)) {
+            const aNum = parseFloat(aText) || 0;
+            const bNum = parseFloat(bText) || 0;
+            return ascending ? aNum - bNum : bNum - aNum;
+        }
+        return ascending
+            ? aText.toLowerCase().localeCompare(bText.toLowerCase())
+            : bText.toLowerCase().localeCompare(aText.toLowerCase());
     });
-    
+
     rows.forEach(row => tbody.appendChild(row));
-    
-    // Reset sort dropdown
-    document.getElementById('sortSelect').value = '';
 }
 
-// Add hover effect for sortable headers
-document.addEventListener('DOMContentLoaded', function() {
+/* ── PDF Export ── */
+function exportPDF() {
     const table = document.getElementById('dataTable');
-    const headers = table.querySelectorAll('th.sortable');
-    headers.forEach(header => {
-        header.style.cursor = 'pointer';
-        header.style.userSelect = 'none';
-        header.addEventListener('mouseover', function() {
-            this.style.backgroundColor = '#f0f0f0';
-        });
-        header.addEventListener('mouseout', function() {
-            this.style.backgroundColor = '';
-        });
+    const rows  = table.querySelectorAll('tbody tr');
+    const date  = new Date().toLocaleDateString('fr-FR');
+
+    let tableHTML = '';
+    rows.forEach(row => {
+        if (row.style.display === 'none') return;
+        const cells = row.querySelectorAll('td');
+        tableHTML += '<tr>';
+        tableHTML += '<td>' + cells[0].textContent.trim().replace(/\s+/g, ' ') + '</td>';
+        tableHTML += '<td>' + cells[1].textContent.trim() + '</td>';
+        tableHTML += '<td>' + cells[2].textContent.trim() + '</td>';
+        tableHTML += '<td style="text-align:center;">' + cells[3].textContent.trim() + '</td>';
+        tableHTML += '<td>' + cells[4].textContent.trim() + '</td>';
+        tableHTML += '</tr>';
     });
-});
+
+    const html = `<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>Activités - WANNASNI</title>
+<style>
+    body{font-family:Arial,sans-serif;padding:30px;color:#1e293b}
+    h1{text-align:center;margin-bottom:4px;color:#1e40af}
+    .subtitle{text-align:center;color:#64748b;margin-bottom:24px;font-size:14px}
+    table{width:100%;border-collapse:collapse;margin-top:10px}
+    th{background:#1e40af;color:#fff;padding:10px 12px;text-align:left;font-size:13px}
+    td{padding:9px 12px;border-bottom:1px solid #e2e8f0;font-size:13px}
+    tr:nth-child(even){background:#f8fafc}
+    .footer{text-align:center;margin-top:30px;font-size:11px;color:#94a3b8}
+</style></head><body>
+    <h1>📋 Liste des Activités</h1>
+    <p class="subtitle">WANNASNI – Généré le ${date}</p>
+    <table>
+        <thead><tr><th>Activité</th><th>Type</th><th>Horaire</th><th>Participants</th><th>Statut</th></tr></thead>
+        <tbody>${tableHTML}</tbody>
+    </table>
+    <p class="footer">WANNASNI – Système de Gestion – ${date}</p>
+</body></html>`;
+
+    const win = window.open('', '_blank');
+    win.document.write(html);
+    win.document.close();
+    win.focus();
+    setTimeout(() => win.print(), 400);
+}
+
+/* ── Excel / CSV Export ── */
+function exportExcel() {
+    const table = document.getElementById('dataTable');
+    const rows  = table.querySelectorAll('tbody tr');
+    const BOM   = '\uFEFF';
+    let csv     = BOM + 'Activité;Type;Horaire;Participants;Statut\n';
+
+    rows.forEach(row => {
+        if (row.style.display === 'none') return;
+        const cells = row.querySelectorAll('td');
+        const name  = cells[0].textContent.trim().replace(/\s+/g, ' ').replace(/;/g, ',');
+        const type  = cells[1].textContent.trim();
+        const sched = cells[2].textContent.trim();
+        const part  = cells[3].textContent.trim();
+        const stat  = cells[4].textContent.trim();
+        csv += `${name};${type};${sched};${part};${stat}\n`;
+    });
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href     = url;
+    a.download = 'activites_wannasni_' + new Date().toISOString().slice(0, 10) + '.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+}
 </script>
 {% endblock %}

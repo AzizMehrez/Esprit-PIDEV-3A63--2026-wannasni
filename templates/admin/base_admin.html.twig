@@ -612,10 +612,12 @@
             <a href="{{ path('admin_activities') }}" class="nav-item {% if 'admin_activities' in app.request.get('_route') %}active{% endif %}">
                 <span class="nav-icon">🎯</span>
                 Activités
-            </a>            <a href="{{ path('admin_participations') }}" class="nav-item {% if 'admin_participations' in app.request.get('_route') %}active{% endif %}">
-                <span class="nav-icon">📝</span>
+            </a>
+            <a href="{{ path('admin_participations') }}" class="nav-item {% if 'admin_participations' in app.request.get('_route') %}active{% endif %}">
+                <span class="nav-icon">📋</span>
                 Participations
-            </a>            <a href="{{ path('admin_services') }}" class="nav-item {% if 'admin_services' in app.request.get('_route') %}active{% endif %}">
+            </a>
+            <a href="{{ path('admin_services') }}" class="nav-item {% if 'admin_services' in app.request.get('_route') %}active{% endif %}">
                 <span class="nav-icon">🛎️</span>
                 Services
             </a>

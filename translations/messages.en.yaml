@@ -138,3 +138,47 @@ auth:
     continue_google: "Continue with Google"
     continue_x: "Continue with X"
     continue_facebook: "Continue with Facebook"
+    # Face ID Authentication
+    face_id: "Face Recognition"
+    face_id_desc: "Capture your face for secure login."
+    capture_face: "Capture my face"
+    retake_face: "Retake photo"
+    face_captured: "Face captured"
+    capture_face_title: "Capture your face"
+    capture_face_instructions: "Position your face in the frame and click Capture."
+    capture: "Capture"
+    retake: "Retake"
+    # Face ID Login
+    face_login: "Login with Face ID"
+    face_login_title: "Face ID Login"
+    face_instruction: "Position your face in the frame and click Capture"
+    face_captured_login: "Face captured! You can now log in."
+    confirm: "Confirm"
+    cancel: "Cancel"
+    verifying_face: "Verifying face..."
+    face_verify_error: "Verification error"
+    face_already_registered: "This face is already registered for"
+    use_login: "Please log in."
+    face_verified: "Face verified successfully!"
+    no_face_detected: "No face detected. Please try again."
+    face_verify_network_error: "Network error. Please try again."
+    face_consent: "I authorize the processing of my biometric facial data for authentication."
+    face_consent_required: "You must accept the processing of your biometric data."
+    camera_error: "Unable to access camera. Please allow access."
+
+# Success messages
+success:
+    face_login: "Login successful via Face ID!"
+
+# Error messages
+error:
+    face_not_recognized: "Face not recognized. Please try again or use your password."
+    camera_access: "Unable to access camera"
+    network: "Connection error"
+
+# Action labels
+action:
+    processing: "Processing..."
+    login: "Log In"
+    capture_face: "Capture Face"
+    retake: "Retake"

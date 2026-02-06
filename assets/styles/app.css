@@ -614,11 +614,19 @@ img {
 
 .btn-primary:hover {
     background-color: var(--color-calm-blue-dark);
+    color: var(--color-white);
     box-shadow: var(--shadow-glow-blue);
     transform: translateY(-2px);
 }
 
+.btn-primary:focus {
+    color: var(--color-white);
+    outline: 2px solid var(--color-calm-blue-dark);
+    outline-offset: 2px;
+}
+
 .btn-primary:active {
+    color: var(--color-white);
     animation: microCompression 0.3s ease-out;
 }
 
@@ -2784,6 +2792,268 @@ body.senior-mode .lang-switcher {
 @media (min-width: 640px) {
     .social-auth-buttons {
         /* Keep vertical for better compatibility */
+        flex-direction: column;
+    }
+}
+
+/* ==========================================================================
+   FACE ID STYLES
+   ========================================================================== */
+
+/* Face ID Section */
+.face-id-section {
+    margin-bottom: 24px;
+}
+
+.face-id-btn {
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+    border: none;
+    color: white;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    transition: all 0.3s ease;
+}
+
+.face-id-btn:hover {
+    background: linear-gradient(135deg, var(--color-primary-dark) 0%, var(--color-primary-darker) 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(92, 184, 92, 0.3);
+}
+
+.face-id-btn .btn-icon {
+    font-size: 20px;
+}
+
+/* Face ID Modal */
+.face-modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(5px);
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.face-modal-content {
+    background: white;
+    border-radius: 12px;
+    max-width: 500px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+    animation: modalSlideIn 0.3s ease;
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.face-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px 0 24px;
+    border-bottom: 1px solid var(--color-gray-200);
+    margin-bottom: 0;
+    padding-bottom: 16px;
+}
+
+.face-modal-title {
+    margin: 0;
+    color: var(--color-gray-800);
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.face-modal-close {
+    background: none;
+    border: none;
+    font-size: 28px;
+    color: var(--color-gray-400);
+    cursor: pointer;
+    padding: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.face-modal-close:hover {
+    background: var(--color-gray-100);
+    color: var(--color-gray-600);
+}
+
+.face-modal-body {
+    padding: 24px;
+}
+
+.face-camera-container {
+    position: relative;
+    margin-bottom: 20px;
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--color-gray-900);
+    aspect-ratio: 4/3;
+}
+
+.face-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.face-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.face-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.face-detection-area {
+    width: 200px;
+    height: 200px;
+    border: 3px solid var(--color-primary);
+    border-radius: 50%;
+    background: rgba(92, 184, 92, 0.1);
+    animation: faceDetectionPulse 2s infinite;
+}
+
+@keyframes faceDetectionPulse {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 0.7;
+    }
+    50% {
+        transform: scale(1.05);
+        opacity: 1;
+    }
+}
+
+.face-instructions {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.instruction-text {
+    color: var(--color-gray-600);
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.face-preview {
+    text-align: center;
+}
+
+.face-preview img {
+    max-width: 200px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    margin-bottom: 16px;
+}
+
+.face-preview-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
+.face-modal-footer {
+    padding: 0 24px 24px 24px;
+    text-align: center;
+}
+
+.face-status {
+    display: none;
+    margin: 16px 24px 0 24px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: 500;
+    font-size: 14px;
+}
+
+.face-status-success {
+    background: #F0F9FF;
+    color: #0369A1;
+    border: 1px solid #BAE6FD;
+}
+
+.face-status-error {
+    background: #FEF2F2;
+    color: #DC2626;
+    border: 1px solid #FECACA;
+}
+
+.face-status-info {
+    background: #F8FAFC;
+    color: #475569;
+    border: 1px solid #E2E8F0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+    .face-modal {
+        padding: 10px;
+    }
+    
+    .face-modal-content {
+        max-height: 95vh;
+    }
+    
+    .face-detection-area {
+        width: 150px;
+        height: 150px;
+    }
+    
+    .face-modal-header {
+        padding: 16px 20px 0 20px;
+        padding-bottom: 12px;
+    }
+    
+    .face-modal-body {
+        padding: 20px;
+    }
+    
+    .face-modal-footer {
+        padding: 0 20px 20px 20px;
+    }
+    
+    .face-preview-actions {
         flex-direction: column;
     }
 }

@@ -349,26 +349,27 @@
             </div>
             <div class="activity-list">
                 {% if enrolled_activities|length > 0 %}
-                    {% for activity in enrolled_activities %}
+                    {% for participation in enrolled_activities %}
                     <div class="activity-card">
                         <div class="activity-top">
-                            <div class="activity-icon {{ activity.type }}">
-                                {% if activity.type == 'physical' %}🏃
-                                {% elseif activity.type == 'cultural' %}🎭
-                                {% elseif activity.type == 'educational' %}📚
-                                {% else %}👥{% endif %}
+                            <div class="activity-icon {{ participation.type }}">
+                                {% if participation.type == 'physical' %}🏃
+                                {% elseif participation.type == 'cognitive' %}🧠
+                                {% elseif participation.type == 'creative' %}🎨
+                                {% elseif participation.type == 'social' %}👥
+                                {% else %}📋{% endif %}
                             </div>
                             <div>
-                                <div class="activity-name">{{ activity.title }}</div>
-                                <div style="color: var(--act-text-muted); font-size: 0.95rem;">{{ activity.location ?? 'Location TBA' }}</div>
+                                <div class="activity-name">{{ participation.name }}</div>
+                                <div style="color: var(--act-text-muted); font-size: 0.95rem;">{{ participation.schedule }}</div>
                             </div>
                         </div>
                         <div class="activity-details">
-                            <span class="activity-info">📅 {{ activity.startTime|date('d/m/Y H:i') }}</span>
+                            <span class="activity-info">📅 {{ participation.nextSession|date('d/m/Y H:i') }}</span>
                             <span class="activity-badge">✓ Inscrit</span>
-                            <form method="POST" action="{{ path('app_cancel_activity', {id: activity.id}) }}" style="display: inline;">
-                                <input type="hidden" name="_token" value="{{ csrf_token('cancel_activity_' ~ activity.id) }}">
-                                <button type="submit" class="btn-cancel" onclick="return confirm('Are you sure you want to cancel your enrollment?');">
+                            <form method="POST" action="{{ path('app_cancel_activity', {'_locale': app.request.locale, 'id': participation.id}) }}" style="display: inline;">
+                                <input type="hidden" name="_token" value="{{ csrf_token('cancel_activity_' ~ participation.id) }}">
+                                <button type="submit" class="btn-cancel" onclick="return confirm('Êtes-vous sûr de vouloir annuler votre inscription ?');">
                                     Annuler
                                 </button>
                             </form>
@@ -398,28 +399,21 @@
                         <div class="activity-top">
                             <div class="activity-icon {{ activity.type }}">
                                 {% if activity.type == 'physical' %}🏃
-                                {% elseif activity.type == 'cultural' %}🎭
-                                {% elseif activity.type == 'educational' %}📚
-                                {% else %}👥{% endif %}
+                                {% elseif activity.type == 'cognitive' %}🧠
+                                {% elseif activity.type == 'creative' %}🎨
+                                {% elseif activity.type == 'social' %}👥
+                                {% else %}📋{% endif %}
                             </div>
                             <div>
-                                <div class="activity-name">{{ activity.title }}</div>
-                                <div style="color: var(--act-text-muted); font-size: 0.95rem;">{{ activity.location ?? 'Location TBA' }}</div>
+                                <div class="activity-name">{{ activity.name }}</div>
+                                <div style="color: var(--act-text-muted); font-size: 0.95rem;">{{ activity.schedule }}</div>
                             </div>
                         </div>
-                        <p style="color: var(--act-text-muted); margin: 0.75rem 0; font-size: 0.95rem;">{{ activity.description }}</p>
                         <div class="activity-details">
-                            <span class="activity-info">📅 {{ activity.startTime|date('d/m/Y H:i') }}</span>
-                            <span class="activity-info">👥 {{ activity.participants }}{% if activity.maxParticipants %}/{{ activity.maxParticipants }}{% endif %}</span>
-                            <form method="POST" action="{{ path('app_enroll_activity', {id: activity.id}) }}" style="display: inline;">
+                            <span class="activity-info">👥 {{ activity.participants }} participants</span>
+                            <form method="POST" action="{{ path('app_enroll_activity', {'_locale': app.request.locale, 'id': activity.id}) }}" style="display: inline;">
                                 <input type="hidden" name="_token" value="{{ csrf_token('enroll_activity_' ~ activity.id) }}">
-                                <button type="submit" class="btn-join" {% if activity.maxParticipants and activity.participants >= activity.maxParticipants %}disabled{% endif %}>
-                                    {% if activity.maxParticipants and activity.participants >= activity.maxParticipants %}
-                                        Complet
-                                    {% else %}
-                                        S'inscrire
-                                    {% endif %}
-                                </button>
+                                <button type="submit" class="btn-join">S'inscrire</button>
                             </form>
                         </div>
                     </div>
