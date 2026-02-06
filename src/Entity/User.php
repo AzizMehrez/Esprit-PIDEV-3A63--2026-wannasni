@@ -67,6 +67,25 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'datetime', nullable: true)]
     private ?\DateTimeInterface $lastLoginAt = null;
 
+    #[ORM\Column(type: 'string', length: 100, nullable: true)]
+    private ?string $resetToken = null;
+
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    private ?\DateTimeInterface $resetTokenExpiresAt = null;
+
+    #[ORM\Column(type: 'string', length: 10, nullable: true)]
+    private ?string $verificationCode = null;
+
+    // Face ID fields for Python face_recognition integration
+    #[ORM\Column(type: 'json', nullable: true)]
+    private ?array $faceEncoding = null;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $faceImagePath = null;
+
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    private ?\DateTimeInterface $faceConsentAt = null;
+
     public function __construct()
     {
         $this->createdAt = new \DateTime();
@@ -273,6 +292,73 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setLastLoginAt(?\DateTimeInterface $lastLoginAt): self
     {
         $this->lastLoginAt = $lastLoginAt;
+        return $this;
+    }
+
+    public function getResetToken(): ?string
+    {
+        return $this->resetToken;
+    }
+
+    public function setResetToken(?string $resetToken): self
+    {
+        $this->resetToken = $resetToken;
+        return $this;
+    }
+
+    public function getResetTokenExpiresAt(): ?\DateTimeInterface
+    {
+        return $this->resetTokenExpiresAt;
+    }
+
+    public function setResetTokenExpiresAt(?\DateTimeInterface $resetTokenExpiresAt): self
+    {
+        $this->resetTokenExpiresAt = $resetTokenExpiresAt;
+        return $this;
+    }
+
+    public function getVerificationCode(): ?string
+    {
+        return $this->verificationCode;
+    }
+
+    public function setVerificationCode(?string $verificationCode): self
+    {
+        $this->verificationCode = $verificationCode;
+        return $this;
+    }
+
+    // Face ID getters and setters
+    public function getFaceEncoding(): ?array
+    {
+        return $this->faceEncoding;
+    }
+
+    public function setFaceEncoding(?array $faceEncoding): self
+    {
+        $this->faceEncoding = $faceEncoding;
+        return $this;
+    }
+
+    public function getFaceImagePath(): ?string
+    {
+        return $this->faceImagePath;
+    }
+
+    public function setFaceImagePath(?string $faceImagePath): self
+    {
+        $this->faceImagePath = $faceImagePath;
+        return $this;
+    }
+
+    public function getFaceConsentAt(): ?\DateTimeInterface
+    {
+        return $this->faceConsentAt;
+    }
+
+    public function setFaceConsentAt(?\DateTimeInterface $faceConsentAt): self
+    {
+        $this->faceConsentAt = $faceConsentAt;
         return $this;
     }
 

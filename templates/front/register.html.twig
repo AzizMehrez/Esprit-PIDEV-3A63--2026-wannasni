@@ -137,6 +137,7 @@
                            required>
                     <span class="error-message" id="emailError" style="display: none; color: #c53030; font-size: 0.875rem; margin-top: 0.25rem;"></span>
                 </div>
+
                 
                 <div class="form-group">
                     <label for="inputPhone" class="form-label">{{ 'auth.phone'|trans|default('Numéro de téléphone') }}</label>
@@ -147,6 +148,30 @@
                            placeholder="+216 XX XXX XXX"
                            autocomplete="tel">
                     <span class="error-message" id="phoneError" style="display: none; color: #c53030; font-size: 0.875rem; margin-top: 0.25rem;"></span>
+                </div>
+
+                {# Face ID Capture Section #}
+                <div class="form-group face-id-section">
+                    <label class="form-label">{{ 'auth.face_id'|trans|default('Reconnaissance faciale') }}</label>
+                    <p class="face-id-description" style="font-size: 0.875rem; color: #666; margin-bottom: 0.75rem;">
+                        {{ 'auth.face_id_desc'|trans|default('Capturez votre visage pour une connexion sécurisée.') }}
+                    </p>
+                    
+                    <div id="facePreviewContainer" style="display: none; margin-bottom: 1rem; text-align: center;">
+                        <img id="facePreview" src="" alt="Face preview" style="max-width: 150px; border-radius: 12px; border: 3px solid #4CAF50;">
+                        <p id="faceStatus" style="margin-top: 0.5rem; font-size: 0.875rem; color: #4CAF50;">✓ {{ 'auth.face_captured'|trans|default('Visage capturé') }}</p>
+                    </div>
+                    
+                    <button type="button" id="openCameraBtn" class="btn btn-outline" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                            <circle cx="12" cy="13" r="4"/>
+                        </svg>
+                        <span id="cameraButtonText" style="color: #5CB85C; font-weight: 500;">{{ 'auth.capture_face'|trans|default('Capturer mon visage') }}</span>
+                    </button>
+                    <input type="hidden" id="faceImageData" name="faceImageData" value="">
+                    <input type="hidden" id="faceVerified" name="faceVerified" value="0">
+                    <span class="error-message" id="faceError" style="display: none; color: #c53030; font-size: 0.875rem; margin-top: 0.25rem;"></span>
                 </div>
                 
                 <div class="form-group">
@@ -178,6 +203,15 @@
                         <a href="#terms" class="auth-link">{{ 'auth.terms'|trans|default("conditions d'utilisation") }}</a>
                     </span>
                 </label>
+
+                {# Face Data Consent Checkbox #}
+                <label class="form-checkbox face-consent-checkbox" id="faceConsentContainer" style="display: none;">
+                    <input type="checkbox" name="faceConsent" id="faceConsentCheckbox">
+                    <span class="checkbox-label">
+                        {{ 'auth.face_consent'|trans|default("J'autorise le traitement de mes données biométriques faciales pour l'authentification.") }}
+                    </span>
+                </label>
+                <span class="error-message" id="faceConsentError" style="display: none; color: #c53030; font-size: 0.875rem; margin-top: 0.25rem;"></span>
                 
                 <button type="submit" class="btn btn-primary btn-large btn-full">
                     {{ 'auth.create_account'|trans|default('Créer mon compte') }}
@@ -320,6 +354,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+
     // Add event listeners for real-time validation
     firstNameInput.addEventListener('input', validateFirstName);
     firstNameInput.addEventListener('blur', validateFirstName);
@@ -332,6 +367,231 @@ document.addEventListener('DOMContentLoaded', function() {
     
     phoneInput.addEventListener('input', validatePhone);
     phoneInput.addEventListener('blur', validatePhone);
+});
+</script>
+
+{# Camera Modal for Face ID #}
+<div id="cameraModal" class="face-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 9999; align-items: center; justify-content: center;">
+    <div class="face-modal-content" style="background: white; border-radius: 16px; padding: 2rem; max-width: 500px; width: 90%; text-align: center;">
+        <h3 style="margin-bottom: 1rem; color: #333;">{{ 'auth.capture_face_title'|trans|default('Capturez votre visage') }}</h3>
+        <p style="font-size: 0.875rem; color: #666; margin-bottom: 1rem;">
+            {{ 'auth.capture_face_instructions'|trans|default('Positionnez votre visage dans le cadre et cliquez sur Capturer.') }}
+        </p>
+        
+        <div id="cameraContainer" style="position: relative; margin-bottom: 1rem;">
+            <video id="cameraVideo" autoplay playsinline style="width: 100%; max-width: 400px; border-radius: 12px; transform: scaleX(-1);"></video>
+            <div id="faceOverlay" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 180px; height: 220px; border: 3px dashed #4CAF50; border-radius: 50%; pointer-events: none;"></div>
+        </div>
+        
+        <canvas id="cameraCanvas" style="display: none;"></canvas>
+        
+        <div id="capturePreview" style="display: none; margin-bottom: 1rem;">
+            <img id="capturedImage" src="" alt="Captured face" style="max-width: 200px; border-radius: 12px;">
+        </div>
+        
+        <div id="verificationStatus" style="display: none; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;"></div>
+        
+        <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+            <button type="button" id="captureBtn" class="btn btn-primary" style="min-width: 120px;">
+                {{ 'auth.capture'|trans|default('Capturer') }}
+            </button>
+            <button type="button" id="retakeBtn" class="btn btn-outline" style="display: none; min-width: 120px;">
+                {{ 'auth.retake'|trans|default('Reprendre') }}
+            </button>
+            <button type="button" id="confirmBtn" class="btn btn-success" style="display: none; min-width: 120px; background: #4CAF50; color: white;">
+                {{ 'auth.confirm'|trans|default('Confirmer') }}
+            </button>
+            <button type="button" id="closeCameraBtn" class="btn btn-outline" style="min-width: 120px;">
+                {{ 'auth.cancel'|trans|default('Annuler') }}
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Face ID Camera Elements
+    const openCameraBtn = document.getElementById('openCameraBtn');
+    const cameraModal = document.getElementById('cameraModal');
+    const cameraVideo = document.getElementById('cameraVideo');
+    const cameraCanvas = document.getElementById('cameraCanvas');
+    const captureBtn = document.getElementById('captureBtn');
+    const retakeBtn = document.getElementById('retakeBtn');
+    const confirmBtn = document.getElementById('confirmBtn');
+    const closeCameraBtn = document.getElementById('closeCameraBtn');
+    const capturePreview = document.getElementById('capturePreview');
+    const capturedImage = document.getElementById('capturedImage');
+    const cameraContainer = document.getElementById('cameraContainer');
+    const verificationStatus = document.getElementById('verificationStatus');
+    
+    // Form elements
+    const faceImageData = document.getElementById('faceImageData');
+    const faceVerified = document.getElementById('faceVerified');
+    const facePreviewContainer = document.getElementById('facePreviewContainer');
+    const facePreview = document.getElementById('facePreview');
+    const faceStatus = document.getElementById('faceStatus');
+    const faceError = document.getElementById('faceError');
+    const cameraButtonText = document.getElementById('cameraButtonText');
+    const faceConsentContainer = document.getElementById('faceConsentContainer');
+    const faceConsentCheckbox = document.getElementById('faceConsentCheckbox');
+    const faceConsentError = document.getElementById('faceConsentError');
+    
+    let stream = null;
+    let capturedImageData = null;
+    
+    // Open camera modal
+    openCameraBtn.addEventListener('click', async function() {
+        try {
+            stream = await navigator.mediaDevices.getUserMedia({ 
+                video: { 
+                    facingMode: 'user',
+                    width: { ideal: 640 },
+                    height: { ideal: 480 }
+                } 
+            });
+            cameraVideo.srcObject = stream;
+            cameraModal.style.display = 'flex';
+            resetCameraUI();
+        } catch (err) {
+            console.error('Camera access denied:', err);
+            faceError.textContent = '{{ 'auth.camera_error'|trans|default('Impossible d\'accéder à la caméra. Veuillez autoriser l\'accès.') }}';
+            faceError.style.display = 'block';
+        }
+    });
+    
+    // Capture photo
+    captureBtn.addEventListener('click', function() {
+        const context = cameraCanvas.getContext('2d');
+        cameraCanvas.width = cameraVideo.videoWidth;
+        cameraCanvas.height = cameraVideo.videoHeight;
+        
+        // Flip horizontally to match mirror view
+        context.translate(cameraCanvas.width, 0);
+        context.scale(-1, 1);
+        context.drawImage(cameraVideo, 0, 0);
+        
+        capturedImageData = cameraCanvas.toDataURL('image/jpeg', 0.8);
+        capturedImage.src = capturedImageData;
+        
+        // Show preview, hide video
+        cameraContainer.style.display = 'none';
+        capturePreview.style.display = 'block';
+        captureBtn.style.display = 'none';
+        retakeBtn.style.display = 'inline-block';
+        
+        // Verify face with server
+        verifyFace(capturedImageData);
+    });
+    
+    // Retake photo
+    retakeBtn.addEventListener('click', function() {
+        resetCameraUI();
+    });
+    
+    // Confirm and use photo
+    confirmBtn.addEventListener('click', function() {
+        faceImageData.value = capturedImageData;
+        faceVerified.value = '1';
+        facePreview.src = capturedImageData;
+        facePreviewContainer.style.display = 'block';
+        faceConsentContainer.style.display = 'block';
+        cameraButtonText.textContent = '{{ 'auth.retake_face'|trans|default('Reprendre la photo') }}';
+        faceError.style.display = 'none';
+        closeCamera();
+    });
+    
+    // Close camera modal
+    closeCameraBtn.addEventListener('click', function() {
+        closeCamera();
+    });
+    
+    // Close on backdrop click
+    cameraModal.addEventListener('click', function(e) {
+        if (e.target === cameraModal) {
+            closeCamera();
+        }
+    });
+    
+    function closeCamera() {
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+            stream = null;
+        }
+        cameraModal.style.display = 'none';
+    }
+    
+    function resetCameraUI() {
+        cameraContainer.style.display = 'block';
+        capturePreview.style.display = 'none';
+        captureBtn.style.display = 'inline-block';
+        retakeBtn.style.display = 'none';
+        confirmBtn.style.display = 'none';
+        verificationStatus.style.display = 'none';
+        capturedImageData = null;
+    }
+    
+    async function verifyFace(imageData) {
+        verificationStatus.style.display = 'block';
+        verificationStatus.style.background = '#e3f2fd';
+        verificationStatus.style.color = '#1976d2';
+        verificationStatus.innerHTML = '<span>⏳ {{ 'auth.verifying_face'|trans|default('Vérification du visage...') }}</span>';
+        
+        try {
+            const response = await fetch('/api/face/verify', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ image: imageData })
+            });
+            
+            const result = await response.json();
+            
+            if (!result.success) {
+                verificationStatus.style.background = '#ffebee';
+                verificationStatus.style.color = '#c62828';
+                verificationStatus.innerHTML = '❌ ' + (result.error || '{{ 'auth.face_verify_error'|trans|default('Erreur de vérification') }}');
+                return;
+            }
+            
+            if (result.code === 'FACE_EXISTS') {
+                // Face already registered
+                verificationStatus.style.background = '#fff3e0';
+                verificationStatus.style.color = '#e65100';
+                verificationStatus.innerHTML = '⚠️ {{ 'auth.face_already_registered'|trans|default('Ce visage est déjà enregistré pour') }} <strong>' + result.existingUser.name + '</strong>. {{ 'auth.use_login'|trans|default('Veuillez vous connecter.') }}';
+                confirmBtn.style.display = 'none';
+            } else if (result.code === 'FACE_OK') {
+                // Face is unique, allow confirmation
+                verificationStatus.style.background = '#e8f5e9';
+                verificationStatus.style.color = '#2e7d32';
+                verificationStatus.innerHTML = '✓ {{ 'auth.face_verified'|trans|default('Visage vérifié avec succès !') }}';
+                confirmBtn.style.display = 'inline-block';
+            } else if (result.code === 'NO_FACE') {
+                verificationStatus.style.background = '#ffebee';
+                verificationStatus.style.color = '#c62828';
+                verificationStatus.innerHTML = '❌ {{ 'auth.no_face_detected'|trans|default('Aucun visage détecté. Veuillez réessayer.') }}';
+            }
+        } catch (err) {
+            console.error('Face verification error:', err);
+            verificationStatus.style.background = '#ffebee';
+            verificationStatus.style.color = '#c62828';
+            verificationStatus.innerHTML = '❌ {{ 'auth.face_verify_network_error'|trans|default('Erreur réseau. Veuillez réessayer.') }}';
+        }
+    }
+    
+    // Form submission validation
+    const form = document.querySelector('.auth-form');
+    form.addEventListener('submit', function(e) {
+        // If face was captured, consent is required
+        if (faceImageData.value && !faceConsentCheckbox.checked) {
+            e.preventDefault();
+            faceConsentError.textContent = '{{ 'auth.face_consent_required'|trans|default('Vous devez accepter le traitement de vos données biométriques.') }}';
+            faceConsentError.style.display = 'block';
+            faceConsentContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            return false;
+        }
+        faceConsentError.style.display = 'none';
+    });
 });
 </script>
 {% endblock %}

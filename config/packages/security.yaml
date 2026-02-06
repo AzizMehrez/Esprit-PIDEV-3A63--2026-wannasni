@@ -42,9 +42,6 @@ security:
         - { path: ^/fr/register, roles: PUBLIC_ACCESS }
         - { path: ^/en/register, roles: PUBLIC_ACCESS }
         - { path: ^/ar/register, roles: PUBLIC_ACCESS }
-        - { path: ^/fr/admin-choice, roles: ROLE_USER }
-        - { path: ^/en/admin-choice, roles: ROLE_USER }
-        - { path: ^/ar/admin-choice, roles: ROLE_USER }
 
 when@test:
     security:

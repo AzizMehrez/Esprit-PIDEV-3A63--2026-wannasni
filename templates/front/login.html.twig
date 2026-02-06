@@ -91,6 +91,17 @@
             </form>
             
             {# Social Authentication Buttons #}
+            {# Face ID Login Button #}
+            <div class="face-id-section" style="margin-top: 1.25rem;">
+                <div class="auth-divider" style="margin-bottom: 1rem;">
+                    <span class="auth-divider-text">{{ 'auth.or'|trans|default('OU') }}</span>
+                </div>
+                <button type="button" id="faceLoginBtn" class="btn btn-secondary btn-large btn-full face-id-btn">
+                    <span class="btn-icon">👤</span>
+                    {{ 'auth.face_login'|trans|default('Se connecter avec Face ID') }}
+                </button>
+            </div>
+            
             <div class="auth-divider">
                 <span class="auth-divider-text">{{ 'auth.or_continue_with'|trans|default('Ou continuer avec') }}</span>
             </div>
@@ -133,4 +144,218 @@
         </div>
     </div>
 </div>
+
+<!-- Face ID Modal -->
+<div id="faceLoginModal" class="face-modal" style="display: none;">
+    <div class="face-modal-content">
+        <div class="face-modal-header">
+            <h3 class="face-modal-title">{{ 'auth.face_login_title'|trans|default('Connexion par Face ID') }}</h3>
+            <button type="button" class="face-modal-close" id="closeFaceLoginModal">&times;</button>
+        </div>
+        
+        <div class="face-modal-body">
+            <div class="face-camera-container">
+                <video id="faceLoginVideo" class="face-video" autoplay playsinline></video>
+                <canvas id="faceLoginCanvas" class="face-canvas" style="display: none;"></canvas>
+                
+                <div class="face-overlay">
+                    <div class="face-detection-area"></div>
+                </div>
+            </div>
+            
+            <div class="face-instructions">
+                <p id="faceLoginInstruction" class="instruction-text">
+                    {{ 'auth.face_instruction'|trans|default('Positionnez votre visage dans le cadre et cliquez sur Capturer') }}
+                </p>
+            </div>
+            
+            <div id="faceLoginPreview" class="face-preview" style="display: none;">
+                <img id="faceLoginPreviewImg" src="" alt="Preview">
+                <div class="face-preview-actions">
+                    <button type="button" id="retakeFaceLogin" class="btn btn-secondary">
+                        {{ 'action.retake'|trans|default('Reprendre') }}
+                    </button>
+                    <button type="button" id="confirmFaceLogin" class="btn btn-primary" disabled>
+                        {{ 'action.login'|trans|default('Se connecter') }}
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="face-modal-footer">
+            <button type="button" id="captureFaceLogin" class="btn btn-primary btn-large">
+                {{ 'action.capture_face'|trans|default('Capturer le visage') }}
+            </button>
+        </div>
+        
+        <div id="faceLoginStatus" class="face-status"></div>
+    </div>
+</div>
+
+<script>
+// Face ID Login functionality
+(function() {
+    let faceLoginStream = null;
+    const faceLoginModal = document.getElementById('faceLoginModal');
+    const faceLoginBtn = document.getElementById('faceLoginBtn');
+    const closeFaceLoginBtn = document.getElementById('closeFaceLoginModal');
+    const faceLoginVideo = document.getElementById('faceLoginVideo');
+    const faceLoginCanvas = document.getElementById('faceLoginCanvas');
+    const captureFaceLoginBtn = document.getElementById('captureFaceLogin');
+    const retakeFaceLoginBtn = document.getElementById('retakeFaceLogin');
+    const confirmFaceLoginBtn = document.getElementById('confirmFaceLogin');
+    const faceLoginPreview = document.getElementById('faceLoginPreview');
+    const faceLoginPreviewImg = document.getElementById('faceLoginPreviewImg');
+    const faceLoginInstructionEl = document.getElementById('faceLoginInstruction');
+    const faceLoginStatus = document.getElementById('faceLoginStatus');
+    
+    let capturedFaceData = null;
+    
+    // Open Face Login Modal
+    faceLoginBtn.addEventListener('click', function() {
+        faceLoginModal.style.display = 'flex';
+        startFaceLoginCamera();
+    });
+    
+    // Close Modal
+    function closeFaceLoginModal() {
+        faceLoginModal.style.display = 'none';
+        stopFaceLoginCamera();
+        resetFaceLoginModal();
+    }
+    
+    closeFaceLoginBtn.addEventListener('click', closeFaceLoginModal);
+    
+    // Close modal when clicking outside
+    faceLoginModal.addEventListener('click', function(e) {
+        if (e.target === faceLoginModal) {
+            closeFaceLoginModal();
+        }
+    });
+    
+    // Start camera for face login
+    async function startFaceLoginCamera() {
+        try {
+            faceLoginStream = await navigator.mediaDevices.getUserMedia({ 
+                video: { 
+                    facingMode: 'user',
+                    width: { ideal: 640 },
+                    height: { ideal: 480 }
+                } 
+            });
+            faceLoginVideo.srcObject = faceLoginStream;
+            faceLoginInstructionEl.textContent = "{{ 'auth.face_instruction'|trans|default('Positionnez votre visage dans le cadre et cliquez sur Capturer') }}";
+        } catch (error) {
+            console.error('Error accessing camera:', error);
+            showFaceLoginStatus('error', "{{ 'error.camera_access'|trans|default('Impossible d\'accéder à la caméra') }}");
+        }
+    }
+    
+    // Stop camera
+    function stopFaceLoginCamera() {
+        if (faceLoginStream) {
+            faceLoginStream.getTracks().forEach(track => track.stop());
+            faceLoginStream = null;
+        }
+    }
+    
+    // Capture face for login
+    captureFaceLoginBtn.addEventListener('click', function() {
+        if (!faceLoginStream) return;
+        
+        const context = faceLoginCanvas.getContext('2d');
+        faceLoginCanvas.width = faceLoginVideo.videoWidth;
+        faceLoginCanvas.height = faceLoginVideo.videoHeight;
+        
+        context.drawImage(faceLoginVideo, 0, 0);
+        
+        capturedFaceData = faceLoginCanvas.toDataURL('image/jpeg', 0.8);
+        faceLoginPreviewImg.src = capturedFaceData;
+        
+        // Show preview
+        faceLoginVideo.style.display = 'none';
+        captureFaceLoginBtn.style.display = 'none';
+        faceLoginPreview.style.display = 'block';
+        
+        // Enable confirm button
+        confirmFaceLoginBtn.disabled = false;
+        
+        faceLoginInstructionEl.textContent = "{{ 'auth.face_captured_login'|trans|default('Visage capturé ! Vous pouvez maintenant vous connecter.') }}";
+    });
+    
+    // Retake face photo
+    retakeFaceLoginBtn.addEventListener('click', function() {
+        faceLoginVideo.style.display = 'block';
+        captureFaceLoginBtn.style.display = 'block';
+        faceLoginPreview.style.display = 'none';
+        confirmFaceLoginBtn.disabled = true;
+        capturedFaceData = null;
+        faceLoginInstructionEl.textContent = "{{ 'auth.face_instruction'|trans|default('Positionnez votre visage dans le cadre et cliquez sur Capturer') }}";
+    });
+    
+    // Confirm face login
+    confirmFaceLoginBtn.addEventListener('click', function() {
+        if (!capturedFaceData) return;
+        
+        confirmFaceLoginBtn.disabled = true;
+        confirmFaceLoginBtn.textContent = "{{ 'action.processing'|trans|default('Traitement...') }}";
+        
+        // Send face data for authentication
+        fetch('/api/face/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                image: capturedFaceData
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showFaceLoginStatus('success', data.message || "{{ 'success.face_login'|trans|default('Connexion réussie !') }}");
+                // Redirect after short delay
+                setTimeout(() => {
+                    window.location.href = data.redirect || '/{{ app.request.locale ?? "fr" }}/dashboard';
+                }, 1500);
+            } else {
+                showFaceLoginStatus('error', data.error || "{{ 'error.face_not_recognized'|trans|default('Visage non reconnu') }}");
+                confirmFaceLoginBtn.disabled = false;
+                confirmFaceLoginBtn.textContent = "{{ 'action.login'|trans|default('Se connecter') }}";
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showFaceLoginStatus('error', "{{ 'error.network'|trans|default('Erreur de connexion') }}");
+            confirmFaceLoginBtn.disabled = false;
+            confirmFaceLoginBtn.textContent = "{{ 'action.login'|trans|default('Se connecter') }}";
+        });
+    });
+    
+    // Show status message
+    function showFaceLoginStatus(type, message) {
+        faceLoginStatus.className = `face-status face-status-${type}`;
+        faceLoginStatus.textContent = message;
+        faceLoginStatus.style.display = 'block';
+        
+        if (type === 'success') {
+            setTimeout(() => {
+                faceLoginStatus.style.display = 'none';
+            }, 3000);
+        }
+    }
+    
+    // Reset modal state
+    function resetFaceLoginModal() {
+        faceLoginVideo.style.display = 'block';
+        captureFaceLoginBtn.style.display = 'block';
+        faceLoginPreview.style.display = 'none';
+        confirmFaceLoginBtn.disabled = true;
+        confirmFaceLoginBtn.textContent = "{{ 'action.login'|trans|default('Se connecter') }}";
+        capturedFaceData = null;
+        faceLoginStatus.style.display = 'none';
+        faceLoginInstructionEl.textContent = "{{ 'auth.face_instruction'|trans|default('Positionnez votre visage dans le cadre et cliquez sur Capturer') }}";
+    }
+})();
+</script>
 {% endblock %}
