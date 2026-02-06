@@ -4,8 +4,11 @@
 {% block page_title %}Activity Details{% endblock %}
 
 {% block content %}
-<div style="margin-bottom: 1rem;">
-    <a href="{{ path('admin_activities_list') }}" class="btn btn-secondary">← Back to Activities</a>
+<div style="margin-bottom: 1rem; display: flex; gap: 0.5rem;">
+    <a href="{{ path('admin_activities') }}" class="btn btn-secondary">← Retour aux Activités</a>
+    <form method="post" action="{{ path('admin_activities_delete', {id: activity.id}) }}" style="display:inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette activité ?')">
+        <button type="submit" class="btn btn-danger">🗑️ Supprimer</button>
+    </form>
 </div>
 
 <div class="grid-2">

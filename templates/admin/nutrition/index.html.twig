@@ -49,10 +49,10 @@
         <button class="filter-btn">
             🔽 Filtrer
         </button>
-        <a href="#" class="export-btn pdf" onclick="alert('Export PDF - Fonctionnalité à implémenter')">
+        <a href="#" class="export-btn pdf" onclick="exportPDF(); return false;">
             📄 PDF
         </a>
-        <a href="#" class="export-btn excel" onclick="alert('Export Excel - Fonctionnalité à implémenter')">
+        <a href="#" class="export-btn excel" onclick="exportExcel(); return false;">
             📊 Excel
         </a>
     </div>
@@ -111,47 +111,105 @@
 </div>
 
 <script>
+/* ── Search ── */
 function filterTable() {
-    const input = document.getElementById('searchInput');
-    const filter = input.value.toLowerCase();
-    const table = document.getElementById('dataTable');
-    const rows = table.getElementsByTagName('tr');
-
-    for (let i = 1; i < rows.length; i++) {
-        const cells = rows[i].getElementsByTagName('td');
+    const filter = document.getElementById('searchInput').value.toLowerCase();
+    const tbody  = document.querySelector('#dataTable tbody');
+    const rows   = tbody.querySelectorAll('tr');
+    rows.forEach(row => {
+        const cells = row.querySelectorAll('td');
         let found = false;
-        for (let j = 0; j < cells.length - 1; j++) {
-            if (cells[j].textContent.toLowerCase().includes(filter)) {
-                found = true;
-                break;
-            }
-        }
-        rows[i].style.display = found ? '' : 'none';
-    }
+        cells.forEach((cell, idx) => {
+            if (idx < cells.length - 1 && cell.textContent.toLowerCase().includes(filter)) found = true;
+        });
+        row.style.display = found ? '' : 'none';
+    });
 }
 
+/* ── Sort ── */
 let sortDirection = {};
 function sortTable(columnIndex) {
-    const table = document.getElementById('dataTable');
-    const tbody = table.getElementsByTagName('tbody')[0];
-    const rows = Array.from(tbody.getElementsByTagName('tr'));
-    const headers = table.getElementsByTagName('th');
-    
+    const table   = document.getElementById('dataTable');
+    const tbody   = table.querySelector('tbody');
+    const rows    = Array.from(tbody.querySelectorAll('tr'));
+    const headers = table.querySelectorAll('thead th');
+
     sortDirection[columnIndex] = !sortDirection[columnIndex];
     const ascending = sortDirection[columnIndex];
-    
-    for (let i = 0; i < headers.length; i++) {
-        headers[i].classList.remove('asc', 'desc');
-    }
+    headers.forEach(h => h.classList.remove('asc', 'desc'));
     headers[columnIndex].classList.add(ascending ? 'asc' : 'desc');
-    
+
+    // Numeric: Calories (2) — Date: Début (3)
+    const numericCols = [2];
     rows.sort((a, b) => {
-        const aText = a.cells[columnIndex].textContent.trim().toLowerCase();
-        const bText = b.cells[columnIndex].textContent.trim().toLowerCase();
-        return ascending ? aText.localeCompare(bText) : bText.localeCompare(aText);
+        let aText = a.cells[columnIndex].textContent.trim();
+        let bText = b.cells[columnIndex].textContent.trim();
+        if (columnIndex === 3) {
+            const aDate = new Date(aText.split('/').reverse().join('-'));
+            const bDate = new Date(bText.split('/').reverse().join('-'));
+            return ascending ? aDate - bDate : bDate - aDate;
+        }
+        if (numericCols.includes(columnIndex)) {
+            const aNum = parseFloat(aText) || 0;
+            const bNum = parseFloat(bText) || 0;
+            return ascending ? aNum - bNum : bNum - aNum;
+        }
+        return ascending
+            ? aText.toLowerCase().localeCompare(bText.toLowerCase())
+            : bText.toLowerCase().localeCompare(aText.toLowerCase());
     });
-    
     rows.forEach(row => tbody.appendChild(row));
+}
+
+/* ── PDF Export ── */
+function exportPDF() {
+    const table = document.getElementById('dataTable');
+    const rows  = table.querySelectorAll('tbody tr');
+    const date  = new Date().toLocaleDateString('fr-FR');
+    let tableHTML = '';
+    rows.forEach(row => {
+        if (row.style.display === 'none') return;
+        const c = row.querySelectorAll('td');
+        tableHTML += '<tr>';
+        tableHTML += '<td>' + c[0].textContent.trim().replace(/\s+/g, ' ') + '</td>';
+        tableHTML += '<td>' + c[1].textContent.trim() + '</td>';
+        tableHTML += '<td>' + c[2].textContent.trim() + '</td>';
+        tableHTML += '<td>' + c[3].textContent.trim() + '</td>';
+        tableHTML += '<td>' + c[4].textContent.trim() + '</td>';
+        tableHTML += '</tr>';
+    });
+    const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Plans Nutrition - WANNASNI</title>
+<style>body{font-family:Arial,sans-serif;padding:30px;color:#1e293b}h1{text-align:center;margin-bottom:4px;color:#1e40af}.subtitle{text-align:center;color:#64748b;margin-bottom:24px;font-size:14px}table{width:100%;border-collapse:collapse;margin-top:10px}th{background:#1e40af;color:#fff;padding:10px 12px;text-align:left;font-size:13px}td{padding:9px 12px;border-bottom:1px solid #e2e8f0;font-size:13px}tr:nth-child(even){background:#f8fafc}.footer{text-align:center;margin-top:30px;font-size:11px;color:#94a3b8}</style></head><body>
+<h1>🥗 Plans de Nutrition</h1><p class="subtitle">WANNASNI – Généré le ${date}</p>
+<table><thead><tr><th>Plan</th><th>Patient</th><th>Calories/jour</th><th>Début</th><th>Statut</th></tr></thead><tbody>${tableHTML}</tbody></table>
+<p class="footer">WANNASNI – Système de Gestion – ${date}</p></body></html>`;
+    const win = window.open('', '_blank');
+    win.document.write(html); win.document.close(); win.focus();
+    setTimeout(() => win.print(), 400);
+}
+
+/* ── Excel / CSV Export ── */
+function exportExcel() {
+    const table = document.getElementById('dataTable');
+    const rows  = table.querySelectorAll('tbody tr');
+    const BOM   = '\uFEFF';
+    let csv     = BOM + 'Plan;Patient;Calories/jour;Début;Statut\n';
+    rows.forEach(row => {
+        if (row.style.display === 'none') return;
+        const c = row.querySelectorAll('td');
+        csv += [
+            c[0].textContent.trim().replace(/\s+/g, ' ').replace(/;/g, ','),
+            c[1].textContent.trim(),
+            c[2].textContent.trim(),
+            c[3].textContent.trim(),
+            c[4].textContent.trim()
+        ].join(';') + '\n';
+    });
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href = url; a.download = 'nutrition_wannasni_' + new Date().toISOString().slice(0,10) + '.csv';
+    a.click(); URL.revokeObjectURL(url);
 }
 </script>
 {% endblock %}

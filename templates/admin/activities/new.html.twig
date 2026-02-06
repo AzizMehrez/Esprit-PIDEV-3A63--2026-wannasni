@@ -1,52 +1,73 @@
 {% extends 'admin/base_admin.html.twig' %}
 
-{% block title %}New Activity - Admin WANNASNI{% endblock %}
-{% block page_title %}Create New Activity{% endblock %}
+{% block title %}Nouvelle Activité - Admin WANNASNI{% endblock %}
+{% block page_title %}Créer une Nouvelle Activité{% endblock %}
 
 {% block content %}
 <div style="margin-bottom: 1rem;">
-    <a href="{{ path('admin_activities_list') }}" class="btn btn-secondary">← Back to Activities</a>
+    <a href="{{ path('admin_activities') }}" class="btn btn-secondary">← Retour aux Activités</a>
 </div>
 
-<div class="card" style="max-width: 600px;">
+<div class="card" style="max-width: 700px;">
     <div class="card-header">
-        <h2 class="card-title">Create New Activity</h2>
+        <h2 class="card-title">Nouvelle Activité</h2>
     </div>
     
-    <form method="post">
+    <form method="post" action="{{ path('admin_activities_new') }}">
         <div class="form-group">
-            <label class="form-label">Activity Name *</label>
-            <input type="text" class="form-input" name="name" placeholder="e.g., Morning Walk" required>
+            <label class="form-label">Nom de l'activité *</label>
+            <input type="text" class="form-input" name="name" placeholder="ex: Marche matinale" required>
         </div>
         
         <div class="form-group">
             <label class="form-label">Description</label>
-            <textarea class="form-input" name="description" rows="3" placeholder="Describe the activity..."></textarea>
+            <textarea class="form-input" name="description" rows="3" placeholder="Décrivez l'activité..."></textarea>
         </div>
         
         <div class="form-group">
             <label class="form-label">Type</label>
             <select class="form-input" name="type">
-                <option value="physical">Physical</option>
+                <option value="physical">Physique</option>
                 <option value="cognitive">Cognitive</option>
-                <option value="creative">Creative</option>
-                <option value="social">Social</option>
+                <option value="creative">Créative</option>
+                <option value="social" selected>Sociale</option>
+                <option value="cultural">Culturelle</option>
+                <option value="educational">Éducative</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Lieu</label>
+            <input type="text" class="form-input" name="location" placeholder="ex: Salle de gym">
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="form-group">
+                <label class="form-label">Date/heure début</label>
+                <input type="datetime-local" class="form-input" name="start_time">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Date/heure fin</label>
+                <input type="datetime-local" class="form-input" name="end_time">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Max participants</label>
+            <input type="number" class="form-input" name="max_participants" value="20" min="1" max="200">
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Statut</label>
+            <select class="form-input" name="status">
+                <option value="active" selected>Active</option>
+                <option value="inactive">Inactive</option>
             </select>
         </div>
         
-        <div class="form-group">
-            <label class="form-label">Duration (minutes)</label>
-            <input type="number" class="form-input" name="duration" value="30" min="5" max="180">
-        </div>
-        
-        <div class="form-group">
-            <label class="form-label">Schedule</label>
-            <input type="text" class="form-input" name="schedule" placeholder="e.g., Daily 8:00 AM">
-        </div>
-        
         <div style="display: flex; gap: 1rem; margin-top: 2rem;">
-            <button type="submit" class="btn btn-primary">Create Activity</button>
-            <a href="{{ path('admin_activities_list') }}" class="btn btn-secondary">Cancel</a>
+            <button type="submit" class="btn btn-primary">Créer l'Activité</button>
+            <a href="{{ path('admin_activities') }}" class="btn btn-secondary">Annuler</a>
         </div>
     </form>
 </div>

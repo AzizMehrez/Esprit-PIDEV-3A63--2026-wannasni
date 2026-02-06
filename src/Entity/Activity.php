@@ -2,21 +2,49 @@
 
 namespace App\Entity;
 
+use App\Repository\ActivityRepository;
+use Doctrine\ORM\Mapping as ORM;
+
 /**
  * Activity Entity - Represents a social/physical activity or event
  */
+#[ORM\Entity(repositoryClass: ActivityRepository::class)]
+#[ORM\Table(name: 'activites')]
 class Activity
 {
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
     private ?int $id = null;
+
+    #[ORM\Column(type: 'string', length: 255)]
     private ?string $title = null;
+
+    #[ORM\Column(type: 'text', nullable: true)]
     private ?string $description = null;
+
+    #[ORM\Column(type: 'string', length: 50)]
     private ?string $type = 'social'; // social, physical, cultural, educational
+
+    #[ORM\Column(type: 'datetime', name: 'start_time')]
     private ?\DateTimeInterface $startTime = null;
+
+    #[ORM\Column(type: 'datetime', name: 'end_time', nullable: true)]
     private ?\DateTimeInterface $endTime = null;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $location = null;
+
+    #[ORM\Column(type: 'integer', name: 'max_participants', nullable: true)]
     private ?int $maxParticipants = null;
+
+    #[ORM\Column(type: 'integer', name: 'current_participants')]
     private int $currentParticipants = 0;
+
+    #[ORM\Column(type: 'integer', name: 'coach_id', nullable: true)]
     private ?int $coachId = null;
+
+    #[ORM\Column(type: 'boolean', name: 'is_active')]
     private bool $isActive = true;
 
     // Getters
