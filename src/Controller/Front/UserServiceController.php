@@ -42,7 +42,7 @@ class UserServiceController extends AbstractController
     }
 
     #[Route('/{_locale}/services/request', name: 'app_services_request', methods: ['GET', 'POST'])]
-    public function requestService(Request $request, EntityManagerInterface $em, NotificationService $notificationService): Response
+    public function requestService(Request $request, EntityManagerInterface $em, NotificationService $notificationService, \Symfony\Component\Validator\Validator\ValidatorInterface $validator): Response
     {
         $serviceTypes = [
             ['id' => 'transport', 'name' => 'Transport', 'icon' => '🚗', 'description' => 'Courses, rendez-vous'],
@@ -53,37 +53,56 @@ class UserServiceController extends AbstractController
 
         if ($request->isMethod('POST')) {
             $serviceRequest = new ServiceRequest();
-            
+
             // Informations de contact
             $serviceRequest->setSeniorTelephone($request->request->get('senior_telephone'));
             $serviceRequest->setSeniorEmail($request->request->get('senior_email'));
-            
+
             // Service
-            $serviceRequest->setTypeService($request->request->get('type_service'));
-            $serviceRequest->setDescription($request->request->get('description'));
-            
+            $serviceRequest->setTypeService($request->request->get('type_service') ?? ''); // Ensure string for validation
+            $serviceRequest->setDescription($request->request->get('description') ?? '');
+
             // Adresse
             $serviceRequest->setAdresse($request->request->get('adresse'));
             $serviceRequest->setVille($request->request->get('ville'));
             $serviceRequest->setCodePostal($request->request->get('code_postal'));
-            
+
             // Urgence et date
-            $serviceRequest->setNiveauUrgence($request->request->get('niveau_urgence'));
-            
+            $serviceRequest->setNiveauUrgence($request->request->get('niveau_urgence') ?? 'normale');
+
             if ($request->request->get('date_souhaitee')) {
-                $serviceRequest->setDateSouhaitee(
-                    new \DateTime($request->request->get('date_souhaitee'))
-                );
+                try {
+                    $serviceRequest->setDateSouhaitee(
+                        new \DateTime($request->request->get('date_souhaitee'))
+                    );
+                } catch (\Exception $e) {
+                    // Ignore, validation will catch if logic requires valid date, though type error might occur before
+                }
             }
-            
+
             // Budget (cast to float or null)
             $budgetMin = $request->request->get('budget_minimum');
             $budgetMax = $request->request->get('budget_maximum');
             $serviceRequest->setBudgetMinimum($budgetMin !== null && $budgetMin !== '' ? (float) $budgetMin : null);
             $serviceRequest->setBudgetMaximum($budgetMax !== null && $budgetMax !== '' ? (float) $budgetMax : null);
-            
+
             // Notification
             $serviceRequest->setNotifierProches($request->request->get('notifier_proches') === 'on');
+
+            // VALIDATION
+            $errors = $validator->validate($serviceRequest);
+
+            if (count($errors) > 0) {
+                foreach ($errors as $error) {
+                    $this->addFlash('error', $error->getMessage());
+                }
+                // Return to form with inputs
+                return $this->render('front/services/request.html.twig', [
+                    'service_types' => $serviceTypes,
+                    // Pass submitted values back to template
+                    'last_inputs' => $request->request->all()
+                ]);
+            }
 
             $em->persist($serviceRequest);
             $em->flush();
@@ -121,7 +140,7 @@ class UserServiceController extends AbstractController
 
     // ✅ NOUVELLE MÉTHODE : Modifier un service
     #[Route('/{_locale}/services/{id}/edit', name: 'app_services_edit', methods: ['GET', 'POST'], requirements: ['id' => '\d+'])]
-    public function edit(int $id, Request $request, EntityManagerInterface $em): Response
+    public function edit(int $id, Request $request, EntityManagerInterface $em, \Symfony\Component\Validator\Validator\ValidatorInterface $validator): Response
     {
         $service = $em->getRepository(ServiceRequest::class)->find($id);
 
@@ -140,20 +159,37 @@ class UserServiceController extends AbstractController
             // Mise à jour des informations
             $service->setSeniorTelephone($request->request->get('senior_telephone'));
             $service->setSeniorEmail($request->request->get('senior_email'));
-            $service->setTypeService($request->request->get('type_service'));
-            $service->setDescription($request->request->get('description'));
+            $service->setTypeService($request->request->get('type_service') ?? '');
+            $service->setDescription($request->request->get('description') ?? '');
             $service->setAdresse($request->request->get('adresse'));
             $service->setVille($request->request->get('ville'));
             $service->setCodePostal($request->request->get('code_postal'));
-            $service->setNiveauUrgence($request->request->get('niveau_urgence'));
-            
+            $service->setNiveauUrgence($request->request->get('niveau_urgence') ?? 'normale');
+
             if ($request->request->get('date_souhaitee')) {
-                $service->setDateSouhaitee(new \DateTime($request->request->get('date_souhaitee')));
+                try {
+                    $service->setDateSouhaitee(new \DateTime($request->request->get('date_souhaitee')));
+                } catch (\Exception $e) {
+                }
             }
-            
-            $service->setBudgetMinimum($request->request->get('budget_minimum'));
-            $service->setBudgetMaximum($request->request->get('budget_maximum'));
+
+            $budgetMin = $request->request->get('budget_minimum');
+            $budgetMax = $request->request->get('budget_maximum');
+            $service->setBudgetMinimum($budgetMin !== null && $budgetMin !== '' ? (float) $budgetMin : null);
+            $service->setBudgetMaximum($budgetMax !== null && $budgetMax !== '' ? (float) $budgetMax : null);
             $service->setNotifierProches($request->request->get('notifier_proches') === 'on');
+
+            // VALIDATION
+            $errors = $validator->validate($service);
+            if (count($errors) > 0) {
+                foreach ($errors as $error) {
+                    $this->addFlash('error', $error->getMessage());
+                }
+                return $this->render('front/services/edit.html.twig', [
+                    'service' => $service,
+                    'service_types' => $serviceTypes,
+                ]);
+            }
 
             $em->flush();
 
@@ -179,13 +215,13 @@ class UserServiceController extends AbstractController
 
         // Vérification CSRF (optionnel mais recommandé)
         $submittedToken = $request->request->get('_token');
-        if ($this->isCsrfTokenValid('delete'.$service->getId(), $submittedToken)) {
+        if ($this->isCsrfTokenValid('delete' . $service->getId(), $submittedToken)) {
             // Supprimer d'abord les interventions associées (pour éviter les violation de contrainte étrangère)
             $interventions = $em->getRepository(Intervention::class)->findBy(['serviceRequest' => $service]);
             foreach ($interventions as $intervention) {
                 $em->remove($intervention);
             }
-            
+
             // Puis supprimer le service
             $em->remove($service);
             $em->flush();

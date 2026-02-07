@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: DejaVu Sans, Arial, sans-serif;
+            font-size: 12px;
+            color: #1f2937;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 20px;
+        }
+        .header h1 {
+            color: #111827;
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+        .date {
+            color: #6b7280;
+            font-size: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th {
+            background-color: #f3f4f6;
+            text-align: left;
+            padding: 10px;
+            font-weight: bold;
+            border-bottom: 2px solid #e5e7eb;
+            color: #374151;
+        }
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #e5e7eb;
+            vertical-align: top;
+        }
+        tr:nth-child(even) {
+            background-color: #f9fafb;
+        }
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 9999px;
+            font-size: 10px;
+            font-weight: bold;
+        }
+        .badge-urgent { background-color: #fee2e2; color: #991b1b; }
+        .badge-normal { background-color: #d1fae5; color: #065f46; }
+        .badge-moyen { background-color: #fef3c7; color: #92400e; }
+        
+        .status-pending { color: #d97706; }
+        .status-assigned { color: #2563eb; }
+        .status-completed { color: #059669; }
+
+        .footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 10px;
+            color: #9ca3af;
+            border-top: 1px solid #e5e7eb;
+            padding-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Liste des Demandes de Services</h1>
+        <div class="date">Généré le {{ "now"|date("d/m/Y à H:i") }}</div>
+        {% if searchQuery %}
+            <div style="margin-top: 5px; font-style: italic;">Filtre de recherche : "{{ searchQuery }}"</div>
+        {% endif %}
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 15%;">Type</th>
+                <th style="width: 25%;">Senior</th>
+                <th style="width: 30%;">Description</th>
+                <th style="width: 15%;">Localisation</th>
+                <th style="width: 15%;">Statut/Urgence</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for service in services %}
+            <tr>
+                <td>
+                    <strong>{{ service.typeService|capitalize }}</strong><br>
+                    <span style="color: #6b7280; font-size: 10px;">#{{ service.id }}</span>
+                </td>
+                <td>
+                    {{ service.seniorEmail }}<br>
+                    {{ service.seniorTelephone }}
+                </td>
+                <td>
+                    {{ service.description|slice(0, 100) }}
+                </td>
+                <td>
+                    {{ service.ville }}<br>
+                    {{ service.codePostal }}
+                </td>
+                <td>
+                    <div style="margin-bottom: 5px;">
+                        {% if service.statut == 'pending' %}<span class="status-pending">En attente</span>
+                        {% elseif service.statut == 'assigned' %}<span class="status-assigned">Assigné</span>
+                        {% elseif service.statut == 'completed' %}<span class="status-completed">Terminé</span>
+                        {% else %}{{ service.statut }}{% endif %}
+                    </div>
+                    
+                    {% if service.niveauUrgence == 'urgent' %}
+                        <span class="badge badge-urgent">Urgent</span>
+                    {% elseif service.niveauUrgence == 'moyen' %}
+                        <span class="badge badge-moyen">Moyen</span>
+                    {% else %}
+                        <span class="badge badge-normal">Normal</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="5" style="text-align: center; padding: 20px;">Aucun service trouvé.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="footer">
+        WANNASNI - Plateforme de Services aux Seniors
+    </div>
+</body>
+</html>

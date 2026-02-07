@@ -17,7 +17,7 @@ class InterventionPdfGeneratorService
         $colorPending = '#6b7280';   // Gris
 
         // Déterminer la couleur selon le statut
-        $statusColor = match($intervention->getStatutActuel()) {
+        $statusColor = match ($intervention->getStatutActuel()) {
             'assignee' => $colorAssignee,
             'en_cours' => $colorEnCours,
             'terminee' => $colorTerminee,
@@ -41,7 +41,7 @@ class InterventionPdfGeneratorService
     private function generateHtml(Intervention $intervention, string $statusColor): string
     {
         $statut = $this->getStatutLabel($intervention->getStatutActuel());
-        $dateCreation = $intervention->getDateCreation() 
+        $dateCreation = $intervention->getDateCreation()
             ? $intervention->getDateCreation()->format('d/m/Y H:i')
             : 'Non défini';
         $dateDebut = $intervention->getDateDebut()
@@ -92,14 +92,16 @@ class InterventionPdfGeneratorService
             max-width: 800px;
             margin: 0 auto;
             padding: 20px;
+            border: 5px solid #1f2937; /* Cadre ajouté */
+            min-height: 90vh; /* Pour simuler une page complète encadrée */
         }
         .header {
-            background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
+            background-color: #1f2937; /* Solid color for better Dompdf support */
             color: white;
             padding: 30px;
-            border-radius: 8px;
             margin-bottom: 30px;
             text-align: center;
+            border-bottom: 2px solid #374151;
         }
         .header h1 {
             margin: 0;
@@ -107,9 +109,11 @@ class InterventionPdfGeneratorService
             font-weight: bold;
         }
         .header .subtitle {
-            font-size: 14px;
+            font-size: 16px;
             opacity: 0.9;
             margin-top: 5px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
         .status-badge {
             display: inline-block;
@@ -123,6 +127,7 @@ class InterventionPdfGeneratorService
         }
         .section {
             margin-bottom: 25px;
+            padding: 0 15px; /* Padding pour ne pas coller au cadre */
         }
         .section-title {
             background-color: #f3f4f6;
@@ -215,27 +220,12 @@ class InterventionPdfGeneratorService
             text-align: center;
             font-size: 12px;
             color: #6b7280;
+            padding-bottom: 10px;
         }
         .grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 15px;
-        }
-        .info-box {
-            background-color: #f3f4f6;
-            padding: 12px;
-            border-radius: 6px;
-            color: #000;
-        }
-        .info-box-title {
-            font-weight: bold;
-            font-size: 12px;
-            color: #1f2937;
-            margin-bottom: 5px;
-        }
-        .info-box-value {
-            font-size: 14px;
-            color: #000;
         }
     </style>
 </head>
@@ -243,8 +233,8 @@ class InterventionPdfGeneratorService
     <div class="container">
         <!-- Header -->
         <div class="header">
-            <h1>📋 INTERVENTION #{$intervention->getId()}</h1>
-            <div class="subtitle">Rapport d'Intervention - WANNASNI</div>
+            <h1>WANNASNI</h1>
+            <div class="subtitle">Contrat de Travail</div>
             <div class="status-badge">{$statut}</div>
         </div>
 
@@ -301,12 +291,12 @@ class InterventionPdfGeneratorService
                 </tr>
                 <tr>
                     <td>Tarif horaire:</td>
-                    <td>{$intervention->getTarifHoraire()} €/h</td>
+                    <td>{$intervention->getTarifHoraire()} DT/h</td>
                 </tr>
             </table>
             <div class="cost-highlight">
                 <div style="font-size: 12px; color: #7c2d12; margin-bottom: 5px;">COÛT TOTAL ESTIMÉ</div>
-                <div class="amount">{$coutTotal} €</div>
+                <div class="amount">{$coutTotal} DT</div>
             </div>
         </div>
 
@@ -354,7 +344,7 @@ HTML;
 
     private function getStatutLabel(string $statut): string
     {
-        return match($statut) {
+        return match ($statut) {
             'en_attente' => '⏳ En attente',
             'assignee' => '👤 Assignée',
             'en_cours' => '🔄 En cours',

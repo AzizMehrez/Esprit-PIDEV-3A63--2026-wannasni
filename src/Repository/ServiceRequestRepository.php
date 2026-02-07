@@ -55,4 +55,20 @@ class ServiceRequestRepository extends ServiceEntityRepository
             ->getQuery()
             ->getSingleScalarResult();
     }
+
+    /**
+     * Rechercher des services par mot-clé
+     */
+    public function findBySearch(string $query): array
+    {
+        return $this->createQueryBuilder('s')
+            ->where('s.typeService LIKE :query')
+            ->orWhere('s.description LIKE :query')
+            ->orWhere('s.seniorEmail LIKE :query')
+            ->orWhere('s.seniorTelephone LIKE :query')
+            ->setParameter('query', '%' . $query . '%')
+            ->orderBy('s.createdAt', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
 }

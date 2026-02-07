@@ -17,15 +17,60 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
+use Dompdf\Dompdf;
+use Dompdf\Options;
+
 #[Route("/admin/services")]
 class ServiceAdminController extends AbstractController
 {
-    #[Route("/", name: "admin_services")]
-    public function index(EntityManagerInterface $em): Response
+    #[Route("/export/pdf", name: "admin_services_export_pdf")]
+    public function exportPdf(Request $request, EntityManagerInterface $em): Response
     {
-        $services = $em->getRepository(ServiceRequest::class)->findAll();
+        $searchQuery = $request->query->get('q');
+        $repository = $em->getRepository(ServiceRequest::class);
+
+        if ($searchQuery) {
+            $services = $repository->findBySearch($searchQuery);
+        } else {
+            $services = $repository->findAll();
+        }
+
+        // Configure Dompdf
+        $pdfOptions = new Options();
+        $pdfOptions->set('defaultFont', 'Arial');
+        $pdfOptions->set('isRemoteEnabled', true);
+
+        $dompdf = new Dompdf($pdfOptions);
+
+        $html = $this->renderView('admin/services/pdf.html.twig', [
+            'services' => $services,
+            'searchQuery' => $searchQuery
+        ]);
+
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+
+        return new Response($dompdf->output(), 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="services_list.pdf"',
+        ]);
+    }
+    #[Route("/", name: "admin_services")]
+    public function index(Request $request, EntityManagerInterface $em): Response
+    {
+        $searchQuery = $request->query->get('q');
+        $repository = $em->getRepository(ServiceRequest::class);
+
+        if ($searchQuery) {
+            $services = $repository->findBySearch($searchQuery);
+        } else {
+            $services = $repository->findAll();
+        }
+
         return $this->render("admin/services/index.html.twig", [
             "services" => $services,
+            "searchQuery" => $searchQuery
         ]);
     }
 
@@ -57,8 +102,7 @@ class ServiceAdminController extends AbstractController
         EmailService $emailService,
         InterventionPdfGeneratorService $pdfGenerator,
         InterventionEmailService $interventionEmailService
-    ): Response
-    {
+    ): Response {
         $existingIntervention = $em->getRepository(Intervention::class)->findOneBy([
             "serviceRequest" => $service
         ]);

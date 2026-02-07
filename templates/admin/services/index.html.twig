@@ -61,13 +61,21 @@
 {# Toolbar #}
 <div class="admin-toolbar">
     <div class="toolbar-search">
-        <input type="text" id="searchInput" placeholder="Rechercher un service..." onkeyup="filterTable()">
+        <form method="get" action="{{ path('admin_services') }}">
+            <input type="text" name="q" value="{{ searchQuery }}" placeholder="Rechercher (type, email, desc)...">
+            <button type="submit" style="display: none;">Search</button>
+        </form>
     </div>
     <div class="toolbar-actions">
+        {% if searchQuery %}
+            <a href="{{ path('admin_services') }}" class="btn btn-secondary btn-sm" style="margin-right: 1rem;">
+                ❌ Effacer la recherche
+            </a>
+        {% endif %}
         <button class="filter-btn">
             🔽 Filtrer
         </button>
-        <a href="#" class="export-btn pdf" onclick="alert('Export PDF - Fonctionnalité à implémenter')">
+        <a href="{{ path('admin_services_export_pdf', {'q': searchQuery}) }}" class="export-btn pdf">
             📄 PDF
         </a>
         <a href="#" class="export-btn excel" onclick="alert('Export Excel - Fonctionnalité à implémenter')">
@@ -354,25 +362,6 @@
 </style>
 
 <script>
-function filterTable() {
-    const input = document.getElementById('searchInput');
-    const filter = input.value.toLowerCase();
-    const table = document.getElementById('dataTable');
-    const rows = table.getElementsByTagName('tr');
-
-    for (let i = 1; i < rows.length; i++) {
-        const cells = rows[i].getElementsByTagName('td');
-        let found = false;
-        for (let j = 0; j < cells.length - 1; j++) {
-            if (cells[j].textContent.toLowerCase().includes(filter)) {
-                found = true;
-                break;
-            }
-        }
-        rows[i].style.display = found ? '' : 'none';
-    }
-}
-
 let sortDirection = {};
 function sortTable(columnIndex) {
     const table = document.getElementById('dataTable');

@@ -262,7 +262,19 @@
                 </h1>
             </div>
             <div class="form-body">
-                <form method="post">
+                {% for message in app.flashes('success') %}
+                    <div class="alert alert-success">
+                        ✅ {{ message }}
+                    </div>
+                {% endfor %}
+
+                {% for message in app.flashes('error') %}
+                    <div class="alert alert-danger">
+                        ❌ {{ message }}
+                    </div>
+                {% endfor %}
+
+                <form method="post" novalidate>
                     
                     <!-- Section 1: Informations de Contact -->
                     <div class="form-section">
@@ -270,11 +282,11 @@
                         <div class="form-row">
                             <div class="form-group">
                                 <label class="form-label">Téléphone</label>
-                                <input type="tel" class="form-input" name="senior_telephone" placeholder="+216 XX XXX XXX">
+                                <input type="tel" class="form-input" name="senior_telephone" placeholder="+216 XX XXX XXX" value="{{ last_inputs.senior_telephone|default('') }}">
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Email</label>
-                                <input type="email" class="form-input" name="senior_email" placeholder="votre@email.com">
+                                <input type="email" class="form-input" name="senior_email" placeholder="votre@email.com" value="{{ last_inputs.senior_email|default('') }}">
                             </div>
                         </div>
                     </div>
@@ -286,8 +298,8 @@
                             <label class="form-label"><span class="required">*</span> Choisissez un service</label>
                             <div class="service-types">
                                 {% for type in service_types %}
-                                <label class="service-type-option">
-                                    <input type="radio" name="type_service" value="{{ type.id }}" required>
+                                <label class="service-type-option {{ last_inputs.type_service|default('') == type.id ? 'selected' : '' }}">
+                                    <input type="radio" name="type_service" value="{{ type.id }}" {{ last_inputs.type_service|default('') == type.id ? 'checked' : '' }}>
                                     <span class="type-icon">{{ type.icon }}</span>
                                     <div class="type-name">{{ type.name }}</div>
                                     <div class="type-desc">{{ type.description }}</div>
@@ -298,7 +310,7 @@
 
                         <div class="form-group">
                             <label class="form-label"><span class="required">*</span> Description de votre besoin</label>
-                            <textarea class="form-input" name="description" rows="4" placeholder="Décrivez votre demande en détail..." required></textarea>
+                            <textarea class="form-input" name="description" rows="4" placeholder="Décrivez votre demande en détail...">{{ last_inputs.description|default('') }}</textarea>
                         </div>
                     </div>
 
@@ -307,16 +319,16 @@
                         <h2 class="section-title">📍 Adresse du Service</h2>
                         <div class="form-group">
                             <label class="form-label">Adresse complète</label>
-                            <input type="text" class="form-input" name="adresse" placeholder="12 Rue de la République">
+                            <input type="text" class="form-input" name="adresse" placeholder="12 Rue de la République" value="{{ last_inputs.adresse|default('') }}">
                         </div>
                         <div class="form-row">
                             <div class="form-group">
                                 <label class="form-label">Ville</label>
-                                <input type="text" class="form-input" name="ville" placeholder="Tunis">
+                                <input type="text" class="form-input" name="ville" placeholder="Tunis" value="{{ last_inputs.ville|default('') }}">
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Code Postal</label>
-                                <input type="text" class="form-input" name="code_postal" placeholder="1000">
+                                <input type="text" class="form-input" name="code_postal" placeholder="1000" value="{{ last_inputs.code_postal|default('') }}">
                             </div>
                         </div>
                     </div>
@@ -327,16 +339,16 @@
                         <div class="form-group">
                             <label class="form-label">⚡ Niveau d'urgence</label>
                             <div class="urgence-options">
-                                <label class="urgence-option">
-                                    <input type="radio" name="niveau_urgence" value="normale">
+                                <label class="urgence-option {{ last_inputs.niveau_urgence|default('normale') == 'normale' ? 'selected' : '' }}">
+                                    <input type="radio" name="niveau_urgence" value="normale" {{ last_inputs.niveau_urgence|default('normale') == 'normale' ? 'checked' : '' }}>
                                     🟢 Normale
                                 </label>
-                                <label class="urgence-option selected">
-                                    <input type="radio" name="niveau_urgence" value="moyenne" checked>
+                                <label class="urgence-option {{ last_inputs.niveau_urgence|default('') == 'moyenne' ? 'selected' : '' }}">
+                                    <input type="radio" name="niveau_urgence" value="moyenne" {{ last_inputs.niveau_urgence|default('') == 'moyenne' ? 'checked' : '' }}>
                                     🟡 Moyenne
                                 </label>
-                                <label class="urgence-option">
-                                    <input type="radio" name="niveau_urgence" value="urgente">
+                                <label class="urgence-option {{ last_inputs.niveau_urgence|default('') == 'urgente' ? 'selected' : '' }}">
+                                    <input type="radio" name="niveau_urgence" value="urgente" {{ last_inputs.niveau_urgence|default('') == 'urgente' ? 'checked' : '' }}>
                                     🔴 Urgente
                                 </label>
                             </div>
@@ -344,7 +356,7 @@
 
                         <div class="form-group">
                             <label class="form-label">📅 Date souhaitée</label>
-                            <input type="date" class="form-input" name="date_souhaitee">
+                            <input type="date" class="form-input" name="date_souhaitee" value="{{ last_inputs.date_souhaitee|default('') }}">
                         </div>
                     </div>
 
@@ -354,11 +366,11 @@
                         <div class="form-row">
                             <div class="form-group">
                                 <label class="form-label">Budget Minimum (TND)</label>
-                                <input type="number" step="0.01" class="form-input" name="budget_minimum" placeholder="50.00">
+                                <input type="number" step="0.01" class="form-input" name="budget_minimum" placeholder="50.00" value="{{ last_inputs.budget_minimum|default('') }}">
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Budget Maximum (TND)</label>
-                                <input type="number" step="0.01" class="form-input" name="budget_maximum" placeholder="150.00">
+                                <input type="number" step="0.01" class="form-input" name="budget_maximum" placeholder="150.00" value="{{ last_inputs.budget_maximum|default('') }}">
                             </div>
                         </div>
                     </div>
@@ -368,7 +380,7 @@
                         <h2 class="section-title">🔔 Notifications</h2>
                         <div class="form-group">
                             <label class="checkbox-wrapper">
-                                <input type="checkbox" name="notifier_proches">
+                                <input type="checkbox" name="notifier_proches" {{ last_inputs.notifier_proches|default('') == 'on' ? 'checked' : '' }}>
                                 <span class="checkbox-label">Notifier mes proches de cette demande</span>
                             </label>
                         </div>

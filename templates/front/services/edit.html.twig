@@ -316,7 +316,19 @@
                 </h1>
             </div>
             <div class="form-body">
-                <form method="post">
+                {% for message in app.flashes('success') %}
+                    <div class="alert alert-success">
+                        ✅ {{ message }}
+                    </div>
+                {% endfor %}
+
+                {% for message in app.flashes('error') %}
+                    <div class="alert alert-danger">
+                        ❌ {{ message }}
+                    </div>
+                {% endfor %}
+
+                <form method="post" novalidate>
                     
                     <!-- Section 1: Informations de Contact -->
                     <div class="form-section">
