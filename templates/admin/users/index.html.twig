@@ -8,19 +8,70 @@
 {% endblock %}
 
 {% block content %}
+{# Statistics Cards #}
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon blue">👥</div>
+        <div class="stat-info">
+            <div class="stat-value">{{ users|length }}</div>
+            <div class="stat-label">Total Utilisateurs</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon green">✓</div>
+        <div class="stat-info">
+            <div class="stat-value">{{ users|filter(u => u.status == 'active')|length }}</div>
+            <div class="stat-label">Actifs</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon orange">⏸</div>
+        <div class="stat-info">
+            <div class="stat-value">{{ users|filter(u => u.status != 'active')|length }}</div>
+            <div class="stat-label">Inactifs</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon purple">🛡️</div>
+        <div class="stat-info">
+            <div class="stat-value">{{ users|filter(u => 'ROLE_ADMIN' in u.roles)|length }}</div>
+            <div class="stat-label">Admins</div>
+        </div>
+    </div>
+</div>
+
+{# Toolbar #}
+<div class="admin-toolbar">
+    <div class="toolbar-search">
+        <input type="text" id="searchInput" placeholder="Rechercher un utilisateur..." onkeyup="filterTable()">
+    </div>
+    <div class="toolbar-actions">
+        <button class="filter-btn">
+            🔽 Filtrer
+        </button>
+        <a href="#" class="export-btn pdf" onclick="alert('Export PDF - Fonctionnalité à implémenter')">
+            📄 PDF
+        </a>
+        <a href="#" class="export-btn excel" onclick="alert('Export Excel - Fonctionnalité à implémenter')">
+            📊 Excel
+        </a>
+    </div>
+</div>
+
+{# Table #}
 <div class="admin-card">
     <div class="card-header">
         <h2 class="card-title">👥 Liste des Utilisateurs</h2>
         <span class="badge badge-info">{{ users|length }} utilisateurs</span>
     </div>
-    <table class="admin-table">
+    <table class="admin-table" id="dataTable">
         <thead>
             <tr>
-                <th>Utilisateur</th>
-                <th>Email</th>
-                <th>Rôle</th>
-                <th>Statut</th>
-                <th>Inscrit le</th>
+                <th class="sortable" onclick="sortTable(0)">Utilisateur</th>
+                <th class="sortable" onclick="sortTable(1)">Email</th>
+                <th class="sortable" onclick="sortTable(2)">Rôle</th>
+                <th class="sortable" onclick="sortTable(3)">Statut</th>
+                <th class="sortable" onclick="sortTable(4)">Inscrit le</th>
                 <th style="width: 120px;">Actions</th>
             </tr>
         </thead>
@@ -65,4 +116,51 @@
         </tbody>
     </table>
 </div>
+
+<script>
+function filterTable() {
+    const input = document.getElementById('searchInput');
+    const filter = input.value.toLowerCase();
+    const table = document.getElementById('dataTable');
+    const rows = table.getElementsByTagName('tr');
+
+    for (let i = 1; i < rows.length; i++) {
+        const cells = rows[i].getElementsByTagName('td');
+        let found = false;
+        for (let j = 0; j < cells.length - 1; j++) {
+            if (cells[j].textContent.toLowerCase().includes(filter)) {
+                found = true;
+                break;
+            }
+        }
+        rows[i].style.display = found ? '' : 'none';
+    }
+}
+
+let sortDirection = {};
+function sortTable(columnIndex) {
+    const table = document.getElementById('dataTable');
+    const tbody = table.getElementsByTagName('tbody')[0];
+    const rows = Array.from(tbody.getElementsByTagName('tr'));
+    const headers = table.getElementsByTagName('th');
+    
+    // Toggle direction
+    sortDirection[columnIndex] = !sortDirection[columnIndex];
+    const ascending = sortDirection[columnIndex];
+    
+    // Update header classes
+    for (let i = 0; i < headers.length; i++) {
+        headers[i].classList.remove('asc', 'desc');
+    }
+    headers[columnIndex].classList.add(ascending ? 'asc' : 'desc');
+    
+    rows.sort((a, b) => {
+        const aText = a.cells[columnIndex].textContent.trim().toLowerCase();
+        const bText = b.cells[columnIndex].textContent.trim().toLowerCase();
+        return ascending ? aText.localeCompare(bText) : bText.localeCompare(aText);
+    });
+    
+    rows.forEach(row => tbody.appendChild(row));
+}
+</script>
 {% endblock %}

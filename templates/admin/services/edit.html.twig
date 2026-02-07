@@ -1,62 +1,119 @@
 {% extends 'admin/base_admin.html.twig' %}
 
-{% block title %}Edit Service Request - Admin WANNASNI{% endblock %}
-{% block page_title %}Process Service Request{% endblock %}
+{% block title %}Modifier Service - Admin WANNASNI{% endblock %}
+{% block page_title %}Modifier une Demande{% endblock %}
+
+{% block header_actions %}
+<a href="{{ path('admin_services') }}" class="btn btn-secondary">← Retour</a>
+{% endblock %}
 
 {% block content %}
-<div style="margin-bottom: 1rem;">
-    <a href="{{ path('admin_services_list') }}" class="btn btn-secondary">← Back to Services</a>
-</div>
 
-<div class="card" style="max-width: 600px;">
+<div class="admin-card">
     <div class="card-header">
-        <h2 class="card-title">Process Request #{{ service.id }}</h2>
+        <h2 class="card-title">✏️ Modifier la Demande #{{ service.id }}</h2>
+        <span class="badge badge-info">ℹ️ Statut actuel: {{ service.statut|capitalize }}</span>
     </div>
-    
-    <div style="padding: 1rem; background: var(--bg-tertiary); border-radius: var(--radius-md); margin-bottom: 1.5rem;">
-        <div style="font-weight: 600;">{{ service.requester }}</div>
-        <div style="color: var(--text-secondary); font-size: 0.875rem;">{{ service.type }} - {{ service.description }}</div>
-    </div>
-    
-    <form method="post">
-        <div class="form-group">
-            <label class="form-label">Status</label>
-            <select class="form-input" name="status">
-                <option value="pending" {{ service.status == 'pending' ? 'selected' : '' }}>Pending</option>
-                <option value="in_progress" {{ service.status == 'in_progress' ? 'selected' : '' }}>In Progress</option>
-                <option value="completed" {{ service.status == 'completed' ? 'selected' : '' }}>Completed</option>
-                <option value="cancelled" {{ service.status == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
-            </select>
+
+    <form method="post" action="{{ path('admin_services_edit', {id: service.id}) }}" class="admin-form">
+        <div class="form-grid">
+
+            {# =================== Infos Service =================== #}
+            <div class="form-section">
+                <h3>🛎️ Détails de la Demande</h3>
+
+                <div class="form-group">
+                    <label for="typeService">Type de Service</label>
+                    <input type="text" id="typeService" name="typeService" class="form-control" value="{{ service.typeService }}">
+                </div>
+
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <textarea id="description" name="description" class="form-control" rows="3">{{ service.description }}</textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="niveauUrgence">Niveau d'Urgence</label>
+                    <select id="niveauUrgence" name="niveauUrgence" class="form-control">
+                        <option value="normale" {{ service.niveauUrgence == 'normale' ? 'selected' : '' }}>Normale</option>
+                        <option value="moyen" {{ service.niveauUrgence == 'moyen' ? 'selected' : '' }}>Moyen</option>
+                        <option value="urgent" {{ service.niveauUrgence == 'urgent' ? 'selected' : '' }}>Urgent</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="dateSouhaitee">Date Souhaitée</label>
+                    <input type="date" id="dateSouhaitee" name="dateSouhaitee" class="form-control"
+                           value="{{ service.dateSouhaitee ? service.dateSouhaitee|date('Y-m-d') : '' }}">
+                </div>
+
+                <div class="form-group">
+                    <label for="notesAdmin">Notes Administrateur</label>
+                    <textarea id="notesAdmin" name="notesAdmin" class="form-control" rows="2">{{ service.notesAdmin }}</textarea>
+                </div>
+            </div>
+
+            {# =================== Infos Senior =================== #}
+            <div class="form-section">
+                <h3>👤 Informations du Senior</h3>
+
+                <div class="form-group">
+                    <label for="seniorEmail">Email</label>
+                    <input type="email" id="seniorEmail" name="seniorEmail" class="form-control" value="{{ service.seniorEmail }}">
+                </div>
+
+                <div class="form-group">
+                    <label for="seniorTelephone">Téléphone</label>
+                    <input type="text" id="seniorTelephone" name="seniorTelephone" class="form-control" value="{{ service.seniorTelephone }}">
+                </div>
+
+                <div class="form-group">
+                    <label for="adresse">Adresse</label>
+                    <input type="text" id="adresse" name="adresse" class="form-control" value="{{ service.adresse }}">
+                </div>
+
+                <div class="form-group">
+                    <label for="ville">Ville</label>
+                    <input type="text" id="ville" name="ville" class="form-control" value="{{ service.ville }}">
+                </div>
+
+                <div class="form-group">
+                    <label for="codePostal">Code Postal</label>
+                    <input type="text" id="codePostal" name="codePostal" class="form-control" value="{{ service.codePostal }}">
+                </div>
+            </div>
+
+            {# =================== Assignation Technicien =================== #}
+            <div class="form-section highlight-section" style="grid-column: 1 / -1;">
+                <h3>🎯 Assignation Technicien</h3>
+
+                <div class="form-group">
+                    <label for="technicienId">Technicien</label>
+                    <select name="technicienId" id="technicienId" class="form-control">
+                        <option value="">-- Choisir un technicien --</option>
+                        {% for tech in techniciens %}
+                            <option value="{{ tech.id }}" {{ service.technicienId == tech.id ? 'selected' : '' }}>
+                                {{ tech.fullName }} - {{ tech.specialite }}
+                                {% if tech.disponible %} ✅ Disponible {% else %} ❌ Indisponible {% endif %}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="dateAssignation">Date Assignation</label>
+                    <input type="date" id="dateAssignation" name="dateAssignation" class="form-control"
+                           value="{{ service.dateAssignation ? service.dateAssignation|date('Y-m-d') : '' }}">
+                </div>
+            </div>
+
         </div>
-        
-        <div class="form-group">
-            <label class="form-label">Priority</label>
-            <select class="form-input" name="priority">
-                <option value="low" {{ service.priority == 'low' ? 'selected' : '' }}>Low</option>
-                <option value="medium" {{ service.priority == 'medium' ? 'selected' : '' }}>Medium</option>
-                <option value="high" {{ service.priority == 'high' ? 'selected' : '' }}>High</option>
-            </select>
-        </div>
-        
-        <div class="form-group">
-            <label class="form-label">Assigned To</label>
-            <select class="form-input" name="assigned_to">
-                <option value="">-- Select Staff --</option>
-                <option value="1">Marie L. (Caregiver)</option>
-                <option value="2">Jacques M. (Driver)</option>
-                <option value="3">Sophie T. (Nurse)</option>
-            </select>
-        </div>
-        
-        <div class="form-group">
-            <label class="form-label">Internal Notes</label>
-            <textarea class="form-input" name="notes" rows="3" placeholder="Add internal notes about this request..."></textarea>
-        </div>
-        
-        <div style="display: flex; gap: 1rem; margin-top: 2rem;">
-            <button type="submit" class="btn btn-primary">Update Request</button>
-            <a href="{{ path('admin_services_show', {id: service.id}) }}" class="btn btn-secondary">Cancel</a>
+
+        <div class="form-actions">
+            <a href="{{ path('admin_services') }}" class="btn btn-secondary">Annuler</a>
+            <button type="submit" class="btn btn-success">💾 Sauvegarder</button>
         </div>
     </form>
 </div>
+
 {% endblock %}

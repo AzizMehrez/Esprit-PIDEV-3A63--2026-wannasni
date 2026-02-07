@@ -1,89 +1,266 @@
 {% extends 'admin/base_admin.html.twig' %}
 
-{% block title %}Service Request #{{ service.id }} - Admin WANNASNI{% endblock %}
-{% block page_title %}Service Request Details{% endblock %}
+{% block title %}Détails Service - Admin WANNASNI{% endblock %}
+{% block page_title %}Détails de la Demande de Service{% endblock %}
+
+{% block header_actions %}
+<a href="{{ path('admin_services') }}" class="btn btn-secondary">← Retour à la liste</a>
+{% endblock %}
 
 {% block content %}
-<div style="margin-bottom: 1rem;">
-    <a href="{{ path('admin_services_list') }}" class="btn btn-secondary">← Back to Services</a>
+<div class="admin-card">
+    <div class="card-header">
+        <h2 class="card-title">📋 Demande #{{ service.id }}</h2>
+        <div>
+            {% if service.statut == 'pending' %}
+                <span class="badge badge-warning">⏳ En attente</span>
+            {% elseif service.statut == 'in_progress' %}
+                <span class="badge badge-info">🔄 En cours</span>
+            {% elseif service.statut == 'completed' %}
+                <span class="badge badge-success">✅ Terminé</span>
+            {% elseif service.statut == 'assigned' %}
+                <span class="badge badge-info">👤 Assigné</span>
+            {% else %}
+                <span class="badge badge-danger">❌ Annulé</span>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="details-grid">
+        {# Informations du Service #}
+        <div class="detail-section">
+            <h3>🛎️ Informations du Service</h3>
+            
+            <div class="detail-item">
+                <span class="detail-label">Type de Service</span>
+                <span class="detail-value">
+                    {% if 'transport' in service.typeService|lower %}🚗
+                    {% elseif 'menage' in service.typeService|lower or 'ménage' in service.typeService|lower %}🏠
+                    {% elseif 'course' in service.typeService|lower %}🛒
+                    {% elseif 'accompagnement' in service.typeService|lower %}🤝
+                    {% else %}🛎️{% endif %}
+                    {{ service.typeService }}
+                </span>
+            </div>
+
+            <div class="detail-item">
+                <span class="detail-label">Description</span>
+                <span class="detail-value">{{ service.description }}</span>
+            </div>
+
+            <div class="detail-item">
+                <span class="detail-label">Niveau d'Urgence</span>
+                <span class="detail-value">
+                    {% if service.niveauUrgence == 'urgent' %}
+                        <span class="badge badge-danger">🔴 Urgent</span>
+                    {% elseif service.niveauUrgence == 'moyen' %}
+                        <span class="badge badge-warning">🟡 Moyen</span>
+                    {% else %}
+                        <span class="badge badge-success">🟢 Normal</span>
+                    {% endif %}
+                </span>
+            </div>
+
+            <div class="detail-item">
+                <span class="detail-label">Date Souhaitée</span>
+                <span class="detail-value">{{ service.dateSouhaitee ? service.dateSouhaitee|date('d/m/Y à H:i') : 'Non précisé' }}</span>
+            </div>
+
+            <div class="detail-item">
+                <span class="detail-label">Créé le</span>
+                <span class="detail-value">{{ service.createdAt|date('d/m/Y à H:i') }}</span>
+            </div>
+        </div>
+
+        {# Informations du Senior #}
+        <div class="detail-section">
+            <h3>👤 Informations du Senior</h3>
+            
+            <div class="detail-item">
+                <span class="detail-label">Email</span>
+                <span class="detail-value">
+                    {% if service.seniorEmail %}
+                        <a href="mailto:{{ service.seniorEmail }}">{{ service.seniorEmail }}</a>
+                    {% else %}
+                        <em>Non renseigné</em>
+                    {% endif %}
+                </span>
+            </div>
+
+            <div class="detail-item">
+                <span class="detail-label">Téléphone</span>
+                <span class="detail-value">
+                    {% if service.seniorTelephone %}
+                        <a href="tel:{{ service.seniorTelephone }}">{{ service.seniorTelephone }}</a>
+                    {% else %}
+                        <em>Non renseigné</em>
+                    {% endif %}
+                </span>
+            </div>
+
+            <div class="detail-item">
+                <span class="detail-label">Adresse</span>
+                <span class="detail-value">{{ service.adresse ?: 'Non renseignée' }}</span>
+            </div>
+
+            <div class="detail-item">
+                <span class="detail-label">Ville</span>
+                <span class="detail-value">{{ service.ville ?: 'Non renseignée' }}</span>
+            </div>
+
+            <div class="detail-item">
+                <span class="detail-label">Code Postal</span>
+                <span class="detail-value">{{ service.codePostal ?: 'Non renseigné' }}</span>
+            </div>
+
+            <div class="detail-item">
+                <span class="detail-label">Notifier les Proches</span>
+                <span class="detail-value">
+                    {% if service.notifierProches %}
+                        <span class="badge badge-success">✅ Oui</span>
+                    {% else %}
+                        <span class="badge badge-secondary">❌ Non</span>
+                    {% endif %}
+                </span>
+            </div>
+        </div>
+
+        {# Budget #}
+        <div class="detail-section">
+            <h3>💰 Budget</h3>
+            
+            <div class="detail-item">
+                <span class="detail-label">Budget Minimum</span>
+                <span class="detail-value">
+                    {% if service.budgetMinimum %}
+                        {{ service.budgetMinimum }} €
+                    {% else %}
+                        <em>Non précisé</em>
+                    {% endif %}
+                </span>
+            </div>
+
+            <div class="detail-item">
+                <span class="detail-label">Budget Maximum</span>
+                <span class="detail-value">
+                    {% if service.budgetMaximum %}
+                        {{ service.budgetMaximum }} €
+                    {% else %}
+                        <em>Non précisé</em>
+                    {% endif %}
+                </span>
+            </div>
+
+            {% if service.budgetMinimum and service.budgetMaximum %}
+            <div class="detail-item">
+                <span class="detail-label">Fourchette</span>
+                <span class="detail-value">{{ service.budgetMinimum }} € - {{ service.budgetMaximum }} €</span>
+            </div>
+            {% endif %}
+        </div>
+
+        {# Actions Rapides #}
+        <div class="detail-section">
+            <h3>⚡ Actions Rapides</h3>
+            
+            <div class="action-buttons">
+                {% if not intervention %}
+                <a href="{{ path('admin_services_assign', {id: service.id}) }}" class="btn btn-success btn-block">
+                    ➕ Assigner un Technicien
+                </a>
+                {% else %}
+                <a href="{{ path('admin_interventions_edit', {id: intervention.id}) }}" class="btn btn-info btn-block">
+                    ✏️ Modifier l'Intervention
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
 </div>
 
-<div class="grid-2">
-    <div class="card">
-        <div class="card-header">
-            <h2 class="card-title">Request #{{ service.id }}</h2>
-            {% if service.status == 'pending' %}
-                <span class="badge badge-warning">Pending</span>
-            {% elseif service.status == 'in_progress' %}
-                <span class="badge badge-info">In Progress</span>
-            {% elseif service.status == 'completed' %}
-                <span class="badge badge-success">Completed</span>
-            {% else %}
-                <span class="badge badge-default">Cancelled</span>
-            {% endif %}
-        </div>
-        
-        <div style="display: grid; gap: 1rem;">
-            <div style="padding: 1rem; background: var(--bg-tertiary); border-radius: var(--radius-md);">
-                <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.5rem;">Requester</div>
-                <div style="font-weight: 600; font-size: 1.1rem;">{{ service.requester }}</div>
-            </div>
-            
-            <div style="display: grid; gap: 0.75rem;">
-                <div style="display: flex; justify-content: space-between;">
-                    <span style="color: var(--text-secondary);">Service Type</span>
-                    <span style="font-weight: 500;">{{ service.type }}</span>
-                </div>
-                <div style="display: flex; justify-content: space-between;">
-                    <span style="color: var(--text-secondary);">Priority</span>
-                    {% if service.priority == 'high' %}
-                        <span class="badge badge-danger">High</span>
-                    {% elseif service.priority == 'medium' %}
-                        <span class="badge badge-warning">Medium</span>
-                    {% else %}
-                        <span class="badge badge-default">Low</span>
-                    {% endif %}
-                </div>
-                <div style="display: flex; justify-content: space-between;">
-                    <span style="color: var(--text-secondary);">Requested At</span>
-                    <span style="font-weight: 500;">{{ service.requestedAt|date('M d, Y H:i') }}</span>
-                </div>
-            </div>
-            
-            <div>
-                <div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.5rem;">Description</div>
-                <p style="padding: 1rem; background: var(--bg-tertiary); border-radius: var(--radius-md);">{{ service.description }}</p>
-            </div>
-        </div>
-    </div>
+<style>
+.details-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.detail-section {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 8px;
+}
+
+.detail-section h3 {
+    margin: 0 0 1.5rem 0;
+    font-size: 1.1rem;
+    color: #333;
+    border-bottom: 2px solid #dee2e6;
+    padding-bottom: 0.75rem;
+}
+
+.detail-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.detail-item:last-child {
+    border-bottom: none;
+}
+
+.detail-label {
+    font-weight: 500;
+    color: #666;
+    flex: 0 0 40%;
+}
+
+.detail-value {
+    flex: 1;
+    text-align: right;
+    color: #333;
+}
+
+.detail-value a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.detail-value a:hover {
+    text-decoration: underline;
+}
+
+.detail-value em {
+    color: #999;
+}
+
+.action-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.btn-block {
+    width: 100%;
+    text-align: center;
+}
+
+@media (max-width: 768px) {
+    .details-grid {
+        grid-template-columns: 1fr;
+    }
     
-    <div class="card">
-        <div class="card-header">
-            <h2 class="card-title">Quick Actions</h2>
-        </div>
-        <div style="display: grid; gap: 0.75rem;">
-            {% if service.status == 'pending' %}
-            <button class="btn btn-primary" style="justify-content: flex-start;">
-                <span>▶️</span> Start Processing
-            </button>
-            {% endif %}
-            {% if service.status == 'in_progress' %}
-            <button class="btn btn-primary" style="justify-content: flex-start;">
-                <span>✅</span> Mark as Completed
-            </button>
-            {% endif %}
-            <a href="{{ path('admin_services_edit', {id: service.id}) }}" class="btn btn-secondary" style="justify-content: flex-start;">
-                <span>✏️</span> Edit Request
-            </a>
-            <button class="btn btn-secondary" style="justify-content: flex-start;">
-                <span>📧</span> Contact Requester
-            </button>
-            {% if service.status != 'cancelled' and service.status != 'completed' %}
-            <button class="btn btn-secondary" style="justify-content: flex-start; color: var(--danger);">
-                <span>❌</span> Cancel Request
-            </button>
-            {% endif %}
-        </div>
-    </div>
-</div>
+    .detail-item {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .detail-value {
+        text-align: left;
+    }
+}
+</style>
 {% endblock %}

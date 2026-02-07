@@ -2,37 +2,109 @@
 
 namespace App\Entity;
 
-/**
- * Intervention Entity - Represents an intervention assigned to a technician
- */
+use App\Repository\InterventionRepository;
+use Doctrine\ORM\Mapping as ORM;
+
+#[ORM\Entity(repositoryClass: InterventionRepository::class)]
 class Intervention
 {
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column]
     private ?int $id = null;
-    private ?int $serviceRequestId = null;
-    private ?int $technicianId = null;
-    private string $status = 'scheduled'; // scheduled, started, completed, cancelled
-    private ?\DateTimeInterface $scheduledDate = null;
-    private ?\DateTimeInterface $startedAt = null;
-    private ?\DateTimeInterface $completedAt = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?int $employeId = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $typesServices = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $competences = null;
+
+    #[ORM\Column(type: "decimal", precision: 10, scale: 2, nullable: true)]
+    private ?float $tarifHoraire = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $zoneIntervention = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?int $heuresTravail = null;
+
+    #[ORM\Column(length: 20)]
+    private string $statutActuel = 'en_attente';
+
+    #[ORM\ManyToOne(targetEntity: ServiceRequest::class, inversedBy: "interventions")]
+    private ?ServiceRequest $serviceRequest = null;
+
+    // Added Logic Fields
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $technicienNom = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $technicienEmail = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $technicienTelephone = null;
+
+    #[ORM\Column(type: "text", nullable: true)]
     private ?string $notes = null;
 
-    // Getters
-    public function getId(): ?int { return $this->id; }
-    public function getServiceRequestId(): ?int { return $this->serviceRequestId; }
-    public function getTechnicianId(): ?int { return $this->technicianId; }
-    public function getStatus(): string { return $this->status; }
-    public function getScheduledDate(): ?\DateTimeInterface { return $this->scheduledDate; }
-    public function getStartedAt(): ?\DateTimeInterface { return $this->startedAt; }
-    public function getCompletedAt(): ?\DateTimeInterface { return $this->completedAt; }
-    public function getNotes(): ?string { return $this->notes; }
+    #[ORM\Column(type: "datetime", nullable: true)]
+    private ?\DateTimeInterface $dateCreation = null;
 
-    // Setters
-    public function setId(?int $id): self { $this->id = $id; return $this; }
-    public function setServiceRequestId(?int $serviceRequestId): self { $this->serviceRequestId = $serviceRequestId; return $this; }
-    public function setTechnicianId(?int $technicianId): self { $this->technicianId = $technicianId; return $this; }
-    public function setStatus(string $status): self { $this->status = $status; return $this; }
-    public function setScheduledDate(?\DateTimeInterface $scheduledDate): self { $this->scheduledDate = $scheduledDate; return $this; }
-    public function setStartedAt(?\DateTimeInterface $startedAt): self { $this->startedAt = $startedAt; return $this; }
-    public function setCompletedAt(?\DateTimeInterface $completedAt): self { $this->completedAt = $completedAt; return $this; }
-    public function setNotes(?string $notes): self { $this->notes = $notes; return $this; }
+    #[ORM\Column(type: "datetime", nullable: true)]
+    private ?\DateTimeInterface $dateDebut = null;
+
+    #[ORM\Column(type: "datetime", nullable: true)]
+    private ?\DateTimeInterface $dateFin = null;
+
+    // Getters and Setters
+
+    public function getId(): ?int { return $this->id; }
+
+    public function getIdEmploye(): ?int { return $this->employeId; }
+    public function setIdEmploye(?int $v): self { $this->employeId=$v; return $this; }
+
+    public function getTypesServices(): ?string { return $this->typesServices; }
+    public function setTypesServices(?string $v): self { $this->typesServices=$v; return $this; }
+
+    public function getCompetences(): ?string { return $this->competences; }
+    public function setCompetences(?string $v): self { $this->competences=$v; return $this; }
+
+    public function getTarifHoraire(): ?float { return $this->tarifHoraire; }
+    public function setTarifHoraire(?float $v): self { $this->tarifHoraire=$v; return $this; }
+
+    public function getZoneIntervention(): ?string { return $this->zoneIntervention; }
+    public function setZoneIntervention(?string $v): self { $this->zoneIntervention=$v; return $this; }
+
+    public function getHeuresTravail(): ?int { return $this->heuresTravail; }
+    public function setHeuresTravail(?int $v): self { $this->heuresTravail=$v; return $this; }
+
+    public function getStatutActuel(): string { return $this->statutActuel; }
+    public function setStatutActuel(string $v): self { $this->statutActuel=$v; return $this; }
+
+    public function getServiceRequest(): ?ServiceRequest { return $this->serviceRequest; }
+    public function setServiceRequest(?ServiceRequest $s): self { $this->serviceRequest=$s; return $this; }
+
+    public function getTechnicienNom(): ?string { return $this->technicienNom; }
+    public function setTechnicienNom(?string $v): self { $this->technicienNom=$v; return $this; }
+
+    public function getTechnicienEmail(): ?string { return $this->technicienEmail; }
+    public function setTechnicienEmail(?string $v): self { $this->technicienEmail=$v; return $this; }
+
+    public function getTechnicienTelephone(): ?string { return $this->technicienTelephone; }
+    public function setTechnicienTelephone(?string $v): self { $this->technicienTelephone=$v; return $this; }
+
+    public function getNotes(): ?string { return $this->notes; }
+    public function setNotes(?string $v): self { $this->notes=$v; return $this; }
+
+    public function getDateCreation(): ?\DateTimeInterface { return $this->dateCreation; }
+    public function setDateCreation(?\DateTimeInterface $v): self { $this->dateCreation=$v; return $this; }
+
+    public function getDateDebut(): ?\DateTimeInterface { return $this->dateDebut; }
+    public function setDateDebut(?\DateTimeInterface $v): self { $this->dateDebut=$v; return $this; }
+
+    public function getDateFin(): ?\DateTimeInterface { return $this->dateFin; }
+    public function setDateFin(?\DateTimeInterface $v): self { $this->dateFin=$v; return $this; }
 }

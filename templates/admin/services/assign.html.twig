@@ -1,0 +1,209 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Assigner Service - Admin{% endblock %}
+{% block page_title %}Assigner un Technicien{% endblock %}
+
+{% block header_actions %}
+<a href="{{ path('admin_services') }}" class="btn btn-secondary">← Retour</a>
+{% endblock %}
+
+{% block content %}
+<div class="admin-card">
+    <div class="card-header">
+        <h2 class="card-title">⚡ Créer une Intervention pour #{{ service.id }}</h2>
+        <span class="badge badge-warning">⏳ En attente d'assignation</span>
+    </div>
+
+    <form method="post" action="{{ path('admin_services_assign', {id: service.id}) }}" class="admin-form">
+        <div class="form-grid">
+
+            {# =============================== #}
+            {# Section : Détails de la demande  #}
+            {# =============================== #}
+            <div class="form-section">
+                <h3>🛎️ Détails de la Demande</h3>
+
+                <div class="info-row">
+                    <span class="info-label">Type de Service:</span>
+                    <span class="info-value">{{ service.typeService }}</span>
+                </div>
+
+                <div class="info-row">
+                    <span class="info-label">Description:</span>
+                    <span class="info-value">{{ service.description }}</span>
+                </div>
+
+                <div class="info-row">
+                    <span class="info-label">Urgence:</span>
+                    <span class="info-value">
+                        {% if service.niveauUrgence == 'urgent' %}
+                            <span class="badge badge-danger">🔴 Urgent</span>
+                        {% elseif service.niveauUrgence == 'moyen' %}
+                            <span class="badge badge-warning">🟡 Moyen</span>
+                        {% else %}
+                            <span class="badge badge-success">🟢 Normal</span>
+                        {% endif %}
+                    </span>
+                </div>
+
+                <div class="info-row">
+                    <span class="info-label">Date souhaitée:</span>
+                    <span class="info-value">{{ service.dateSouhaitee ? service.dateSouhaitee|date('d/m/Y') : 'Non précisé' }}</span>
+                </div>
+            </div>
+
+            {# =============================== #}
+            {# Section : Informations du senior #}
+            {# =============================== #}
+            <div class="form-section">
+                <h3>👤 Informations du Senior</h3>
+
+                <div class="info-row">
+                    <span class="info-label">Email:</span>
+                    <span class="info-value">{{ service.seniorEmail ?: 'Non renseigné' }}</span>
+                </div>
+
+                <div class="info-row">
+                    <span class="info-label">Téléphone:</span>
+                    <span class="info-value">{{ service.seniorTelephone ?: 'Non renseigné' }}</span>
+                </div>
+
+                <div class="info-row">
+                    <span class="info-label">Adresse:</span>
+                    <span class="info-value">{{ service.adresse ?: 'Non renseignée' }}</span>
+                </div>
+
+                <div class="info-row">
+                    <span class="info-label">Ville:</span>
+                    <span class="info-value">{{ service.ville ~ ' ' ~ service.codePostal }}</span>
+                </div>
+            </div>
+
+            {# =============================== #}
+            {# Section : Interventions existantes #}
+            {# =============================== #}
+            {% if service.interventions|length > 0 %}
+            <div class="form-section highlight-section" style="grid-column: 1 / -1;">
+                <h3>🛠️ Interventions existantes</h3>
+                {% for intervention in service.interventions %}
+                <div class="info-row">
+                    <span class="info-label">ID Intervention:</span>
+                    <span class="info-value">{{ intervention.id }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Technicien assigné:</span>
+                    <span class="info-value">{{ intervention.employeId ?: 'Non assigné' }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Statut:</span>
+                    <span class="info-value">{{ intervention.statutActuel }}</span>
+                </div>
+                <hr>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            {# =============================== #}
+            {# Section : Sélection du technicien #}
+            {# =============================== #}
+            <div class="form-section highlight-section" style="grid-column: 1 / -1;">
+                <h3>🎯 Sélectionner un Technicien</h3>
+
+                <div class="form-group">
+                    <label for="technicien_id">Technicien *</label>
+                    <select name="technicien_id" id="technicien_id" class="form-control" required>
+                        <option value="">-- Choisir un technicien --</option>
+                        {% for tech in techniciens %}
+                            <option value="{{ tech.id }}" {{ not tech.disponible ? 'disabled' : '' }}>
+                                {{ tech.fullName }} - {{ tech.specialite }} 
+                                {% if tech.disponible %}
+                                    ✅ Disponible
+                                {% else %}
+                                    ❌ Indisponible
+                                {% endif %}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    <small class="form-help">Sélectionnez le technicien qui prendra en charge cette intervention</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="date_debut">Date de début prévue</label>
+                    <input type="datetime-local" name="date_debut" id="date_debut" class="form-control">
+                </div>
+
+                <div class="form-group">
+                    <label for="notes">Notes d'intervention</label>
+                    <textarea name="notes" id="notes" class="form-control" rows="3" placeholder="Instructions pour le technicien..."></textarea>
+
+                <div class="alert alert-info">
+                    <strong>ℹ️ Info:</strong> Une fois le technicien assigné, le statut passera automatiquement à "Assigné".
+                </div>
+            </div>
+
+        </div>
+
+        <div class="form-actions">
+            <a href="{{ path('admin_services') }}" class="btn btn-secondary">Annuler</a>
+            <button type="submit" class="btn btn-success">✅ Valider et Créer l'Intervention</button>
+        </div>
+    </form>
+</div>
+
+<style>
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.form-section {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 8px;
+}
+
+.highlight-section {
+    background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+    border: 2px solid #4caf50;
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.1);
+}
+
+.form-section h3 {
+    margin: 0 0 1.5rem 0;
+    font-size: 1.1rem;
+    color: #333;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.info-row:last-child { border-bottom: none; }
+.info-label { font-weight: 500; color: #666; }
+.info-value { color: #333; text-align: right; }
+
+.form-group { margin-bottom: 1.5rem; }
+.form-group label { display: block; margin-bottom: 0.5rem; font-weight: 600; color: #333; }
+.form-control { width: 100%; padding: 0.75rem; border: 2px solid #4caf50; border-radius: 6px; font-size: 0.95rem; }
+.form-control:focus { outline: none; border-color: #2e7d32; box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1); }
+.form-help { display: block; margin-top: 0.5rem; font-size: 0.85rem; color: #666; font-style: italic; }
+
+.alert { padding: 1rem; border-radius: 6px; margin-top: 1rem; }
+.alert-info { background: #e3f2fd; border-left: 4px solid #2196f3; color: #0d47a1; }
+
+.form-actions {
+    display: flex; justify-content: flex-end; gap: 1rem; margin-top: 2rem;
+    padding-top: 2rem; border-top: 1px solid #ddd;
+}
+.btn { padding: 0.75rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; font-size: 0.95rem; font-weight: 500; text-decoration: none; transition: all 0.2s; }
+.btn-success { background: #4caf50; color: white; }
+.btn-success:hover { background: #388e3c; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3); }
+.btn-secondary { background: #6c757d; color: white; }
+.btn-secondary:hover { background: #545b62; }
+</style>
+{% endblock %}

@@ -1,0 +1,344 @@
+{% extends 'base_dashboard.html.twig' %}
+
+{% block title %}Détails du Service - WANNASNI{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    :root {
+        --primary: #2563eb;
+        --bg: #f8fafc;
+        --card: #ffffff;
+        --text: #1a1a2e;
+        --text-muted: #64748b;
+        --border: #e2e8f0;
+    }
+
+    .page-wrapper {
+        min-height: 100vh;
+        padding: 2rem 1.5rem 4rem;
+        background: linear-gradient(180deg, #eff6ff 0%, var(--bg) 30%);
+    }
+
+    .page-container {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--primary);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 1rem;
+        margin-bottom: 1.5rem;
+        padding: 0.75rem 1.25rem;
+        border-radius: 50px;
+        background: white;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        transition: all 0.2s;
+    }
+
+    .back-link:hover {
+        background: #eff6ff;
+        transform: translateX(-4px);
+    }
+
+    .detail-card {
+        background: var(--card);
+        border-radius: 24px;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+        overflow: hidden;
+    }
+
+    .detail-header {
+        background: linear-gradient(135deg, var(--primary), #1d4ed8);
+        padding: 2.5rem;
+        color: white;
+        text-align: center;
+    }
+
+    .detail-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+    }
+
+    .detail-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .detail-status {
+        display: inline-block;
+        padding: 0.75rem 1.5rem;
+        border-radius: 50px;
+        font-weight: 700;
+        font-size: 1.1rem;
+        background: white;
+        margin-top: 1rem;
+    }
+
+    .status-pending { color: #f59e0b; }
+    .status-in_progress { color: #2563eb; }
+    .status-completed { color: #22c55e; }
+
+    .detail-body {
+        padding: 2.5rem;
+    }
+
+    .detail-section {
+        margin-bottom: 2rem;
+        padding-bottom: 2rem;
+        border-bottom: 2px solid var(--border);
+    }
+
+    .detail-section:last-child {
+        border-bottom: none;
+    }
+
+    .section-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: var(--text);
+        margin-bottom: 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .detail-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+    }
+
+    .detail-item {
+        background: #f8fafc;
+        padding: 1.25rem;
+        border-radius: 16px;
+        border: 1px solid var(--border);
+    }
+
+    .item-label {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--text-muted);
+        margin-bottom: 0.5rem;
+    }
+
+    .item-value {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--text);
+    }
+
+    .detail-description {
+        background: #f8fafc;
+        padding: 1.5rem;
+        border-radius: 16px;
+        border: 1px solid var(--border);
+        font-size: 1.1rem;
+        line-height: 1.7;
+        color: var(--text);
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+
+    .btn {
+        flex: 1;
+        padding: 1rem 2rem;
+        border-radius: 16px;
+        font-size: 1rem;
+        font-weight: 600;
+        text-decoration: none;
+        text-align: center;
+        transition: all 0.2s;
+        border: 2px solid;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .btn-edit {
+        background: #f59e0b;
+        color: white;
+        border-color: #f59e0b;
+    }
+
+    .btn-edit:hover {
+        background: #d97706;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(245, 158, 11, 0.3);
+    }
+
+    .btn-back {
+        background: white;
+        color: var(--primary);
+        border-color: var(--border);
+    }
+
+    .btn-back:hover {
+        border-color: var(--primary);
+    }
+
+    @media (max-width: 640px) {
+        .detail-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .action-buttons {
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="page-wrapper">
+    <div class="page-container">
+        <a href="{{ path('app_my_services', {'_locale': app.request.locale}) }}" class="back-link">
+            ← Retour aux services
+        </a>
+
+        <div class="detail-card">
+            <div class="detail-header">
+                <div class="detail-icon">
+                    {% if 'transport' in service.typeService|lower %}🚗
+                    {% elseif 'menage' in service.typeService|lower %}🏠
+                    {% elseif 'courses' in service.typeService|lower %}🛒
+                    {% else %}🛎️{% endif %}
+                </div>
+                <h1 class="detail-title">{{ service.typeService|capitalize }}</h1>
+                <span class="detail-status status-{{ service.statut }}">
+                    {% if service.statut == 'pending' %}⏳ En attente
+                    {% elseif service.statut == 'in_progress' %}🔄 En cours
+                    {% else %}✅ Terminé{% endif %}
+                </span>
+            </div>
+
+            <div class="detail-body">
+                <!-- Description -->
+                <div class="detail-section">
+                    <h2 class="section-title">📝 Description</h2>
+                    <div class="detail-description">
+                        {{ service.description }}
+                    </div>
+                </div>
+
+                <!-- Contact -->
+                {% if service.seniorTelephone or service.seniorEmail %}
+                <div class="detail-section">
+                    <h2 class="section-title">📞 Contact</h2>
+                    <div class="detail-grid">
+                        {% if service.seniorTelephone %}
+                        <div class="detail-item">
+                            <div class="item-label">Téléphone</div>
+                            <div class="item-value">{{ service.seniorTelephone }}</div>
+                        </div>
+                        {% endif %}
+                        {% if service.seniorEmail %}
+                        <div class="detail-item">
+                            <div class="item-label">Email</div>
+                            <div class="item-value">{{ service.seniorEmail }}</div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Adresse -->
+                {% if service.adresse or service.ville or service.codePostal %}
+                <div class="detail-section">
+                    <h2 class="section-title">📍 Adresse</h2>
+                    <div class="detail-grid">
+                        {% if service.adresse %}
+                        <div class="detail-item">
+                            <div class="item-label">Adresse</div>
+                            <div class="item-value">{{ service.adresse }}</div>
+                        </div>
+                        {% endif %}
+                        {% if service.ville %}
+                        <div class="detail-item">
+                            <div class="item-label">Ville</div>
+                            <div class="item-value">{{ service.ville }}</div>
+                        </div>
+                        {% endif %}
+                        {% if service.codePostal %}
+                        <div class="detail-item">
+                            <div class="item-label">Code Postal</div>
+                            <div class="item-value">{{ service.codePostal }}</div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Planification -->
+                <div class="detail-section">
+                    <h2 class="section-title">📅 Planification</h2>
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <div class="item-label">Demandé le</div>
+                            <div class="item-value">{{ service.createdAt|date('d/m/Y à H:i') }}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="item-label">Niveau d'urgence</div>
+                            <div class="item-value">
+                                {% if service.niveauUrgence == 'normale' %}🟢 Normale
+                                {% elseif service.niveauUrgence == 'moyenne' %}🟡 Moyenne
+                                {% else %}🔴 Urgente{% endif %}
+                            </div>
+                        </div>
+                        {% if service.dateSouhaitee %}
+                        <div class="detail-item">
+                            <div class="item-label">Date souhaitée</div>
+                            <div class="item-value">{{ service.dateSouhaitee|date('d/m/Y') }}</div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Budget -->
+                {% if service.budgetMinimum or service.budgetMaximum %}
+                <div class="detail-section">
+                    <h2 class="section-title">💰 Budget</h2>
+                    <div class="detail-grid">
+                        {% if service.budgetMinimum %}
+                        <div class="detail-item">
+                            <div class="item-label">Budget Minimum</div>
+                            <div class="item-value">{{ service.budgetMinimum }} TND</div>
+                        </div>
+                        {% endif %}
+                        {% if service.budgetMaximum %}
+                        <div class="detail-item">
+                            <div class="item-label">Budget Maximum</div>
+                            <div class="item-value">{{ service.budgetMaximum }} TND</div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Actions -->
+                <div class="action-buttons">
+                    <a href="{{ path('app_services_edit', {'_locale': app.request.locale, 'id': service.id}) }}" class="btn btn-edit">
+                        ✏️ Modifier
+                    </a>
+                    <a href="{{ path('app_my_services', {'_locale': app.request.locale}) }}" class="btn btn-back">
+                        ← Retour
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

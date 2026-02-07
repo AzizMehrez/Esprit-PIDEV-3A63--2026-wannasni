@@ -1,0 +1,402 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Nouvelle Intervention - Admin WANNASNI{% endblock %}
+{% block page_title %}Créer une Intervention{% endblock %}
+
+{% block content %}
+
+{# Flash Messages #}
+{% for message in app.flashes('success') %}
+    <div class="alert alert-success">
+        ✅ {{ message }}
+    </div>
+{% endfor %}
+
+{% for message in app.flashes('error') %}
+    <div class="alert alert-danger">
+        ❌ {{ message }}
+    </div>
+{% endfor %}
+
+<div class="admin-toolbar" style="margin-bottom: 2rem;">
+    <a href="{{ path('admin_interventions') }}" class="btn btn-secondary">
+        ← Retour à la liste
+    </a>
+</div>
+
+<form method="post">
+    <div class="row">
+        {# Colonne gauche - Formulaire principal #}
+        <div class="col-md-8">
+            {# Service associé #}
+            <div class="admin-card" style="margin-bottom: 1.5rem;">
+                <div class="card-header">
+                    <h2 class="card-title">🛎️ Service Associé</h2>
+                </div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label for="service_request_id">Demande de service (optionnel)</label>
+                        <select id="service_request_id" name="service_request_id" class="form-control">
+                            <option value="">-- Aucun service associé --</option>
+                            {% for service in services %}
+                            <option value="{{ service.id }}"
+                                    data-type="{{ service.typeService }}"
+                                    data-zone="{{ service.ville }}">
+                                #{{ service.id }} - {{ service.typeService }} 
+                                {% if service.ville %}({{ service.ville }}){% endif %}
+                                - {{ service.statut }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        <small class="form-text">Sélectionnez une demande de service existante pour créer une intervention</small>
+                    </div>
+                </div>
+            </div>
+
+            {# Informations de base #}
+            <div class="admin-card" style="margin-bottom: 1.5rem;">
+                <div class="card-header">
+                    <h2 class="card-title">📋 Informations de l'Intervention</h2>
+                </div>
+                <div class="card-body">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="competences">Compétences requises *</label>
+                            <input type="text" 
+                                   id="competences" 
+                                   name="competences" 
+                                   class="form-control" 
+                                   placeholder="Ex: Transport, Ménage, Courses..."
+                                   required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="zone_intervention">Zone d'intervention *</label>
+                            <input type="text" 
+                                   id="zone_intervention" 
+                                   name="zone_intervention" 
+                                   class="form-control" 
+                                   placeholder="Ex: Paris 15e"
+                                   required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="heures_travail">Heures de travail *</label>
+                            <input type="number" 
+                                   id="heures_travail" 
+                                   name="heures_travail" 
+                                   class="form-control" 
+                                   value="2"
+                                   min="1"
+                                   required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="tarif_horaire">Tarif horaire (€) *</label>
+                            <input type="number" 
+                                   id="tarif_horaire" 
+                                   name="tarif_horaire" 
+                                   class="form-control" 
+                                   value="25.00"
+                                   step="0.01"
+                                   min="0"
+                                   required>
+                        </div>
+
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <label>Coût total estimé</label>
+                            <div style="font-size: 1.5rem; font-weight: 700; color: #f59e0b; padding: 1rem; background: #fef3c7; border-radius: 8px; text-align: center;">
+                                <span id="coutTotal">50.00</span>€
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {# Assigner un technicien #}
+            <div class="admin-card" style="margin-bottom: 1.5rem;">
+                <div class="card-header">
+                    <h2 class="card-title">👤 Assigner un Technicien</h2>
+                </div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label for="technicien_id">Technicien *</label>
+                        <select id="technicien_id" name="technicien_id" class="form-control" required>
+                            <option value="">-- Sélectionnez un technicien --</option>
+                            {% for tech in techniciens %}
+                            <option value="{{ tech.id }}"
+                                    data-email="{{ tech.email }}"
+                                    data-telephone="{{ tech.phone }}"
+                                    data-tarif="{{ tech.tarifHoraire }}"
+                                    data-specialite="{{ tech.specialite }}"
+                                    {% if not tech.disponible %}disabled{% endif %}>
+                                {{ tech.fullName }} - {{ tech.specialite }} ({{ tech.tarifHoraire }}€/h)
+                                {% if not tech.disponible %} - ⚠️ Indisponible{% endif %}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div id="techInfo" style="margin-top: 1rem; padding: 1rem; background: #f3f4f6; border-radius: 8px; display: none;">
+                        <strong>Informations du technicien :</strong><br>
+                        <div id="techDetails"></div>
+                    </div>
+                </div>
+            </div>
+
+            {# Notes #}
+            <div class="admin-card">
+                <div class="card-header">
+                    <h2 class="card-title">📝 Notes</h2>
+                </div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label for="notes">Notes internes</label>
+                        <textarea id="notes" 
+                                  name="notes" 
+                                  class="form-control" 
+                                  rows="5"
+                                  placeholder="Ajoutez des notes sur cette intervention..."></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# Colonne droite - Statut #}
+        <div class="col-md-4">
+            {# Statut initial #}
+            <div class="admin-card" style="margin-bottom: 1.5rem;">
+                <div class="card-header">
+                    <h2 class="card-title">📊 Statut Initial</h2>
+                </div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label for="statut">Statut de l'intervention</label>
+                        <select id="statut" name="statut" class="form-control">
+                            <option value="en_attente">⏳ En attente</option>
+                            <option value="assignee" selected>👤 Assignée</option>
+                            <option value="en_cours">🔄 En cours</option>
+                            <option value="terminee">✅ Terminée</option>
+                        </select>
+                    </div>
+
+                    <div class="status-info" style="margin-top: 1rem; padding: 1rem; background: #e0f2fe; border-radius: 8px; font-size: 0.85rem;">
+                        <p style="margin: 0;"><strong>💡 Info :</strong></p>
+                        <ul style="margin: 0.5rem 0 0 1.5rem; padding: 0;">
+                            <li>"Assignée" si vous avez choisi un technicien</li>
+                            <li>"En cours" ajoute automatiquement la date de début</li>
+                            <li>"Terminée" ajoute la date de fin</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            {# Aide #}
+            <div class="admin-card">
+                <div class="card-header">
+                    <h2 class="card-title">❓ Aide</h2>
+                </div>
+                <div class="card-body">
+                    <p style="font-size: 0.9rem; color: var(--admin-text-muted);">
+                        <strong>Pour créer une intervention :</strong>
+                    </p>
+                    <ol style="font-size: 0.85rem; color: var(--admin-text-muted); padding-left: 1.2rem;">
+                        <li>Choisissez un service (optionnel)</li>
+                        <li>Remplissez les informations</li>
+                        <li>Sélectionnez un technicien</li>
+                        <li>Ajoutez des notes si besoin</li>
+                        <li>Cliquez sur "Créer"</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# Boutons d'action #}
+    <div class="form-actions" style="margin-top: 2rem; display: flex; gap: 1rem; justify-content: flex-end;">
+        <a href="{{ path('admin_interventions') }}" class="btn btn-secondary">
+            Annuler
+        </a>
+        <button type="submit" class="btn btn-success">
+            ✅ Créer l'intervention
+        </button>
+    </div>
+</form>
+
+<style>
+.alert {
+    padding: 1rem 1.5rem;
+    margin-bottom: 1.5rem;
+    border-radius: 8px;
+    border-left: 4px solid;
+}
+
+.alert-success {
+    background-color: #d4edda;
+    border-color: #28a745;
+    color: #155724;
+}
+
+.alert-danger {
+    background-color: #f8d7da;
+    border-color: #dc3545;
+    color: #721c24;
+}
+
+.row {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.col-md-8 {
+    flex: 0 0 calc(66.666% - 1rem);
+}
+
+.col-md-4 {
+    flex: 0 0 calc(33.333% - 0.5rem);
+}
+
+@media (max-width: 768px) {
+    .col-md-8, .col-md-4 {
+        flex: 0 0 100%;
+    }
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: var(--admin-text);
+}
+
+.form-control {
+    padding: 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.2s;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.form-text {
+    font-size: 0.85rem;
+    color: var(--admin-text-muted);
+    margin-top: 0.5rem;
+}
+
+.btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-secondary {
+    background: #6b7280;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: #4b5563;
+}
+
+.btn-success {
+    background: #10b981;
+    color: white;
+}
+
+.btn-success:hover {
+    background: #059669;
+}
+</style>
+
+<script>
+// Calculer le coût total en temps réel
+function updateCoutTotal() {
+    const heures = parseFloat(document.getElementById('heures_travail').value) || 0;
+    const tarif = parseFloat(document.getElementById('tarif_horaire').value) || 0;
+    const coutTotal = (heures * tarif).toFixed(2);
+    document.getElementById('coutTotal').textContent = coutTotal;
+}
+
+document.getElementById('heures_travail').addEventListener('input', updateCoutTotal);
+document.getElementById('tarif_horaire').addEventListener('input', updateCoutTotal);
+
+// Mettre à jour le tarif et les compétences quand on change de technicien
+document.getElementById('technicien_id').addEventListener('change', function() {
+    const selectedOption = this.options[this.selectedIndex];
+    const techInfo = document.getElementById('techInfo');
+    const techDetails = document.getElementById('techDetails');
+    
+    if (selectedOption.value) {
+        const tarif = selectedOption.dataset.tarif;
+        const email = selectedOption.dataset.email;
+        const telephone = selectedOption.dataset.telephone;
+        const specialite = selectedOption.dataset.specialite;
+        
+        // Mettre à jour le tarif
+        if (tarif) {
+            document.getElementById('tarif_horaire').value = tarif;
+            updateCoutTotal();
+        }
+        
+        // Mettre à jour les compétences si vide
+        if (!document.getElementById('competences').value && specialite) {
+            document.getElementById('competences').value = specialite;
+        }
+        
+        // Afficher les infos du technicien
+        techDetails.innerHTML = `
+            <small>
+                📧 ${email}<br>
+                📞 ${telephone}<br>
+                🎯 ${specialite}<br>
+                💶 ${tarif}€/h
+            </small>
+        `;
+        techInfo.style.display = 'block';
+    } else {
+        techInfo.style.display = 'none';
+    }
+});
+
+// Pré-remplir la zone d'intervention depuis le service sélectionné
+document.getElementById('service_request_id').addEventListener('change', function() {
+    const selectedOption = this.options[this.selectedIndex];
+    
+    if (selectedOption.value) {
+        const type = selectedOption.dataset.type;
+        const zone = selectedOption.dataset.zone;
+        
+        if (type && !document.getElementById('competences').value) {
+            document.getElementById('competences').value = type;
+        }
+        
+        if (zone && !document.getElementById('zone_intervention').value) {
+            document.getElementById('zone_intervention').value = zone;
+        }
+    }
+});
+</script>
+
+{% endblock %}

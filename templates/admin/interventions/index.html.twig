@@ -1,8 +1,7 @@
 {% extends 'admin/base_admin.html.twig' %}
 
-{% block title %}Services - Admin WANNASNI{% endblock %}
-{% block page_title %}Gestion des Services{% endblock %}
-
+{% block title %}Interventions - Admin WANNASNI{% endblock %}
+{% block page_title %}Gestion des Interventions{% endblock %}
 
 {% block content %}
 
@@ -22,48 +21,51 @@
 {# Statistics Cards #}
 <div class="stats-grid">
     <div class="stat-card">
-        <div class="stat-icon orange">🛎️</div>
+        <div class="stat-icon orange">🔧</div>
         <div class="stat-info">
-            <div class="stat-value">{{ services|length }}</div>
-            <div class="stat-label">Total Demandes</div>
+            <div class="stat-value">{{ stats.total }}</div>
+            <div class="stat-label">Total Interventions</div>
         </div>
     </div>
     <div class="stat-card">
         <div class="stat-icon blue">⏳</div>
         <div class="stat-info">
-            <div class="stat-value">{{ services|filter(s => s.statut == 'pending')|length }}</div>
+            <div class="stat-value">{{ stats.en_attente }}</div>
             <div class="stat-label">En Attente</div>
         </div>
     </div>
     <div class="stat-card">
         <div class="stat-icon cyan">🔄</div>
         <div class="stat-info">
-            <div class="stat-value">{{ services|filter(s => s.statut == 'in_progress')|length }}</div>
+            <div class="stat-value">{{ stats.en_cours }}</div>
             <div class="stat-label">En Cours</div>
         </div>
     </div>
     <div class="stat-card">
-        <div class="stat-icon red">🔴</div>
+        <div class="stat-icon green">✅</div>
         <div class="stat-info">
-            <div class="stat-value">{{ services|filter(s => s.niveauUrgence == 'urgent')|length }}</div>
-            <div class="stat-label">Priorité Haute</div>
+            <div class="stat-value">{{ stats.terminee }}</div>
+            <div class="stat-label">Terminées</div>
         </div>
     </div>
 </div>
 
 {# Navigation entre Services et Interventions #}
 <div style="margin-bottom: 2rem; text-align: center;">
-    <a href="{{ path('admin_interventions') }}" class="btn btn-info" style="margin: 0.5rem;">
-        🔧 Voir les Interventions →
+    <a href="{{ path('admin_services') }}" class="btn btn-info" style="margin: 0.5rem;">
+        ← 🛎️ Voir les Services
     </a>
 </div>
 
 {# Toolbar #}
 <div class="admin-toolbar">
     <div class="toolbar-search">
-        <input type="text" id="searchInput" placeholder="Rechercher un service..." onkeyup="filterTable()">
+        <input type="text" id="searchInput" placeholder="Rechercher une intervention..." onkeyup="filterTable()">
     </div>
     <div class="toolbar-actions">
+        <a href="{{ path('admin_interventions_create') }}" class="btn btn-primary">
+            ➕ Nouvelle intervention
+        </a>
         <button class="filter-btn">
             🔽 Filtrer
         </button>
@@ -79,121 +81,112 @@
 {# Table #}
 <div class="admin-card">
     <div class="card-header">
-        <h2 class="card-title">🛎️ Demandes de Services</h2>
-        <span class="badge badge-warning">{{ services|length }} demandes</span>
+        <h2 class="card-title">🔧 Interventions Planifiées</h2>
+        <span class="badge badge-warning">{{ interventions|length }} interventions</span>
     </div>
     <table class="admin-table" id="dataTable">
         <thead>
             <tr>
                 <th class="sortable" onclick="sortTable(0)">Service</th>
-                <th class="sortable" onclick="sortTable(1)">Senior</th>
-                <th class="sortable" onclick="sortTable(2)">Urgence</th>
+                <th class="sortable" onclick="sortTable(1)">Technicien</th>
+                <th class="sortable" onclick="sortTable(2)">Zone</th>
                 <th class="sortable" onclick="sortTable(3)">Statut</th>
-                <th class="sortable" onclick="sortTable(4)">Date Souhaitée</th>
-                <th class="sortable" onclick="sortTable(5)">Créé le</th>
+                <th class="sortable" onclick="sortTable(4)">Heures</th>
+                <th class="sortable" onclick="sortTable(5)">Tarif/h</th>
+                <!-- <th class="sortable" onclick="sortTable(6)">Date Création</th> -->
                 <th style="width: 220px;">Actions</th>
             </tr>
         </thead>
         <tbody>
-            {% for service in services %}
+            {% for intervention in interventions %}
             <tr>
                 <td>
                     <div style="display: flex; align-items: center; gap: 0.75rem;">
-                        <div style="width: 40px; height: 40px; border-radius: 10px; background: linear-gradient(135deg, #f59e0b, #fbbf24); display: flex; align-items: center; justify-content: center; font-size: 1.1rem;">
-                            {% if 'transport' in service.typeService|lower %}🚗
-                            {% elseif 'menage' in service.typeService|lower or 'ménage' in service.typeService|lower %}🏠
-                            {% elseif 'course' in service.typeService|lower %}🛒
-                            {% elseif 'accompagnement' in service.typeService|lower %}🤝
-                            {% else %}🛎️{% endif %}
+                        <div style="width: 40px; height: 40px; border-radius: 10px; background: linear-gradient(135deg, #8b5cf6, #a78bfa); display: flex; align-items: center; justify-content: center; font-size: 1.1rem;">
+                            {% if intervention.serviceRequest %}
+                                {% if 'transport' in intervention.serviceRequest.typeService|lower %}🚗
+                                {% elseif 'menage' in intervention.serviceRequest.typeService|lower or 'ménage' in intervention.serviceRequest.typeService|lower %}🏠
+                                {% elseif 'course' in intervention.serviceRequest.typeService|lower %}🛒
+                                {% elseif 'accompagnement' in intervention.serviceRequest.typeService|lower %}🤝
+                                {% else %}🔧{% endif %}
+                            {% else %}
+                                🔧
+                            {% endif %}
                         </div>
                         <div>
-                            <div style="font-weight: 600;">{{ service.typeService }}</div>
+                            <div style="font-weight: 600;">
+                                {{ intervention.serviceRequest ? intervention.serviceRequest.typeService : 'Service non lié' }}
+                            </div>
                             <div style="font-size: 0.8rem; color: var(--admin-text-muted);">
-                                {{ service.description|length > 35 ? service.description|slice(0, 35) ~ '...' : service.description }}
+                                {{ intervention.competences }}
                             </div>
                         </div>
                     </div>
                 </td>
                 <td>
                     <div>
-                        <div style="font-weight: 500;">{{ service.seniorEmail ?: 'Non renseigné' }}</div>
-                        <div style="font-size: 0.8rem; color: var(--admin-text-muted);">{{ service.seniorTelephone ?: 'Pas de téléphone' }}</div>
+                        <div style="font-weight: 500;">{{ intervention.technicienNom ?: 'Non assigné' }}</div>
+                        <div style="font-size: 0.8rem; color: var(--admin-text-muted);">
+                            {{ intervention.technicienEmail ?: 'Pas d\'email' }}
+                        </div>
                     </div>
                 </td>
                 <td>
-                    {% if service.niveauUrgence == 'urgent' %}
-                        <span class="badge badge-danger">🔴 Urgent</span>
-                    {% elseif service.niveauUrgence == 'moyen' %}
-                        <span class="badge badge-warning">🟡 Moyen</span>
+                    <span class="badge badge-info">📍 {{ intervention.zoneIntervention }}</span>
+                </td>
+                <td>
+                    {% if intervention.statutActuel == 'en_attente' %}
+                        <span class="badge badge-warning">⏳ En attente</span>
+                    {% elseif intervention.statutActuel == 'assignee' %}
+                        <span class="badge badge-info">👤 Assignée</span>
+                    {% elseif intervention.statutActuel == 'en_cours' %}
+                        <span class="badge badge-primary">🔄 En cours</span>
+                    {% elseif intervention.statutActuel == 'terminee' %}
+                        <span class="badge badge-success">✅ Terminée</span>
                     {% else %}
-                        <span class="badge badge-success">🟢 Normal</span>
+                        <span class="badge badge-secondary">{{ intervention.statutActuel }}</span>
                     {% endif %}
                 </td>
                 <td>
-                    {% if service.statut == 'pending' %}
-                        <span class="badge badge-warning">⏳ En attente</span>
-                    {% elseif service.statut == 'in_progress' %}
-                        <span class="badge badge-info">🔄 En cours</span>
-                    {% elseif service.statut == 'completed' %}
-                        <span class="badge badge-success">✅ Terminé</span>
-                    {% elseif service.statut == 'assigned' %}
-                        <span class="badge badge-info">👤 Assigné</span>
-                    {% else %}
-                        <span class="badge badge-danger">❌ Annulé</span>
-                    {% endif %}
+                    <strong>{{ intervention.heuresTravail }}h</strong>
                 </td>
-                <td>{{ service.dateSouhaitee ? service.dateSouhaitee|date('d/m/Y') : 'Non précisé' }}</td>
-                <td>{{ service.createdAt|date('d/m/Y H:i') }}</td>
+                <td>
+                    <strong>{{ intervention.tarifHoraire }}€</strong>
+                </td>
+                {# <td>{{ intervention.dateCreation|date('d/m/Y H:i') }}</td> #}
                 <td>
                     <div style="display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap;">
-                        {# Voir les détails #}
-                        <a href="{{ path('admin_services_show', {id: service.id}) }}" 
+                        {# Voir #}
+                        <a href="{{ path('admin_interventions_show', {id: intervention.id}) }}" 
                            class="action-btn action-btn-view" 
-                           title="Voir les détails"
-                           style="color: #2196f3;">
+                           title="Voir les détails">
                             👁️
                         </a>
 
-                        {# ACTION PRINCIPALE: Assigner ou Modifier selon si intervention existe #}
-                        {% if service.interventions|length == 0 %}
-                            {# Pas d'intervention -> Assigner/Créer #}
-                            <a href="{{ path('admin_services_assign', {id: service.id}) }}" 
-                               class="action-btn" 
-                               title="Assigner un technicien"
-                               style="background-color: #4caf50; color: white;">
-                                ➕
-                            </a>
-                        {% else %}
-                            {# Intervention existe -> Modifier #}
-                            {% set lastIntervention = service.interventions|first %}
-                            <a href="{{ path('admin_interventions_edit', {id: lastIntervention.id}) }}" 
-                               class="action-btn" 
-                               title="Modifier l'intervention"
-                               style="background-color: #ff9800; color: white;">
-                                ✏️
-                            </a>
-                            
-                            {# Bouton suppression pour l'intervention #}
-                            <form method="post" 
-                                  action="{{ path('admin_interventions_delete', {id: lastIntervention.id}) }}" 
-                                  style="display: inline;"
-                                  onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette intervention ?');">
-                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ lastIntervention.id) }}">
-                                <button type="submit" 
-                                        class="action-btn" 
-                                        title="Supprimer l'intervention"
-                                        style="background-color: #f44336; color: white; border: none; cursor: pointer;">
-                                    🗑️
-                                </button>
-                            </form>
-                        {% endif %}
+                        {# Modifier #}
+                        <a href="{{ path('admin_interventions_edit', {id: intervention.id}) }}" 
+                           class="action-btn action-btn-edit" 
+                           title="Modifier">
+                            ✏️
+                        </a>
+
+                        {# Supprimer #}
+                        <button type="button" 
+                                class="action-btn action-btn-delete" 
+                                title="Supprimer"
+                                data-intervention-id="{{ intervention.id }}"
+                                data-intervention-name="{{ intervention.serviceRequest ? intervention.serviceRequest.typeService : 'Intervention #' ~ intervention.id }}"
+                                data-csrf-token="{{ csrf_token('delete' ~ intervention.id) }}"
+                                onclick="confirmDelete(this)">
+                            🗑️
+                        </button>
                     </div>
                 </td>
             </tr>
             {% else %}
             <tr>
-                <td colspan="7" style="text-align: center; padding: 2rem; color: var(--admin-text-muted);">
-                    Aucune demande de service pour le moment
+                <td colspan="8" style="text-align: center; padding: 2rem; color: var(--admin-text-muted);">
+                    Aucune intervention pour le moment
                 </td>
             </tr>
             {% endfor %}
@@ -208,9 +201,9 @@
             <h3>⚠️ Confirmer la suppression</h3>
         </div>
         <div class="modal-body">
-            <p>Êtes-vous sûr de vouloir supprimer cette demande de service ?</p>
-            <p><strong id="serviceToDelete"></strong></p>
-            <p style="color: #dc3545; font-size: 0.9rem;">⚠️ Cette action est irréversible.</p>
+            <p>Êtes-vous sûr de vouloir supprimer cette intervention ?</p>
+            <p><strong id="interventionToDelete"></strong></p>
+            <p style="color: #dc3545; font-size: 0.9rem;">⚠️ Cette action est irréversible et remettra le service en attente.</p>
         </div>
         <div class="modal-footer">
             <button onclick="closeDeleteModal()" class="btn btn-secondary">Annuler</button>
@@ -265,15 +258,6 @@
     transform: scale(1.1);
 }
 
-.action-btn-assign {
-    background: #e8f5e9;
-}
-
-.action-btn-assign:hover {
-    background: #4caf50;
-    transform: scale(1.1);
-}
-
 .action-btn-edit {
     background: #fff3e0;
 }
@@ -290,6 +274,25 @@
 .action-btn-delete:hover {
     background: #f44336;
     transform: scale(1.1);
+}
+
+.btn-primary {
+    background: #3b82f6;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.2s;
+}
+
+.btn-primary:hover {
+    background: #2563eb;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 }
 
 /* Modal Styles */
@@ -398,17 +401,17 @@ function sortTable(columnIndex) {
 }
 
 function confirmDelete(button) {
-    const serviceId = button.dataset.serviceId;
-    const serviceName = button.dataset.serviceName;
+    const interventionId = button.dataset.interventionId;
+    const interventionName = button.dataset.interventionName;
     const csrfToken = button.dataset.csrfToken;
     
     const modal = document.getElementById('deleteModal');
-    const serviceToDelete = document.getElementById('serviceToDelete');
+    const interventionToDelete = document.getElementById('interventionToDelete');
     const deleteForm = document.getElementById('deleteForm');
     const deleteToken = document.getElementById('deleteToken');
     
-    serviceToDelete.textContent = serviceName;
-    deleteForm.action = `/admin/services/${serviceId}/delete`;
+    interventionToDelete.textContent = interventionName;
+    deleteForm.action = `/admin/interventions/${interventionId}/delete`;
     deleteToken.value = csrfToken;
     
     modal.classList.add('active');

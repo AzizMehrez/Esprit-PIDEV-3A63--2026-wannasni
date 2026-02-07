@@ -1,0 +1,135 @@
+<?php
+
+namespace App\Service;
+
+use App\Entity\Intervention;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mime\Email;
+use Symfony\Component\Mime\Part\DataPart;
+use Symfony\Component\Mime\Part\File;
+
+class InterventionEmailService
+{
+    private MailerInterface $mailer;
+    private DevisService $devisService;
+    private string $senderEmail;
+    private LoggerInterface $logger;
+
+    public function __construct(
+        MailerInterface $mailer,
+        DevisService $devisService,
+        LoggerInterface $logger,
+        string $senderEmail = 'noreply@wannasni.com'
+    ) {
+        $this->mailer = $mailer;
+        $this->devisService = $devisService;
+        $this->logger = $logger;
+        $this->senderEmail = $senderEmail;
+    }
+
+    /**
+     * Send intervention quote/devis to the senior (client)
+     */
+    public function sendDevisToSenior(Intervention $intervention): void
+    {
+        $service = $intervention->getServiceRequest();
+        if (!$service) {
+            $this->logger->warning('No service request found for intervention ' . $intervention->getId());
+            return;
+        }
+        
+        if (!$service->getSeniorEmail()) {
+            $this->logger->warning('No senior email found for service ' . $service->getId());
+            return;
+        }
+
+        set_error_handler(function($errno, $errstr) use (&$errors) {
+            throw new \ErrorException($errstr, $errno);
+        });
+
+        try {
+            $this->logger->info('Starting to send devis email to ' . $service->getSeniorEmail() . ' for intervention ' . $intervention->getId());
+
+            // Generate PDF devis
+            $this->logger->info('Generating PDF devis...');
+            $pdfContent = $this->devisService->generateQuote($intervention);
+            $this->logger->info('PDF generated, size: ' . strlen($pdfContent) . ' bytes');
+
+            $filename = $this->devisService->getQuoteFilename($intervention);
+            $this->logger->info('Filename: ' . $filename);
+
+            // Build email
+            $email = new Email();
+            $email
+                ->from($this->senderEmail)
+                ->to($service->getSeniorEmail())
+                ->subject('Votre devis d\'intervention - WANNASNI')
+                ->html($this->buildDevisEmailHtml($intervention, $service));
+
+            $this->logger->info('Email object created, attaching PDF...');
+
+            // Attach PDF as string
+            $email->attach($pdfContent, $filename, 'application/pdf');
+
+            $this->logger->info('PDF attached, sending email...');
+
+            // Send
+            $this->mailer->send($email);
+            $this->logger->info('Devis email sent successfully to ' . $service->getSeniorEmail());
+        } catch (\Throwable $e) {
+            $this->logger->error('Failed to send devis email: ' . $e->getMessage() . ' (' . get_class($e) . ')', ['exception' => $e, 'trace' => $e->getTraceAsString()]);
+        } finally {
+            restore_error_handler();
+        }
+    }
+
+    /**
+     * Build HTML content for the devis email
+     */
+    private function buildDevisEmailHtml(Intervention $intervention, $service): string
+    {
+        $tarifTotal = ($intervention->getHeuresTravail() ?? 2) * ($intervention->getTarifHoraire() ?? 25.00);
+
+        return sprintf(
+            '
+            <html>
+            <body style="font-family: Arial, sans-serif; color: #333; line-height: 1.6;">
+                <div style="max-width: 600px; margin: 0 auto; border: 1px solid #ddd; border-radius: 8px; padding: 20px;">
+                    <h2 style="color: #2E7D32;">DEVIS D\'INTERVENTION</h2>
+                    
+                    <p>Bonjour,</p>
+                    <p>Nous avons le plaisir de vous envoyer le devis pour votre demande de service.</p>
+                    
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0;">
+                        <h3>Informations du Service</h3>
+                        <p><strong>Type de service:</strong> %s</p>
+                        <p><strong>Zone d\'intervention:</strong> %s</p>
+                        <p><strong>Compétences requises:</strong> %s</p>
+                    </div>
+                    
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0;">
+                        <h3>Détails de l\'intervention</h3>
+                        <p><strong>Technicien:</strong> %s</p>
+                        <p><strong>Heures prévues:</strong> %d heures</p>
+                        <p><strong>Tarif horaire:</strong> %.2f TND/h</p>
+                        <hr style="border: none; border-top: 1px solid #ddd;">
+                        <p style="font-size: 18px; font-weight: bold;"><strong>Montant total estimé: %.2f TND</strong></p>
+                    </div>
+                    
+                    <p>Un technicien vous contactera pour confirmer l\'intervention.</p>
+                    <p>Cordialement,<br><strong>L\'équipe WANNASNI</strong></p>
+                </div>
+            </body>
+            </html>
+            ',
+            htmlspecialchars($service->getTypeService() ?? '—'),
+            htmlspecialchars($intervention->getZoneIntervention() ?? '—'),
+            htmlspecialchars($intervention->getCompetences() ?? '—'),
+            htmlspecialchars($intervention->getTechnicienNom() ?? 'À assigner'),
+            $intervention->getHeuresTravail() ?? 2,
+            $intervention->getTarifHoraire() ?? 25.00,
+            $tarifTotal
+        );
+    }
+}
