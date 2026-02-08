@@ -1,6 +1,6 @@
 {% extends 'base_dashboard.html.twig' %}
 
-{% block title %}Demander un Service - WANNASNI{% endblock %}
+{% block title %}Modifier le Service - WANNASNI{% endblock %}
 
 {% block stylesheets %}
 {{ parent() }}
@@ -28,7 +28,7 @@
     }
 
     .page-container {
-        max-width: 700px;
+        max-width: 800px;
         margin: 0 auto;
     }
 
@@ -303,12 +303,8 @@
     .alert-success { background: #d1fae5; color: #065f46; border-left: 4px solid #10b981; }
     .alert-danger { background: #fee2e2; color: #991b1b; border-left: 4px solid #ef4444; }
 
-    @media (max-width: 480px) {
-        .service-types {
-            grid-template-columns: 1fr;
-        }
-
-        .urgence-options, .form-row {
+    @media (max-width: 640px) {
+        .service-types, .urgence-options, .form-row {
             grid-template-columns: 1fr;
         }
     }
@@ -325,8 +321,8 @@
         <div class="form-card">
             <div class="form-header">
                 <h1 class="form-title">
-                    <span class="form-title-icon">🛎️</span>
-                    Demander un Service
+                    <span class="form-title-icon">✏️</span>
+                    Modifier le Service
                 </h1>
             </div>
             <div class="form-body">
@@ -345,12 +341,12 @@
                         <h2 class="section-title">📞 Informations de Contact</h2>
                         <div class="form-row">
                             <div class="form-group">
-                                <label class="form-label" for="senior_telephone">Téléphone</label>
-                                <input type="tel" id="senior_telephone" class="form-input" name="senior_telephone" placeholder="+216 XX XXX XXX" value="{{ last_inputs.senior_telephone|default('') }}">
+                                <label class="form-label">Téléphone</label>
+                                <input type="tel" class="form-input" name="senior_telephone" value="{{ service.seniorTelephone }}" placeholder="+216 XX XXX XXX">
                             </div>
                             <div class="form-group">
-                                <label class="form-label" for="senior_email">Email</label>
-                                <input type="email" id="senior_email" class="form-input" name="senior_email" placeholder="votre@email.com" value="{{ last_inputs.senior_email|default('') }}">
+                                <label class="form-label">Email</label>
+                                <input type="email" class="form-input" name="senior_email" value="{{ service.seniorEmail }}" placeholder="votre@email.com">
                             </div>
                         </div>
                     </div>
@@ -362,8 +358,8 @@
                             <label class="form-label"><span class="required">*</span> Choisissez un service</label>
                             <div class="service-types">
                                 {% for type in service_types %}
-                                <label class="service-type-option {{ last_inputs.type_service|default('') == type.id ? 'selected' : '' }}">
-                                    <input type="radio" id="type_service_{{ type.id }}" name="type_service" value="{{ type.id }}" {{ last_inputs.type_service|default('') == type.id ? 'checked' : '' }} required>
+                                <label class="service-type-option {% if service.typeService == type.id %}selected{% endif %}">
+                                    <input type="radio" name="type_service" value="{{ type.id }}" {% if service.typeService == type.id %}checked{% endif %} required>
                                     <span class="type-icon">{{ type.icon }}</span>
                                     <div class="type-name">{{ type.name }}</div>
                                     <div class="type-desc">{{ type.description }}</div>
@@ -373,8 +369,8 @@
                         </div>
 
                         <div class="form-group">
-                            <label class="form-label" for="description"><span class="required">*</span> Description de votre besoin</label>
-                            <textarea id="description" class="form-input" name="description" rows="4" placeholder="Décrivez votre demande en détail..." required>{{ last_inputs.description|default('') }}</textarea>
+                            <label class="form-label"><span class="required">*</span> Description de votre besoin</label>
+                            <textarea class="form-input" name="description" rows="4" required>{{ service.description }}</textarea>
                         </div>
                     </div>
 
@@ -382,17 +378,17 @@
                     <div class="form-section">
                         <h2 class="section-title">📍 Adresse du Service</h2>
                         <div class="form-group">
-                            <label class="form-label" for="adresse">Adresse complète</label>
-                            <input type="text" id="adresse" class="form-input" name="adresse" placeholder="12 Rue de la République" value="{{ last_inputs.adresse|default('') }}">
+                            <label class="form-label">Adresse complète</label>
+                            <input type="text" class="form-input" name="adresse" value="{{ service.adresse }}">
                         </div>
                         <div class="form-row">
                             <div class="form-group">
-                                <label class="form-label" for="ville">Ville</label>
-                                <input type="text" id="ville" class="form-input" name="ville" placeholder="Tunis" value="{{ last_inputs.ville|default('') }}">
+                                <label class="form-label">Ville</label>
+                                <input type="text" class="form-input" name="ville" value="{{ service.ville }}">
                             </div>
                             <div class="form-group">
-                                <label class="form-label" for="code_postal">Code Postal</label>
-                                <input type="text" id="code_postal" class="form-input" name="code_postal" placeholder="1000" value="{{ last_inputs.code_postal|default('') }}">
+                                <label class="form-label">Code Postal</label>
+                                <input type="text" class="form-input" name="code_postal" value="{{ service.codePostal }}">
                             </div>
                         </div>
                     </div>
@@ -403,24 +399,24 @@
                         <div class="form-group">
                             <label class="form-label">⚡ Niveau d'urgence</label>
                             <div class="urgence-options">
-                                <label class="urgence-option {{ last_inputs.niveau_urgence|default('normale') == 'normale' ? 'selected' : '' }}">
-                                    <input type="radio" id="niveau_urgence_normale" name="niveau_urgence" value="normale" {{ last_inputs.niveau_urgence|default('normale') == 'normale' ? 'checked' : '' }}>
+                                <label class="urgence-option {% if service.niveauUrgence == 'normale' %}selected{% endif %}">
+                                    <input type="radio" name="niveau_urgence" value="normale" {% if service.niveauUrgence == 'normale' %}checked{% endif %}>
                                     🟢 Normale
                                 </label>
-                                <label class="urgence-option {{ last_inputs.niveau_urgence|default('') == 'moyenne' ? 'selected' : '' }}">
-                                    <input type="radio" id="niveau_urgence_moyenne" name="niveau_urgence" value="moyenne" {{ last_inputs.niveau_urgence|default('') == 'moyenne' ? 'checked' : '' }}>
+                                <label class="urgence-option {% if service.niveauUrgence == 'moyenne' %}selected{% endif %}">
+                                    <input type="radio" name="niveau_urgence" value="moyenne" {% if service.niveauUrgence == 'moyenne' %}checked{% endif %}>
                                     🟡 Moyenne
                                 </label>
-                                <label class="urgence-option {{ last_inputs.niveau_urgence|default('') == 'urgente' ? 'selected' : '' }}">
-                                    <input type="radio" id="niveau_urgence_urgente" name="niveau_urgence" value="urgente" {{ last_inputs.niveau_urgence|default('') == 'urgente' ? 'checked' : '' }}>
+                                <label class="urgence-option {% if service.niveauUrgence == 'urgente' %}selected{% endif %}">
+                                    <input type="radio" name="niveau_urgence" value="urgente" {% if service.niveauUrgence == 'urgente' %}checked{% endif %}>
                                     🔴 Urgente
                                 </label>
                             </div>
                         </div>
 
                         <div class="form-group">
-                            <label class="form-label" for="date_souhaitee">📅 Date souhaitée</label>
-                            <input type="date" id="date_souhaitee" class="form-input" name="date_souhaitee" value="{{ last_inputs.date_souhaitee|default('') }}">
+                            <label class="form-label">📅 Date souhaitée</label>
+                            <input type="date" class="form-input" name="date_souhaitee" value="{% if service.dateSouhaitee %}{{ service.dateSouhaitee|date('Y-m-d') }}{% endif %}">
                         </div>
                     </div>
 
@@ -429,12 +425,12 @@
                         <h2 class="section-title">💰 Budget Estimé</h2>
                         <div class="form-row">
                             <div class="form-group">
-                                <label class="form-label" for="budget_minimum">Budget Minimum (TND)</label>
-                                <input type="number" step="0.01" id="budget_minimum" class="form-input" name="budget_minimum" placeholder="50.00" value="{{ last_inputs.budget_minimum|default('') }}">
+                                <label class="form-label">Budget Minimum (TND)</label>
+                                <input type="number" step="0.01" class="form-input" name="budget_minimum" value="{{ service.budgetMinimum }}">
                             </div>
                             <div class="form-group">
-                                <label class="form-label" for="budget_maximum">Budget Maximum (TND)</label>
-                                <input type="number" step="0.01" id="budget_maximum" class="form-input" name="budget_maximum" placeholder="150.00" value="{{ last_inputs.budget_maximum|default('') }}">
+                                <label class="form-label">Budget Maximum (TND)</label>
+                                <input type="number" step="0.01" class="form-input" name="budget_maximum" value="{{ service.budgetMaximum }}">
                             </div>
                         </div>
                     </div>
@@ -444,14 +440,14 @@
                         <h2 class="section-title">🔔 Notifications</h2>
                         <div class="form-group">
                             <label class="checkbox-wrapper">
-                                <input type="checkbox" id="notifier_proches" name="notifier_proches" {{ last_inputs.notifier_proches|default('') == 'on' ? 'checked' : '' }}>
+                                <input type="checkbox" name="notifier_proches" {% if service.notifierProches %}checked{% endif %}>
                                 <span class="checkbox-label">Notifier mes proches de cette demande</span>
                             </label>
                         </div>
                     </div>
 
                     <div class="btn-group">
-                        <button type="submit" class="btn btn-primary">📤 Envoyer la Demande</button>
+                        <button type="submit" class="btn btn-primary">💾 Enregistrer les modifications</button>
                         <a href="{{ path('app_my_services', {'_locale': app.request.locale}) }}" class="btn btn-secondary">Annuler</a>
                     </div>
                 </form>

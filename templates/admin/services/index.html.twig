@@ -4,10 +4,97 @@
 {% block page_title %}Gestion des Services{% endblock %}
 
 {% block header_actions %}
-<a href="{{ path('admin_services_new') }}" class="btn btn-primary">➕ Nouveau Service</a>
+<a href="{{ path('admin_dashboard') }}" class="btn btn-secondary">🏠 Accueil</a>
+<a href="{{ path('admin_interventions') }}" class="btn btn-info">🔧 Voir les Interventions</a>
 {% endblock %}
 
 {% block content %}
+<style>
+    .filter-section {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 12px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        margin-bottom: 1.5rem;
+    }
+    .filter-row {
+        display: flex;
+        gap: 1rem;
+        align-items: end;
+        flex-wrap: wrap;
+    }
+    .filter-group {
+        flex: 1;
+        min-width: 200px;
+    }
+    .filter-label {
+        display: block;
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 0.5rem;
+    }
+    .filter-input {
+        width: 100%;
+        padding: 0.625rem 1rem;
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        font-size: 0.875rem;
+    }
+    .filter-select {
+        width: 100%;
+        padding: 0.625rem 1rem;
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        font-size: 0.875rem;
+        background: white;
+    }
+    .btn-filter {
+        padding: 0.625rem 1.5rem;
+        background: #667eea;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+    .btn-filter:hover {
+        background: #5568d3;
+    }
+    .btn-reset {
+        padding: 0.625rem 1.5rem;
+        background: #6b7280;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+    .btn-reset:hover {
+        background: #4b5563;
+    }
+    .sort-link {
+        color: inherit;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+    .sort-link:hover {
+        color: #667eea;
+    }
+    .sort-icon {
+        font-size: 0.75rem;
+        opacity: 0.5;
+    }
+    .sort-icon.active {
+        opacity: 1;
+        color: #667eea;
+    }
+</style>
+
 {# Statistics Cards #}
 <div class="stats-grid">
     <div class="stat-card">
@@ -20,41 +107,88 @@
     <div class="stat-card">
         <div class="stat-icon blue">⏳</div>
         <div class="stat-info">
-            <div class="stat-value">{{ services|filter(s => s.status == 'pending')|length }}</div>
+            <div class="stat-value">{{ services|filter(s => s.statut == 'pending')|length }}</div>
             <div class="stat-label">En Attente</div>
         </div>
     </div>
     <div class="stat-card">
         <div class="stat-icon cyan">🔄</div>
         <div class="stat-info">
-            <div class="stat-value">{{ services|filter(s => s.status == 'in_progress')|length }}</div>
+            <div class="stat-value">{{ services|filter(s => s.statut == 'assigned' or s.statut == 'in_progress')|length }}</div>
             <div class="stat-label">En Cours</div>
         </div>
     </div>
     <div class="stat-card">
-        <div class="stat-icon red">🔴</div>
+        <div class="stat-icon green">✅</div>
         <div class="stat-info">
-            <div class="stat-value">{{ services|filter(s => s.priority == 'high')|length }}</div>
-            <div class="stat-label">Priorité Haute</div>
+            <div class="stat-value">{{ services|filter(s => s.statut == 'completed')|length }}</div>
+            <div class="stat-label">Terminés</div>
         </div>
     </div>
 </div>
 
+{# Filters Section #}
+<div class="filter-section">
+    <form method="get" action="{{ path('admin_services') }}" id="filterForm">
+        <div class="filter-row">
+            <div class="filter-group" style="flex: 2;">
+                <label class="filter-label">🔍 Rechercher</label>
+                <input type="text" name="q" value="{{ searchQuery }}" placeholder="Service, email, téléphone, ville..." class="filter-input">
+            </div>
+            
+            <div class="filter-group">
+                <label class="filter-label">📊 Statut</label>
+                <select name="statut" class="filter-select">
+                    <option value="">Tous les statuts</option>
+                    <option value="pending" {{ statutFilter == 'pending' ? 'selected' : '' }}>⏳ En Attente</option>
+                    <option value="assigned" {{ statutFilter == 'assigned' ? 'selected' : '' }}>👤 Assigné</option>
+                    <option value="in_progress" {{ statutFilter == 'in_progress' ? 'selected' : '' }}>🔄 En Cours</option>
+                    <option value="completed" {{ statutFilter == 'completed' ? 'selected' : '' }}>✅ Terminé</option>
+                    <option value="cancelled" {{ statutFilter == 'cancelled' ? 'selected' : '' }}>❌ Annulé</option>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label class="filter-label">📋 Trier par</label>
+                <select name="sort" class="filter-select">
+                    <option value="createdAt" {{ sortBy == 'createdAt' ? 'selected' : '' }}>Date de création</option>
+                    <option value="id" {{ sortBy == 'id' ? 'selected' : '' }}>ID</option>
+                    <option value="typeService" {{ sortBy == 'typeService' ? 'selected' : '' }}>Type de service</option>
+                    <option value="ville" {{ sortBy == 'ville' ? 'selected' : '' }}>Ville</option>
+                    <option value="niveauUrgence" {{ sortBy == 'niveauUrgence' ? 'selected' : '' }}>Urgence</option>
+                    <option value="statut" {{ sortBy == 'statut' ? 'selected' : '' }}>Statut</option>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label class="filter-label">⬆️ Ordre</label>
+                <select name="order" class="filter-select">
+                    <option value="DESC" {{ sortOrder == 'DESC' ? 'selected' : '' }}>Décroissant</option>
+                    <option value="ASC" {{ sortOrder == 'ASC' ? 'selected' : '' }}>Croissant</option>
+                </select>
+            </div>
+            
+            <div style="display: flex; gap: 0.5rem;">
+                <button type="submit" class="btn-filter">Filtrer</button>
+                <a href="{{ path('admin_services') }}" class="btn-reset" style="text-decoration: none; display: flex; align-items: center;">Réinitialiser</a>
+            </div>
+        </div>
+    </form>
+</div>
+
 {# Toolbar #}
 <div class="admin-toolbar">
-    <div class="toolbar-search">
-        <input type="text" id="searchInput" placeholder="Rechercher un service..." onkeyup="filterTable()">
+    <div style="display: flex; align-items: center; gap: 1rem;">
+        <span style="font-weight: 600; color: #374151;">
+            {% if searchQuery or statutFilter %}
+                Résultats filtrés: <span style="color: #667eea;">{{ services|length }}</span>
+            {% else %}
+                Toutes les demandes: <span style="color: #667eea;">{{ services|length }}</span>
+            {% endif %}
+        </span>
     </div>
     <div class="toolbar-actions">
-        <button class="filter-btn">
-            🔽 Filtrer
-        </button>
-        <a href="#" class="export-btn pdf" onclick="exportPDF(); return false;">
-            📄 PDF
-        </a>
-        <a href="#" class="export-btn excel" onclick="exportExcel(); return false;">
-            📊 Excel
-        </a>
+        <a href="{{ path('admin_services_export_pdf', app.request.query.all) }}" class="export-btn pdf">📄 Exporter PDF</a>
     </div>
 </div>
 
@@ -62,161 +196,93 @@
 <div class="admin-card">
     <div class="card-header">
         <h2 class="card-title">🛎️ Demandes de Services</h2>
-        <span class="badge badge-warning">{{ services|length }} demandes</span>
+        <span class="badge badge-info">{{ services|length }} demande(s)</span>
     </div>
-    <table class="admin-table" id="dataTable">
-        <thead>
-            <tr>
-                <th class="sortable" onclick="sortTable(0)">Service</th>
-                <th class="sortable" onclick="sortTable(1)">Demandeur</th>
-                <th class="sortable" onclick="sortTable(2)">Priorité</th>
-                <th class="sortable" onclick="sortTable(3)">Statut</th>
-                <th class="sortable" onclick="sortTable(4)">Demandé le</th>
-                <th style="width: 120px;">Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for service in services %}
-            <tr>
-                <td>
-                    <div style="display: flex; align-items: center; gap: 0.75rem;">
-                        <div style="width: 40px; height: 40px; border-radius: 10px; background: linear-gradient(135deg, #f59e0b, #fbbf24); display: flex; align-items: center; justify-content: center; font-size: 1.1rem;">
-                            {% if 'Transport' in service.type %}🚗
-                            {% elseif 'Home' in service.type %}🏠
-                            {% else %}🛎️{% endif %}
+    <div style="overflow-x: auto;">
+        <table class="admin-table" id="dataTable">
+            <thead>
+                <tr>
+                    <th style="width: 5%;">ID</th>
+                    <th style="width: 25%;">Service</th>
+                    <th style="width: 18%;">Demandeur</th>
+                    <th style="width: 12%;">Ville</th>
+                    <th style="width: 10%;">Urgence</th>
+                    <th style="width: 12%;">Statut</th>
+                    <th style="width: 10%;">Date</th>
+                    <th style="width: 8%;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for service in services %}
+                <tr>
+                    <td><strong>#{{ service.id }}</strong></td>
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <div style="width: 40px; height: 40px; border-radius: 10px; background: linear-gradient(135deg, #f59e0b, #fbbf24); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0;">
+                                {% if 'transport' in service.typeService|lower %}🚗
+                                {% elseif 'menage' in service.typeService|lower or 'ménage' in service.typeService|lower %}🏠
+                                {% elseif 'course' in service.typeService|lower %}🛒
+                                {% elseif 'accompagnement' in service.typeService|lower %}🚶
+                                {% else %}🛎️{% endif %}
+                            </div>
+                            <div>
+                                <div style="font-weight: 600;">{{ service.typeService }}</div>
+                                <div style="font-size: 0.8rem; color: var(--admin-text-muted);">{{ service.description|slice(0, 40) }}{% if service.description|length > 40 %}...{% endif %}</div>
+                            </div>
                         </div>
-                        <div>
-                            <div style="font-weight: 600;">{{ service.type }}</div>
-                            <div style="font-size: 0.8rem; color: var(--admin-text-muted);">{{ service.description|slice(0, 35) }}...</div>
+                    </td>
+                    <td>
+                        <div style="font-size: 0.875rem;">{{ service.seniorEmail }}</div>
+                        <small style="color: var(--admin-text-muted);">{{ service.seniorTelephone }}</small>
+                    </td>
+                    <td>{{ service.ville ?: 'Non spécifié' }}</td>
+                    <td>
+                        {% if service.niveauUrgence == 'haute' or service.niveauUrgence == 'urgent' %}
+                            <span class="badge badge-danger">🔴 Urgent</span>
+                        {% elseif service.niveauUrgence == 'moyenne' or service.niveauUrgence == 'moyen' %}
+                            <span class="badge badge-warning">🟡 Moyen</span>
+                        {% else %}
+                            <span class="badge badge-success">🟢 Normal</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if service.statut == 'pending' %}
+                            <span class="badge badge-warning">⏳ En attente</span>
+                        {% elseif service.statut == 'assigned' %}
+                            <span class="badge badge-info">👤 Assigné</span>
+                        {% elseif service.statut == 'in_progress' %}
+                            <span class="badge badge-info">🔄 En cours</span>
+                        {% elseif service.statut == 'completed' %}
+                            <span class="badge badge-success">✅ Terminé</span>
+                        {% elseif service.statut == 'cancelled' %}
+                            <span class="badge badge-danger">❌ Annulé</span>
+                        {% else %}
+                            <span class="badge badge-secondary">{{ service.statut }}</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ service.createdAt ? service.createdAt|date('d/m/Y') : 'N/A' }}</td>
+                    <td>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <a href="{{ path('admin_services_show', {id: service.id}) }}" class="action-btn" title="Voir les détails">👁️</a>
+                            {% if service.statut == 'pending' %}
+                                <a href="{{ path('admin_services_assign', {id: service.id}) }}" class="action-btn" title="Assigner">📋</a>
+                            {% endif %}
                         </div>
-                    </div>
-                </td>
-                <td>{{ service.requester }}</td>
-                <td>
-                    {% if service.priority == 'high' %}
-                        <span class="badge badge-danger">🔴 Urgente</span>
-                    {% elseif service.priority == 'medium' %}
-                        <span class="badge badge-warning">🟡 Moyenne</span>
-                    {% else %}
-                        <span class="badge badge-success">🟢 Normale</span>
-                    {% endif %}
-                </td>
-                <td>
-                    {% if service.status == 'pending' %}
-                        <span class="badge badge-warning">⏳ En attente</span>
-                    {% elseif service.status == 'in_progress' %}
-                        <span class="badge badge-info">🔄 En cours</span>
-                    {% elseif service.status == 'completed' %}
-                        <span class="badge badge-success">✅ Terminé</span>
-                    {% else %}
-                        <span class="badge badge-danger">❌ Annulé</span>
-                    {% endif %}
-                </td>
-                <td>{{ service.requestedAt|date('d/m/Y') }}</td>
-                <td>
-                    <a href="{{ path('admin_services_show', {id: service.id}) }}" class="action-btn" title="Voir">👁️</a>
-                    <a href="{{ path('admin_services_edit', {id: service.id}) }}" class="action-btn" title="Traiter">✏️</a>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="8" style="text-align: center; padding: 2rem; color: var(--admin-text-muted);">
+                        {% if searchQuery or statutFilter %}
+                            Aucune demande trouvée avec ces filtres
+                        {% else %}
+                            Aucune demande de service pour le moment
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
-
-<script>
-/* ── Search ── */
-function filterTable() {
-    const filter = document.getElementById('searchInput').value.toLowerCase();
-    const tbody  = document.querySelector('#dataTable tbody');
-    const rows   = tbody.querySelectorAll('tr');
-    rows.forEach(row => {
-        const cells = row.querySelectorAll('td');
-        let found = false;
-        cells.forEach((cell, idx) => {
-            if (idx < cells.length - 1 && cell.textContent.toLowerCase().includes(filter)) found = true;
-        });
-        row.style.display = found ? '' : 'none';
-    });
-}
-
-/* ── Sort ── */
-let sortDirection = {};
-function sortTable(columnIndex) {
-    const table   = document.getElementById('dataTable');
-    const tbody   = table.querySelector('tbody');
-    const rows    = Array.from(tbody.querySelectorAll('tr'));
-    const headers = table.querySelectorAll('thead th');
-
-    sortDirection[columnIndex] = !sortDirection[columnIndex];
-    const ascending = sortDirection[columnIndex];
-    headers.forEach(h => h.classList.remove('asc', 'desc'));
-    headers[columnIndex].classList.add(ascending ? 'asc' : 'desc');
-
-    // Date column index 4
-    rows.sort((a, b) => {
-        let aText = a.cells[columnIndex].textContent.trim();
-        let bText = b.cells[columnIndex].textContent.trim();
-        if (columnIndex === 4) {
-            const aDate = new Date(aText.split('/').reverse().join('-'));
-            const bDate = new Date(bText.split('/').reverse().join('-'));
-            return ascending ? aDate - bDate : bDate - aDate;
-        }
-        return ascending
-            ? aText.toLowerCase().localeCompare(bText.toLowerCase())
-            : bText.toLowerCase().localeCompare(aText.toLowerCase());
-    });
-    rows.forEach(row => tbody.appendChild(row));
-}
-
-/* ── PDF Export ── */
-function exportPDF() {
-    const table = document.getElementById('dataTable');
-    const rows  = table.querySelectorAll('tbody tr');
-    const date  = new Date().toLocaleDateString('fr-FR');
-    let tableHTML = '';
-    rows.forEach(row => {
-        if (row.style.display === 'none') return;
-        const c = row.querySelectorAll('td');
-        tableHTML += '<tr>';
-        tableHTML += '<td>' + c[0].textContent.trim().replace(/\s+/g, ' ') + '</td>';
-        tableHTML += '<td>' + c[1].textContent.trim() + '</td>';
-        tableHTML += '<td>' + c[2].textContent.trim() + '</td>';
-        tableHTML += '<td>' + c[3].textContent.trim() + '</td>';
-        tableHTML += '<td>' + c[4].textContent.trim() + '</td>';
-        tableHTML += '</tr>';
-    });
-    const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Services - WANNASNI</title>
-<style>body{font-family:Arial,sans-serif;padding:30px;color:#1e293b}h1{text-align:center;margin-bottom:4px;color:#1e40af}.subtitle{text-align:center;color:#64748b;margin-bottom:24px;font-size:14px}table{width:100%;border-collapse:collapse;margin-top:10px}th{background:#1e40af;color:#fff;padding:10px 12px;text-align:left;font-size:13px}td{padding:9px 12px;border-bottom:1px solid #e2e8f0;font-size:13px}tr:nth-child(even){background:#f8fafc}.footer{text-align:center;margin-top:30px;font-size:11px;color:#94a3b8}</style></head><body>
-<h1>🛎️ Demandes de Services</h1><p class="subtitle">WANNASNI – Généré le ${date}</p>
-<table><thead><tr><th>Service</th><th>Demandeur</th><th>Priorité</th><th>Statut</th><th>Demandé le</th></tr></thead><tbody>${tableHTML}</tbody></table>
-<p class="footer">WANNASNI – Système de Gestion – ${date}</p></body></html>`;
-    const win = window.open('', '_blank');
-    win.document.write(html); win.document.close(); win.focus();
-    setTimeout(() => win.print(), 400);
-}
-
-/* ── Excel / CSV Export ── */
-function exportExcel() {
-    const table = document.getElementById('dataTable');
-    const rows  = table.querySelectorAll('tbody tr');
-    const BOM   = '\uFEFF';
-    let csv     = BOM + 'Service;Demandeur;Priorité;Statut;Demandé le\n';
-    rows.forEach(row => {
-        if (row.style.display === 'none') return;
-        const c = row.querySelectorAll('td');
-        csv += [
-            c[0].textContent.trim().replace(/\s+/g, ' ').replace(/;/g, ','),
-            c[1].textContent.trim(),
-            c[2].textContent.trim(),
-            c[3].textContent.trim(),
-            c[4].textContent.trim()
-        ].join(';') + '\n';
-    });
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const url  = URL.createObjectURL(blob);
-    const a    = document.createElement('a');
-    a.href = url; a.download = 'services_wannasni_' + new Date().toISOString().slice(0,10) + '.csv';
-    a.click(); URL.revokeObjectURL(url);
-}
-</script>
 {% endblock %}

@@ -86,6 +86,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'datetime', nullable: true)]
     private ?\DateTimeInterface $faceConsentAt = null;
 
+    // Technician fields for intervention assignment
+    #[ORM\Column(type: 'string', length: 100, nullable: true)]
+    private ?string $specialite = null;
+
+    #[ORM\Column(type: 'decimal', precision: 10, scale: 2, nullable: true)]
+    private ?string $tarifHoraire = null;
+
+    #[ORM\Column(type: 'boolean')]
+    private bool $disponible = true;
+
     public function __construct()
     {
         $this->createdAt = new \DateTime();
@@ -392,5 +402,39 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function eraseCredentials(): void
     {
         // Clear temporary, sensitive data if stored
+    }
+
+    // Technician getters and setters
+    public function getSpecialite(): ?string
+    {
+        return $this->specialite;
+    }
+
+    public function setSpecialite(?string $specialite): self
+    {
+        $this->specialite = $specialite;
+        return $this;
+    }
+
+    public function getTarifHoraire(): ?string
+    {
+        return $this->tarifHoraire;
+    }
+
+    public function setTarifHoraire(?string $tarifHoraire): self
+    {
+        $this->tarifHoraire = $tarifHoraire;
+        return $this;
+    }
+
+    public function isDisponible(): bool
+    {
+        return $this->disponible;
+    }
+
+    public function setDisponible(bool $disponible): self
+    {
+        $this->disponible = $disponible;
+        return $this;
     }
 }
