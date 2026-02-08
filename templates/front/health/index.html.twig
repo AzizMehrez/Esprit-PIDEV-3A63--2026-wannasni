@@ -219,15 +219,6 @@
             <p class="health-subtitle">Suivez vos indicateurs de bien-être</p>
             <div style="display:flex; gap:1rem; align-items:center; justify-content:center; margin-top:1rem;">
                 <a href="{{ path('app_my_health_add', {'_locale': app.request.locale}) }}" class="btn-new-entry">➕ Nouvelle entrée</a>
-                <form method="get" action="{{ path('app_my_health', {'_locale': app.request.locale}) }}" style="display:flex; gap:0.5rem; align-items:center;">
-                    <input type="search" name="q" placeholder="Rechercher (notes, humeur, tension...)" value="{{ q|default('') }}" style="padding:0.6rem 0.85rem; border-radius:8px; border:1px solid #e2e8f0;">
-                    <select name="sort" onchange="this.form.submit()" style="padding:0.6rem 0.85rem; border-radius:8px; border:1px solid #e2e8f0;">
-                        <option value="desc" {% if sort is not defined or sort == 'desc' %}selected{% endif %}>Date: plus récentes</option>
-                        <option value="asc" {% if sort == 'asc' %}selected{% endif %}>Date: plus anciennes</option>
-                    </select>
-                    <button type="submit" class="btn btn-outline" style="padding:0.6rem 1rem;">🔎 Rechercher</button>
-                </form>
-                <a href="{{ path('app_my_health_export', {'_locale': app.request.locale, 'q': q|default(''), 'sort': sort|default('desc')}) }}" class="btn btn-primary" style="padding:0.6rem 1rem; margin-left:0.5rem; background:white; color:var(--health-primary);">📄 Exporter PDF</a>
             </div>
         </div>
 
@@ -239,22 +230,10 @@
                     <span class="record-date-icon">📅</span>
                     {{ record.date ? record.date|date('l d F Y') : '—' }}
                 </div>
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-icon">🩺</div>
-                        <div class="stat-value bp">{{ record.tensionArterielle ?: '—' }}</div>
-                        <div class="stat-label">Tension</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon">💓</div>
-                        <div class="stat-value hr">{{ record.frequenceCardiaque ?: '—' }}</div>
-                        <div class="stat-label">Pouls (BPM)</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon">🌡️</div>
-                        <div class="stat-value weight">{{ record.temperature ?: '—' }} °C</div>
-                        <div class="stat-label">Température</div>
-                    </div>
+                <div style="margin-top:0.5rem; display:flex; gap:1rem; align-items:center;">
+                    <div><strong>Tension:</strong> {{ record.tensionArterielle ?: '—' }}</div>
+                    <div><strong>Pouls:</strong> {{ record.frequenceCardiaque ?: '—' }} bpm</div>
+                    <div><strong>Température:</strong> {{ record.temperature ?: '—' }} °C</div>
                 </div>
                 <div style="margin-top:1rem;">
                     <strong>Notes:</strong> {{ record.notes ?: '—' }}
@@ -268,6 +247,14 @@
                     <span class="mood-text">
                         Humeur: {% if record.humeur == 'excellent' %}Excellente{% elseif record.humeur == 'good' %}Bonne{% else %}Correcte{% endif %}
                     </span>
+                </div>
+                <div style="margin-top:1rem; display:flex; gap:0.5rem; align-items:center;">
+                    <a href="{{ path('app_my_health_show', {'_locale': app.request.locale, 'id': record.id}) }}" style="padding:0.5rem 1rem; background:#3b82f6; color:white; border-radius:6px; text-decoration:none; font-weight:600; cursor:pointer;">👁️ Voir</a>
+                    <a href="{{ path('app_my_health_edit', {'_locale': app.request.locale, 'id': record.id}) }}" style="padding:0.5rem 1rem; background:#10b981; color:white; border-radius:6px; text-decoration:none; font-weight:600; cursor:pointer;">✏️ Modifier</a>
+                    <form method="post" action="{{ path('app_my_health_delete', {'_locale': app.request.locale, 'id': record.id}) }}" style="display:inline" onsubmit="return confirm('Supprimer cette entrée ?');">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ record.id) }}">
+                        <button class="btn btn-danger">🗑️ Supprimer</button>
+                    </form>
                 </div>
             </div>
             {% else %}

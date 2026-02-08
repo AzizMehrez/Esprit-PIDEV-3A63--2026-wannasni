@@ -6,8 +6,6 @@ use App\Entity\HealthJournal;
 use App\Form\HealthJournalType;
 use App\Repository\HealthJournalRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Dompdf\Dompdf;
-use Dompdf\Options;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -19,26 +17,15 @@ class UserHealthController extends AbstractController
     #[Route('/', name: 'app_my_health')]
     public function index(Request $request, HealthJournalRepository $repo): Response
     {
-        $q = $request->query->get('q');
-        $sort = $request->query->get('sort', 'desc');
-
         $qb = $repo->createQueryBuilder('h')
             ->andWhere('h.senior = :senior')
-            ->setParameter('senior', $this->getUser());
-
-        if ($q) {
-            $qb->andWhere('h.notes LIKE :q OR h.humeur LIKE :q OR h.tensionArterielle LIKE :q OR h.medicamentsPris LIKE :q')
-               ->setParameter('q', '%'.trim($q).'%');
-        }
-
-        $qb->orderBy('h.date', $sort === 'asc' ? 'ASC' : 'DESC');
+            ->setParameter('senior', $this->getUser())
+            ->orderBy('h.date', 'DESC');
 
         $healthRecords = $qb->getQuery()->getResult();
 
         return $this->render('front/health/index.html.twig', [
             'health_records' => $healthRecords,
-            'q' => $q,
-            'sort' => $sort,
         ]);
     }
 
@@ -63,37 +50,39 @@ class UserHealthController extends AbstractController
         ]);
     }
 
-    #[Route('/export', name: 'app_my_health_export')]
-    public function export(Request $request, HealthJournalRepository $repo): Response
+    #[Route('/{id}', name: 'app_my_health_show', requirements: ['id' => '\\d+'], methods: ['GET'])]
+    public function show(HealthJournal $record): Response
     {
-        $q = $request->query->get('q');
-        $sort = $request->query->get('sort', 'desc');
+        return $this->render('front/health/show.html.twig', [
+            'record' => $record,
+        ]);
+    }
 
-        $qb = $repo->createQueryBuilder('h')
-            ->andWhere('h.senior = :senior')
-            ->setParameter('senior', $this->getUser());
+    #[Route('/{id}/edit', name: 'app_my_health_edit', methods: ['GET', 'POST'])]
+    public function edit(Request $request, HealthJournal $record, EntityManagerInterface $em): Response
+    {
+        $form = $this->createForm(\App\Form\HealthJournalType::class, $record);
+        $form->handleRequest($request);
 
-        if ($q) {
-            $qb->andWhere('h.notes LIKE :q OR h.humeur LIKE :q OR h.tensionArterielle LIKE :q OR h.medicamentsPris LIKE :q')
-               ->setParameter('q', '%'.trim($q).'%');
+        if ($form->isSubmitted() && $form->isValid()) {
+            $em->flush();
+            return $this->redirectToRoute('app_my_health');
         }
 
-        $qb->orderBy('h.date', $sort === 'asc' ? 'ASC' : 'DESC');
-        $records = $qb->getQuery()->getResult();
+        return $this->render('front/health/edit.html.twig', [
+            'form' => $form->createView(),
+            'record' => $record,
+        ]);
+    }
 
-        // Render HTML
-        $html = $this->renderView('front/health/pdf.html.twig', ['records' => $records]);
+    #[Route('/{id}/delete', name: 'app_my_health_delete', methods: ['POST'])]
+    public function delete(Request $request, HealthJournal $record, EntityManagerInterface $em): Response
+    {
+        if ($this->isCsrfTokenValid('delete'.$record->getId(), $request->request->get('_token'))) {
+            $em->remove($record);
+            $em->flush();
+        }
 
-        // Configure Dompdf
-        $options = new Options();
-        $options->set('isRemoteEnabled', true);
-        $dompdf = new Dompdf($options);
-        $dompdf->loadHtml($html);
-        $dompdf->setPaper('A4', 'portrait');
-        $dompdf->render();
-
-        $pdfOutput = $dompdf->output();
-
-        return new Response($pdfOutput, 200, ['Content-Type' => 'application/pdf']);
+        return $this->redirectToRoute('app_my_health');
     }
 }

@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\HealthJournalRepository;
 use Doctrine\ORM\Mapping as ORM;
 use App\Entity\User;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * HealthJournal Entity - Represents health vitals record for a senior
@@ -23,18 +24,24 @@ class HealthJournal
     private ?User $senior = null;
 
     #[ORM\Column(type: 'datetime')]
+    #[Assert\NotNull(message: 'La date est requise')]
+    #[Assert\NotBlank(message: 'La date ne peut pas être vide')]
     private ?\DateTimeInterface $date = null;
 
     #[ORM\Column(type: 'string', length: 100, nullable: true)]
+    #[Assert\Choice(choices: ['excellent', 'good', 'average', 'poor'], message: 'Humeur invalide')]
     private ?string $humeur = null;
 
     #[ORM\Column(type: 'string', length: 100, nullable: true)]
+    #[Assert\Choice(choices: ['very_good', 'good', 'average', 'poor'], message: 'Qualité sommeil invalide')]
     private ?string $qualiteSommeil = null;
 
     #[ORM\Column(type: 'string', length: 100, nullable: true)]
+    #[Assert\Choice(choices: ['normal', 'increased', 'decreased', 'absent'], message: 'Appétit invalide')]
     private ?string $appetit = null;
 
     #[ORM\Column(type: 'integer', nullable: true)]
+    #[Assert\Range(min: 0, max: 10, notInRangeMessage: 'Le niveau de douleur doit être entre 0 et 10')]
     private ?int $niveauDouleur = null;
 
     #[ORM\Column(type: 'text', nullable: true)]
@@ -44,9 +51,11 @@ class HealthJournal
     private ?string $tensionArterielle = null;
 
     #[ORM\Column(type: 'integer', nullable: true)]
+    #[Assert\Range(min: 30, max: 200, notInRangeMessage: 'Fréquence cardiaque doit être entre 30 et 200 bpm')]
     private ?int $frequenceCardiaque = null;
 
     #[ORM\Column(type: 'float', nullable: true)]
+    #[Assert\Range(min: 35.0, max: 42.0, notInRangeMessage: 'Température doit être entre 35°C et 42°C')]
     private ?float $temperature = null;
 
     #[ORM\Column(type: 'text', nullable: true)]
@@ -59,6 +68,7 @@ class HealthJournal
     private ?string $hydratation = null;
 
     #[ORM\Column(type: 'text', nullable: true)]
+    #[Assert\Length(max: 1000, maxMessage: 'Les notes ne doivent pas dépasser 1000 caractères')]
     private ?string $notes = null;
 
     public function __construct()

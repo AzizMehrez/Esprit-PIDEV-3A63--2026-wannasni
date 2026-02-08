@@ -1,0 +1,309 @@
+{% extends 'base_dashboard.html.twig' %}
+
+{% block title %}Modifier entrée santé{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    .form-error {
+        background: #fee2e2;
+        border: 1px solid #fca5a5;
+        color: #991b1b;
+        padding: 0.75rem;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+
+    .form-input.is-invalid {
+        border-color: #dc2626 !important;
+        background: #fef2f2 !important;
+    }
+
+    input:invalid, select:invalid, textarea:invalid {
+        border-color: #dc2626;
+        box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+    }
+
+    .form-error-container {
+        background: #fee2e2;
+        border: 1px solid #fca5a5;
+        border-radius: 8px;
+        padding: 0.75rem;
+        margin-top: 0.3rem;
+    }
+
+    .form-error-message {
+        color: #991b1b;
+        font-size: 0.85rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        color: #1a1a2e;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        width: 100%;
+        padding: 0.75rem;
+        border: 2px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        font-family: inherit;
+        transition: border-color 0.2s, background-color 0.2s;
+        box-sizing: border-box;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+        outline: none;
+        border-color: #dc2626;
+        box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="health-wrapper">
+    <div class="health-container">
+        <a href="{{ path('app_my_health', {'_locale': app.request.locale}) }}" class="back-link">← Retour</a>
+
+        <div class="health-header" style="padding:1rem; border-radius:12px; margin-bottom:1rem;">
+            <h2 style="color:white; margin:0;">Modifier l'entrée</h2>
+        </div>
+
+        <div class="admin-card" style="background:white; padding:1rem; border-radius:12px; box-shadow:0 6px 20px rgba(0,0,0,0.06);">
+            {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+            
+            {# Display global form errors #}
+            {% if form.vars.errors|length > 0 %}
+                <div style="background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 0.75rem; border-radius: 8px; margin-bottom: 1rem;">
+                    <strong>⚠️ Erreur lors de l'enregistrement:</strong>
+                    {% for error in form.vars.errors %}
+                        <div>• {{ error.message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            {# Date field (required) #}
+            <div class="form-group">
+                {{ form_label(form.date, 'Date et Heure *') }}
+                {{ form_widget(form.date) }}
+                {% if form.date.vars.errors|length > 0 %}
+                    <div class="form-error-container">
+                        {% for error in form.date.vars.errors %}
+                            <div class="form-error-message">
+                                <span>⚠️</span>
+                                <span>{{ error.message }}</span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                <div class="form-group">
+                    {{ form_label(form.tensionArterielle) }}
+                    {{ form_widget(form.tensionArterielle) }}
+                    {% if form.tensionArterielle.vars.errors|length > 0 %}
+                        <div class="form-error-container">
+                            {% for error in form.tensionArterielle.vars.errors %}
+                                <div class="form-error-message">
+                                    <span>⚠️</span>
+                                    <span>{{ error.message }}</span>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    {{ form_label(form.frequenceCardiaque) }}
+                    {{ form_widget(form.frequenceCardiaque) }}
+                    {% if form.frequenceCardiaque.vars.errors|length > 0 %}
+                        <div class="form-error-container">
+                            {% for error in form.frequenceCardiaque.vars.errors %}
+                                <div class="form-error-message">
+                                    <span>⚠️</span>
+                                    <span>{{ error.message }}</span>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                <div class="form-group">
+                    {{ form_label(form.temperature) }}
+                    {{ form_widget(form.temperature) }}
+                    {% if form.temperature.vars.errors|length > 0 %}
+                        <div class="form-error-container">
+                            {% for error in form.temperature.vars.errors %}
+                                <div class="form-error-message">
+                                    <span>⚠️</span>
+                                    <span>{{ error.message }}</span>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    {{ form_label(form.niveauDouleur) }}
+                    {{ form_widget(form.niveauDouleur) }}
+                    {% if form.niveauDouleur.vars.errors|length > 0 %}
+                        <div class="form-error-container">
+                            {% for error in form.niveauDouleur.vars.errors %}
+                                <div class="form-error-message">
+                                    <span>⚠️</span>
+                                    <span>{{ error.message }}</span>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                <div class="form-group">
+                    {{ form_label(form.humeur) }}
+                    {{ form_widget(form.humeur) }}
+                    {% if form.humeur.vars.errors|length > 0 %}
+                        <div class="form-error-container">
+                            {% for error in form.humeur.vars.errors %}
+                                <div class="form-error-message">
+                                    <span>⚠️</span>
+                                    <span>{{ error.message }}</span>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    {{ form_label(form.qualiteSommeil) }}
+                    {{ form_widget(form.qualiteSommeil) }}
+                    {% if form.qualiteSommeil.vars.errors|length > 0 %}
+                        <div class="form-error-container">
+                            {% for error in form.qualiteSommeil.vars.errors %}
+                                <div class="form-error-message">
+                                    <span>⚠️</span>
+                                    <span>{{ error.message }}</span>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                <div class="form-group">
+                    {{ form_label(form.appetit) }}
+                    {{ form_widget(form.appetit) }}
+                    {% if form.appetit.vars.errors|length > 0 %}
+                        <div class="form-error-container">
+                            {% for error in form.appetit.vars.errors %}
+                                <div class="form-error-message">
+                                    <span>⚠️</span>
+                                    <span>{{ error.message }}</span>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    {{ form_label(form.hydratation) }}
+                    {{ form_widget(form.hydratation) }}
+                    {% if form.hydratation.vars.errors|length > 0 %}
+                        <div class="form-error-container">
+                            {% for error in form.hydratation.vars.errors %}
+                                <div class="form-error-message">
+                                    <span>⚠️</span>
+                                    <span>{{ error.message }}</span>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="form-group">
+                {{ form_label(form.symptomes) }}
+                {{ form_widget(form.symptomes) }}
+                {% if form.symptomes.vars.errors|length > 0 %}
+                    <div class="form-error-container">
+                        {% for error in form.symptomes.vars.errors %}
+                            <div class="form-error-message">
+                                <span>⚠️</span>
+                                <span>{{ error.message }}</span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                {{ form_label(form.medicamentsPris) }}
+                {{ form_widget(form.medicamentsPris) }}
+                {% if form.medicamentsPris.vars.errors|length > 0 %}
+                    <div class="form-error-container">
+                        {% for error in form.medicamentsPris.vars.errors %}
+                            <div class="form-error-message">
+                                <span>⚠️</span>
+                                <span>{{ error.message }}</span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                {{ form_label(form.activitePhysique) }}
+                {{ form_widget(form.activitePhysique) }}
+                {% if form.activitePhysique.vars.errors|length > 0 %}
+                    <div class="form-error-container">
+                        {% for error in form.activitePhysique.vars.errors %}
+                            <div class="form-error-message">
+                                <span>⚠️</span>
+                                <span>{{ error.message }}</span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                {{ form_label(form.notes) }}
+                {{ form_widget(form.notes) }}
+                {% if form.notes.vars.errors|length > 0 %}
+                    <div class="form-error-container">
+                        {% for error in form.notes.vars.errors %}
+                            <div class="form-error-message">
+                                <span>⚠️</span>
+                                <span>{{ error.message }}</span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div style="margin-top:1rem; display:flex; gap:0.5rem;">
+                <button class="btn btn-primary">Enregistrer</button>
+                <a href="{{ path('app_my_health', {'_locale': app.request.locale}) }}" class="btn btn-outline">Annuler</a>
+            </div>
+            {{ form_end(form) }}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,34 @@
+{% extends 'base_dashboard.html.twig' %}
+
+{% block title %}Détail entrée santé{% endblock %}
+
+{% block body %}
+<div class="health-wrapper">
+    <div class="health-container">
+        <a href="{{ path('app_my_health', {'_locale': app.request.locale}) }}" class="back-link">← Retour</a>
+
+        <div class="health-header" style="padding:1.5rem 1.5rem; border-radius:12px; margin-bottom:1rem;">
+            <h2 style="color:white; margin:0;">Entrée du {{ record.date ? record.date|date('d/m/Y') : '—' }}</h2>
+        </div>
+
+        <div class="admin-card" style="background:white; padding:1rem; border-radius:12px; box-shadow:0 6px 20px rgba(0,0,0,0.06);">
+            <p><strong>Tension artérielle:</strong> {{ record.tensionArterielle ?: '—' }}</p>
+            <p><strong>Fréquence cardiaque:</strong> {{ record.frequenceCardiaque ?: '—' }} bpm</p>
+            <p><strong>Température:</strong> {{ record.temperature ?: '—' }} °C</p>
+            <p><strong>Médicaments pris:</strong> {{ record.medicamentsPris ?: '—' }}</p>
+            <p><strong>Activité physique:</strong> {{ record.activitePhysique ?: '—' }}</p>
+            <p><strong>Hydratation:</strong> {{ record.hydratation ?: '—' }}</p>
+            <p><strong>Notes:</strong> {{ record.notes ?: '—' }}</p>
+            <p><strong>Humeur:</strong> {{ record.humeur ?: '—' }}</p>
+
+            <div style="margin-top:1rem; display:flex; gap:0.5rem;">
+                <a href="{{ path('app_my_health_edit', {'_locale': app.request.locale, 'id': record.id}) }}" class="btn btn-outline">Modifier</a>
+                <form method="post" action="{{ path('app_my_health_delete', {'_locale': app.request.locale, 'id': record.id}) }}" onsubmit="return confirm('Supprimer cette entrée ?');">
+                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ record.id) }}">
+                    <button class="btn btn-danger">Supprimer</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,4 +1,4 @@
-{% extends 'base.html.twig' %}
+{% extends 'base_dashboard.html.twig' %}
 
 {% block title %}Nouvelle Entrée Santé - WANNASNI{% endblock %}
 
@@ -206,6 +206,112 @@
         color: #dc2626;
     }
 
+    /* Error messages */
+    .form-error {
+        background: #fee2e2;
+        border: 1px solid #fca5a5;
+        color: #991b1b;
+        padding: 0.75rem;
+        border-radius: 8px;
+        margin-top: 0.5rem;
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+
+    .form-error-container {
+        background: #fee2e2;
+        border: 1px solid #fca5a5;
+        border-radius: 8px;
+        padding: 0.75rem;
+        margin-top: 0.5rem;
+        list-style: none;
+    }
+
+    .form-error-message {
+        color: #991b1b;
+        font-size: 0.85rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin: 0.25rem 0;
+    }
+
+    .error-icon {
+        font-size: 1rem;
+    }
+
+    .form-input.error {
+        border-color: #dc2626 !important;
+        background: #fef2f2;
+    }
+
+    .form-input:invalid {
+        border-color: #dc2626;
+    }
+
+    .form-input.is-invalid {
+        border-color: #dc2626 !important;
+        background: #fef2f2;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        color: var(--dash-text);
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        width: 100%;
+        padding: 0.75rem;
+        border: 2px solid var(--dash-border);
+        border-radius: 8px;
+        font-size: 0.95rem;
+        font-family: inherit;
+        transition: border-color 0.2s, background-color 0.2s;
+    }
+
+    .form-group input.is-invalid,
+    .form-group select.is-invalid,
+    .form-group textarea.is-invalid {
+        border-color: #dc2626 !important;
+        background-color: #fef2f2 !important;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+        outline: none;
+        border-color: #dc2626;
+        box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+    }
+
+    .form-error-container {
+        background: #fee2e2;
+        border: 1px solid #fca5a5;
+        border-radius: 8px;
+        padding: 0.75rem;
+        margin-top: 0.3rem;
+    }
+
+    .form-error-message {
+        color: #991b1b;
+        font-size: 0.85rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .error-icon {
+        font-size: 1rem;
+    }
+
     @media (max-width: 480px) {
         .form-row {
             grid-template-columns: 1fr;
@@ -234,22 +340,50 @@
             </div>
             <div class="form-body">
                 {% if form is defined %}
-                    {{ form_start(form) }}
-                        <div class="form-row">
-                            <div class="form-group">{{ form_row(form.tensionArterielle, {'attr': {'class': 'form-input', 'placeholder': 'ex: 120/80'}}) }}</div>
-                            <div class="form-group">{{ form_row(form.frequenceCardiaque, {'attr': {'class': 'form-input', 'placeholder': 'bpm'}}) }}</div>
+                    {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+                    
+                    {# Display global form errors #}
+                    {% if form.vars.errors|length > 0 %}
+                        <div style="background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 0.75rem; border-radius: 8px; margin-bottom: 1rem;">
+                            <strong>⚠️ Erreurs dans le formulaire:</strong>
+                            {% for error in form.vars.errors %}
+                                <div>• {{ error.message }}</div>
+                            {% endfor %}
                         </div>
+                    {% endif %}
 
-                        <div class="form-group">{{ form_row(form.temperature, {'attr': {'class': 'form-input', 'placeholder': '°C'}}) }}</div>
+                    {# Date field (required) #}
+                    {{ form_row(form.date, {'label': 'Date et Heure *'}) }}
 
-                        <div class="form-group">{{ form_row(form.humeur, {'attr': {'class': 'form-input'}}) }}</div>
+                    <div class="form-row">
+                        {{ form_row(form.tensionArterielle, {'label': 'Tension Artérielle'}) }}
+                        {{ form_row(form.frequenceCardiaque, {'label': 'FC (bpm)'}) }}
+                    </div>
 
-                        <div class="form-group">{{ form_row(form.notes, {'attr': {'class': 'form-input', 'rows': 3}}) }}</div>
+                    <div class="form-row">
+                        {{ form_row(form.temperature, {'label': 'Température (°C)'}) }}
+                        {{ form_row(form.niveauDouleur, {'label': 'Niveau de Douleur (0-10)'}) }}
+                    </div>
 
-                        <div class="btn-group">
-                            <button type="submit" class="btn btn-primary">💾 Enregistrer</button>
-                            <a href="{{ path('app_my_health', {'_locale': app.request.locale}) }}" class="btn btn-secondary">Annuler</a>
-                        </div>
+                    <div class="form-row">
+                        {{ form_row(form.humeur, {'label': 'Humeur'}) }}
+                        {{ form_row(form.qualiteSommeil, {'label': 'Qualité du Sommeil'}) }}
+                    </div>
+
+                    <div class="form-row">
+                        {{ form_row(form.appetit, {'label': 'Appétit'}) }}
+                        {{ form_row(form.hydratation, {'label': 'Hydratation'}) }}
+                    </div>
+
+                    {{ form_row(form.symptomes, {'label': 'Symptômes'}) }}
+                    {{ form_row(form.medicamentsPris, {'label': 'Médicaments Pris'}) }}
+                    {{ form_row(form.activitePhysique, {'label': 'Activité Physique'}) }}
+                    {{ form_row(form.notes, {'label': 'Notes Additionnelles'}) }}
+
+                    <div class="btn-group">
+                        <button type="submit" class="btn btn-primary">💾 Enregistrer</button>
+                        <a href="{{ path('app_my_health', {'_locale': app.request.locale}) }}" class="btn btn-secondary">Annuler</a>
+                    </div>
                     {{ form_end(form) }}
                 {% else %}
                     <p>Formulaire non disponible.</p>

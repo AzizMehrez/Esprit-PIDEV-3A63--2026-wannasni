@@ -38,10 +38,21 @@ class TreatmentAdminController extends AbstractController
         $qb->orderBy('t.datePrescription', $sort === 'asc' ? 'ASC' : 'DESC');
         $records = $qb->getQuery()->getResult();
 
+        // Calculate statistics
+        $doctorIds = array_filter(array_map(fn($r) => $r->getDocteur()?->getId(), $records));
+        $patientIds = array_filter(array_map(fn($r) => $r->getSenior()?->getId(), $records));
+        $stats = [
+            'total' => count($records),
+            'doctors' => count(array_unique($doctorIds)),
+            'patients' => count(array_unique($patientIds)),
+            'prescriptions' => count($records),
+        ];
+
         return $this->render('admin/treatment/index.html.twig', [
             'records' => $records,
             'q' => $q,
             'sort' => $sort,
+            'stats' => $stats,
         ]);
     }
 
