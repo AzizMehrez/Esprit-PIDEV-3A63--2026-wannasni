@@ -8,6 +8,7 @@ use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
 use Symfony\Component\Mime\Part\DataPart;
 use Symfony\Component\Mime\Part\File;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class InterventionEmailService
 {
@@ -15,16 +16,19 @@ class InterventionEmailService
     private DevisService $devisService;
     private string $senderEmail;
     private LoggerInterface $logger;
+    private UrlGeneratorInterface $router;
 
     public function __construct(
         MailerInterface $mailer,
         DevisService $devisService,
         LoggerInterface $logger,
+        UrlGeneratorInterface $router,
         string $senderEmail = 'noreply@wannasni.com'
     ) {
         $this->mailer = $mailer;
         $this->devisService = $devisService;
         $this->logger = $logger;
+        $this->router = $router;
         $this->senderEmail = $senderEmail;
     }
 
@@ -38,13 +42,13 @@ class InterventionEmailService
             $this->logger->warning('No service request found for intervention ' . $intervention->getId());
             return;
         }
-        
+
         if (!$service->getSeniorEmail()) {
             $this->logger->warning('No senior email found for service ' . $service->getId());
             return;
         }
 
-        set_error_handler(function($errno, $errstr) use (&$errors) {
+        set_error_handler(function ($errno, $errstr) use (&$errors) {
             throw new \ErrorException($errstr, $errno);
         });
 
@@ -116,6 +120,10 @@ class InterventionEmailService
                         <hr style="border: none; border-top: 1px solid #ddd;">
                         <p style="font-size: 18px; font-weight: bold;"><strong>Montant total estimé: %.2f TND</strong></p>
                     </div>
+
+                    <div style="text-align: center; margin: 30px 0;">
+                        <a href="%s" style="background-color: #28a745; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-size: 16px; font-weight: bold;">Payer en ligne</a>
+                    </div>
                     
                     <p>Un technicien vous contactera pour confirmer l\'intervention.</p>
                     <p>Cordialement,<br><strong>L\'équipe WANNASNI</strong></p>
@@ -129,7 +137,8 @@ class InterventionEmailService
             htmlspecialchars($intervention->getTechnicienNom() ?? 'À assigner'),
             $intervention->getHeuresTravail() ?? 2,
             $intervention->getTarifHoraire() ?? 25.00,
-            $tarifTotal
+            $tarifTotal,
+            $this->router->generate('payment_checkout', ['id' => $intervention->getId()], UrlGeneratorInterface::ABSOLUTE_URL)
         );
     }
 }

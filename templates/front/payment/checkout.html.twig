@@ -1,0 +1,365 @@
+{% extends 'base_auth.html.twig' %}
+
+{% block title %}Paiement - WANNASNI{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .credit-card-box {
+            perspective: 1000px;
+            width: 400px;
+            height: 250px;
+            margin: auto;
+            margin-bottom: 20px;
+        }
+        .credit-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+        }
+        .credit-card-box.flipped .credit-card-inner {
+            transform: rotateY(180deg);
+        }
+        .credit-card-front, .credit-card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            border-radius: 15px;
+            padding: 20px;
+            color: white;
+            background: linear-gradient(135deg, #1f2937, #111827); /* Dark premium look */
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .credit-card-back {
+            transform: rotateY(180deg);
+            background: linear-gradient(135deg, #111827, #1f2937);
+        }
+        .card-chip {
+            width: 50px;
+            height: 35px;
+            background: linear-gradient(135deg, #fbbf24, #d97706);
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .card-number-display {
+            font-size: 1.5rem;
+            letter-spacing: 2px;
+            font-family: 'Courier New', Courier, monospace;
+            text-align: left;
+            margin-bottom: 10px;
+            text-shadow: 0 1px 1px rgba(0,0,0,0.5);
+        }
+        .card-holder-display {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            text-align: left;
+        }
+        .card-expiry-display {
+            font-size: 0.9rem;
+            text-align: right;
+        }
+        .card-strip {
+            background: #000;
+            height: 40px;
+            width: 100%;
+            margin-top: 20px;
+            position: absolute;
+            left: 0;
+            top: 20px;
+        }
+        .card-cvc-display {
+            background: white;
+            color: black;
+            width: 80%;
+            height: 30px;
+            margin: 80px auto 0 auto;
+            text-align: right;
+            padding-right: 10px;
+            line-height: 30px;
+            font-family: 'Courier New', Courier, monospace;
+            border-radius: 4px;
+        }
+        .card-logo {
+             position: absolute;
+             top: 20px;
+             right: 20px;
+             font-weight: bold;
+             font-style: italic;
+             font-size: 1.2rem;
+        }
+        /* Shake animation for error */
+        .shake {
+            animation: shake 0.5s;
+        }
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+            100% { transform: translateX(0); }
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+<div class="container mt-5 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5 order-md-2 mb-4">
+            <!-- Credit Card Visualizer -->
+            <div class="credit-card-box" id="cardBox">
+                <div class="credit-card-inner">
+                    <div class="credit-card-front">
+                        <div class="card-logo">VISA</div>
+                        <div class="card-chip"></div>
+                        <div class="card-number-display" id="displayCardNumber">#### #### #### ####</div>
+                        <div class="d-flex justify-content-between align-items-end">
+                            <div>
+                                <div style="font-size: 0.7rem; opacity: 0.8;">Titulaire</div>
+                                <div class="card-holder-display" id="displayCardName">NOM COMPLET</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 0.7rem; opacity: 0.8;">Expire</div>
+                                <div class="card-expiry-display" id="displayExpiry">MM/YY</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="credit-card-back">
+                        <div class="card-strip"></div>
+                        <div class="card-cvc-display" id="displayCvc">***</div>
+                        <div class="text-end mt-2 me-4" style="font-size: 0.7rem;">CVV</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Summary Card -->
+             <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Récapitulatif</h5>
+                    <ul class="list-group list-group-flush">
+                         <li class="list-group-item d-flex justify-content-between">
+                            <span>Service</span>
+                            <strong>{{ intervention.serviceRequest.typeService|default('Service') }}</strong>
+                        </li>
+                         <li class="list-group-item d-flex justify-content-between">
+                            <span>Total</span>
+                            <span class="fw-bold text-success">{{ total|number_format(2, '.', ' ') }} DT</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-7 order-md-1">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="card-title mb-0">Détails du Paiement</h3>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info mb-4">
+                        <i class="fas fa-lock me-2"></i> Paiement sécurisé SSL. Vos données sont cryptées.
+                    </div>
+
+                    <form action="{{ path('payment_process', {'id': intervention.id}) }}" method="post" id="payment-form" novalidate>
+                        <div class="mb-3">
+                            <label for="cardName" class="form-label">Nom sur la carte</label>
+                            <input type="text" class="form-control form-control-lg" id="cardName" placeholder="Ex: Jean Dupont" required autocomplete="cc-name">
+                            <div class="invalid-feedback">Le nom est requis.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="cardNumber" class="form-label">Numéro de carte</label>
+                            <div class="input-group input-group-lg">
+                                <span class="input-group-text"><i class="fas fa-credit-card"></i></span>
+                                <input type="text" class="form-control" id="cardNumber" placeholder="0000 0000 0000 0000" maxlength="19" required autocomplete="cc-number">
+                                <div class="invalid-feedback" id="cardNumberFeedback">Numéro de carte invalide (Luhn check).</div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="expiryDate" class="form-label">Date d'expiration</label>
+                                <input type="text" class="form-control form-control-lg" id="expiryDate" placeholder="MM/YY" maxlength="5" required autocomplete="cc-exp">
+                                <div class="invalid-feedback" id="expiryDateFeedback">Date invalide ou expirée.</div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="cvc" class="form-label">CVC / CVV</label>
+                                <div class="input-group input-group-lg">
+                                    <input type="text" class="form-control" id="cvc" placeholder="123" maxlength="3" required autocomplete="cc-csc">
+                                    <span class="input-group-text"><i class="fas fa-question-circle" title="3 derniers chiffres au dos"></i></span>
+                                    <div class="invalid-feedback">Code CVC requis (3 chiffres).</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="submit" class="btn btn-success btn-lg" id="btn-submit">
+                                <i class="fas fa-lock me-2"></i> Payer {{ total|number_format(2, '.', ' ') }} DT
+                            </button>
+                            <a href="{{ path('app_home', {'_locale': app.request.locale|default('fr')}) }}" class="btn btn-outline-secondary">Annuler</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const cardBox = document.getElementById('cardBox');
+        
+        const cardName = document.getElementById('cardName');
+        const cardNumber = document.getElementById('cardNumber');
+        const expiryDate = document.getElementById('expiryDate');
+        const cvc = document.getElementById('cvc');
+        
+        const displayCardName = document.getElementById('displayCardName');
+        const displayCardNumber = document.getElementById('displayCardNumber');
+        const displayExpiry = document.getElementById('displayExpiry');
+        const displayCvc = document.getElementById('displayCvc');
+        
+        const form = document.getElementById('payment-form');
+
+        // --- Real-time Visualization ---
+
+        // Name
+        cardName.addEventListener('input', function(e) {
+            let val = e.target.value; // Allow all chars for name
+            displayCardName.textContent = val.length > 0 ? val.toUpperCase() : 'NOM COMPLET';
+        });
+
+        // Card Number
+        cardNumber.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            let formatted = '';
+            for (let i = 0; i < value.length; i++) {
+                if (i > 0 && i % 4 === 0) formatted += ' ';
+                formatted += value[i];
+            }
+            e.target.value = formatted;
+            displayCardNumber.textContent = formatted.length > 0 ? formatted : '#### #### #### ####';
+        });
+
+        // Expiry
+        expiryDate.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length > 2) {
+                value = value.substring(0, 2) + '/' + value.substring(2, 4);
+            }
+            e.target.value = value;
+            displayExpiry.textContent = value.length > 0 ? value : 'MM/YY';
+        });
+
+        // CVC (Flip animation)
+        cvc.addEventListener('focus', () => cardBox.classList.add('flipped'));
+        cvc.addEventListener('blur', () => cardBox.classList.remove('flipped'));
+        cvc.addEventListener('input', function(e) {
+            let val = e.target.value.replace(/\D/g, '');
+            e.target.value = val;
+            displayCvc.textContent = val.length > 0 ? val : '***';
+        });
+
+        // --- Validation Logic ---
+
+        function luhnCheck(cardNum) {
+            let s = 0;
+            let doubleDigit = false;
+            for (let i = cardNum.length - 1; i >= 0; i--) {
+                let digit = parseInt(cardNum.charAt(i));
+                if (doubleDigit) {
+                    digit *= 2;
+                    if (digit > 9) digit -= 9;
+                }
+                s += digit;
+                doubleDigit = !doubleDigit;
+            }
+            return (s % 10) == 0;
+        }
+
+        function isFutureDate(expiryStr) {
+            if (!/^\d{2}\/\d{2}$/.test(expiryStr)) return false;
+            const [month, year] = expiryStr.split('/');
+            const d = new Date();
+            const currentYear = parseInt(d.getFullYear().toString().substr(2,2));
+            const currentMonth = d.getMonth() + 1;
+            
+            const expMonth = parseInt(month);
+            const expYear = parseInt(year);
+
+            if (expMonth < 1 || expMonth > 12) return false;
+            
+            if (expYear < currentYear) return false;
+            if (expYear === currentYear && expMonth < currentMonth) return false;
+            
+            return true;
+        }
+
+        form.addEventListener('submit', function(event) {
+            let valid = true;
+            
+            // Re-fetch values to ensure latest input
+            const cardNameVal = cardName.value.trim();
+            const cardNumberVal = cardNumber.value.replace(/\s+/g, '');
+            const expiryDateVal = expiryDate.value.replace(/\s+/g, '');
+            const cvcVal = cvc.value.replace(/\s+/g, '');
+
+            console.log("Validation Start:", { cardNameVal, cardNumberVal, expiryDateVal, cvcVal });
+
+            // Validate Name
+            if (cardNameVal === '') {
+                cardName.classList.add('is-invalid');
+                valid = false;
+            } else {
+                cardName.classList.remove('is-invalid');
+                cardName.classList.add('is-valid');
+            }
+
+            // Validate Card Number
+            if (cardNumberVal.length < 13 || !luhnCheck(cardNumberVal)) {
+                cardNumber.classList.add('is-invalid');
+                const feedback = document.getElementById('cardNumberFeedback');
+                if (feedback) feedback.textContent = cardNumberVal.length < 13 ? "Numéro trop court." : "Numéro de carte invalide (Luhn check échoué).";
+                valid = false;
+            } else {
+                cardNumber.classList.remove('is-invalid');
+                cardNumber.classList.add('is-valid');
+            }
+
+            // Validate Expiry
+            if (!isFutureDate(expiryDateVal)) {
+                expiryDate.classList.add('is-invalid');
+                const feedback = document.getElementById('expiryDateFeedback');
+                if (feedback) feedback.textContent = "Date invalide ou expirée (ex: 12/30).";
+                valid = false;
+            } else {
+                expiryDate.classList.remove('is-invalid');
+                expiryDate.classList.add('is-valid');
+            }
+
+            // Validate CVC
+            if (cvcVal.length < 3) {
+                cvc.classList.add('is-invalid');
+                valid = false;
+            } else {
+                cvc.classList.remove('is-invalid');
+                cvc.classList.add('is-valid');
+            }
+
+            if (!valid) {
+                event.preventDefault();
+                event.stopPropagation();
+                console.log("Validation Failed");
+            } else {
+                 console.log("Validation Success");
+            }
+        });
+    });
+</script>
+{% endblock %}
