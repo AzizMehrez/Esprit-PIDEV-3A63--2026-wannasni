@@ -1,270 +1,280 @@
 {% extends 'base_dashboard.html.twig' %}
 
-{% block title %}Ajouter un repas - WANNASNI{% endblock %}
+{% block title %}Modifier Demande #{{ demande_regime.id }}{% endblock %}
 
-{% block stylesheets %}
-{{ parent() }}
+{% block body %}
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <h1>📝 Modifier Demande #{{ demande_regime.id }}</h1>
+        <p>Modifiez les informations de la demande de régime</p>
+    </div>
+
+    <div class="form-card">
+        {{ form_start(form) }}
+        
+        <div class="form-grid">
+            <div class="form-group">
+                {{ form_label(form.seniorId, 'ID du Senior') }}
+                {{ form_widget(form.seniorId, {
+                    'attr': {
+                        'class': 'form-input'
+                    }
+                }) }}
+            </div>
+
+            <div class="form-group">
+                {{ form_label(form.nutritionnisteId, 'ID du Nutritionniste') }}
+                {{ form_widget(form.nutritionnisteId, {
+                    'attr': {
+                        'class': 'form-input'
+                    }
+                }) }}
+            </div>
+
+            <div class="form-group">
+                {{ form_label(form.typeRegimeSouhaite, 'Type de régime souhaité') }}
+                {{ form_widget(form.typeRegimeSouhaite, {
+                    'attr': {
+                        'class': 'form-select'
+                    }
+                }) }}
+            </div>
+
+            <div class="form-group">
+                {{ form_label(form.objectifPrincipal, 'Objectif principal') }}
+                {{ form_widget(form.objectifPrincipal, {
+                    'attr': {
+                        'class': 'form-select'
+                    }
+                }) }}
+            </div>
+
+            <div class="form-group">
+                {{ form_label(form.statut, 'Statut') }}
+                {{ form_widget(form.statut, {
+                    'attr': {
+                        'class': 'form-select'
+                    }
+                }) }}
+            </div>
+
+            <div class="form-group">
+                {{ form_label(form.budgetMensuel, 'Budget mensuel (DH)') }}
+                {{ form_widget(form.budgetMensuel, {
+                    'attr': {
+                        'class': 'form-input'
+                    }
+                }) }}
+            </div>
+        </div>
+
+        <div class="form-group">
+            {{ form_label(form.allergies, 'Allergies alimentaires') }}
+            {{ form_widget(form.allergies, {
+                'attr': {
+                    'class': 'form-textarea',
+                    'rows': 3,
+                    'placeholder': 'Ex: Arachides, crustacés, lactose...'
+                }
+            }) }}
+        </div>
+
+        <div class="form-group">
+            {{ form_label(form.intolerances, 'Intolérances alimentaires') }}
+            {{ form_widget(form.intolerances, {
+                'attr': {
+                    'class': 'form-textarea',
+                    'rows': 3,
+                    'placeholder': 'Ex: Gluten, lactose, fructose...'
+                }
+            }) }}
+        </div>
+
+        <div class="form-group">
+            {{ form_label(form.habitudesAlimentaires, 'Habitudes alimentaires') }}
+            {{ form_widget(form.habitudesAlimentaires, {
+                'attr': {
+                    'class': 'form-textarea',
+                    'rows': 4,
+                    'placeholder': 'Décrivez vos habitudes alimentaires...'
+                }
+            }) }}
+        </div>
+
+        <div class="form-group">
+            {{ form_label(form.dateTraitement, 'Date de traitement') }}
+            {{ form_widget(form.dateTraitement, {
+                'attr': {
+                    'class': 'form-input'
+                }
+            }) }}
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn-primary">
+                <i class="fas fa-save"></i> Enregistrer
+            </button>
+            
+            <div class="action-buttons">
+                <a href="{{ path('app_nutrition_show', {'id': demande_regime.id}) }}" class="btn-secondary">
+                    <i class="fas fa-eye"></i> Voir détails
+                </a>
+                <a href="{{ path('app_my_nutrition') }}" class="btn-cancel">
+                    <i class="fas fa-times"></i> Annuler
+                </a>
+            </div>
+        </div>
+        
+        {{ form_end(form) }}
+    </div>
+</div>
+
 <style>
-    :root {
-        --nutri-primary: #22c55e;
-        --nutri-primary-light: #4ade80;
-        --nutri-bg: #f0fdf4;
-        --nutri-card: #ffffff;
-        --nutri-text: #1a1a2e;
-        --nutri-text-muted: #64748b;
+    .dashboard-container {
+        max-width: 800px;
+        margin: 2rem auto;
+        padding: 0 1rem;
     }
 
-    .add-meal-wrapper {
-        min-height: 100vh;
-        padding: 2rem 1.5rem 4rem;
-        background: linear-gradient(180deg, var(--nutri-bg) 0%, #f8fafc 30%);
+    .dashboard-header {
+        text-align: center;
+        margin-bottom: 2rem;
     }
 
-    .add-meal-container {
-        max-width: 600px;
-        margin: 0 auto;
+    .dashboard-header h1 {
+        font-size: 2rem;
+        color: #2E7D32;
+        margin-bottom: 0.5rem;
     }
-
-    .back-link {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        color: var(--nutri-primary);
-        text-decoration: none;
-        font-weight: 600;
-        margin-bottom: 1.5rem;
-        font-size: 1rem;
-    }
-
-    .back-link:hover { text-decoration: underline; }
 
     .form-card {
-        background: var(--nutri-card);
-        border-radius: 24px;
+        background: white;
+        border-radius: 16px;
         padding: 2rem;
-        box-shadow: 0 8px 32px rgba(34, 197, 94, 0.1);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
     }
 
-    .form-title {
-        font-family: 'Playfair Display', serif;
-        font-size: 1.75rem;
-        color: var(--nutri-text);
-        margin-bottom: 1.5rem;
-        text-align: center;
-    }
-
-    .meal-type-selector {
+    .form-grid {
         display: grid;
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
         gap: 1rem;
         margin-bottom: 1.5rem;
     }
 
-    .meal-type-btn {
-        padding: 1.25rem;
-        border: 2px solid #e2e8f0;
-        border-radius: 16px;
-        background: #f8fafc;
-        cursor: pointer;
-        text-align: center;
-        transition: all 0.2s;
-    }
-
-    .meal-type-btn:hover, .meal-type-btn.active {
-        border-color: var(--nutri-primary);
-        background: var(--nutri-bg);
-    }
-
-    .meal-type-btn.active {
-        box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2);
-    }
-
-    .meal-type-icon { font-size: 2rem; display: block; margin-bottom: 0.5rem; }
-    .meal-type-label { font-weight: 600; color: var(--nutri-text); }
-
     .form-group {
-        margin-bottom: 1.25rem;
+        margin-bottom: 1.5rem;
     }
 
-    .form-label {
+    .form-group label {
         display: block;
-        font-size: 1rem;
-        font-weight: 600;
-        color: var(--nutri-text);
         margin-bottom: 0.5rem;
+        font-weight: 600;
+        color: #1a1a2e;
     }
 
-    .form-input {
+    .form-input, .form-select, .form-textarea {
         width: 100%;
-        padding: 1rem 1.25rem;
-        font-size: 1.1rem;
+        padding: 0.75rem 1rem;
         border: 2px solid #e2e8f0;
-        border-radius: 12px;
-        background: #f8fafc;
-        color: var(--nutri-text);
-        transition: all 0.2s;
-    }
-
-    .form-input:focus {
-        outline: none;
-        border-color: var(--nutri-primary);
-        box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2);
-    }
-
-    .form-input::placeholder { color: #94a3b8; }
-
-    .food-tags {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-        margin-top: 0.75rem;
-    }
-
-    .food-tag {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.35rem;
-        padding: 0.5rem 1rem;
-        background: #dcfce7;
-        color: #166534;
-        border-radius: 50px;
-        font-size: 0.9rem;
-        font-weight: 500;
-    }
-
-    .food-tag button {
-        background: none;
-        border: none;
-        color: #166534;
-        cursor: pointer;
+        border-radius: 8px;
         font-size: 1rem;
-    }
-
-    .quick-foods {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-        margin-top: 1rem;
-    }
-
-    .quick-food {
-        padding: 0.5rem 1rem;
-        background: #f1f5f9;
-        border: 1px solid #e2e8f0;
-        border-radius: 50px;
-        font-size: 0.9rem;
-        cursor: pointer;
         transition: all 0.2s;
     }
 
-    .quick-food:hover {
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+        outline: none;
+        border-color: #2E7D32;
+        box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.1);
+    }
+
+    .form-textarea {
+        resize: vertical;
+        min-height: 100px;
+    }
+
+    .form-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 2rem;
+        padding-top: 1.5rem;
+        border-top: 2px solid #f1f5f9;
+    }
+
+    .btn-primary {
+        padding: 0.75rem 1.5rem;
+        background: linear-gradient(135deg, #2E7D32, #4CAF50);
+        color: white;
+        border: none;
+        border-radius: 50px;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.2s;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(46, 125, 50, 0.3);
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 0.75rem;
+    }
+
+    .btn-secondary, .btn-cancel {
+        padding: 0.75rem 1.5rem;
+        border-radius: 50px;
+        text-decoration: none;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.2s;
+    }
+
+    .btn-secondary {
+        background: #f1f5f9;
+        color: #64748b;
+        border: 2px solid #e2e8f0;
+    }
+
+    .btn-secondary:hover {
         background: #e2e8f0;
     }
 
-    .submit-btn {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.5rem;
-        width: 100%;
-        padding: 1.25rem;
-        background: linear-gradient(135deg, var(--nutri-primary), var(--nutri-primary-light));
-        color: white;
-        border: none;
-        border-radius: 14px;
-        font-size: 1.15rem;
-        font-weight: 600;
-        cursor: pointer;
-        margin-top: 1.5rem;
-        box-shadow: 0 4px 16px rgba(34, 197, 94, 0.3);
-        transition: all 0.3s;
+    .btn-cancel {
+        background: white;
+        color: #64748b;
+        border: 2px solid #e2e8f0;
     }
 
-    .submit-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 24px rgba(34, 197, 94, 0.4);
+    .btn-cancel:hover {
+        background: #f1f5f9;
+    }
+
+    @media (max-width: 768px) {
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .form-actions {
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .action-buttons {
+            width: 100%;
+            justify-content: space-between;
+        }
+
+        .btn-secondary, .btn-cancel {
+            flex: 1;
+            justify-content: center;
+        }
     }
 </style>
-{% endblock %}
-
-{% block body %}
-<div class="add-meal-wrapper">
-    <div class="add-meal-container">
-        
-        <a href="{{ path('app_my_nutrition', {'_locale': app.request.locale}) }}" class="back-link">
-            ← Retour à ma nutrition
-        </a>
-        
-        <div class="form-card">
-            <h1 class="form-title">🍽️ Enregistrer un repas</h1>
-            
-            <form method="post">
-                <!-- Meal Type Selector -->
-                <div class="form-group">
-                    <label class="form-label">Type de repas</label>
-                    <div class="meal-type-selector">
-                        <label class="meal-type-btn">
-                            <input type="radio" name="meal_type" value="breakfast" hidden>
-                            <span class="meal-type-icon">☕</span>
-                            <span class="meal-type-label">Petit-déjeuner</span>
-                        </label>
-                        <label class="meal-type-btn">
-                            <input type="radio" name="meal_type" value="lunch" hidden>
-                            <span class="meal-type-icon">🍽️</span>
-                            <span class="meal-type-label">Déjeuner</span>
-                        </label>
-                        <label class="meal-type-btn">
-                            <input type="radio" name="meal_type" value="snack" hidden>
-                            <span class="meal-type-icon">🍎</span>
-                            <span class="meal-type-label">Collation</span>
-                        </label>
-                        <label class="meal-type-btn">
-                            <input type="radio" name="meal_type" value="dinner" hidden>
-                            <span class="meal-type-icon">🌙</span>
-                            <span class="meal-type-label">Dîner</span>
-                        </label>
-                    </div>
-                </div>
-
-                <!-- Food Items -->
-                <div class="form-group">
-                    <label class="form-label">Qu'avez-vous mangé ?</label>
-                    <input type="text" class="form-input" name="food_item" placeholder="Ex: Salade de tomates, pain complet...">
-                    
-                    <div class="quick-foods">
-                        <span class="quick-food">🥖 Pain</span>
-                        <span class="quick-food">☕ Café</span>
-                        <span class="quick-food">🥛 Lait</span>
-                        <span class="quick-food">🍎 Fruits</span>
-                        <span class="quick-food">🥗 Salade</span>
-                        <span class="quick-food">🍗 Poulet</span>
-                        <span class="quick-food">🍚 Riz</span>
-                        <span class="quick-food">🥕 Légumes</span>
-                    </div>
-                </div>
-
-                <!-- Notes -->
-                <div class="form-group">
-                    <label class="form-label">Notes (optionnel)</label>
-                    <textarea class="form-input" name="notes" rows="3" placeholder="Comment vous êtes-vous senti après ce repas ?"></textarea>
-                </div>
-
-                <button type="submit" class="submit-btn">
-                    ✓ Enregistrer ce repas
-                </button>
-            </form>
-        </div>
-        
-    </div>
-</div>
-
-<script>
-    // Meal type selector interaction
-    document.querySelectorAll('.meal-type-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            document.querySelectorAll('.meal-type-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-        });
-    });
-</script>
 {% endblock %}

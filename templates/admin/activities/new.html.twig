@@ -3,72 +3,308 @@
 {% block title %}Nouvelle Activité - Admin WANNASNI{% endblock %}
 {% block page_title %}Créer une Nouvelle Activité{% endblock %}
 
+{% block extra_styles %}
+<style>
+    .form-container {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    .back-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        background: white;
+        border: 2px solid var(--admin-border);
+        border-radius: 12px;
+        color: var(--admin-text);
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s;
+        margin-bottom: 1.5rem;
+    }
+
+    .back-button:hover {
+        background: var(--admin-bg);
+        border-color: var(--admin-primary);
+        color: var(--admin-primary);
+        transform: translateX(-4px);
+    }
+
+    .form-card {
+        background: white;
+        border-radius: 20px;
+        padding: 2.5rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        border: 2px solid var(--admin-border);
+    }
+
+    .form-card-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 3px solid var(--admin-primary);
+    }
+
+    .form-card-icon {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, var(--admin-primary), var(--admin-primary-light));
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        box-shadow: 0 4px 16px rgba(30, 64, 175, 0.25);
+    }
+
+    .form-card-title {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--admin-text);
+        margin: 0;
+    }
+
+    .form-section {
+        margin-bottom: 2rem;
+    }
+
+    .section-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--admin-text);
+        margin-bottom: 1.25rem;
+        padding-left: 0.75rem;
+        border-left: 4px solid var(--admin-primary);
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.25rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 600;
+        color: var(--admin-text);
+        margin-bottom: 0.5rem;
+        font-size: 0.95rem;
+    }
+
+    .form-label-icon {
+        font-size: 1.1rem;
+    }
+
+    .required-mark {
+        color: #dc2626;
+        font-weight: 700;
+    }
+
+    .form-input, .form-textarea, .form-select {
+        width: 100%;
+        padding: 0.875rem 1rem;
+        border: 2px solid var(--admin-border);
+        border-radius: 10px;
+        font-size: 1rem;
+        transition: all 0.3s;
+        background: white;
+    }
+
+    .form-input:focus, .form-textarea:focus, .form-select:focus {
+        outline: none;
+        border-color: var(--admin-primary);
+        box-shadow: 0 0 0 4px rgba(30, 64, 175, 0.1);
+    }
+
+    .form-textarea {
+        resize: vertical;
+        min-height: 120px;
+        font-family: inherit;
+    }
+
+    .form-helper {
+        font-size: 0.85rem;
+        color: var(--admin-text-muted);
+        margin-top: 0.375rem;
+        font-style: italic;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2.5rem;
+        padding-top: 1.5rem;
+        border-top: 2px solid var(--admin-border);
+    }
+
+    .btn-submit {
+        flex: 1;
+        padding: 1rem 2rem;
+        background: linear-gradient(135deg, var(--admin-primary), var(--admin-primary-light));
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-size: 1.05rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s;
+        box-shadow: 0 4px 16px rgba(30, 64, 175, 0.3);
+    }
+
+    .btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 24px rgba(30, 64, 175, 0.4);
+    }
+
+    .btn-cancel {
+        padding: 1rem 2rem;
+        background: white;
+        color: var(--admin-text);
+        border: 2px solid var(--admin-border);
+        border-radius: 12px;
+        font-size: 1.05rem;
+        font-weight: 600;
+        text-decoration: none;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .btn-cancel:hover {
+        background: var(--admin-bg);
+        border-color: var(--admin-primary);
+        color: var(--admin-primary);
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div style="margin-bottom: 1rem;">
-    <a href="{{ path('admin_activities') }}" class="btn btn-secondary">← Retour aux Activités</a>
-</div>
+<div class="form-container">
+    <a href="{{ path('admin_activities') }}" class="back-button">
+        ← Retour aux Activités
+    </a>
 
-<div class="card" style="max-width: 700px;">
-    <div class="card-header">
-        <h2 class="card-title">Nouvelle Activité</h2>
+    <div class="form-card">
+        <div class="form-card-header">
+            <div class="form-card-icon">🎯</div>
+            <h2 class="form-card-title">Créer une Nouvelle Activité</h2>
+        </div>
+        
+        <form method="post" action="{{ path('admin_activities_new') }}">
+            {# Basic Information #}
+            <div class="form-section">
+                <h3 class="section-title">📋 Informations Générales</h3>
+                
+                <div class="form-group">
+                    <label class="form-label">
+                        <span class="form-label-icon">✏️</span>
+                        Nom de l'activité
+                        <span class="required-mark">*</span>
+                    </label>
+                    <input type="text" class="form-input" name="name" placeholder="ex: Marche matinale" required>
+                    <div class="form-helper">Nom descriptif et accrocheur pour l'activité</div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">
+                        <span class="form-label-icon">📝</span>
+                        Description
+                    </label>
+                    <textarea class="form-textarea" name="description" rows="4" placeholder="Décrivez les objectifs, le déroulement et les bénéfices de l'activité..."></textarea>
+                    <div class="form-helper">Description complète de l'activité pour informer les participants</div>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">
+                            <span class="form-label-icon">🏷️</span>
+                            Type d'activité
+                        </label>
+                        <select class="form-select" name="type">
+                            <option value="physical">🏃 Physique</option>
+                            <option value="cognitive">🧠 Cognitive</option>
+                            <option value="creative">🎨 Créative</option>
+                            <option value="social" selected>👥 Sociale</option>
+                            <option value="cultural">🎭 Culturelle</option>
+                            <option value="educational">📚 Éducative</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">
+                            <span class="form-label-icon">📊</span>
+                            Statut
+                        </label>
+                        <select class="form-select" name="status">
+                            <option value="active" selected>✅ Active</option>
+                            <option value="inactive">⏸️ Inactive</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            {# Location & Schedule #}
+            <div class="form-section">
+                <h3 class="section-title">📍 Lieu et Horaires</h3>
+                
+                <div class="form-group">
+                    <label class="form-label">
+                        <span class="form-label-icon">📍</span>
+                        Lieu
+                    </label>
+                    <input type="text" class="form-input" name="location" placeholder="ex: Salle de gym, Parc municipal, Salle 201...">
+                    <div class="form-helper">Indiquez l'endroit où se déroulera l'activité</div>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">
+                            <span class="form-label-icon">🕐</span>
+                            Date/heure de début
+                        </label>
+                        <input type="datetime-local" class="form-input" name="start_time">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">
+                            <span class="form-label-icon">🕐</span>
+                            Date/heure de fin
+                        </label>
+                        <input type="datetime-local" class="form-input" name="end_time">
+                    </div>
+                </div>
+            </div>
+
+            {# Capacity #}
+            <div class="form-section">
+                <h3 class="section-title">👥 Capacité</h3>
+                
+                <div class="form-group">
+                    <label class="form-label">
+                        <span class="form-label-icon">👥</span>
+                        Nombre maximum de participants
+                    </label>
+                    <input type="number" class="form-input" name="max_participants" value="20" min="1" max="200">
+                    <div class="form-helper">Limite de participants pour cette activité (1-200)</div>
+                </div>
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="btn-submit">✨ Créer l'Activité</button>
+                <a href="{{ path('admin_activities') }}" class="btn-cancel">Annuler</a>
+            </div>
+        </form>
     </div>
-    
-    <form method="post" action="{{ path('admin_activities_new') }}">
-        <div class="form-group">
-            <label class="form-label">Nom de l'activité *</label>
-            <input type="text" class="form-input" name="name" placeholder="ex: Marche matinale" required>
-        </div>
-        
-        <div class="form-group">
-            <label class="form-label">Description</label>
-            <textarea class="form-input" name="description" rows="3" placeholder="Décrivez l'activité..."></textarea>
-        </div>
-        
-        <div class="form-group">
-            <label class="form-label">Type</label>
-            <select class="form-input" name="type">
-                <option value="physical">Physique</option>
-                <option value="cognitive">Cognitive</option>
-                <option value="creative">Créative</option>
-                <option value="social" selected>Sociale</option>
-                <option value="cultural">Culturelle</option>
-                <option value="educational">Éducative</option>
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label class="form-label">Lieu</label>
-            <input type="text" class="form-input" name="location" placeholder="ex: Salle de gym">
-        </div>
-
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-            <div class="form-group">
-                <label class="form-label">Date/heure début</label>
-                <input type="datetime-local" class="form-input" name="start_time">
-            </div>
-            <div class="form-group">
-                <label class="form-label">Date/heure fin</label>
-                <input type="datetime-local" class="form-input" name="end_time">
-            </div>
-        </div>
-
-        <div class="form-group">
-            <label class="form-label">Max participants</label>
-            <input type="number" class="form-input" name="max_participants" value="20" min="1" max="200">
-        </div>
-
-        <div class="form-group">
-            <label class="form-label">Statut</label>
-            <select class="form-input" name="status">
-                <option value="active" selected>Active</option>
-                <option value="inactive">Inactive</option>
-            </select>
-        </div>
-        
-        <div style="display: flex; gap: 1rem; margin-top: 2rem;">
-            <button type="submit" class="btn btn-primary">Créer l'Activité</button>
-            <a href="{{ path('admin_activities') }}" class="btn btn-secondary">Annuler</a>
-        </div>
-    </form>
 </div>
 {% endblock %}
