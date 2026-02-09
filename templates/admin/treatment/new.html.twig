@@ -1,0 +1,374 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Nouveau Traitement - Admin WANNASNI{% endblock %}
+{% block page_title %}Créer un Nouveau Traitement{% endblock %}
+
+{% block extra_styles %}
+<style>
+    /* Custom Health Theme Colors - Darker for better contrast */
+    :root {
+        --health-primary: #0d9488;       /* Teal 600 */
+        --health-primary-light: #14b8a6; /* Teal 500 */
+        --health-accent: #0f766e;        /* Teal 700 */
+        --health-soft-bg: #f0fdfa;       /* Teal 50 */
+        --health-text-dark: #134e4a;     /* Teal 900 - Very dark for text */
+    }
+
+    .form-container {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    .back-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        background: white;
+        border: 2px solid var(--admin-border);
+        border-radius: 12px;
+        color: var(--admin-text);
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s;
+        margin-bottom: 1.5rem;
+    }
+
+    .back-button:hover {
+        background: var(--health-soft-bg);
+        border-color: var(--health-primary);
+        color: var(--health-primary);
+        transform: translateX(-4px);
+    }
+
+    .form-card {
+        background: white;
+        border-radius: 20px;
+        padding: 2.5rem;
+        box-shadow: 0 4px 20px rgba(14, 165, 233, 0.08);
+        border: 2px solid var(--admin-border);
+    }
+
+    .form-card-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 3px solid var(--health-primary);
+    }
+
+    .form-card-icon {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, var(--health-primary), var(--health-primary-light));
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        color: white;
+        box-shadow: 0 4px 16px rgba(14, 165, 233, 0.25);
+    }
+
+    .form-card-title {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--health-text-dark); /* Darker for better readability */
+        margin: 0;
+    }
+
+    .form-section {
+        margin-bottom: 2rem;
+    }
+
+    .section-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--health-text-dark); /* Darker for better readability */
+        margin-bottom: 1.25rem;
+        padding-left: 0.75rem;
+        border-left: 4px solid var(--health-primary);
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.25rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 600;
+        color: #1e293b; /* Slate 800 - Very dark grey/blue for max contrast */
+        margin-bottom: 0.5rem;
+        font-size: 0.95rem;
+    }
+
+    .form-label-icon {
+        font-size: 1.1rem;
+    }
+
+    .required-mark {
+        color: #ef4444;
+        font-weight: 700;
+    }
+
+    /* Override standard Symfony form widget styles */
+    .form-input, .form-control, .form-select, select, input[type="text"], input[type="number"], input[type="date"], input[type="datetime-local"] {
+        width: 100%;
+        padding: 0.875rem 1rem;
+        border: 2px solid var(--admin-border);
+        border-radius: 10px;
+        font-size: 1rem;
+        transition: all 0.3s;
+        background: white;
+        display: block;
+    }
+
+    .form-input:focus, .form-control:focus, .form-select:focus, select:focus, input:focus {
+        outline: none;
+        border-color: var(--health-primary);
+        box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.1);
+    }
+
+    .form-textarea, textarea {
+        width: 100%;
+        padding: 0.875rem 1rem;
+        border: 2px solid var(--admin-border);
+        border-radius: 10px;
+        font-size: 1rem;
+        transition: all 0.3s;
+        background: white;
+        resize: vertical;
+        min-height: 120px;
+        font-family: inherit;
+        display: block;
+    }
+    
+    .form-textarea:focus, textarea:focus {
+        outline: none;
+        border-color: var(--health-primary);
+        box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.1);
+    }
+
+    .form-helper {
+        font-size: 0.85rem;
+        color: var(--admin-text-muted);
+        margin-top: 0.375rem;
+        font-style: italic;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2.5rem;
+        padding-top: 1.5rem;
+        border-top: 2px solid var(--admin-border);
+    }
+
+    .btn-submit {
+        flex: 1;
+        padding: 1rem 2rem;
+        background: linear-gradient(135deg, var(--health-primary), var(--health-primary-light));
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-size: 1.05rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s;
+        box-shadow: 0 4px 16px rgba(14, 165, 233, 0.3);
+    }
+
+    .btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 24px rgba(14, 165, 233, 0.4);
+    }
+
+    .btn-cancel {
+        padding: 1rem 2rem;
+        background: white;
+        color: var(--admin-text);
+        border: 2px solid var(--admin-border);
+        border-radius: 12px;
+        font-size: 1.05rem;
+        font-weight: 600;
+        text-decoration: none;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .btn-cancel:hover {
+        background: var(--admin-bg);
+        border-color: var(--admin-primary);
+        color: var(--admin-primary);
+    }
+    
+    /* Toggle Switch for Checkbox */
+    .form-check {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-top: 1rem;
+    }
+    
+    .form-check input[type="checkbox"] {
+        appearance: none;
+        width: 3rem;
+        height: 1.5rem;
+        background: var(--admin-border);
+        border-radius: 50px;
+        position: relative;
+        cursor: pointer;
+        transition: background 0.3s;
+    }
+    
+    .form-check input[type="checkbox"]::after {
+        content: '';
+        position: absolute;
+        top: 0.2rem;
+        left: 0.2rem;
+        width: 1.1rem;
+        height: 1.1rem;
+        background: white;
+        border-radius: 50%;
+        transition: transform 0.3s;
+    }
+    
+    .form-check input[type="checkbox"]:checked {
+        background: var(--admin-success);
+    }
+    
+    .form-check input[type="checkbox"]:checked::after {
+        transform: translateX(1.5rem);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <a href="{{ path('app_admin_health_index') }}" class="back-button">
+        ← Retour aux Traitements
+    </a>
+
+    <div class="form-card">
+        <div class="form-card-header">
+            <div class="form-card-icon">💊</div>
+            <h2 class="form-card-title">Créer un Nouveau Traitement</h2>
+        </div>
+        
+        {{ form_start(form) }}
+            {# Basic Information #}
+            <div class="form-section">
+                <h3 class="section-title">📋 Informations du Médicament</h3>
+                
+                <div class="form-group">
+                    <label class="form-label">
+                        <span class="form-label-icon">💊</span>
+                        Médicament
+                        <span class="required-mark">*</span>
+                    </label>
+                    {{ form_widget(form.medication, {'attr': {'class': 'form-control', 'placeholder': 'ex: Doliprane, Amoxicilline...'}}) }}
+                    <div class="form-helper">Nom commercial ou substance active du médicament</div>
+                    {{ form_errors(form.medication) }}
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">
+                        <span class="form-label-icon">📝</span>
+                        Instructions
+                    </label>
+                    {{ form_widget(form.instructions, {'attr': {'class': 'form-textarea', 'rows': '4', 'placeholder': 'ex: A prendre pendant les repas...'}}) }}
+                    <div class="form-helper">Précisions sur la prise du médicament</div>
+                    {{ form_errors(form.instructions) }}
+                </div>
+            </div>
+
+            {# People #}
+            <div class="form-section">
+                <h3 class="section-title">👥 Personnes Concernées</h3>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">
+                            <span class="form-label-icon">👴</span>
+                            Patient (Senior)
+                        </label>
+                        {{ form_widget(form.senior, {'attr': {'class': 'form-select'}}) }}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">
+                            <span class="form-label-icon">👨‍⚕️</span>
+                            Médecin Prescripteur
+                        </label>
+                        {{ form_widget(form.prescribedByDoctor, {'attr': {'class': 'form-select'}}) }}
+                    </div>
+                </div>
+            </div>
+
+            {# Dosage & Schedule #}
+            <div class="form-section">
+                <h3 class="section-title">⚖️ Posologie et Durée</h3>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">
+                            <span class="form-label-icon">📏</span>
+                            Dosage
+                        </label>
+                        {{ form_widget(form.dosage, {'attr': {'class': 'form-control', 'placeholder': 'ex: 500mg'}}) }}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">
+                            <span class="form-label-icon">🔄</span>
+                            Fréquence
+                        </label>
+                        {{ form_widget(form.frequency, {'attr': {'class': 'form-control', 'placeholder': 'ex: 3 fois par jour'}}) }}
+                    </div>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">
+                            <span class="form-label-icon">📅</span>
+                            Date de début
+                        </label>
+                        {{ form_widget(form.startDate, {'attr': {'class': 'form-control'}}) }}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">
+                            <span class="form-label-icon">🏁</span>
+                            Date de fin (optionnel)
+                        </label>
+                        {{ form_widget(form.endDate, {'attr': {'class': 'form-control'}}) }}
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="form-check">
+                        {{ form_widget(form.isActive) }}
+                        <label class="form-label" style="margin-bottom:0;" for="{{ form.isActive.vars.id }}">
+                            Traitement actif actuellement
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="btn-submit">✨ Enregistrer le Traitement</button>
+                <a href="{{ path('app_admin_health_index') }}" class="btn-cancel">Annuler</a>
+            </div>
+        {{ form_end(form) }}
+    </div>
+</div>
+{% endblock %}

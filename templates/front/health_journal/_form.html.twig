@@ -1,0 +1,80 @@
+{{ form_start(form, {'attr': {'class': 'needs-validation'}}) }}
+
+<div class="row mb-3">
+    <div class="col-md-6">
+        {{ form_label(form.date) }}
+        {{ form_widget(form.date) }}
+        {{ form_errors(form.date) }}
+    </div>
+</div>
+
+<h5 class="mt-4 mb-3 border-bottom pb-2">Signes Vitaux</h5>
+
+<div class="row mb-3">
+    <div class="col-md-6">
+        {{ form_label(form.bloodPressureSystolic) }}
+        <div class="input-group">
+            {{ form_widget(form.bloodPressureSystolic) }}
+            <span class="input-group-text">mmHg</span>
+        </div>
+        {{ form_errors(form.bloodPressureSystolic) }}
+    </div>
+    <div class="col-md-6">
+        {{ form_label(form.bloodPressureDiastolic) }}
+        <div class="input-group">
+            {{ form_widget(form.bloodPressureDiastolic) }}
+            <span class="input-group-text">mmHg</span>
+        </div>
+        {{ form_errors(form.bloodPressureDiastolic) }}
+    </div>
+</div>
+
+<div class="row mb-3">
+    <div class="col-md-4">
+        {{ form_label(form.heartRate) }}
+        <div class="input-group">
+            {{ form_widget(form.heartRate) }}
+            <span class="input-group-text">bpm</span>
+        </div>
+        {{ form_errors(form.heartRate) }}
+    </div>
+    <div class="col-md-4">
+        {{ form_label(form.temperature) }}
+        <div class="input-group">
+            {{ form_widget(form.temperature) }}
+            <span class="input-group-text">°C</span>
+        </div>
+        {{ form_errors(form.temperature) }}
+    </div>
+    <div class="col-md-4">
+        {{ form_label(form.weight) }}
+        <div class="input-group">
+            {{ form_widget(form.weight) }}
+            <span class="input-group-text">kg</span>
+        </div>
+        {{ form_errors(form.weight) }}
+    </div>
+</div>
+
+<div class="row mb-3">
+    <div class="col-md-6">
+        {{ form_label(form.bloodSugar) }}
+        <div class="input-group">
+            {{ form_widget(form.bloodSugar) }}
+            <span class="input-group-text">mg/dL</span>
+        </div>
+        {{ form_errors(form.bloodSugar) }}
+    </div>
+</div>
+
+<div class="mb-3">
+    {{ form_label(form.notes) }}
+    {{ form_widget(form.notes) }}
+    {{ form_errors(form.notes) }}
+</div>
+
+<div class="mt-4">
+    <button class="btn btn-primary">{{ button_label|default('Enregistrer') }}</button>
+</div>
+
+{{ form_end(form) }}

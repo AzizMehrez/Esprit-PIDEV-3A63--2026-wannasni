@@ -1,0 +1,412 @@
+{% extends 'base_dashboard.html.twig' %}
+
+{% block title %}Mon Journal de Santé - WANNASNI{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    /* ============================================
+       HEALTH PAGE - Senior-Friendly Design
+       Matches Activities Page Style
+       ============================================ */
+    
+    :root {
+        --health-primary: #dc2626;
+        --health-primary-light: #ef4444;
+        --health-bg: #fef2f2;
+        --health-card: #ffffff;
+        --health-text: #1a1a2e;
+        --health-text-muted: #64748b;
+        --health-border: #fecaca;
+    }
+
+    .health-wrapper {
+        min-height: 100vh;
+        padding: 2rem 1.5rem 4rem;
+        background: linear-gradient(180deg, var(--health-bg) 0%, #f8fafc 30%);
+    }
+
+    .health-container {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    /* Back Link */
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--health-primary);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 1.1rem;
+        margin-bottom: 1.5rem;
+        padding: 0.75rem 1.25rem;
+        border-radius: 50px;
+        background: white;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        transition: all 0.2s;
+    }
+
+    .back-link:hover {
+        background: var(--health-bg);
+        transform: translateX(-4px);
+    }
+
+    /* Header */
+    .health-header {
+        background: linear-gradient(135deg, var(--health-primary), var(--health-primary-light));
+        border-radius: 24px;
+        padding: 2.5rem;
+        margin-bottom: 2rem;
+        color: white;
+        text-align: center;
+        box-shadow: 0 8px 32px rgba(220, 38, 38, 0.3);
+    }
+
+    .health-header-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+    }
+
+    .health-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .health-subtitle {
+        font-size: 1.25rem;
+        opacity: 0.9;
+        margin-bottom: 1.5rem;
+    }
+
+    .btn-new-entry {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1rem 2rem;
+        background: white;
+        color: var(--health-primary);
+        border-radius: 50px;
+        font-size: 1.15rem;
+        font-weight: 700;
+        text-decoration: none;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+        transition: all 0.3s;
+    }
+
+    .btn-new-entry:hover {
+        transform: scale(1.05);
+        box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    }
+
+    /* Section */
+    .section {
+        margin-bottom: 2rem;
+    }
+
+    .section-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1.25rem;
+        padding: 1rem 1.5rem;
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    }
+
+    .section-icon {
+        font-size: 2rem;
+        width: 56px;
+        height: 56px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, var(--health-primary), var(--health-primary-light));
+        border-radius: 14px;
+        color: white;
+    }
+
+    .section-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--health-text);
+    }
+
+    .section-count {
+        margin-left: auto;
+        background: var(--health-bg);
+        color: var(--health-primary);
+        padding: 0.5rem 1.25rem;
+        border-radius: 50px;
+        font-weight: 700;
+        font-size: 1rem;
+    }
+
+    /* Health Cards */
+    .record-list {
+        display: grid;
+        gap: 1.25rem;
+    }
+
+    .record-card {
+        background: var(--health-card);
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+        border: 2px solid var(--health-border);
+        transition: all 0.3s;
+    }
+
+    .record-card:hover {
+        border-color: var(--health-primary);
+        transform: translateY(-4px);
+        box-shadow: 0 8px 32px rgba(220, 38, 38, 0.15);
+    }
+
+    .record-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px dashed var(--health-border);
+    }
+
+    .record-date {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--health-text);
+    }
+
+    .record-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .btn-action {
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+
+    .btn-edit {
+        background: #fff;
+        color: #d97706;
+        border: 1px solid #d97706;
+    }
+
+    .btn-edit:hover {
+        background: #fffbeb;
+    }
+
+    .btn-view {
+        background: #fff;
+        color: #2563eb;
+        border: 1px solid #2563eb;
+    }
+
+    .btn-view:hover {
+        background: #eff6ff;
+    }
+
+    .btn-delete {
+        background: #fff;
+        color: #dc2626;
+        border: 1px solid #dc2626;
+        cursor: pointer;
+    }
+
+    .btn-delete:hover {
+        background: #fef2f2;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 1rem;
+    }
+
+    .stat-card {
+        text-align: center;
+        padding: 1.25rem;
+        background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+        border-radius: 16px;
+        border: 1px solid #e2e8f0;
+        transition: all 0.2s;
+    }
+    
+    .stat-card:hover {
+        transform: scale(1.02);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+
+    .stat-icon {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        line-height: 1.2;
+        margin-bottom: 0.25rem;
+    }
+
+    .stat-value.bp { color: #dc2626; }
+    .stat-value.hr { color: #2563eb; }
+    .stat-value.weight { color: #16a34a; }
+    .stat-value.temp { color: #ea580c; }
+    .stat-value.sugar { color: #9333ea; }
+
+    .stat-label {
+        font-size: 0.85rem;
+        color: var(--health-text-muted);
+        text-transform: uppercase;
+        font-weight: 600;
+    }
+    
+    .notes-section {
+        margin-top: 1.5rem;
+        padding: 1rem;
+        background: #fffbeb; /* Light yellow for sticky note feel */
+        border-radius: 12px;
+        border-left: 4px solid #fcd34d;
+        color: #92400e;
+        font-size: 0.95rem;
+    }
+
+    @media (max-width: 640px) {
+        .health-title { font-size: 2rem; }
+        .record-top { flex-direction: column; align-items: flex-start; gap: 1rem; }
+        .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="health-wrapper">
+    <div class="health-container">
+        
+        <a href="{{ path('app_dashboard', {'_locale': app.request.locale}) }}" class="back-link">
+            ← Retour au tableau de bord
+        </a>
+        
+        <!-- Header -->
+        <div class="health-header">
+            <div class="health-header-icon">❤️</div>
+            <h1 class="health-title">Mon Journal de Santé</h1>
+            <p class="health-subtitle">Suivez vos indicateurs de bien-être</p>
+            <a href="{{ path('app_health_journal_new', {'_locale': app.request.locale}) }}" class="btn-new-entry">
+                ➕ Nouvelle entrée
+            </a>
+        </div>
+
+        <!-- Health Records -->
+        <div class="section">
+            <div class="section-header">
+                <span class="section-icon">📋</span>
+                <span class="section-title">Mes Relevés</span>
+                <span class="section-count">{{ health_journals|length }}</span>
+            </div>
+            
+            <div class="record-list">
+                {% if health_journals|length > 0 %}
+                    {% for record in health_journals %}
+                    <div class="record-card">
+                        <div class="record-top">
+                            <div class="record-date">
+                                <span style="font-size: 1.5rem;">📅</span>
+                                {{ record.date|date('l d F Y à H:i') }}
+                            </div>
+                            <div class="record-actions">
+                                <a href="{{ path('app_health_journal_show', {'id': record.id, '_locale': app.request.locale}) }}" class="btn-action btn-view">
+                                    👁️ Voir
+                                </a>
+                                <a href="{{ path('app_health_journal_edit', {'id': record.id, '_locale': app.request.locale}) }}" class="btn-action btn-edit">
+                                    ✏️ Modifier
+                                </a>
+                                <form method="post" action="{{ path('app_health_journal_delete', {'id': record.id, '_locale': app.request.locale}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette entrée ?');" style="display:inline;">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ record.id) }}">
+                                    <button class="btn-action btn-delete">
+                                        🗑️
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                        
+                        <div class="stats-grid">
+                            {% if record.bloodPressureSystolic or record.bloodPressureDiastolic %}
+                            <div class="stat-card">
+                                <div class="stat-icon">🩺</div>
+                                <div class="stat-value bp">
+                                    {{ record.bloodPressureSystolic|default('-') }}/{{ record.bloodPressureDiastolic|default('-') }}
+                                </div>
+                                <div class="stat-label">Tension (mmHg)</div>
+                            </div>
+                            {% endif %}
+                            
+                            {% if record.heartRate %}
+                            <div class="stat-card">
+                                <div class="stat-icon">💓</div>
+                                <div class="stat-value hr">{{ record.heartRate }}</div>
+                                <div class="stat-label">Pouls (BPM)</div>
+                            </div>
+                            {% endif %}
+                            
+                            {% if record.weight %}
+                            <div class="stat-card">
+                                <div class="stat-icon">⚖️</div>
+                                <div class="stat-value weight">{{ record.weight }}</div>
+                                <div class="stat-label">Poids (kg)</div>
+                            </div>
+                            {% endif %}
+                            
+                            {% if record.temperature %}
+                            <div class="stat-card">
+                                <div class="stat-icon">🌡️</div>
+                                <div class="stat-value temp">{{ record.temperature }}</div>
+                                <div class="stat-label">Temp. (°C)</div>
+                            </div>
+                            {% endif %}
+                            
+                            {% if record.bloodSugar %}
+                            <div class="stat-card">
+                                <div class="stat-icon">🩸</div>
+                                <div class="stat-value sugar">{{ record.bloodSugar }}</div>
+                                <div class="stat-label">Glycémie (mg/dL)</div>
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        {% if record.notes %}
+                        <div class="notes-section">
+                            <strong>📝 Notes:</strong> {{ record.notes }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div style="text-align: center; padding: 3rem 2rem; color: var(--health-text-muted);">
+                        <p style="font-size: 1.5rem; margin-bottom: 1rem;">Aucune entrée de santé pour le moment</p>
+                        <p>Commencez par ajouter votre premier relevé !</p>
+                        <a href="{{ path('app_health_journal_new', {'_locale': app.request.locale}) }}" class="btn-new-entry" style="background: var(--health-primary); color: white; margin-top: 1rem; display: inline-block;">
+                            Commencer maintenant
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

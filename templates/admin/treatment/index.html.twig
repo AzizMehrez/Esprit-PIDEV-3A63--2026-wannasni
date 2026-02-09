@@ -1,0 +1,223 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Traitements - Admin WANNASNI{% endblock %}
+{% block page_title %}Gestion des Traitements{% endblock %}
+
+{% block header_actions %}
+<a href="{{ path('admin_dashboard') }}" class="btn btn-secondary">🏠 Accueil</a>
+<a href="{{ path('app_admin_health_new') }}" class="btn btn-primary">➕ Nouveau Traitement</a>
+{% endblock %}
+
+{% block content %}
+{# Statistics Cards #}
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon green">💊</div>
+        <div class="stat-info">
+            <div class="stat-value">{{ treatments|length }}</div>
+            <div class="stat-label">Total Traitements</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon blue">✓</div>
+        <div class="stat-info">
+            <div class="stat-value">{{ treatments|filter(t => t.isActive == true)|length }}</div>
+            <div class="stat-label">Actifs</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon purple">👥</div>
+        <div class="stat-info">
+            <div class="stat-value">{{ treatments|filter(t => t.senior)|length }}</div>
+            <div class="stat-label">Traitements assignés</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon orange">👨‍⚕️</div>
+        <div class="stat-info">
+            <div class="stat-value">{{ treatments|filter(t => t.prescribedByDoctor)|length }}</div>
+            <div class="stat-label">Prescriptions médicales</div>
+        </div>
+    </div>
+</div>
+
+{# Toolbar #}
+<div class="admin-toolbar">
+    <div class="toolbar-search">
+        <input type="text" id="searchInput" placeholder="Rechercher (médicament, patient, docteur)..." onkeyup="filterTable()">
+    </div>
+    <div class="toolbar-actions">
+        <!-- Using the server-side PDF export we already built, but styling it as an icon -->
+        <a href="{{ path('app_admin_health_pdf') }}" class="export-btn pdf" title="Télécharger PDF">
+            📄 Export PDF
+        </a>
+        <button class="export-btn excel" onclick="exportExcel(); return false;">
+            📊 Export Excel
+        </button>
+    </div>
+</div>
+
+{# Table #}
+<div class="admin-card">
+    <div class="card-header">
+        <h2 class="card-title">💊 Liste des Traitements</h2>
+        <span class="badge badge-success">{{ treatments|length }} traitements</span>
+    </div>
+    <table class="admin-table" id="dataTable">
+        <thead>
+            <tr>
+                <th class="sortable" onclick="sortTable(0)">ID</th>
+                <th class="sortable" onclick="sortTable(1)">Médicament</th>
+                <th class="sortable" onclick="sortTable(2)">Patient</th>
+                <th class="sortable" onclick="sortTable(3)">Médecin</th>
+                <th class="sortable" onclick="sortTable(4)">Dosage/Fréq.</th>
+                <th class="sortable" onclick="sortTable(5)">Dates</th>
+                <th class="sortable" onclick="sortTable(6)">Statut</th>
+                <th style="width: 120px;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for treatment in treatments %}
+            <tr>
+                <td>#{{ treatment.id }}</td>
+                <td>
+                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                        <div style="width: 36px; height: 36px; border-radius: 8px; background: linear-gradient(135deg, #3b82f6, #60a5fa); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem;">
+                            {{ treatment.medication|slice(0, 1)|upper }}
+                        </div>
+                        <div>
+                            <div style="font-weight: 600;">{{ treatment.medication }}</div>
+                            <div style="font-size: 0.75rem; color: var(--admin-text-muted);">{{ treatment.instructions|slice(0, 30) }}...</div>
+                        </div>
+                    </div>
+                </td>
+                <td>{{ treatment.senior ? treatment.senior.fullName : 'N/A' }}</td>
+                <td>{{ treatment.prescribedByDoctor ? 'Dr. ' ~ treatment.prescribedByDoctor.lastName : 'N/A' }}</td>
+                <td>
+                    <div style="font-size: 0.9rem;">{{ treatment.dosage }}</div>
+                    <div style="font-size: 0.8rem; color: var(--admin-text-muted);">{{ treatment.frequency }}</div>
+                </td>
+                <td>
+                    <div style="font-size: 0.85rem;">Début: {{ treatment.startDate ? treatment.startDate|date('d/m/Y') : '-' }}</div>
+                    {% if treatment.endDate %}
+                        <div style="font-size: 0.85rem; color: var(--admin-text-muted);">Fin: {{ treatment.endDate|date('d/m/Y') }}</div>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if treatment.isActive %}
+                        <span class="badge badge-success">En cours</span>
+                    {% else %}
+                        <span class="badge badge-secondary">Terminé</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{{ path('app_admin_health_show', {'id': treatment.id}) }}" class="action-btn" title="Voir">👁️</a>
+                    <a href="{{ path('app_admin_health_edit', {'id': treatment.id}) }}" class="action-btn" title="Modifier">✏️</a>
+                    <form method="post" action="{{ path('app_admin_health_delete', {'id': treatment.id}) }}" style="display:inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce traitement ?');">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ treatment.id) }}">
+                        <button type="submit" class="action-btn danger" title="Supprimer">🗑️</button>
+                    </form>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="8" style="text-align: center; padding: 2rem;">
+                    <div style="color: var(--admin-text-muted);">Aucun traitement trouvé. commencez par en ajouter un !</div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+/* ── Search / Filter ── */
+function filterTable() {
+    const filter = document.getElementById('searchInput').value.toLowerCase();
+    const tbody  = document.querySelector('#dataTable tbody');
+    const rows   = tbody.querySelectorAll('tr');
+
+    rows.forEach(row => {
+        const cells = row.querySelectorAll('td');
+        let found = false;
+        // Check text content of all cells
+        cells.forEach((cell, idx) => {
+            if (idx < cells.length - 1 && cell.textContent.toLowerCase().includes(filter)) {
+                found = true;
+            }
+        });
+        row.style.display = found ? '' : 'none';
+    });
+}
+
+/* ── Sort ── */
+let sortDirection = {};
+function sortTable(columnIndex) {
+    const table   = document.getElementById('dataTable');
+    const tbody   = table.querySelector('tbody');
+    const rows    = Array.from(tbody.querySelectorAll('tr'));
+    const headers = table.querySelectorAll('thead th');
+
+    if (rows.length === 0 || rows[0].cells.length <= 1) return; // Don't sort if empty or "No data" row
+
+    sortDirection[columnIndex] = !sortDirection[columnIndex];
+    const ascending = sortDirection[columnIndex];
+
+    headers.forEach(h => h.classList.remove('asc', 'desc'));
+    headers[columnIndex].classList.add(ascending ? 'asc' : 'desc');
+
+    rows.sort((a, b) => {
+        let aText = a.cells[columnIndex].textContent.trim();
+        let bText = b.cells[columnIndex].textContent.trim();
+        
+        // Simple string comparison
+        return ascending
+            ? aText.localeCompare(bText, 'fr', {numeric: true})
+            : bText.localeCompare(aText, 'fr', {numeric: true});
+    });
+
+    rows.forEach(row => tbody.appendChild(row));
+}
+
+/* ── Excel / CSV Export ── */
+function exportExcel() {
+    const table = document.getElementById('dataTable');
+    const rows  = table.querySelectorAll('tbody tr');
+    const BOM   = '\uFEFF';
+    let csv     = BOM + 'ID;Médicament;Patient;Médecin;Dosage;Fréquence;Début;Fin;Statut\n';
+
+    rows.forEach(row => {
+        if (row.style.display === 'none') return;
+        if (row.cells.length < 5) return; // Skip "No data" row
+        
+        const cells = row.querySelectorAll('td');
+        // Extract clean text from cells (removing newlines/extra spaces)
+        const id   = cells[0].textContent.trim().replace('#', '');
+        const med  = cells[1].querySelector('div > div > div:nth-child(1)').textContent.trim();
+        const pat  = cells[2].textContent.trim();
+        const doc  = cells[3].textContent.trim();
+        const dos  = cells[4].querySelector('div:nth-child(1)').textContent.trim();
+        const freq = cells[4].querySelector('div:nth-child(2)').textContent.trim();
+        const start= cells[5].querySelector('div:nth-child(1)').textContent.replace('Début:', '').trim();
+        // Handle potentially missing end date
+        const endDiv = cells[5].querySelector('div:nth-child(2)');
+        const end  = endDiv ? endDiv.textContent.replace('Fin:', '').trim() : '';
+        const stat = cells[6].textContent.trim();
+
+        const line = [id, med, pat, doc, dos, freq, start, end, stat]
+            .map(s => s.replace(/;/g, ',').replace(/\s+/g, ' ')) // CSV safety
+            .join(';');
+            
+        csv += line + '\n';
+    });
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href     = url;
+    a.download = 'traitements_wannasni_' + new Date().toISOString().slice(0, 10) + '.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+}
+</script>
+{% endblock %}

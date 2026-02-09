@@ -1,0 +1,216 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Plans Nutrition - Admin WANNASNI{% endblock %}
+{% block page_title %}Plans de Nutrition{% endblock %}
+
+{% block header_actions %}
+<a href="{{ path('admin_dashboard') }}" class="btn btn-secondary">🏠 Accueil</a>
+<a href="{{ path('admin_nutrition_new') }}" class="btn btn-primary">➕ Nouveau Plan</a>
+{% endblock %}
+
+{% block content %}
+{# Statistics Cards #}
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon green">🥗</div>
+        <div class="stat-info">
+            <div class="stat-value">{{ plans|length }}</div>
+            <div class="stat-label">Total Plans</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon blue">✓</div>
+        <div class="stat-info">
+            <div class="stat-value">{{ plans|filter(p => p.status == 'active')|length }}</div>
+            <div class="stat-label">Actifs</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon orange">🔥</div>
+        <div class="stat-info">
+            <div class="stat-value">{{ (plans|reduce((carry, p) => carry + p.calories, 0) / plans|length)|round }}</div>
+            <div class="stat-label">Calories Moy.</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon purple">💊</div>
+        <div class="stat-info">
+            <div class="stat-value">{{ plans|filter(p => p.type == 'therapeutic')|length }}</div>
+            <div class="stat-label">Thérapeutiques</div>
+        </div>
+    </div>
+</div>
+
+{# Toolbar #}
+<div class="admin-toolbar">
+    <div class="toolbar-search">
+        <input type="text" id="searchInput" placeholder="Rechercher un plan..." onkeyup="filterTable()">
+    </div>
+    <div class="toolbar-actions">
+        <button class="filter-btn">
+            🔽 Filtrer
+        </button>
+        <a href="#" class="export-btn pdf" onclick="exportPDF(); return false;">
+            📄 PDF
+        </a>
+        <a href="#" class="export-btn excel" onclick="exportExcel(); return false;">
+            📊 Excel
+        </a>
+    </div>
+</div>
+
+{# Table #}
+<div class="admin-card">
+    <div class="card-header">
+        <h2 class="card-title">🥗 Plans de Nutrition</h2>
+        <span class="badge badge-success">{{ plans|length }} plans</span>
+    </div>
+    <table class="admin-table" id="dataTable">
+        <thead>
+            <tr>
+                <th class="sortable" onclick="sortTable(0)">Plan</th>
+                <th class="sortable" onclick="sortTable(1)">Patient</th>
+                <th class="sortable" onclick="sortTable(2)">Calories/jour</th>
+                <th class="sortable" onclick="sortTable(3)">Début</th>
+                <th class="sortable" onclick="sortTable(4)">Statut</th>
+                <th style="width: 120px;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for plan in plans %}
+            <tr>
+                <td>
+                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                        <div style="width: 40px; height: 40px; border-radius: 10px; background: linear-gradient(135deg, #22c55e, #4ade80); display: flex; align-items: center; justify-content: center; font-size: 1.1rem;">
+                            🥗
+                        </div>
+                        <div>
+                            <div style="font-weight: 600;">{{ plan.name }}</div>
+                            <div style="font-size: 0.8rem; color: var(--admin-text-muted);">{{ plan.type|capitalize }}</div>
+                        </div>
+                    </div>
+                </td>
+                <td>{{ plan.user }}</td>
+                <td><span style="font-weight: 600;">{{ plan.calories }}</span> kcal</td>
+                <td>{{ plan.startDate|date('d/m/Y') }}</td>
+                <td>
+                    {% if plan.status == 'active' %}
+                        <span class="badge badge-success">✓ Actif</span>
+                    {% else %}
+                        <span class="badge badge-warning">⏸ {{ plan.status|capitalize }}</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{{ path('admin_nutrition_show', {id: plan.id}) }}" class="action-btn" title="Voir">👁️</a>
+                    <a href="{{ path('admin_nutrition_edit', {id: plan.id}) }}" class="action-btn" title="Modifier">✏️</a>
+                    <button class="action-btn danger" title="Supprimer">🗑️</button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+/* ── Search ── */
+function filterTable() {
+    const filter = document.getElementById('searchInput').value.toLowerCase();
+    const tbody  = document.querySelector('#dataTable tbody');
+    const rows   = tbody.querySelectorAll('tr');
+    rows.forEach(row => {
+        const cells = row.querySelectorAll('td');
+        let found = false;
+        cells.forEach((cell, idx) => {
+            if (idx < cells.length - 1 && cell.textContent.toLowerCase().includes(filter)) found = true;
+        });
+        row.style.display = found ? '' : 'none';
+    });
+}
+
+/* ── Sort ── */
+let sortDirection = {};
+function sortTable(columnIndex) {
+    const table   = document.getElementById('dataTable');
+    const tbody   = table.querySelector('tbody');
+    const rows    = Array.from(tbody.querySelectorAll('tr'));
+    const headers = table.querySelectorAll('thead th');
+
+    sortDirection[columnIndex] = !sortDirection[columnIndex];
+    const ascending = sortDirection[columnIndex];
+    headers.forEach(h => h.classList.remove('asc', 'desc'));
+    headers[columnIndex].classList.add(ascending ? 'asc' : 'desc');
+
+    // Numeric: Calories (2) — Date: Début (3)
+    const numericCols = [2];
+    rows.sort((a, b) => {
+        let aText = a.cells[columnIndex].textContent.trim();
+        let bText = b.cells[columnIndex].textContent.trim();
+        if (columnIndex === 3) {
+            const aDate = new Date(aText.split('/').reverse().join('-'));
+            const bDate = new Date(bText.split('/').reverse().join('-'));
+            return ascending ? aDate - bDate : bDate - aDate;
+        }
+        if (numericCols.includes(columnIndex)) {
+            const aNum = parseFloat(aText) || 0;
+            const bNum = parseFloat(bText) || 0;
+            return ascending ? aNum - bNum : bNum - aNum;
+        }
+        return ascending
+            ? aText.toLowerCase().localeCompare(bText.toLowerCase())
+            : bText.toLowerCase().localeCompare(aText.toLowerCase());
+    });
+    rows.forEach(row => tbody.appendChild(row));
+}
+
+/* ── PDF Export ── */
+function exportPDF() {
+    const table = document.getElementById('dataTable');
+    const rows  = table.querySelectorAll('tbody tr');
+    const date  = new Date().toLocaleDateString('fr-FR');
+    let tableHTML = '';
+    rows.forEach(row => {
+        if (row.style.display === 'none') return;
+        const c = row.querySelectorAll('td');
+        tableHTML += '<tr>';
+        tableHTML += '<td>' + c[0].textContent.trim().replace(/\s+/g, ' ') + '</td>';
+        tableHTML += '<td>' + c[1].textContent.trim() + '</td>';
+        tableHTML += '<td>' + c[2].textContent.trim() + '</td>';
+        tableHTML += '<td>' + c[3].textContent.trim() + '</td>';
+        tableHTML += '<td>' + c[4].textContent.trim() + '</td>';
+        tableHTML += '</tr>';
+    });
+    const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Plans Nutrition - WANNASNI</title>
+<style>body{font-family:Arial,sans-serif;padding:30px;color:#1e293b}h1{text-align:center;margin-bottom:4px;color:#1e40af}.subtitle{text-align:center;color:#64748b;margin-bottom:24px;font-size:14px}table{width:100%;border-collapse:collapse;margin-top:10px}th{background:#1e40af;color:#fff;padding:10px 12px;text-align:left;font-size:13px}td{padding:9px 12px;border-bottom:1px solid #e2e8f0;font-size:13px}tr:nth-child(even){background:#f8fafc}.footer{text-align:center;margin-top:30px;font-size:11px;color:#94a3b8}</style></head><body>
+<h1>🥗 Plans de Nutrition</h1><p class="subtitle">WANNASNI – Généré le ${date}</p>
+<table><thead><tr><th>Plan</th><th>Patient</th><th>Calories/jour</th><th>Début</th><th>Statut</th></tr></thead><tbody>${tableHTML}</tbody></table>
+<p class="footer">WANNASNI – Système de Gestion – ${date}</p></body></html>`;
+    const win = window.open('', '_blank');
+    win.document.write(html); win.document.close(); win.focus();
+    setTimeout(() => win.print(), 400);
+}
+
+/* ── Excel / CSV Export ── */
+function exportExcel() {
+    const table = document.getElementById('dataTable');
+    const rows  = table.querySelectorAll('tbody tr');
+    const BOM   = '\uFEFF';
+    let csv     = BOM + 'Plan;Patient;Calories/jour;Début;Statut\n';
+    rows.forEach(row => {
+        if (row.style.display === 'none') return;
+        const c = row.querySelectorAll('td');
+        csv += [
+            c[0].textContent.trim().replace(/\s+/g, ' ').replace(/;/g, ','),
+            c[1].textContent.trim(),
+            c[2].textContent.trim(),
+            c[3].textContent.trim(),
+            c[4].textContent.trim()
+        ].join(';') + '\n';
+    });
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href = url; a.download = 'nutrition_wannasni_' + new Date().toISOString().slice(0,10) + '.csv';
+    a.click(); URL.revokeObjectURL(url);
+}
+</script>
+{% endblock %}

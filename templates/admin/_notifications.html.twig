@@ -1,0 +1,60 @@
+<div class="notifications-menu" style="position: relative;">
+    {% set count = notifications|length %}
+    <div class="btn" title="Notifications" style="position: relative;">
+        🔔
+        {% if count > 0 %}
+            <span class="badge badge-info" style="position: absolute; top: -8px; right: -8px;">{{ count }}</span>
+        {% endif %}
+    </div>
+    <div class="notifications-dropdown" style="position: absolute; right: 0; top: 36px; min-width: 320px; background: var(--admin-card); border: 1px solid var(--admin-border); border-radius: 8px; box-shadow: var(--admin-shadow); display: none; z-index: 200;">
+        <div style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--admin-border); font-weight: 600;">Notifications</div>
+        <div style="max-height: 260px; overflow: auto;">
+            {% if notifications|length == 0 %}
+                <div style="padding: 0.75rem 1rem; color: var(--admin-text-muted);">Aucune notification.</div>
+            {% endif %}
+            {% for n in notifications %}
+                <div style="display:flex; align-items:center; justify-content:space-between; padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--admin-border);">
+                    <a href="{{ path('admin_services') }}" style="flex:1; text-decoration: none; color: var(--admin-text);">
+                        <div style="font-size: 0.9rem;">{{ n.message }}</div>
+                        <div style="font-size: 0.75rem; color: var(--admin-text-muted);">{{ n.createdAt|date('d/m/Y H:i') }}</div>
+                    </a>
+                    <div style="display:flex; gap:6px; margin-left:8px;">
+                        <form method="post" action="{{ path('admin_notifications_mark_read', {'id': n.id}) }}" style="display:inline">
+                            <input type="hidden" name="_token" value="{{ csrf_token('notif_mark_read' ~ n.id) }}">
+                            <button type="submit" class="action-btn" title="Marquer lu">✔️</button>
+                        </form>
+                        <form method="post" action="{{ path('admin_notifications_delete', {'id': n.id}) }}" style="display:inline" onsubmit="return confirm('Supprimer cette notification ?');">
+                            <input type="hidden" name="_token" value="{{ csrf_token('notif_delete' ~ n.id) }}">
+                            <button type="submit" class="action-btn danger" title="Supprimer">🗑️</button>
+                        </form>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        <div style="padding: 0.5rem; text-align: center; border-top: 1px solid var(--admin-border); display:flex; gap:8px; justify-content:center;">
+            <form method="post" action="{{ path('admin_notifications_mark_all_read') }}" style="display:inline">
+                <input type="hidden" name="_token" value="{{ csrf_token('notif_mark_all_read') }}">
+                <button type="submit" class="btn btn-outline" style="font-size: 0.85rem;">Tout marquer lu</button>
+            </form>
+            <a href="{{ path('admin_services') }}" class="btn btn-outline" style="font-size: 0.85rem;">Voir tous</a>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function(){
+        document.querySelectorAll('.notifications-menu').forEach(function(wrapper){
+            const menuBtn = wrapper.querySelector('.btn');
+            const dropdown = wrapper.querySelector('.notifications-dropdown');
+            if (!menuBtn || !dropdown) return;
+
+            menuBtn.addEventListener('click', function(e){
+                e.stopPropagation();
+                dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+            });
+
+            dropdown.addEventListener('click', function(e){ e.stopPropagation(); });
+            document.addEventListener('click', function(){ dropdown.style.display = 'none'; });
+        });
+    });
+    </script>
+</div>

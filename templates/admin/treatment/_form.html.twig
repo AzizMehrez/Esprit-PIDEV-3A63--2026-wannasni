@@ -1,0 +1,37 @@
+{{ form_start(form) }}
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            {{ form_row(form.senior) }}
+        </div>
+        <div class="col-md-6 mb-3">
+            {{ form_row(form.prescribedByDoctor) }}
+        </div>
+    </div>
+    <div class="mb-3">
+        {{ form_row(form.medication) }}
+    </div>
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            {{ form_row(form.dosage) }}
+        </div>
+        <div class="col-md-6 mb-3">
+            {{ form_row(form.frequency) }}
+        </div>
+    </div>
+    <div class="mb-3">
+        {{ form_row(form.instructions) }}
+    </div>
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            {{ form_row(form.startDate) }}
+        </div>
+        <div class="col-md-6 mb-3">
+            {{ form_row(form.endDate) }}
+        </div>
+    </div>
+    <div class="mb-3 form-check">
+        {{ form_widget(form.isActive) }}
+        {{ form_label(form.isActive) }}
+    </div>
+    <button class="btn btn-primary">{{ button_label|default('Enregistrer') }}</button>
+{{ form_end(form) }}

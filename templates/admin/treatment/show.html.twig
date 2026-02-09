@@ -1,0 +1,282 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Détails Traitement - {{ treatment.medication }}{% endblock %}
+{% block page_title %}Détails du Traitement{% endblock %}
+
+{% block extra_styles %}
+<style>
+    /* Custom Health Theme Colors - Darker for better contrast */
+    :root {
+        --health-primary: #0d9488;       /* Teal 600 */
+        --health-primary-light: #14b8a6; /* Teal 500 */
+        --health-accent: #0f766e;        /* Teal 700 */
+        --health-soft-bg: #f0fdfa;       /* Teal 50 */
+        --health-text-dark: #134e4a;     /* Teal 900 */
+    }
+
+    .detail-card {
+        background: white;
+        border-radius: 20px;
+        padding: 0;
+        box-shadow: 0 4px 20px rgba(13, 148, 136, 0.08); /* Teal shadow */
+        border: 2px solid var(--admin-border);
+        overflow: hidden;
+        margin-bottom: 2rem;
+    }
+
+    .detail-header {
+        background: linear-gradient(135deg, var(--health-primary), var(--health-primary-light));
+        padding: 2rem;
+        color: white;
+        position: relative;
+    }
+
+    .detail-title {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .detail-subtitle {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        font-weight: 500;
+    }
+
+    .header-badge {
+        background: rgba(255, 255, 255, 0.2);
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-size: 0.9rem;
+        backdrop-filter: blur(4px);
+        font-weight: 600;
+    }
+
+    .detail-body {
+        padding: 2rem;
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+    }
+
+    .info-section {
+        background: var(--health-soft-bg);
+        border-radius: 16px;
+        padding: 1.5rem;
+        border: 1px solid rgba(13, 148, 136, 0.1);
+    }
+
+    .section-header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1.25rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 2px solid rgba(13, 148, 136, 0.2);
+        color: var(--health-text-dark);
+        font-weight: 700;
+        font-size: 1.1rem;
+    }
+
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px dashed rgba(0,0,0,0.05);
+    }
+
+    .info-row:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+    }
+
+    .info-label {
+        font-weight: 600;
+        color: #64748b;
+        font-size: 0.95rem;
+    }
+
+    .info-value {
+        font-weight: 600;
+        color: #1e293b;
+        text-align: right;
+    }
+
+    .instructions-box {
+        background: #fff;
+        border: 2px solid rgba(13, 148, 136, 0.1);
+        border-radius: 12px;
+        padding: 1.25rem;
+        margin-top: 1rem;
+        color: #334155;
+        line-height: 1.6;
+    }
+
+    .action-bar {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .btn-back {
+        background: white;
+        color: var(--admin-text);
+        border: 2px solid var(--admin-border);
+        padding: 0.75rem 1.5rem;
+        border-radius: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-back:hover {
+        background: var(--admin-bg);
+        border-color: var(--health-primary);
+        color: var(--health-primary);
+    }
+
+    .btn-edit {
+        background: var(--health-primary);
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.2s;
+        border: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-edit:hover {
+        background: var(--health-accent);
+        transform: translateY(-2px);
+    }
+
+    .btn-delete {
+        background: #ef4444;
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 12px;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-delete:hover {
+        background: #dc2626;
+        transform: translateY(-2px);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="action-bar">
+        <a href="{{ path('app_admin_health_index') }}" class="btn-back">
+            ← Retour aux Traitements
+        </a>
+        <a href="{{ path('app_admin_health_edit', {'id': treatment.id}) }}" class="btn-edit">
+            ✏️ Modifier
+        </a>
+        <form method="post" action="{{ path('app_admin_health_delete', {'id': treatment.id}) }}" style="display:inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce traitement ?');">
+            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ treatment.id) }}">
+            <button type="submit" class="btn-delete">
+                🗑️ Supprimer
+            </button>
+        </form>
+    </div>
+
+    <div class="detail-card">
+        <div class="detail-header">
+            <div class="detail-title">
+                💊 {{ treatment.medication }}
+            </div>
+            <div class="detail-subtitle">
+                Prescrit par Dr. {{ treatment.prescribedByDoctor ? treatment.prescribedByDoctor.fullName : 'Non spécifié' }}
+            </div>
+            <div style="position: absolute; right: 2rem; top: 2rem;">
+                {% if treatment.isActive %}
+                    <span class="header-badge" style="background: rgba(34, 197, 94, 0.3); color: #fff;">✅ Actif</span>
+                {% else %}
+                    <span class="header-badge" style="background: rgba(239, 68, 68, 0.3); color: #fff;">⏹ Terminé</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="detail-body">
+            <div class="info-grid">
+                <!-- Left Column: Medical Info -->
+                <div class="info-section">
+                    <div class="section-header">
+                        <span>📋</span>
+                        Posologie & Instructions
+                    </div>
+                    
+                    <div class="info-row">
+                        <span class="info-label">Dosage</span>
+                        <span class="info-value">{{ treatment.dosage|default('-') }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Fréquence</span>
+                        <span class="info-value">{{ treatment.frequency|default('-') }}</span>
+                    </div>
+                    
+                    <div style="margin-top: 1.5rem;">
+                        <span class="info-label">Instructions Spécifiques:</span>
+                        <div class="instructions-box">
+                            {{ treatment.instructions|default('Aucune instruction particulière.')|nl2br }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Patient & Timing -->
+                <div class="info-section">
+                    <div class="section-header">
+                        <span>👤</span>
+                        Patient & Période
+                    </div>
+
+                    <div class="info-row">
+                        <span class="info-label">Patient</span>
+                        <span class="info-value" style="font-size: 1.1rem; color: var(--health-accent);">
+                            {{ treatment.senior ? treatment.senior.fullName : 'Non assigné' }}
+                        </span>
+                    </div>
+                    
+                    <div class="info-row" style="margin-top: 1rem;">
+                        <span class="info-label">Date de début</span>
+                        <span class="info-value">{{ treatment.startDate ? treatment.startDate|date('d/m/Y') : '-' }}</span>
+                    </div>
+                    
+                    <div class="info-row">
+                        <span class="info-label">Date de fin</span>
+                        <span class="info-value">{{ treatment.endDate ? treatment.endDate|date('d/m/Y') : 'En cours' }}</span>
+                    </div>
+
+                    <div style="margin-top: 2rem; border-top: 1px solid rgba(0,0,0,0.1); padding-top: 1rem; text-align: center;">
+                        <div style="font-size: 0.85rem; color: #64748b;">
+                            Traitement créé le #{{ treatment.id }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

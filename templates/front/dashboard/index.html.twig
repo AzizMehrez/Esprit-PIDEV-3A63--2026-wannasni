@@ -1,0 +1,993 @@
+{% extends 'base_dashboard.html.twig' %}
+
+{% block title %}Mon Tableau de Bord - WANNASNI{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    /* ============================================
+       DASHBOARD REDESIGN - Premium Senior-Friendly
+       ============================================ */
+    
+    :root {
+        --dash-primary: #2E7D32;
+        --dash-primary-light: #4CAF50;
+        --dash-primary-soft: rgba(46, 125, 50, 0.08);
+        --dash-accent: #FF6B35;
+        --dash-bg: #f8faf8;
+        --dash-card: #ffffff;
+        --dash-text: #1a1a2e;
+        --dash-text-muted: #64748b;
+        --dash-border: #e2e8f0;
+        --dash-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+        --dash-shadow-hover: 0 8px 32px rgba(46, 125, 50, 0.12);
+        --dash-radius: 20px;
+        --dash-radius-sm: 12px;
+    }
+
+    body {
+        background: var(--dash-bg);
+    }
+
+    /* Dashboard Layout */
+    .dashboard-wrapper {
+        min-height: 100vh;
+        padding: 2rem 1.5rem 4rem;
+        background: linear-gradient(180deg, #f0f7f0 0%, var(--dash-bg) 30%);
+    }
+
+    .dashboard-container {
+        max-width: 1280px;
+        margin: 0 auto;
+    }
+
+    /* Hero Welcome Section */
+    .welcome-hero {
+        position: relative;
+        background: linear-gradient(135deg, var(--dash-primary) 0%, #1b5e20 100%);
+        border-radius: var(--dash-radius);
+        padding: 2.5rem;
+        margin-bottom: 2rem;
+        overflow: hidden;
+        box-shadow: 0 8px 40px rgba(46, 125, 50, 0.25);
+    }
+
+    .welcome-hero::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -10%;
+        width: 400px;
+        height: 400px;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+        border-radius: 50%;
+    }
+
+    .welcome-hero::after {
+        content: '🌿';
+        position: absolute;
+        right: 2rem;
+        bottom: 1rem;
+        font-size: 6rem;
+        opacity: 0.15;
+        transform: rotate(-15deg);
+    }
+
+    .welcome-content {
+        position: relative;
+        z-index: 2;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+    }
+
+    .welcome-text {
+        color: white;
+    }
+
+    .welcome-greeting {
+        font-size: 1rem;
+        opacity: 0.9;
+        margin-bottom: 0.25rem;
+        letter-spacing: 0.02em;
+    }
+
+    .welcome-name {
+        font-family: 'Playfair Display', serif;
+        font-size: clamp(1.75rem, 4vw, 2.5rem);
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        text-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .welcome-subtitle {
+        font-size: 1rem;
+        opacity: 0.85;
+    }
+
+    .welcome-actions {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .welcome-date {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: rgba(255,255,255,0.15);
+        backdrop-filter: blur(10px);
+        padding: 0.75rem 1.25rem;
+        border-radius: 50px;
+        color: white;
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+
+    .btn-admin-dashboard {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        background: rgba(255, 255, 255, 0.95);
+        color: var(--dash-primary);
+        text-decoration: none;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        backdrop-filter: blur(10px);
+    }
+
+    .btn-admin-dashboard:hover {
+        background: white;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        border-color: white;
+    }
+
+    .btn-admin-dashboard span {
+        font-size: 1.1rem;
+    }
+
+    /* Stats Bar */
+    .stats-bar {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: var(--dash-card);
+        border-radius: var(--dash-radius-sm);
+        padding: 1.25rem 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        box-shadow: var(--dash-shadow);
+        border: 1px solid var(--dash-border);
+        transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--dash-shadow-hover);
+    }
+
+    .stat-icon {
+        width: 56px;
+        height: 56px;
+        border-radius: var(--dash-radius-sm);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+    }
+
+    .stat-icon.health { background: linear-gradient(135deg, #fee2e2, #fecaca); }
+    .stat-icon.activity { background: linear-gradient(135deg, #dcfce7, #bbf7d0); }
+    .stat-icon.services { background: linear-gradient(135deg, #dbeafe, #bfdbfe); }
+    .stat-icon.mood { background: linear-gradient(135deg, #fef3c7, #fde68a); }
+
+    .stat-info {
+        flex: 1;
+    }
+
+    .stat-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--dash-text);
+        line-height: 1.2;
+    }
+
+    .stat-label {
+        font-size: 0.8rem;
+        color: var(--dash-text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+    }
+
+    /* Main Grid */
+    .dashboard-main {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+
+    @media (min-width: 768px) {
+        .dashboard-main {
+            grid-template-columns: 2fr 1fr;
+        }
+    }
+
+    /* Cards */
+    .dash-card {
+        background: var(--dash-card);
+        border-radius: var(--dash-radius);
+        box-shadow: var(--dash-shadow);
+        border: 1px solid var(--dash-border);
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .dash-card:hover {
+        box-shadow: var(--dash-shadow-hover);
+    }
+
+    .dash-card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid var(--dash-border);
+        background: linear-gradient(to right, var(--dash-primary-soft), transparent);
+    }
+
+    .dash-card-title {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--dash-text);
+    }
+
+    .dash-card-title-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        background: linear-gradient(135deg, var(--dash-primary), var(--dash-primary-light));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1rem;
+    }
+
+    .dash-card-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        color: var(--dash-primary);
+        text-decoration: none;
+        font-size: 0.875rem;
+        font-weight: 600;
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        transition: all 0.2s;
+    }
+
+    .dash-card-link:hover {
+        background: var(--dash-primary-soft);
+    }
+
+    .dash-card-body {
+        padding: 1.5rem;
+    }
+
+    /* Activity Items */
+    .activity-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .activity-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem 1.25rem;
+        background: linear-gradient(to right, #f8faf8, white);
+        border-radius: var(--dash-radius-sm);
+        border: 1px solid var(--dash-border);
+        transition: all 0.25s ease;
+        cursor: pointer;
+    }
+
+    .activity-item:hover {
+        transform: translateX(8px);
+        border-color: var(--dash-primary);
+        box-shadow: 0 4px 16px rgba(46, 125, 50, 0.1);
+    }
+
+    .activity-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.35rem;
+        flex-shrink: 0;
+    }
+
+    .activity-icon.physical { 
+        background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+    }
+    .activity-icon.cognitive { 
+        background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+    }
+    .activity-icon.social { 
+        background: linear-gradient(135deg, #fef3c7, #fde68a);
+    }
+
+    .activity-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .activity-name {
+        font-weight: 600;
+        font-size: 1rem;
+        color: var(--dash-text);
+        margin-bottom: 0.25rem;
+    }
+
+    .activity-meta {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-size: 0.85rem;
+        color: var(--dash-text-muted);
+    }
+
+    .activity-time {
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+    }
+
+    .activity-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 50px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+    }
+
+    .badge-tomorrow { background: #dcfce7; color: #166534; }
+    .badge-upcoming { background: #dbeafe; color: #1e40af; }
+
+    /* Health Widget */
+    .health-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+
+    .health-metric {
+        text-align: center;
+        padding: 1.25rem;
+        background: linear-gradient(135deg, #f8faf8, white);
+        border-radius: var(--dash-radius-sm);
+        border: 1px solid var(--dash-border);
+        transition: all 0.25s ease;
+    }
+
+    .health-metric:hover {
+        border-color: var(--dash-primary);
+        transform: scale(1.02);
+    }
+
+    .health-metric-icon {
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .health-metric-value {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--dash-primary);
+        line-height: 1.2;
+    }
+
+    .health-metric-label {
+        font-size: 0.75rem;
+        color: var(--dash-text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        margin-top: 0.25rem;
+    }
+
+    .health-mood {
+        grid-column: span 2;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+        padding: 1rem;
+        background: linear-gradient(135deg, #fef3c7, #fef9c3);
+        border-radius: var(--dash-radius-sm);
+        border: 1px solid #fde68a;
+    }
+
+    .health-mood-icon {
+        font-size: 2.5rem;
+    }
+
+    .health-mood-text {
+        font-weight: 600;
+        color: #92400e;
+    }
+
+    /* Services List */
+    .service-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem 1.25rem;
+        background: linear-gradient(to right, #f8faf8, white);
+        border-radius: var(--dash-radius-sm);
+        border: 1px solid var(--dash-border);
+        margin-bottom: 0.75rem;
+        transition: all 0.25s ease;
+    }
+
+    .service-item:hover {
+        border-color: var(--dash-primary);
+        box-shadow: 0 4px 16px rgba(46, 125, 50, 0.1);
+    }
+
+    .service-item:last-child {
+        margin-bottom: 0;
+    }
+
+    .service-info {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .service-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        background: var(--dash-primary-soft);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+    }
+
+    .service-name {
+        font-weight: 600;
+        color: var(--dash-text);
+    }
+
+    .service-badge {
+        padding: 0.35rem 0.85rem;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .badge-pending { background: #fef3c7; color: #92400e; }
+    .badge-progress { background: #dbeafe; color: #1e40af; }
+    .badge-completed { background: #dcfce7; color: #166534; }
+
+    /* Quick Actions */
+    .quick-actions {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+
+    .quick-action-btn {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1.5rem 1rem;
+        background: linear-gradient(135deg, #f8faf8, white);
+        border-radius: var(--dash-radius-sm);
+        border: 2px solid var(--dash-border);
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .quick-action-btn:hover {
+        border-color: var(--dash-primary);
+        background: linear-gradient(135deg, #dcfce7, white);
+        transform: translateY(-4px);
+        box-shadow: 0 8px 24px rgba(46, 125, 50, 0.15);
+    }
+
+    .quick-action-icon {
+        width: 56px;
+        height: 56px;
+        border-radius: 16px;
+        background: linear-gradient(135deg, var(--dash-primary), var(--dash-primary-light));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        box-shadow: 0 4px 16px rgba(46, 125, 50, 0.25);
+    }
+
+    .quick-action-label {
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: var(--dash-text);
+        text-align: center;
+    }
+
+    /* Primary Action Button */
+    .btn-primary-action {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        width: 100%;
+        padding: 1rem;
+        background: linear-gradient(135deg, var(--dash-primary), var(--dash-primary-light));
+        color: white;
+        border: none;
+        border-radius: var(--dash-radius-sm);
+        font-size: 1rem;
+        font-weight: 600;
+        text-decoration: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 16px rgba(46, 125, 50, 0.25);
+        margin-top: 1rem;
+    }
+
+    .btn-primary-action:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(46, 125, 50, 0.35);
+    }
+
+    /* Sidebar Cards */
+    .sidebar-stack {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    /* Emergency Card */
+    .emergency-card {
+        background: linear-gradient(135deg, #fee2e2, #fecaca);
+        border: 2px solid #f87171;
+        border-radius: var(--dash-radius);
+        padding: 1.5rem;
+        text-align: center;
+    }
+
+    .emergency-icon {
+        font-size: 2.5rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .emergency-title {
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: #b91c1c;
+        margin-bottom: 0.5rem;
+    }
+
+    .emergency-text {
+        font-size: 0.875rem;
+        color: #991b1b;
+        margin-bottom: 1rem;
+    }
+
+    .emergency-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        background: #dc2626;
+        color: white;
+        border-radius: 50px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+
+    .emergency-btn:hover {
+        background: #b91c1c;
+        transform: scale(1.05);
+    }
+
+    /* Responsive */
+    @media (max-width: 767px) {
+        .dashboard-wrapper {
+            padding: 1rem;
+        }
+
+        .welcome-hero {
+            padding: 1.5rem;
+        }
+
+        .welcome-content {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .stats-bar {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .quick-actions {
+            grid-template-columns: 1fr;
+        }
+
+        .health-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .health-mood {
+            grid-column: span 1;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="dashboard-wrapper">
+    <div class="dashboard-container">
+        
+        {% if profile_incomplete %}
+        <!-- Profile Completion Modal -->
+        <div id="profileModal" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 9999; display: flex; align-items: center; justify-content: center; animation: fadeIn 0.3s;">
+            <div style="background: white; border-radius: 20px; padding: 2.5rem; max-width: 500px; width: 90%; box-shadow: 0 20px 60px rgba(0,0,0,0.3); animation: slideUp 0.4s;">
+                <div style="text-align: center;">
+                    <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #2E7D32, #4CAF50); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; font-size: 2.5rem; overflow: hidden; color: white; font-weight: 700;">
+                        {% if user.imageProfil %}
+                            <img src="{{ user.imageProfil }}" alt="{{ user.firstName }}" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+                        {% else %}
+                            <span>{{ user.firstName|first }}{{ user.lastName|first }}</span>
+                        {% endif %}
+                    </div>
+                    <h2 style="font-family: 'Playfair Display', serif; font-size: 1.75rem; color: #1a1a2e; margin-bottom: 1rem;">
+                        Complétez votre profil
+                    </h2>
+                    <p style="color: #64748b; font-size: 1.1rem; line-height: 1.6; margin-bottom: 2rem;">
+                        Nous avons remarqué que certaines informations de votre profil sont manquantes. Souhaitez-vous les compléter maintenant pour une meilleure expérience ?
+                    </p>
+                    <div style="display: flex; gap: 1rem; justify-content: center;">
+                        <a href="{{ path('app_profile', {'_locale': app.request.locale}) }}" style="flex: 1; padding: 1rem 1.5rem; background: linear-gradient(135deg, #2E7D32, #4CAF50); color: white; text-decoration: none; border-radius: 12px; font-weight: 600; text-align: center; transition: all 0.2s; box-shadow: 0 4px 12px rgba(46, 125, 50, 0.3);">
+                            ✅ Oui, compléter
+                        </a>
+                        <button onclick="document.getElementById('profileModal').style.display='none'" style="flex: 1; padding: 1rem 1.5rem; background: #f1f5f9; color: #64748b; border: none; border-radius: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s;">
+                            ⏭️ Plus tard
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <style>
+            @keyframes fadeIn {
+                from { opacity: 0; }
+                to { opacity: 1; }
+            }
+            @keyframes slideUp {
+                from { transform: translateY(50px); opacity: 0; }
+                to { transform: translateY(0); opacity: 1; }
+            }
+        </style>
+        {% endif %}
+        
+        <!-- Welcome Hero -->
+        <section class="welcome-hero">
+            <div class="welcome-content">
+                <div class="welcome-text">
+                    <p class="welcome-greeting">Bonjour et bienvenue 👋</p>
+                    <h1 class="welcome-name">{{ user.firstName }} {{ user.lastName }}</h1>
+                    <p class="welcome-subtitle">Voici votre espace personnel WANNASNI</p>
+                </div>
+                <div class="welcome-actions">
+                    <div class="welcome-date">
+                        📅 {{ "now"|date("l d F Y") }}
+                    </div>
+                    {% if is_granted('ROLE_ADMIN') %}
+                    <a href="{{ path('admin_dashboard') }}" class="btn-admin-dashboard">
+                        <span>⚙️</span> Panneau Admin
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </section>
+
+        <!-- Stats Bar -->
+        <section class="stats-bar">
+            <div class="stat-card">
+                <div class="stat-icon health">❤️</div>
+                <div class="stat-info">
+                    <div class="stat-value">{{ recent_health.bloodPressure }}</div>
+                    <div class="stat-label">Tension Artérielle</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon activity">🎯</div>
+                <div class="stat-info">
+                    <div class="stat-value">{{ upcoming_activities|length }}</div>
+                    <div class="stat-label">Activités à venir</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon services">🛎️</div>
+                <div class="stat-info">
+                    <div class="stat-value">{{ services|length }}</div>
+                    <div class="stat-label">Services actifs</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon mood">
+                    {% if recent_health.mood == 'excellent' %}😊{% elseif recent_health.mood == 'good' %}🙂{% else %}😐{% endif %}
+                </div>
+                <div class="stat-info">
+                    <div class="stat-value">{% if recent_health.mood == 'excellent' %}Excellent{% elseif recent_health.mood == 'good' %}Bon{% else %}Correct{% endif %}</div>
+                    <div class="stat-label">Humeur du jour</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Dashboard Grid -->
+        <div class="dashboard-main">
+            <!-- Left Column - Main Content -->
+            <div class="main-content">
+                
+                <!-- Activities Card -->
+                <div class="dash-card" style="margin-bottom: 1.5rem;">
+                    <div class="dash-card-header">
+                        <div class="dash-card-title">
+                            <span class="dash-card-title-icon">🎯</span>
+                            Prochaines Activités
+                        </div>
+                        <a href="{{ path('app_my_activities', {'_locale': app.request.locale}) }}" class="dash-card-link">
+                            Voir tout →
+                        </a>
+                    </div>
+                    <div class="dash-card-body">
+                        <div class="activity-list">
+                            {% for activity in upcoming_activities %}
+                            <div class="activity-item">
+                                <div class="activity-icon {{ activity.type }}">
+                                    {% if activity.type == 'physical' %}🏃
+                                    {% elseif activity.type == 'cognitive' %}🧠
+                                    {% else %}👥{% endif %}
+                                </div>
+                                <div class="activity-info">
+                                    <div class="activity-name">{{ activity.name }}</div>
+                                    <div class="activity-meta">
+                                        <span class="activity-time">🕐 {{ activity.time }}</span>
+                                        <span class="activity-badge {% if loop.first %}badge-tomorrow{% else %}badge-upcoming{% endif %}">
+                                            {{ activity.date }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Services Dashboard Card -->
+                <div class="dash-card">
+                    <div class="dash-card-header" style="background: linear-gradient(to right, rgba(37, 99, 235, 0.08), transparent);">
+                        <div class="dash-card-title">
+                            <span class="dash-card-title-icon" style="background: linear-gradient(135deg, #2563eb, #3b82f6);">🛎️</span>
+                            Mes Services
+                        </div>
+                        <a href="{{ path('app_my_services', {'_locale': app.request.locale}) }}" class="dash-card-link" style="color: #2563eb;">
+                            Voir tout →
+                        </a>
+                    </div>
+                    <div class="dash-card-body">
+                        <!-- Service Type Cards -->
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-bottom: 1.5rem;">
+                            <a href="{{ path('app_services_request', {'_locale': app.request.locale}) }}?type=transport" style="text-decoration: none;">
+                                <div style="padding: 1.25rem; background: linear-gradient(135deg, #dbeafe, #eff6ff); border-radius: 16px; border: 2px solid transparent; transition: all 0.3s; cursor: pointer;" onmouseover="this.style.borderColor='#3b82f6'; this.style.transform='translateY(-4px)';" onmouseout="this.style.borderColor='transparent'; this.style.transform='translateY(0)';">
+                                    <div style="font-size: 2.5rem; margin-bottom: 0.75rem;">🚗</div>
+                                    <div style="font-weight: 700; color: #1e40af; font-size: 1rem; margin-bottom: 0.25rem;">Transport</div>
+                                    <div style="font-size: 0.8rem; color: #3b82f6; opacity: 0.8;">Médical & Personnel</div>
+                                </div>
+                            </a>
+                            <a href="{{ path('app_services_request', {'_locale': app.request.locale}) }}?type=home" style="text-decoration: none;">
+                                <div style="padding: 1.25rem; background: linear-gradient(135deg, #dcfce7, #f0fdf4); border-radius: 16px; border: 2px solid transparent; transition: all 0.3s; cursor: pointer;" onmouseover="this.style.borderColor='#22c55e'; this.style.transform='translateY(-4px)';" onmouseout="this.style.borderColor='transparent'; this.style.transform='translateY(0)';">
+                                    <div style="font-size: 2.5rem; margin-bottom: 0.75rem;">🏠</div>
+                                    <div style="font-weight: 700; color: #166534; font-size: 1rem; margin-bottom: 0.25rem;">Aide à Domicile</div>
+                                    <div style="font-size: 0.8rem; color: #22c55e; opacity: 0.8;">Ménage & Cuisine</div>
+                                </div>
+                            </a>
+                            <a href="{{ path('app_services_request', {'_locale': app.request.locale}) }}?type=grocery" style="text-decoration: none;">
+                                <div style="padding: 1.25rem; background: linear-gradient(135deg, #fef3c7, #fefce8); border-radius: 16px; border: 2px solid transparent; transition: all 0.3s; cursor: pointer;" onmouseover="this.style.borderColor='#f59e0b'; this.style.transform='translateY(-4px)';" onmouseout="this.style.borderColor='transparent'; this.style.transform='translateY(0)';">
+                                    <div style="font-size: 2.5rem; margin-bottom: 0.75rem;">🛒</div>
+                                    <div style="font-weight: 700; color: #92400e; font-size: 1rem; margin-bottom: 0.25rem;">Courses</div>
+                                    <div style="font-size: 0.8rem; color: #f59e0b; opacity: 0.8;">Alimentation & Produits</div>
+                                </div>
+                            </a>
+                            <a href="{{ path('app_services_request', {'_locale': app.request.locale}) }}?type=companion" style="text-decoration: none;">
+                                <div style="padding: 1.25rem; background: linear-gradient(135deg, #f3e8ff, #faf5ff); border-radius: 16px; border: 2px solid transparent; transition: all 0.3s; cursor: pointer;" onmouseover="this.style.borderColor='#a855f7'; this.style.transform='translateY(-4px)';" onmouseout="this.style.borderColor='transparent'; this.style.transform='translateY(0)';">
+                                    <div style="font-size: 2.5rem; margin-bottom: 0.75rem;">👥</div>
+                                    <div style="font-weight: 700; color: #7c3aed; font-size: 1rem; margin-bottom: 0.25rem;">Compagnie</div>
+                                    <div style="font-size: 0.8rem; color: #a855f7; opacity: 0.8;">Visites & Accompagnement</div>
+                                </div>
+                            </a>
+                        </div>
+                        
+                        <!-- Recent Services -->
+                        {% if services|length > 0 %}
+                        <div style="background: #f8fafc; border-radius: 12px; padding: 1rem; margin-bottom: 1rem;">
+                            <div style="font-weight: 600; color: #64748b; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.75rem;">📋 Mes demandes récentes</div>
+                            {% for service in services|slice(0, 3) %}
+                            <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.75rem; background: white; border-radius: 10px; margin-bottom: 0.5rem; border: 1px solid #e2e8f0;">
+                                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                    <div style="width: 36px; height: 36px; border-radius: 8px; background: linear-gradient(135deg, #dbeafe, #bfdbfe); display: flex; align-items: center; justify-content: center; font-size: 1rem;">
+                                        {% if 'Transport' in service.type %}🚗
+                                        {% elseif 'Home' in service.type %}🏠
+                                        {% elseif 'Grocery' in service.type %}🛒
+                                        {% else %}👥{% endif %}
+                                    </div>
+                                    <div>
+                                        <div style="font-weight: 600; font-size: 0.9rem; color: #1a1a2e;">{{ service.type }}</div>
+                                        <div style="font-size: 0.75rem; color: #64748b;">{{ service.requestedAt|date('d/m/Y') }}</div>
+                                    </div>
+                                </div>
+                                <span style="padding: 0.35rem 0.85rem; border-radius: 50px; font-size: 0.7rem; font-weight: 600; 
+                                    {% if service.status == 'pending' %}background: #fef3c7; color: #92400e;
+                                    {% elseif service.status == 'in_progress' %}background: #dbeafe; color: #1e40af;
+                                    {% else %}background: #dcfce7; color: #166534;{% endif %}">
+                                    {% if service.status == 'pending' %}⏳ En attente{% elseif service.status == 'in_progress' %}🔄 En cours{% else %}✅ Terminé{% endif %}
+                                </span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        
+                        <a href="{{ path('app_services_request', {'_locale': app.request.locale}) }}" style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; width: 100%; padding: 1rem; background: linear-gradient(135deg, #2563eb, #3b82f6); color: white; border: none; border-radius: 12px; font-size: 1rem; font-weight: 600; text-decoration: none; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 16px rgba(37, 99, 235, 0.25);">
+                            ➕ Demander un nouveau service
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column - Sidebar -->
+            <div class="sidebar-stack">
+                
+                <!-- Health Widget -->
+                <div class="dash-card">
+                    <div class="dash-card-header">
+                        <div class="dash-card-title">
+                            <span class="dash-card-title-icon">❤️</span>
+                            Ma Santé
+                        </div>
+                        <a href="{{ path('app_health_journal_index', {'_locale': app.request.locale}) }}" class="dash-card-link">
+                            Détails →
+                        </a>
+                    </div>
+                    <div class="dash-card-body">
+                        <div class="health-grid">
+                            <div class="health-metric">
+                                <div class="health-metric-icon">💓</div>
+                                <div class="health-metric-value">{{ recent_health.heartRate }}</div>
+                                <div class="health-metric-label">BPM</div>
+                            </div>
+                            <div class="health-metric">
+                                <div class="health-metric-icon">🩺</div>
+                                <div class="health-metric-value">{{ recent_health.bloodPressure }}</div>
+                                <div class="health-metric-label">Tension</div>
+                            </div>
+                            <div class="health-mood">
+                                <span class="health-mood-icon">
+                                    {% if recent_health.mood == 'excellent' %}😊
+                                    {% elseif recent_health.mood == 'good' %}🙂
+                                    {% else %}😐{% endif %}
+                                </span>
+                                <span class="health-mood-text">
+                                    Humeur: {% if recent_health.mood == 'excellent' %}Excellente{% elseif recent_health.mood == 'good' %}Bonne{% else %}Correcte{% endif %}
+                                </span>
+                            </div>
+                        </div>
+                        <a href="{{ path('app_health_journal_new', {'_locale': app.request.locale}) }}" class="btn-primary-action">
+                            ➕ Nouvelle entrée santé
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Nutrition Widget -->
+                <div class="dash-card">
+                    <div class="dash-card-header" style="background: linear-gradient(to right, rgba(34, 197, 94, 0.08), transparent);">
+                        <div class="dash-card-title">
+                            <span class="dash-card-title-icon" style="background: linear-gradient(135deg, #22c55e, #4ade80);">🥗</span>
+                            Ma Nutrition
+                        </div>
+                        <a href="{{ path('app_my_nutrition', {'_locale': app.request.locale}) }}" class="dash-card-link" style="color: #22c55e;">
+                            Voir tout →
+                        </a>
+                    </div>
+                    <div class="dash-card-body">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                            <div style="text-align: center; padding: 1rem; background: linear-gradient(135deg, #dbeafe, #eff6ff); border-radius: 12px;">
+                                <div style="font-size: 1.5rem; margin-bottom: 0.25rem;">💧</div>
+                                <div style="font-size: 1.5rem; font-weight: 700; color: #3b82f6;">{{ nutrition.water_intake }}/{{ nutrition.water_goal }}</div>
+                                <div style="font-size: 0.75rem; color: #64748b; text-transform: uppercase;">Verres d'eau</div>
+                            </div>
+                            <div style="text-align: center; padding: 1rem; background: linear-gradient(135deg, #fef3c7, #fefce8); border-radius: 12px;">
+                                <div style="font-size: 1.5rem; margin-bottom: 0.25rem;">🔥</div>
+                                <div style="font-size: 1.5rem; font-weight: 700; color: #f59e0b;">{{ nutrition.calories_today }}</div>
+                                <div style="font-size: 0.75rem; color: #64748b; text-transform: uppercase;">Calories</div>
+                            </div>
+                        </div>
+                        <div style="background: #f0fdf4; padding: 0.85rem 1rem; border-radius: 10px; display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
+                            <span style="font-size: 1.25rem;">⏰</span>
+                            <span style="font-size: 0.9rem; color: #166534; font-weight: 500;">{{ nutrition.next_meal }}</span>
+                        </div>
+                        <a href="{{ path('app_nutrition_request', {'_locale': app.request.locale}) }}" class="btn-primary-action" style="background: linear-gradient(135deg, #22c55e, #4ade80);">
+                            ➕ Nouvelle demande de régime
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="dash-card">
+                    <div class="dash-card-header">
+                        <div class="dash-card-title">
+                            <span class="dash-card-title-icon">⚡</span>
+                            Accès Rapide
+                        </div>
+                    </div>
+                    <div class="dash-card-body">
+                        <div class="quick-actions">
+                            <a href="{{ path('app_profile', {'_locale': app.request.locale}) }}" class="quick-action-btn">
+                                <span class="quick-action-icon">👤</span>
+                                <span class="quick-action-label">Mon Profil</span>
+                            </a>
+                            <a href="{{ path('app_my_activities', {'_locale': app.request.locale}) }}" class="quick-action-btn">
+                                <span class="quick-action-icon">🎯</span>
+                                <span class="quick-action-label">Activités</span>
+                            </a>
+                            <a href="{{ path('app_my_nutrition', {'_locale': app.request.locale}) }}" class="quick-action-btn">
+                                <span class="quick-action-icon">🥗</span>
+                                <span class="quick-action-label">Nutrition</span>
+                            </a>
+                            <a href="{{ path('app_my_services', {'_locale': app.request.locale}) }}" class="quick-action-btn">
+                                <span class="quick-action-icon">🛎️</span>
+                                <span class="quick-action-label">Services</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Emergency Card -->
+                <div class="emergency-card">
+                    <div class="emergency-icon">🆘</div>
+                    <div class="emergency-title">Besoin d'aide urgente?</div>
+                    <p class="emergency-text">Notre équipe est disponible 24h/24</p>
+                    <a href="tel:+33123456789" class="emergency-btn">
+                        📞 Appeler maintenant
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

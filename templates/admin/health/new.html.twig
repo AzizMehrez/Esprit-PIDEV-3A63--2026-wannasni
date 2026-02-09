@@ -1,0 +1,75 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Nouvelle Entrée Santé - Admin WANNASNI{% endblock %}
+{% block page_title %}Nouvelle Entrée Santé{% endblock %}
+
+{% block header_actions %}
+<a href="{{ path('admin_health') }}" class="btn btn-outline">← Retour</a>
+{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .form-container { max-width: 700px; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .form-group { margin-bottom: 1.25rem; }
+    .form-group.full { grid-column: span 2; }
+    .form-label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--admin-text); margin-bottom: 0.5rem; }
+    .form-input { width: 100%; padding: 0.85rem 1rem; font-size: 0.95rem; border: 1px solid var(--admin-border); border-radius: var(--admin-radius-sm); background: var(--admin-bg); color: var(--admin-text); transition: all 0.2s; }
+    .form-input:focus { outline: none; border-color: var(--admin-primary); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); }
+    .btn-group { display: flex; gap: 1rem; margin-top: 1.5rem; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <div class="admin-card">
+        <div class="card-header">
+            <h2 class="card-title">❤️ Nouvelle Entrée Santé</h2>
+        </div>
+        <div class="card-body">
+            <form method="post">
+                <div class="form-grid">
+                    <div class="form-group full">
+                        <label class="form-label">Patient *</label>
+                        <select class="form-input" name="user" required>
+                            <option value="">Sélectionner un patient...</option>
+                            <option value="1">Marie Dupont</option>
+                            <option value="2">Jean Martin</option>
+                            <option value="3">Sophie Bernard</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Tension Artérielle *</label>
+                        <input type="text" class="form-input" name="bloodPressure" placeholder="120/80" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Fréquence Cardiaque *</label>
+                        <input type="number" class="form-input" name="heartRate" placeholder="72" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Poids (kg)</label>
+                        <input type="number" step="0.1" class="form-input" name="weight" placeholder="65.5">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Humeur</label>
+                        <select class="form-input" name="mood">
+                            <option value="excellent">😊 Excellent</option>
+                            <option value="good">🙂 Bien</option>
+                            <option value="okay">😐 Correct</option>
+                            <option value="poor">😔 Mauvais</option>
+                        </select>
+                    </div>
+                    <div class="form-group full">
+                        <label class="form-label">Notes</label>
+                        <textarea class="form-input" name="notes" rows="3" placeholder="Observations..."></textarea>
+                    </div>
+                </div>
+                <div class="btn-group">
+                    <button type="submit" class="btn btn-primary">💾 Enregistrer</button>
+                    <a href="{{ path('admin_health') }}" class="btn btn-outline">Annuler</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

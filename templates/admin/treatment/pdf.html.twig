@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Liste des Traitements</title>
+    <style>
+        body { font-family: sans-serif; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        h1 { text-align: center; }
+    </style>
+</head>
+<body>
+    <h1>Liste des Traitements</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Senior</th>
+                <th>Docteur</th>
+                <th>Médicament</th>
+                <th>Dosage</th>
+                <th>Fréquence</th>
+                <th>Instructions</th>
+                <th>Date Début</th>
+                <th>Date Fin</th>
+                <th>Actif</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for treatment in treatments %}
+            <tr>
+                <td>{{ treatment.id }}</td>
+                <td>{{ treatment.senior ? treatment.senior.fullName : 'N/A' }}</td>
+                <td>{{ treatment.prescribedByDoctor ? 'Dr. ' ~ treatment.prescribedByDoctor.fullName : 'N/A' }}</td>
+                <td>{{ treatment.medication }}</td>
+                <td>{{ treatment.dosage }}</td>
+                <td>{{ treatment.frequency }}</td>
+                <td>{{ treatment.instructions }}</td>
+                <td>{{ treatment.startDate ? treatment.startDate|date('Y-m-d') : '' }}</td>
+                <td>{{ treatment.endDate ? treatment.endDate|date('Y-m-d') : '' }}</td>
+                <td>{{ treatment.isActive ? 'Oui' : 'Non' }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

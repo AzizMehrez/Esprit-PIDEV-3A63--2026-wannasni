@@ -1,0 +1,242 @@
+{% extends 'base_dashboard.html.twig' %}
+
+{% block title %}Détails de l'Entrée - WANNASNI{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    :root {
+        --dash-primary: #dc2626;
+        --dash-primary-light: #ef4444;
+        --dash-primary-soft: rgba(220, 38, 38, 0.08);
+        --dash-bg: #fef2f2;
+        --dash-card: #ffffff;
+        --dash-text: #1a1a2e;
+        --dash-text-muted: #64748b;
+        --dash-border: #fecaca;
+        --dash-radius: 20px;
+    }
+
+    body { background: var(--dash-bg); }
+
+    .page-wrapper {
+        min-height: 100vh;
+        padding: 2rem 1.5rem 4rem;
+        background: linear-gradient(180deg, #fef2f2 0%, var(--dash-bg) 30%);
+    }
+
+    .page-container {
+        max-width: 700px;
+        margin: 0 auto;
+    }
+
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--dash-primary);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.95rem;
+        margin-bottom: 1.5rem;
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        transition: all 0.2s;
+    }
+
+    .back-link:hover {
+        background: var(--dash-primary-soft);
+    }
+
+    .details-card {
+        background: var(--dash-card);
+        border-radius: var(--dash-radius);
+        box-shadow: 0 4px 24px rgba(220, 38, 38, 0.06);
+        border: 1px solid var(--dash-border);
+        overflow: hidden;
+    }
+
+    .details-header {
+        padding: 2rem;
+        background: linear-gradient(to right, var(--dash-primary-soft), transparent);
+        border-bottom: 1px solid var(--dash-border);
+        text-align: center;
+    }
+
+    .details-date {
+        font-family: 'Playfair Display', serif;
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--dash-text);
+        margin-bottom: 0.5rem;
+    }
+
+    .details-time {
+        font-size: 1.1rem;
+        color: var(--dash-text-muted);
+        font-weight: 500;
+    }
+
+    .details-body {
+        padding: 2rem;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-item {
+        background: #fff;
+        border: 1px solid var(--dash-border);
+        border-radius: 16px;
+        padding: 1.5rem;
+        text-align: center;
+    }
+
+    .stat-icon { font-size: 2rem; margin-bottom: 0.5rem; display: block; }
+    .stat-value { font-size: 1.5rem; font-weight: 700; display: block; margin-bottom: 0.25rem; }
+    .stat-label { font-size: 0.9rem; color: var(--dash-text-muted); text-transform: uppercase; font-weight: 600; }
+
+    /* Colors matching index */
+    .stat-value.bp { color: #dc2626; }
+    .stat-value.hr { color: #2563eb; }
+    .stat-value.weight { color: #16a34a; }
+    .stat-value.temp { color: #ea580c; }
+    .stat-value.sugar { color: #9333ea; }
+
+    .notes-section {
+        background: #fffbeb;
+        border-radius: 16px;
+        padding: 1.5rem;
+        border-left: 4px solid #fcd34d;
+        color: #92400e;
+        line-height: 1.6;
+        margin-bottom: 2rem;
+    }
+
+    .notes-title {
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        display: block;
+        font-size: 1.1rem;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+    }
+
+    .btn {
+        flex: 1;
+        padding: 1rem;
+        border-radius: 12px;
+        font-weight: 600;
+        text-align: center;
+        text-decoration: none;
+        transition: all 0.2s;
+        border: none;
+        cursor: pointer;
+        display: inline-block;
+    }
+
+    .btn-edit {
+        background: white;
+        color: #d97706;
+        border: 2px solid #d97706;
+    }
+    .btn-edit:hover { background: #fffbeb; }
+
+    .btn-delete {
+        background: #fee2e2;
+        color: #991b1b;
+        border: 2px solid #ef4444;
+    }
+    .btn-delete:hover { background: #fecaca; }
+
+    @media (max-width: 480px) {
+        .stats-grid { grid-template-columns: 1fr; }
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="page-wrapper">
+    <div class="page-container">
+        <a href="{{ path('app_health_journal_index', {'_locale': app.request.locale}) }}" class="back-link">
+            ← Retour au journal
+        </a>
+
+        <div class="details-card">
+            <div class="details-header">
+                <div class="details-date">{{ health_journal.date|date('d F Y') }}</div>
+                <div class="details-time">Heure: {{ health_journal.date|date('H:i') }}</div>
+            </div>
+
+            <div class="details-body">
+                <div class="stats-grid">
+                    {% if health_journal.bloodPressureSystolic %}
+                    <div class="stat-item">
+                        <span class="stat-icon">🩺</span>
+                        <span class="stat-value bp">{{ health_journal.bloodPressureSystolic }}/{{ health_journal.bloodPressureDiastolic }}</span>
+                        <span class="stat-label">Tension (mmHg)</span>
+                    </div>
+                    {% endif %}
+
+                    {% if health_journal.heartRate %}
+                    <div class="stat-item">
+                        <span class="stat-icon">💓</span>
+                        <span class="stat-value hr">{{ health_journal.heartRate }}</span>
+                        <span class="stat-label">Pouls (bpm)</span>
+                    </div>
+                    {% endif %}
+
+                    {% if health_journal.weight %}
+                    <div class="stat-item">
+                        <span class="stat-icon">⚖️</span>
+                        <span class="stat-value weight">{{ health_journal.weight }}</span>
+                        <span class="stat-label">Poids (kg)</span>
+                    </div>
+                    {% endif %}
+
+                    {% if health_journal.temperature %}
+                    <div class="stat-item">
+                        <span class="stat-icon">🌡️</span>
+                        <span class="stat-value temp">{{ health_journal.temperature }}</span>
+                        <span class="stat-label">Température (°C)</span>
+                    </div>
+                    {% endif %}
+
+                    {% if health_journal.bloodSugar %}
+                    <div class="stat-item">
+                        <span class="stat-icon">🩸</span>
+                        <span class="stat-value sugar">{{ health_journal.bloodSugar }}</span>
+                        <span class="stat-label">Glycémmie (mg/dL)</span>
+                    </div>
+                    {% endif %}
+                </div>
+
+                {% if health_journal.notes %}
+                <div class="notes-section">
+                    <span class="notes-title">📝 Notes & Observations</span>
+                    {{ health_journal.notes|nl2br }}
+                </div>
+                {% endif %}
+
+                <div class="action-buttons">
+                    <a href="{{ path('app_health_journal_edit', {'id': health_journal.id, '_locale': app.request.locale}) }}" class="btn btn-edit">
+                        ✏️ Modifier
+                    </a>
+                    
+                    <form method="post" action="{{ path('app_health_journal_delete', {'id': health_journal.id, '_locale': app.request.locale}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette entrée ?');" style="flex: 1;">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ health_journal.id) }}">
+                        <button class="btn btn-delete" style="width: 100%;">🗑️ Supprimer</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
