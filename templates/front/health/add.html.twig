@@ -6,9 +6,8 @@
 {{ parent() }}
 <style>
     :root {
-        --dash-primary: #2E7D32;
-        --dash-primary-light: #4CAF50;
-        --dash-primary-soft: rgba(46, 125, 50, 0.08);
+        --dash-primary: #dc2626;
+        --dash-primary-light: #ef4444;
         --dash-bg: #f8faf8;
         --dash-card: #ffffff;
         --dash-text: #1a1a2e;
@@ -28,7 +27,7 @@
     }
 
     .page-container {
-        max-width: 600px;
+        max-width: 700px;
         margin: 0 auto;
     }
 
@@ -90,17 +89,38 @@
         padding: 2rem;
     }
 
+    .form-section {
+        margin-bottom: 2rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid var(--dash-border);
+    }
+
+    .form-section:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+    }
+
+    .section-title {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--dash-text);
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
     .form-row {
         display: grid;
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: repeat(2, 1fr);
         gap: 1rem;
     }
 
     .form-group {
-        margin-bottom: 1.5rem;
+        margin-bottom: 1.25rem;
     }
 
-    .form-label {
+    .form-group label {
         display: block;
         font-size: 0.9rem;
         font-weight: 600;
@@ -108,10 +128,12 @@
         margin-bottom: 0.5rem;
     }
 
-    .form-input {
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
         width: 100%;
-        padding: 1rem 1.25rem;
-        font-size: 1.1rem;
+        padding: 0.875rem 1rem;
+        font-size: 1rem;
         border: 2px solid var(--dash-border);
         border-radius: var(--dash-radius-sm);
         background: white;
@@ -119,50 +141,12 @@
         font-family: inherit;
     }
 
-    .form-input:focus {
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
         outline: none;
         border-color: #dc2626;
         box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.1);
-    }
-
-    .mood-selector {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 0.75rem;
-    }
-
-    .mood-option {
-        text-align: center;
-        padding: 1.25rem;
-        border: 2px solid var(--dash-border);
-        border-radius: var(--dash-radius-sm);
-        cursor: pointer;
-        transition: all 0.2s;
-    }
-
-    .mood-option:hover {
-        border-color: #dc2626;
-    }
-
-    .mood-option.selected {
-        border-color: #dc2626;
-        background: rgba(220, 38, 38, 0.05);
-    }
-
-    .mood-option input {
-        display: none;
-    }
-
-    .mood-emoji {
-        font-size: 2.5rem;
-        display: block;
-        margin-bottom: 0.5rem;
-    }
-
-    .mood-text {
-        font-size: 0.85rem;
-        font-weight: 600;
-        color: var(--dash-text);
     }
 
     .btn-group {
@@ -206,12 +190,8 @@
         color: #dc2626;
     }
 
-    @media (max-width: 480px) {
+    @media (max-width: 600px) {
         .form-row {
-            grid-template-columns: 1fr;
-        }
-
-        .mood-selector {
             grid-template-columns: 1fr;
         }
     }
@@ -233,65 +213,121 @@
                 </h1>
             </div>
             <div class="form-body">
-                <form method="post">
+                {{ form_start(form) }}
+                
+                {# Date Section #}
+                <div class="form-section">
+                    <h3 class="section-title">📅 Date de l'entrée</h3>
+                    <div class="form-group">
+                        {{ form_label(form.date) }}
+                        {{ form_widget(form.date, {'attr': {'class': 'form-input'}}) }}
+                        {{ form_errors(form.date) }}
+                    </div>
+                </div>
+                
+                {# Vital Signs Section #}
+                <div class="form-section">
+                    <h3 class="section-title">🩺 Signes Vitaux</h3>
                     <div class="form-row">
                         <div class="form-group">
-                            <label class="form-label">🩺 Tension Artérielle</label>
-                            <input type="text" class="form-input" name="bloodPressure" placeholder="120/80" required>
+                            {{ form_label(form.tensionArterielle) }}
+                            {{ form_widget(form.tensionArterielle, {'attr': {'class': 'form-input', 'placeholder': '120/80'}}) }}
+                            {{ form_errors(form.tensionArterielle) }}
                         </div>
                         <div class="form-group">
-                            <label class="form-label">💓 Pouls (bpm)</label>
-                            <input type="number" class="form-input" name="heartRate" placeholder="72" min="40" max="200">
+                            {{ form_label(form.frequenceCardiaque) }}
+                            {{ form_widget(form.frequenceCardiaque, {'attr': {'class': 'form-input', 'placeholder': '72'}}) }}
+                            {{ form_errors(form.frequenceCardiaque) }}
                         </div>
                     </div>
-
                     <div class="form-group">
-                        <label class="form-label">⚖️ Poids (kg)</label>
-                        <input type="number" class="form-input" name="weight" placeholder="65.0" step="0.1" min="30" max="200">
+                        {{ form_label(form.temperature) }}
+                        {{ form_widget(form.temperature, {'attr': {'class': 'form-input', 'placeholder': '36.5'}}) }}
+                        {{ form_errors(form.temperature) }}
                     </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Comment vous sentez-vous aujourd'hui?</label>
-                        <div class="mood-selector">
-                            <label class="mood-option">
-                                <input type="radio" name="mood" value="excellent">
-                                <span class="mood-emoji">😊</span>
-                                <span class="mood-text">Excellent</span>
-                            </label>
-                            <label class="mood-option selected">
-                                <input type="radio" name="mood" value="good" checked>
-                                <span class="mood-emoji">🙂</span>
-                                <span class="mood-text">Bien</span>
-                            </label>
-                            <label class="mood-option">
-                                <input type="radio" name="mood" value="okay">
-                                <span class="mood-emoji">😐</span>
-                                <span class="mood-text">Correct</span>
-                            </label>
+                </div>
+                
+                {# Mood & Sleep Section #}
+                <div class="form-section">
+                    <h3 class="section-title">😊 Humeur & Bien-être</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            {{ form_label(form.humeur) }}
+                            {{ form_widget(form.humeur, {'attr': {'class': 'form-input'}}) }}
+                            {{ form_errors(form.humeur) }}
+                        </div>
+                        <div class="form-group">
+                            {{ form_label(form.qualiteSommeil) }}
+                            {{ form_widget(form.qualiteSommeil, {'attr': {'class': 'form-input'}}) }}
+                            {{ form_errors(form.qualiteSommeil) }}
                         </div>
                     </div>
-
+                    <div class="form-row">
+                        <div class="form-group">
+                            {{ form_label(form.appetit) }}
+                            {{ form_widget(form.appetit, {'attr': {'class': 'form-input'}}) }}
+                            {{ form_errors(form.appetit) }}
+                        </div>
+                        <div class="form-group">
+                            {{ form_label(form.niveauDouleur) }}
+                            {{ form_widget(form.niveauDouleur, {'attr': {'class': 'form-input', 'placeholder': '0-10'}}) }}
+                            {{ form_errors(form.niveauDouleur) }}
+                        </div>
+                    </div>
+                </div>
+                
+                {# Activity & Hydration Section #}
+                <div class="form-section">
+                    <h3 class="section-title">🏃 Activité & Hydratation</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            {{ form_label(form.activitePhysique) }}
+                            {{ form_widget(form.activitePhysique, {'attr': {'class': 'form-input', 'placeholder': 'Marche 30 min'}}) }}
+                            {{ form_errors(form.activitePhysique) }}
+                        </div>
+                        <div class="form-group">
+                            {{ form_label(form.hydratation) }}
+                            {{ form_widget(form.hydratation, {'attr': {'class': 'form-input'}}) }}
+                            {{ form_errors(form.hydratation) }}
+                        </div>
+                    </div>
+                </div>
+                
+                {# Medications & Symptoms Section #}
+                <div class="form-section">
+                    <h3 class="section-title">💊 Médicaments & Symptômes</h3>
                     <div class="form-group">
-                        <label class="form-label">📝 Notes (optionnel)</label>
-                        <textarea class="form-input" name="notes" rows="3" placeholder="Comment vous sentez-vous? Des symptômes?"></textarea>
+                        {{ form_label(form.medicamentsPris) }}
+                        {{ form_widget(form.medicamentsPris, {'attr': {'class': 'form-input', 'rows': 2}}) }}
+                        {{ form_errors(form.medicamentsPris) }}
                     </div>
+                    <div class="form-group">
+                        {{ form_label(form.symptomes) }}
+                        {{ form_widget(form.symptomes, {'attr': {'class': 'form-input', 'rows': 2}}) }}
+                        {{ form_errors(form.symptomes) }}
+                    </div>
+                </div>
+                
+                {# Notes Section #}
+                <div class="form-section">
+                    <h3 class="section-title">📝 Notes Additionnelles</h3>
+                    <div class="form-group">
+                        {{ form_widget(form.notes, {'attr': {'class': 'form-input', 'rows': 3, 'placeholder': 'Observations, remarques...'}}) }}
+                        {{ form_errors(form.notes) }}
+                    </div>
+                </div>
 
-                    <div class="btn-group">
-                        <button type="submit" class="btn btn-primary">💾 Enregistrer</button>
-                        <a href="{{ path('app_my_health', {'_locale': app.request.locale}) }}" class="btn btn-secondary">Annuler</a>
-                    </div>
-                </form>
+                {# Hide senior field for regular users - auto-set in controller #}
+                {{ form_widget(form.senior, {'attr': {'style': 'display:none'}}) }}
+                
+                <div class="btn-group">
+                    <button type="submit" class="btn btn-primary">💾 Enregistrer</button>
+                    <a href="{{ path('app_my_health', {'_locale': app.request.locale}) }}" class="btn btn-secondary">Annuler</a>
+                </div>
+                
+                {{ form_end(form) }}
             </div>
         </div>
     </div>
 </div>
-
-<script>
-document.querySelectorAll('.mood-option').forEach(option => {
-    option.addEventListener('click', () => {
-        document.querySelectorAll('.mood-option').forEach(o => o.classList.remove('selected'));
-        option.classList.add('selected');
-    });
-});
-</script>
 {% endblock %}

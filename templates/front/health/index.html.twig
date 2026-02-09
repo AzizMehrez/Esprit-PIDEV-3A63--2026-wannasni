@@ -224,6 +224,15 @@
 
         <!-- Records List -->
         <div class="record-list">
+            {% if health_records|length == 0 %}
+            <div class="record-card" style="text-align: center; padding: 3rem;">
+                <div style="font-size: 4rem; margin-bottom: 1rem;">📋</div>
+                <p style="font-size: 1.25rem; color: #64748b; margin-bottom: 1rem;">Aucune entrée de santé trouvée.</p>
+                <a href="{{ path('app_my_health_add', {'_locale': app.request.locale}) }}" class="btn-new-entry" style="display: inline-flex;">
+                    ➕ Ajouter une entrée
+                </a>
+            </div>
+            {% else %}
             {% for record in health_records %}
             <div class="record-card">
                 <div class="record-date">
@@ -233,32 +242,34 @@
                 <div class="stats-grid">
                     <div class="stat-card">
                         <div class="stat-icon">🩺</div>
-                        <div class="stat-value bp">{{ record.bloodPressure }}</div>
+                        <div class="stat-value bp">{{ record.tensionArterielle ?? '-' }}</div>
                         <div class="stat-label">Tension</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-icon">💓</div>
-                        <div class="stat-value hr">{{ record.heartRate }}</div>
+                        <div class="stat-value hr">{{ record.frequenceCardiaque ?? '-' }}</div>
                         <div class="stat-label">Pouls (BPM)</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-icon">⚖️</div>
-                        <div class="stat-value weight">{{ record.weight }} kg</div>
-                        <div class="stat-label">Poids</div>
+                        <div class="stat-icon">🌡️</div>
+                        <div class="stat-value weight">{{ record.temperature ? (record.temperature ~ ' °C') : '-' }}</div>
+                        <div class="stat-label">Température</div>
                     </div>
                 </div>
                 <div class="mood-display">
                     <span class="mood-emoji">
-                        {% if record.mood == 'excellent' %}😊
-                        {% elseif record.mood == 'good' %}🙂
-                        {% else %}😐{% endif %}
+                        {% if record.humeur == 'excellent' %}😊
+                        {% elseif record.humeur == 'good' or record.humeur == 'bon' %}🙂
+                        {% elseif record.humeur == 'average' or record.humeur == 'moyen' %}😐
+                        {% else %}😑{% endif %}
                     </span>
                     <span class="mood-text">
-                        Humeur: {% if record.mood == 'excellent' %}Excellente{% elseif record.mood == 'good' %}Bonne{% else %}Correcte{% endif %}
+                        Humeur: {% if record.humeur == 'excellent' %}Excellente{% elseif record.humeur == 'good' or record.humeur == 'bon' %}Bonne{% elseif record.humeur == 'average' or record.humeur == 'moyen' %}Moyenne{% else %}{{ record.humeur ?? 'Non renseigné' }}{% endif %}
                     </span>
                 </div>
             </div>
             {% endfor %}
+            {% endif %}
         </div>
 
     </div>

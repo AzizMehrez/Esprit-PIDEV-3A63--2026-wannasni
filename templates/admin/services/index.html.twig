@@ -4,118 +4,179 @@
 {% block page_title %}Gestion des Services{% endblock %}
 
 {% block header_actions %}
-<a href="{{ path('admin_services_new') }}" class="btn btn-primary">➕ Nouveau Service</a>
+<a href="{{ path('app_home', {'_locale': 'fr'}) }}" class="btn btn-outline" style="margin-right: 0.75rem;">🏠 Accueil</a>
+<a href="{{ path('admin_interventions') }}" class="btn btn-primary">🔧 Interventions</a>
 {% endblock %}
 
 {% block content %}
+{# Flash Messages #}
+{% if app.flashes('success') %}
+    <div class="alert alert-success">
+        {% for message in app.flashes('success') %}
+            {{ message }}
+        {% endfor %}
+    </div>
+{% endif %}
+
+{% if app.flashes('error') %}
+    <div class="alert alert-error">
+        {% for message in app.flashes('error') %}
+            {{ message }}
+        {% endfor %}
+    </div>
+{% endif %}
+
 {# Statistics Cards #}
 <div class="stats-grid">
     <div class="stat-card">
-        <div class="stat-icon orange">🛎️</div>
+        <div class="stat-icon blue">🛎️</div>
         <div class="stat-info">
             <div class="stat-value">{{ services|length }}</div>
-            <div class="stat-label">Total Demandes</div>
+            <div class="stat-label">Total Services</div>
         </div>
     </div>
     <div class="stat-card">
-        <div class="stat-icon blue">⏳</div>
+        <div class="stat-icon orange">⏳</div>
         <div class="stat-info">
-            <div class="stat-value">{{ services|filter(s => s.status == 'pending')|length }}</div>
+            <div class="stat-value">
+                {% set pending_count = 0 %}
+                {% for service in services %}
+                    {% if service.statut == 'pending' %}
+                        {% set pending_count = pending_count + 1 %}
+                    {% endif %}
+                {% endfor %}
+                {{ pending_count }}
+            </div>
             <div class="stat-label">En Attente</div>
         </div>
     </div>
     <div class="stat-card">
-        <div class="stat-icon cyan">🔄</div>
+        <div class="stat-icon blue">🔄</div>
         <div class="stat-info">
-            <div class="stat-value">{{ services|filter(s => s.status == 'in_progress')|length }}</div>
+            <div class="stat-value">
+                {% set in_progress_count = 0 %}
+                {% for service in services %}
+                    {% if service.statut == 'in_progress' %}
+                        {% set in_progress_count = in_progress_count + 1 %}
+                    {% endif %}
+                {% endfor %}
+                {{ in_progress_count }}
+            </div>
             <div class="stat-label">En Cours</div>
         </div>
     </div>
     <div class="stat-card">
-        <div class="stat-icon red">🔴</div>
+        <div class="stat-icon green">✓</div>
         <div class="stat-info">
-            <div class="stat-value">{{ services|filter(s => s.priority == 'high')|length }}</div>
-            <div class="stat-label">Priorité Haute</div>
+            <div class="stat-value">
+                {% set completed_count = 0 %}
+                {% for service in services %}
+                    {% if service.statut == 'completed' %}
+                        {% set completed_count = completed_count + 1 %}
+                    {% endif %}
+                {% endfor %}
+                {{ completed_count }}
+            </div>
+            <div class="stat-label">Terminés</div>
         </div>
     </div>
 </div>
 
-{# Toolbar #}
+{# Filters #}
 <div class="admin-toolbar">
     <div class="toolbar-search">
-        <input type="text" id="searchInput" placeholder="Rechercher un service..." onkeyup="filterTable()">
+        <form method="get" action="{{ path('admin_services') }}" style="display: flex; gap: 0.5rem;">
+            <input type="text" name="search" placeholder="Rechercher un service..." value="{{ search_term ?? '' }}">
+            <button type="submit" class="btn btn-secondary">🔍</button>
+        </form>
     </div>
     <div class="toolbar-actions">
-        <button class="filter-btn">
-            🔽 Filtrer
-        </button>
-        <a href="#" class="export-btn pdf" onclick="exportPDF(); return false;">
-            📄 PDF
-        </a>
-        <a href="#" class="export-btn excel" onclick="exportExcel(); return false;">
-            📊 Excel
-        </a>
+        <div class="filter-group">
+            <a href="{{ path('admin_services', {filter: 'all'}) }}" class="filter-btn {% if (current_filter ?? 'all') == 'all' %}active{% endif %}">Tous</a>
+            <a href="{{ path('admin_services', {filter: 'pending'}) }}" class="filter-btn {% if (current_filter ?? 'all') == 'pending' %}active{% endif %}">En attente</a>
+            <a href="{{ path('admin_services', {filter: 'in_progress'}) }}" class="filter-btn {% if (current_filter ?? 'all') == 'in_progress' %}active{% endif %}">En cours</a>
+            <a href="{{ path('admin_services', {filter: 'completed'}) }}" class="filter-btn {% if (current_filter ?? 'all') == 'completed' %}active{% endif %}">Terminés</a>
+        </div>
+        <div class="export-group">
+            <a href="{{ path('admin_services_export_pdf', {filter: current_filter ?? 'all', search: search_term ?? ''}) }}" class="btn-export btn-export-pdf" title="Exporter en PDF" target="_blank">
+                <span class="export-icon">📄</span>
+                <span class="export-text">PDF</span>
+            </a>
+            <a href="#" class="btn-export btn-export-excel" title="Exporter en Excel">
+                <span class="export-icon">📊</span>
+                <span class="export-text">Excel</span>
+            </a>
+        </div>
     </div>
 </div>
 
 {# Table #}
 <div class="admin-card">
     <div class="card-header">
-        <h2 class="card-title">🛎️ Demandes de Services</h2>
-        <span class="badge badge-warning">{{ services|length }} demandes</span>
+        <h2 class="card-title">🛎️ Liste des Services</h2>
+        <span class="badge badge-info">{{ services|length }} services</span>
     </div>
-    <table class="admin-table" id="dataTable">
+    <table class="admin-table sortable-table" id="dataTable">
         <thead>
             <tr>
-                <th class="sortable" onclick="sortTable(0)">Service</th>
-                <th class="sortable" onclick="sortTable(1)">Demandeur</th>
-                <th class="sortable" onclick="sortTable(2)">Priorité</th>
-                <th class="sortable" onclick="sortTable(3)">Statut</th>
-                <th class="sortable" onclick="sortTable(4)">Demandé le</th>
-                <th style="width: 120px;">Actions</th>
+                <th class="sortable" data-column="0">ID <span class="sort-icon">⇅</span></th>
+                <th class="sortable" data-column="1">Senior <span class="sort-icon">⇅</span></th>
+                <th class="sortable" data-column="2">Type <span class="sort-icon">⇅</span></th>
+                <th class="sortable" data-column="3">Date <span class="sort-icon">⇅</span></th>
+                <th class="sortable" data-column="4">Statut <span class="sort-icon">⇅</span></th>
+                <th class="sortable" data-column="5">Aidant <span class="sort-icon">⇅</span></th>
+                <th style="width: 150px;">Actions</th>
             </tr>
         </thead>
         <tbody>
             {% for service in services %}
             <tr>
+                <td>#{{ service.id }}</td>
                 <td>
                     <div style="display: flex; align-items: center; gap: 0.75rem;">
-                        <div style="width: 40px; height: 40px; border-radius: 10px; background: linear-gradient(135deg, #f59e0b, #fbbf24); display: flex; align-items: center; justify-content: center; font-size: 1.1rem;">
-                            {% if 'Transport' in service.type %}🚗
-                            {% elseif 'Home' in service.type %}🏠
-                            {% else %}🛎️{% endif %}
+                        <div style="width: 36px; height: 36px; border-radius: 8px; background: linear-gradient(135deg, #3b82f6, #8b5cf6); display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 0.85rem; color: white;">
+                            {{ service.user.firstName|first|upper }}{{ service.user.lastName|first|upper }}
                         </div>
                         <div>
-                            <div style="font-weight: 600;">{{ service.type }}</div>
-                            <div style="font-size: 0.8rem; color: var(--admin-text-muted);">{{ service.description|slice(0, 35) }}...</div>
+                            <div style="font-weight: 600;">{{ service.user.firstName }} {{ service.user.lastName }}</div>
                         </div>
                     </div>
                 </td>
-                <td>{{ service.requester }}</td>
                 <td>
-                    {% if service.priority == 'high' %}
-                        <span class="badge badge-danger">🔴 Urgente</span>
-                    {% elseif service.priority == 'medium' %}
-                        <span class="badge badge-warning">🟡 Moyenne</span>
-                    {% else %}
-                        <span class="badge badge-success">🟢 Normale</span>
-                    {% endif %}
+                    <span style="font-weight: 500;">{{ service.typeService }}</span>
                 </td>
+                <td>{{ service.createdAt|date('d/m/Y H:i') }}</td>
                 <td>
-                    {% if service.status == 'pending' %}
+                    {% if service.statut == 'pending' %}
                         <span class="badge badge-warning">⏳ En attente</span>
-                    {% elseif service.status == 'in_progress' %}
+                    {% elseif service.statut == 'in_progress' %}
                         <span class="badge badge-info">🔄 En cours</span>
-                    {% elseif service.status == 'completed' %}
-                        <span class="badge badge-success">✅ Terminé</span>
+                    {% elseif service.statut == 'completed' %}
+                        <span class="badge badge-success">✓ Terminé</span>
                     {% else %}
-                        <span class="badge badge-danger">❌ Annulé</span>
+                        <span class="badge badge-danger">✗ Annulé</span>
                     {% endif %}
                 </td>
-                <td>{{ service.requestedAt|date('d/m/Y') }}</td>
                 <td>
-                    <a href="{{ path('admin_services_show', {id: service.id}) }}" class="action-btn" title="Voir">👁️</a>
-                    <a href="{{ path('admin_services_edit', {id: service.id}) }}" class="action-btn" title="Traiter">✏️</a>
+                    {% if service.technicienNom %}
+                        <span style="font-weight: 500;">{{ service.technicienNom }}</span>
+                    {% else %}
+                        <span style="color: #9ca3af;">Non assigné</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <div style="display: flex; gap: 0.25rem;">
+                        <a href="{{ path('admin_services_show', {id: service.id}) }}" class="action-btn" title="Voir">👁️</a>
+                        {% if service.statut == 'pending' %}
+                            <a href="{{ path('admin_services_assign', {id: service.id}) }}" class="action-btn" title="Assigner">👤</a>
+                        {% endif %}
+                    </div>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="7" style="text-align: center; padding: 2rem; color: #718096;">
+                    Aucun service trouvé.
                 </td>
             </tr>
             {% endfor %}
@@ -123,100 +184,229 @@
     </table>
 </div>
 
+<style>
+.filter-group {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.filter-btn {
+    padding: 0.5rem 1rem;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    color: #4a5568;
+}
+
+.filter-btn:hover {
+    background: #f7fafc;
+    border-color: #cbd5e0;
+}
+
+.filter-btn.active {
+    background: #3b82f6;
+    color: white;
+    border-color: #3b82f6;
+}
+
+.alert {
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-weight: 500;
+    animation: slideInDown 0.4s ease-out;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+@keyframes slideInDown {
+    from {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.alert-success {
+    background: linear-gradient(135deg, #d4f4dd 0%, #c6f6d5 100%);
+    color: #276749;
+    border: 2px solid #48bb78;
+    font-size: 1rem;
+}
+
+.alert-success::before {
+    content: '✅';
+    font-size: 1.5rem;
+}
+
+.alert-error {
+    background: linear-gradient(135deg, #fee 0%, #fed7d7 100%);
+    color: #c53030;
+    border: 2px solid #fc8181;
+    font-size: 1rem;
+}
+
+.alert-error::before {
+    content: '❌';
+    font-size: 1.5rem;
+}
+
+.export-group {
+    display: flex;
+    gap: 0.75rem;
+    margin-left: 1rem;
+}
+
+.btn-export {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1.25rem;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border: 2px solid;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.btn-export .export-icon {
+    font-size: 1.25rem;
+    transition: transform 0.3s ease;
+}
+
+.btn-export .export-text {
+    font-weight: 600;
+    letter-spacing: 0.3px;
+}
+
+.btn-export-pdf {
+    background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+    color: white;
+    border-color: #dc2626;
+}
+
+.btn-export-pdf:hover {
+    background: linear-gradient(135deg, #b91c1c 0%, #7f1d1d 100%);
+    border-color: #b91c1c;
+    box-shadow: 0 4px 8px rgba(220, 38, 38, 0.3);
+    transform: translateY(-2px);
+}
+
+.btn-export-pdf:hover .export-icon {
+    transform: scale(1.2) rotate(-5deg);
+}
+
+.btn-export-excel {
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    color: white;
+    border-color: #059669;
+}
+
+.btn-export-excel:hover {
+    background: linear-gradient(135deg, #047857 0%, #065f46 100%);
+    border-color: #047857;
+    box-shadow: 0 4px 8px rgba(5, 150, 105, 0.3);
+    transform: translateY(-2px);
+}
+
+.btn-export-excel:hover .export-icon {
+    transform: scale(1.2) rotate(5deg);
+}
+
+.btn-export:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.sortable {
+    cursor: pointer;
+    user-select: none;
+    position: relative;
+    padding-right: 1.5rem;
+}
+
+.sortable:hover {
+    background-color: #f7fafc;
+}
+
+.sort-icon {
+    position: absolute;
+    right: 0.5rem;
+    opacity: 0.3;
+    font-size: 0.8rem;
+}
+
+.sortable.asc .sort-icon::after {
+    content: ' ▲';
+    opacity: 1;
+}
+
+.sortable.desc .sort-icon::after {
+    content: ' ▼';
+    opacity: 1;
+}
+</style>
+{% endblock %}
+
+{% block javascripts %}
 <script>
-/* ── Search ── */
-function filterTable() {
-    const filter = document.getElementById('searchInput').value.toLowerCase();
-    const tbody  = document.querySelector('#dataTable tbody');
-    const rows   = tbody.querySelectorAll('tr');
-    rows.forEach(row => {
-        const cells = row.querySelectorAll('td');
-        let found = false;
-        cells.forEach((cell, idx) => {
-            if (idx < cells.length - 1 && cell.textContent.toLowerCase().includes(filter)) found = true;
+document.addEventListener('DOMContentLoaded', function() {
+    const table = document.getElementById('dataTable');
+    if (!table) return;
+    
+    const headers = table.querySelectorAll('th.sortable');
+    const tbody = table.querySelector('tbody');
+    
+    headers.forEach(header => {
+        header.addEventListener('click', function() {
+            const columnIndex = parseInt(this.dataset.column);
+            const isAscending = !this.classList.contains('asc');
+            
+            // Remove all sort classes
+            headers.forEach(h => h.classList.remove('asc', 'desc'));
+            
+            // Add appropriate class
+            this.classList.add(isAscending ? 'asc' : 'desc');
+            
+            // Get all rows
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+            
+            // Sort rows
+            rows.sort((a, b) => {
+                let aValue = a.cells[columnIndex].textContent.trim();
+                let bValue = b.cells[columnIndex].textContent.trim();
+                
+                // Handle numeric values (ID column)
+                if (columnIndex === 0) {
+                    aValue = parseInt(aValue.replace('#', ''));
+                    bValue = parseInt(bValue.replace('#', ''));
+                }
+                
+                // Handle dates
+                if (columnIndex === 3) {
+                    aValue = new Date(aValue.split('/').reverse().join('-'));
+                    bValue = new Date(bValue.split('/').reverse().join('-'));
+                }
+                
+                if (aValue < bValue) return isAscending ? -1 : 1;
+                if (aValue > bValue) return isAscending ? 1 : -1;
+                return 0;
+            });
+            
+            // Re-append sorted rows
+            rows.forEach(row => tbody.appendChild(row));
         });
-        row.style.display = found ? '' : 'none';
     });
-}
-
-/* ── Sort ── */
-let sortDirection = {};
-function sortTable(columnIndex) {
-    const table   = document.getElementById('dataTable');
-    const tbody   = table.querySelector('tbody');
-    const rows    = Array.from(tbody.querySelectorAll('tr'));
-    const headers = table.querySelectorAll('thead th');
-
-    sortDirection[columnIndex] = !sortDirection[columnIndex];
-    const ascending = sortDirection[columnIndex];
-    headers.forEach(h => h.classList.remove('asc', 'desc'));
-    headers[columnIndex].classList.add(ascending ? 'asc' : 'desc');
-
-    // Date column index 4
-    rows.sort((a, b) => {
-        let aText = a.cells[columnIndex].textContent.trim();
-        let bText = b.cells[columnIndex].textContent.trim();
-        if (columnIndex === 4) {
-            const aDate = new Date(aText.split('/').reverse().join('-'));
-            const bDate = new Date(bText.split('/').reverse().join('-'));
-            return ascending ? aDate - bDate : bDate - aDate;
-        }
-        return ascending
-            ? aText.toLowerCase().localeCompare(bText.toLowerCase())
-            : bText.toLowerCase().localeCompare(aText.toLowerCase());
-    });
-    rows.forEach(row => tbody.appendChild(row));
-}
-
-/* ── PDF Export ── */
-function exportPDF() {
-    const table = document.getElementById('dataTable');
-    const rows  = table.querySelectorAll('tbody tr');
-    const date  = new Date().toLocaleDateString('fr-FR');
-    let tableHTML = '';
-    rows.forEach(row => {
-        if (row.style.display === 'none') return;
-        const c = row.querySelectorAll('td');
-        tableHTML += '<tr>';
-        tableHTML += '<td>' + c[0].textContent.trim().replace(/\s+/g, ' ') + '</td>';
-        tableHTML += '<td>' + c[1].textContent.trim() + '</td>';
-        tableHTML += '<td>' + c[2].textContent.trim() + '</td>';
-        tableHTML += '<td>' + c[3].textContent.trim() + '</td>';
-        tableHTML += '<td>' + c[4].textContent.trim() + '</td>';
-        tableHTML += '</tr>';
-    });
-    const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Services - WANNASNI</title>
-<style>body{font-family:Arial,sans-serif;padding:30px;color:#1e293b}h1{text-align:center;margin-bottom:4px;color:#1e40af}.subtitle{text-align:center;color:#64748b;margin-bottom:24px;font-size:14px}table{width:100%;border-collapse:collapse;margin-top:10px}th{background:#1e40af;color:#fff;padding:10px 12px;text-align:left;font-size:13px}td{padding:9px 12px;border-bottom:1px solid #e2e8f0;font-size:13px}tr:nth-child(even){background:#f8fafc}.footer{text-align:center;margin-top:30px;font-size:11px;color:#94a3b8}</style></head><body>
-<h1>🛎️ Demandes de Services</h1><p class="subtitle">WANNASNI – Généré le ${date}</p>
-<table><thead><tr><th>Service</th><th>Demandeur</th><th>Priorité</th><th>Statut</th><th>Demandé le</th></tr></thead><tbody>${tableHTML}</tbody></table>
-<p class="footer">WANNASNI – Système de Gestion – ${date}</p></body></html>`;
-    const win = window.open('', '_blank');
-    win.document.write(html); win.document.close(); win.focus();
-    setTimeout(() => win.print(), 400);
-}
-
-/* ── Excel / CSV Export ── */
-function exportExcel() {
-    const table = document.getElementById('dataTable');
-    const rows  = table.querySelectorAll('tbody tr');
-    const BOM   = '\uFEFF';
-    let csv     = BOM + 'Service;Demandeur;Priorité;Statut;Demandé le\n';
-    rows.forEach(row => {
-        if (row.style.display === 'none') return;
-        const c = row.querySelectorAll('td');
-        csv += [
-            c[0].textContent.trim().replace(/\s+/g, ' ').replace(/;/g, ','),
-            c[1].textContent.trim(),
-            c[2].textContent.trim(),
-            c[3].textContent.trim(),
-            c[4].textContent.trim()
-        ].join(';') + '\n';
-    });
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const url  = URL.createObjectURL(blob);
-    const a    = document.createElement('a');
-    a.href = url; a.download = 'services_wannasni_' + new Date().toISOString().slice(0,10) + '.csv';
-    a.click(); URL.revokeObjectURL(url);
-}
+});
 </script>
 {% endblock %}

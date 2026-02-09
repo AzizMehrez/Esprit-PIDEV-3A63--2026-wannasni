@@ -367,7 +367,7 @@
                         <div class="activity-details">
                             <span class="activity-info">📅 {{ participation.nextSession|date('d/m/Y H:i') }}</span>
                             <span class="activity-badge">✓ Inscrit</span>
-                            <form method="POST" action="{{ path('app_cancel_activity', {'_locale': app.request.locale, 'id': participation.id}) }}" style="display: inline;">
+                            <form method="POST" action="{{ path('app_my_activities_cancel', {'_locale': app.request.locale, 'id': participation.id}) }}" style="display: inline;">
                                 <input type="hidden" name="_token" value="{{ csrf_token('cancel_activity_' ~ participation.id) }}">
                                 <button type="submit" class="btn-cancel" onclick="return confirm('Êtes-vous sûr de vouloir annuler votre inscription ?');">
                                     Annuler
@@ -411,7 +411,7 @@
                         </div>
                         <div class="activity-details">
                             <span class="activity-info">👥 {{ activity.participants }} participants</span>
-                            <form method="POST" action="{{ path('app_enroll_activity', {'_locale': app.request.locale, 'id': activity.id}) }}" style="display: inline;">
+                            <form method="POST" action="{{ path('app_my_activities_enroll', {'_locale': app.request.locale, 'id': activity.id}) }}" style="display: inline;">
                                 <input type="hidden" name="_token" value="{{ csrf_token('enroll_activity_' ~ activity.id) }}">
                                 <button type="submit" class="btn-join">S'inscrire</button>
                             </form>

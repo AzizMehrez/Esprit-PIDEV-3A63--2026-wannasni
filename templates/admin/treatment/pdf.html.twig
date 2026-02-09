@@ -1,0 +1,38 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Export - Traitements{% endblock %}
+
+{% block body %}
+    <h1>Export - Traitements</h1>
+    <p>Filtre: <strong>{{ q|default('') }}</strong> — Tri: <strong>{{ sort|default('desc') }}</strong></p>
+
+    <table style="width:100%; border-collapse:collapse;">
+        <thead>
+            <tr style="background:#f6f6f6; text-align:left;">
+                <th style="padding:8px; border:1px solid #ddd;">Patient</th>
+                <th style="padding:8px; border:1px solid #ddd;">Médecin</th>
+                <th style="padding:8px; border:1px solid #ddd;">Médicaments</th>
+                <th style="padding:8px; border:1px solid #ddd;">Date Prescription</th>
+                <th style="padding:8px; border:1px solid #ddd;">Statut</th>
+                <th style="padding:8px; border:1px solid #ddd;">Instructions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for t in entries %}
+                <tr>
+                    <td style="padding:8px; border:1px solid #ddd;">{{ t.senior ? t.senior.getFullName() : '-' }}</td>
+                    <td style="padding:8px; border:1px solid #ddd;">{{ t.docteur ? t.docteur.getFullName() : '-' }}</td>
+                    <td style="padding:8px; border:1px solid #ddd;">{{ t.medicaments }}</td>
+                    <td style="padding:8px; border:1px solid #ddd;">{{ t.datePrescription ? t.datePrescription|date('Y-m-d') : '-' }}</td>
+                    <td style="padding:8px; border:1px solid #ddd;">{{ t.statut ?: '-' }}</td>
+                    <td style="padding:8px; border:1px solid #ddd;">{{ t.instructions|e }}</td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="6" style="padding:12px; text-align:center;">Aucun traitement trouvé</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+{% endblock %}

@@ -2,7 +2,9 @@
 
 namespace App\Controller\Front;
 
-use App\Service\ActivityService;
+use App\Entity\User;
+use App\Repository\ActivityRepository;
+use App\Repository\ParticipationRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -12,54 +14,54 @@ use Symfony\Component\Routing\Annotation\Route;
 #[Route('/{_locale}/my-activities', requirements: ['_locale' => 'fr|en|ar'])]
 class UserActivityController extends AbstractController
 {
-    private const ALL_ACTIVITIES = [
-        1 => ['id' => 1, 'name' => 'Morning Walk', 'type' => 'physical', 'schedule' => 'Daily 8:00 AM'],
-        2 => ['id' => 2, 'name' => 'Memory Games', 'type' => 'cognitive', 'schedule' => 'Mon/Wed/Fri 10:00 AM'],
-        3 => ['id' => 3, 'name' => 'Yoga Class', 'type' => 'physical', 'schedule' => 'Tue/Thu 9:00 AM'],
-        4 => ['id' => 4, 'name' => 'Art Therapy', 'type' => 'creative', 'schedule' => 'Saturday 2:00 PM'],
-        5 => ['id' => 5, 'name' => 'Social Hour', 'type' => 'social', 'schedule' => 'Daily 3:00 PM'],
-    ];
-
-    // IDs enrolled by default
-    private const DEFAULT_ENROLLED = [1, 2, 3];
-
-    public function __construct(private RequestStack $requestStack)
-    {
-    }
-
-    private function getEnrolledIds(): array
-    {
-        $session = $this->requestStack->getSession();
-        if (!$session->has('enrolled_activity_ids')) {
-            $session->set('enrolled_activity_ids', self::DEFAULT_ENROLLED);
-        }
-        return $session->get('enrolled_activity_ids');
-    }
-
-    private function setEnrolledIds(array $ids): void
-    {
-        $this->requestStack->getSession()->set('enrolled_activity_ids', array_values($ids));
+    public function __construct(
+        private RequestStack $requestStack,
+        private ActivityRepository $activityRepository,
+        private ParticipationRepository $participationRepository
+    ) {
     }
 
     #[Route('/', name: 'app_my_activities')]
     public function index(): Response
     {
-        $enrolledIds = $this->getEnrolledIds();
-
-        $enrolledActivities = [];
-        foreach ($enrolledIds as $id) {
-            if (isset(self::ALL_ACTIVITIES[$id])) {
-                $activity = self::ALL_ACTIVITIES[$id];
-                $activity['nextSession'] = new \DateTime('+' . $id . ' day');
-                $enrolledActivities[] = $activity;
-            }
+        /** @var User|null $user */
+        $user = $this->getUser();
+        
+        // Get all active activities from database
+        $allActivities = $this->activityRepository->findBy(['isActive' => true], ['startTime' => 'ASC']);
+        
+        // Get enrolled activity IDs from participations (excluding cancelled ones)
+        $enrolledIds = [];
+        if ($user instanceof User) {
+            $participations = $this->participationRepository->findBy(['seniorId' => $user->getId()]);
+            // Only include active participations (not cancelled)
+            $enrolledIds = array_map(
+                fn($p) => $p->getActivityId(),
+                array_filter($participations, fn($p) => !in_array($p->getStatus(), ['annulé', 'cancelled']))
+            );
         }
 
+        $enrolledActivities = [];
         $availableActivities = [];
-        foreach (self::ALL_ACTIVITIES as $id => $activity) {
-            if (!in_array($id, $enrolledIds)) {
-                $activity['participants'] = rand(3, 20);
-                $availableActivities[] = $activity;
+
+        foreach ($allActivities as $activity) {
+            $activityData = [
+                'id' => $activity->getId(),
+                'name' => $activity->getTitle(),
+                'type' => $activity->getType(),
+                'schedule' => $activity->getStartTime() ? $activity->getStartTime()->format('d/m/Y H:i') : 'N/A',
+                'location' => $activity->getLocation(),
+                'description' => $activity->getDescription(),
+                'nextSession' => $activity->getStartTime(),
+                'participants' => $activity->getCurrentParticipants(),
+                'maxParticipants' => $activity->getMaxParticipants(),
+                'isFull' => $activity->isFull(),
+            ];
+
+            if (in_array($activity->getId(), $enrolledIds)) {
+                $enrolledActivities[] = $activityData;
+            } else {
+                $availableActivities[] = $activityData;
             }
         }
 
@@ -69,38 +71,92 @@ class UserActivityController extends AbstractController
         ]);
     }
 
-    #[Route('/enroll/{id}', name: 'app_enroll_activity', methods: ['POST'])]
+    #[Route('/enroll/{id}', name: 'app_my_activities_enroll', methods: ['POST'])]
     public function enroll(int $id, Request $request): Response
     {
-        if (!isset(self::ALL_ACTIVITIES[$id])) {
+        /** @var User|null $user */
+        $user = $this->getUser();
+        
+        if (!$user instanceof User) {
+            $this->addFlash('error', 'Vous devez être connecté pour vous inscrire.');
+            return $this->redirectToRoute('app_login', ['_locale' => $request->getLocale()]);
+        }
+
+        // Validate CSRF token
+        if (!$this->isCsrfTokenValid('enroll_activity_' . $id, $request->request->get('_token'))) {
+            $this->addFlash('error', 'Token de sécurité invalide.');
+            return $this->redirectToRoute('app_my_activities', ['_locale' => $request->getLocale()]);
+        }
+
+        $activity = $this->activityRepository->find($id);
+        if (!$activity) {
             $this->addFlash('error', 'Activité introuvable.');
             return $this->redirectToRoute('app_my_activities', ['_locale' => $request->getLocale()]);
         }
 
-        $enrolledIds = $this->getEnrolledIds();
-        if (in_array($id, $enrolledIds)) {
-            $this->addFlash('warning', 'Vous êtes déjà inscrit à cette activité.');
+        // Check if already enrolled
+        $existingParticipation = $this->participationRepository->findOneBy([
+            'seniorId' => $user->getId(),
+            'activityId' => $id
+        ]);
+
+        if ($existingParticipation) {
+            // Check if the participation is cancelled, if so, reactivate it
+            if (in_array($existingParticipation->getStatus(), ['annulé', 'cancelled'])) {
+                $existingParticipation->setStatus('inscrit');
+                $existingParticipation->setRegisteredAt(new \DateTime());
+                $this->participationRepository->getEntityManager()->flush();
+                $this->addFlash('success', 'Vous êtes à nouveau inscrit à "' . $activity->getTitle() . '" !');
+            } else {
+                $this->addFlash('warning', 'Vous êtes déjà inscrit à cette activité.');
+            }
         } else {
-            $enrolledIds[] = $id;
-            $this->setEnrolledIds($enrolledIds);
-            $this->addFlash('success', 'Vous êtes inscrit à "' . self::ALL_ACTIVITIES[$id]['name'] . '" avec succès !');
+            // Create new participation
+            $participation = new \App\Entity\Participation();
+            $participation->setActivityId($id);
+            $participation->setSeniorId($user->getId());
+            $participation->setStatus('inscrit');
+            $participation->setTitle($activity->getTitle());
+            $participation->setRegistrationMethod('web');
+            $participation->setRegisteredAt(new \DateTime());
+
+            $this->participationRepository->getEntityManager()->persist($participation);
+            $this->participationRepository->getEntityManager()->flush();
+            
+            $this->addFlash('success', 'Vous êtes inscrit à "' . $activity->getTitle() . '" avec succès !');
         }
 
         return $this->redirectToRoute('app_my_activities', ['_locale' => $request->getLocale()]);
     }
 
-    #[Route('/cancel/{id}', name: 'app_cancel_activity', methods: ['POST'])]
+    #[Route('/cancel/{id}', name: 'app_my_activities_cancel', methods: ['POST'])]
     public function cancel(int $id, Request $request): Response
     {
-        $enrolledIds = $this->getEnrolledIds();
-        $key = array_search($id, $enrolledIds);
+        /** @var User|null $user */
+        $user = $this->getUser();
+        
+        if (!$user instanceof User) {
+            $this->addFlash('error', 'Vous devez être connecté.');
+            return $this->redirectToRoute('app_login', ['_locale' => $request->getLocale()]);
+        }
 
-        if ($key === false) {
+        // Validate CSRF token
+        if (!$this->isCsrfTokenValid('cancel_activity_' . $id, $request->request->get('_token'))) {
+            $this->addFlash('error', 'Token de sécurité invalide.');
+            return $this->redirectToRoute('app_my_activities', ['_locale' => $request->getLocale()]);
+        }
+
+        $participation = $this->participationRepository->findOneBy([
+            'seniorId' => $user->getId(),
+            'activityId' => $id
+        ]);
+
+        if (!$participation) {
             $this->addFlash('error', 'Vous n\'êtes pas inscrit à cette activité.');
         } else {
-            unset($enrolledIds[$key]);
-            $this->setEnrolledIds($enrolledIds);
-            $activityName = self::ALL_ACTIVITIES[$id]['name'] ?? 'Activité';
+            $activityName = $participation->getTitle();
+            $participation->setStatus('annulé');
+            $this->participationRepository->getEntityManager()->flush();
             $this->addFlash('success', 'Votre inscription à "' . $activityName . '" a été annulée.');
         }
 
@@ -110,26 +166,35 @@ class UserActivityController extends AbstractController
     #[Route('/history', name: 'app_participation_history')]
     public function participationHistory(): Response
     {
-        $enrolledIds = $this->getEnrolledIds();
-        $session = $this->requestStack->getSession();
-        $feedbacks = $session->get('activity_feedbacks', []);
+        /** @var User|null $user */
+        $user = $this->getUser();
+        
+        if (!$user instanceof User) {
+            return $this->redirectToRoute('app_login');
+        }
+
+        // Get all participations for the user
+        $participations = $this->participationRepository->findBy(
+            ['seniorId' => $user->getId()],
+            ['registeredAt' => 'DESC']
+        );
 
         $participationHistory = [];
-        $dayOffset = 1;
-        foreach ($enrolledIds as $id) {
-            if (isset(self::ALL_ACTIVITIES[$id])) {
-                $activity = self::ALL_ACTIVITIES[$id];
-                $participationHistory[] = [
-                    'id' => $id,
-                    'activity_name' => $activity['name'],
-                    'type' => $activity['type'],
-                    'date' => new \DateTime('-' . $dayOffset . ' day'),
-                    'duration' => [30, 45, 60][($id - 1) % 3],
-                    'status' => 'completed',
-                    'has_feedback' => isset($feedbacks[$id]),
-                ];
-                $dayOffset++;
-            }
+        foreach ($participations as $participation) {
+            $activity = $this->activityRepository->find($participation->getActivityId());
+            
+            $participationHistory[] = [
+                'id' => $participation->getId(),
+                'activity_id' => $participation->getActivityId(),
+                'activity_name' => $participation->getTitle(),
+                'type' => $activity ? $activity->getType() : 'N/A',
+                'date' => $participation->getRegisteredAt(),
+                'duration' => $activity && $activity->getStartTime() && $activity->getEndTime() 
+                    ? max(30, min(180, (int)(($activity->getEndTime()->getTimestamp() - $activity->getStartTime()->getTimestamp()) / 60)))
+                    : 60,
+                'status' => $participation->getStatus(),
+                'has_feedback' => $participation->getFeedbackRating() !== null,
+            ];
         }
 
         return $this->render('front/activities/history.html.twig', [
@@ -140,24 +205,79 @@ class UserActivityController extends AbstractController
     #[Route('/history/feedback/{id}', name: 'app_activity_feedback', methods: ['POST'])]
     public function submitFeedback(int $id, Request $request): Response
     {
-        $session = $this->requestStack->getSession();
-        $feedbacks = $session->get('activity_feedbacks', []);
+        /** @var User|null $user */
+        $user = $this->getUser();
+        
+        if (!$user instanceof User) {
+            $this->addFlash('error', 'Vous devez être connecté.');
+            return $this->redirectToRoute('app_login', ['_locale' => $request->getLocale()]);
+        }
 
-        $feedbacks[$id] = [
-            'rating' => (int) $request->request->get('rating', 0),
-            'mood_before' => (int) $request->request->get('mood_before', 0),
-            'mood_after' => (int) $request->request->get('mood_after', 0),
-            'comment' => $request->request->get('comment', ''),
-            'problems' => $request->request->get('problems', ''),
-            'recommend' => $request->request->getBoolean('recommend'),
-            'share' => $request->request->get('share', 'non'),
-            'submitted_at' => (new \DateTime())->format('Y-m-d H:i:s'),
-        ];
+        $activity = $this->activityRepository->find($id);
+        
+        if (!$activity) {
+            $this->addFlash('error', 'Activité introuvable.');
+            return $this->redirectToRoute('app_participation_history', ['_locale' => $request->getLocale()]);
+        }
 
-        $session->set('activity_feedbacks', $feedbacks);
+        // Find the participation record for this user and activity
+        $participation = $this->participationRepository->findOneBy([
+            'seniorId' => $user->getId(),
+            'activityId' => $id
+        ]);
 
-        $activityName = self::ALL_ACTIVITIES[$id]['name'] ?? 'Activité';
-        $this->addFlash('success', 'Merci pour votre avis sur "' . $activityName . '" !');
+        if (!$participation) {
+            $this->addFlash('error', 'Participation introuvable.');
+            return $this->redirectToRoute('app_participation_history', ['_locale' => $request->getLocale()]);
+        }
+
+        // Save feedback to database
+        $participation->setFeedbackRating((int) $request->request->get('rating', 0));
+        $participation->setFeedbackComment($request->request->get('comment', ''));
+        $participation->setMoodBefore((int) $request->request->get('mood_before', 0));
+        $participation->setMoodAfter((int) $request->request->get('mood_after', 0));
+        $participation->setProblemsEncountered($request->request->get('problems', ''));
+        $participation->setRecommendToFriends($request->request->getBoolean('recommend'));
+        $participation->setShareWithFamily($request->request->get('share', 'non'));
+
+        $this->participationRepository->getEntityManager()->flush();
+
+        $this->addFlash('success', 'Merci pour votre avis sur "' . $activity->getTitle() . '" !');
+
+        return $this->redirectToRoute('app_participation_history', ['_locale' => $request->getLocale()]);
+    }
+
+    #[Route('/history/mark-attended/{id}', name: 'app_mark_attended', methods: ['POST'])]
+    public function markAttended(int $id, Request $request): Response
+    {
+        /** @var User|null $user */
+        $user = $this->getUser();
+        
+        if (!$user instanceof User) {
+            $this->addFlash('error', 'Vous devez être connecté.');
+            return $this->redirectToRoute('app_login', ['_locale' => $request->getLocale()]);
+        }
+
+        // Validate CSRF token
+        if (!$this->isCsrfTokenValid('mark_attended_' . $id, $request->request->get('_token'))) {
+            $this->addFlash('error', 'Token de sécurité invalide.');
+            return $this->redirectToRoute('app_participation_history', ['_locale' => $request->getLocale()]);
+        }
+
+        // Find the participation record
+        $participation = $this->participationRepository->find($id);
+
+        if (!$participation || $participation->getSeniorId() !== $user->getId()) {
+            $this->addFlash('error', 'Participation introuvable.');
+            return $this->redirectToRoute('app_participation_history', ['_locale' => $request->getLocale()]);
+        }
+
+        // Update status to présent
+        $participation->setStatus('présent');
+        $participation->setPresenceConfirmationDate(new \DateTime());
+        $this->participationRepository->getEntityManager()->flush();
+
+        $this->addFlash('success', 'Présence confirmée ! Vous pouvez maintenant donner votre avis.');
 
         return $this->redirectToRoute('app_participation_history', ['_locale' => $request->getLocale()]);
     }

@@ -1,0 +1,288 @@
+{% extends 'base_dashboard.html.twig' %}
+
+{% block title %}Nouvelle Demande de Régime{% endblock %}
+
+{% block body %}
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <h1>
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 0.5rem;">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+            </svg>
+            Nouvelle Demande de Régime
+        </h1>
+        <p>Remplissez ce formulaire pour créer une demande de régime personnalisé</p>
+    </div>
+
+    <div class="form-card">
+        {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+        
+        <div class="form-section">
+            <h3>
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 0.4rem;">
+                    <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                </svg>
+                Informations médicales
+            </h3>
+            
+            <div class="form-group">
+                {{ form_label(form.typeRegimeSouhaite, 'Type de régime souhaité') }}
+                <div style="color: #dc2626; font-size: 0.85rem; margin-bottom: 0.25rem;">{{ form_errors(form.typeRegimeSouhaite) }}</div>
+                {{ form_widget(form.typeRegimeSouhaite, {
+                    'attr': {
+                        'class': 'form-select'
+                    }
+                }) }}
+                <small class="form-help">Sélectionnez le type de régime qui correspond à vos besoins</small>
+            </div>
+
+            <div class="form-group">
+                {{ form_label(form.objectifPrincipal, 'Objectif principal') }}
+                <div style="color: #dc2626; font-size: 0.85rem; margin-bottom: 0.25rem;">{{ form_errors(form.objectifPrincipal) }}</div>
+                {{ form_widget(form.objectifPrincipal, {
+                    'attr': {
+                        'class': 'form-select'
+                    }
+                }) }}
+                <small class="form-help">Quel est votre objectif principal ?</small>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h3>
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 0.4rem;">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                    <line x1="12" y1="9" x2="12" y2="13"/>
+                    <line x1="12" y1="17" x2="12.01" y2="17"/>
+                </svg>
+                Allergies & Intolérances
+            </h3>
+            
+            <div class="form-group">
+                {{ form_label(form.allergies, 'Allergies alimentaires') }}
+                <div style="color: #dc2626; font-size: 0.85rem; margin-bottom: 0.25rem;">{{ form_errors(form.allergies) }}</div>
+                {{ form_widget(form.allergies, {
+                    'attr': {
+                        'class': 'form-textarea',
+                        'rows': 3,
+                        'placeholder': 'Ex: Arachides, crustacés, lactose, œufs...'
+                    }
+                }) }}
+                <small class="form-help">Listez toutes vos allergies alimentaires connues</small>
+            </div>
+
+            <div class="form-group">
+                {{ form_label(form.intolerances, 'Intolérances alimentaires') }}
+                <div style="color: #dc2626; font-size: 0.85rem; margin-bottom: 0.25rem;">{{ form_errors(form.intolerances) }}</div>
+                {{ form_widget(form.intolerances, {
+                    'attr': {
+                        'class': 'form-textarea',
+                        'rows': 3,
+                        'placeholder': 'Ex: Gluten, lactose, fructose, sorbitol...'
+                    }
+                }) }}
+                <small class="form-help">Listez toutes vos intolérances alimentaires</small>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h3>
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 0.4rem;">
+                    <circle cx="12" cy="12" r="10"/>
+                    <path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/>
+                    <path d="M12 18V6"/>
+                </svg>
+                Habitudes alimentaires
+            </h3>
+            
+            <div class="form-group">
+                {{ form_label(form.habitudesAlimentaires, 'Décrivez vos habitudes') }}
+                <div style="color: #dc2626; font-size: 0.85rem; margin-bottom: 0.25rem;">{{ form_errors(form.habitudesAlimentaires) }}</div>
+                {{ form_widget(form.habitudesAlimentaires, {
+                    'attr': {
+                        'class': 'form-textarea',
+                        'rows': 4,
+                        'placeholder': 'Horaires des repas, préférences, aliments que vous n\'aimez pas, tabous religieux/culturels...'
+                    }
+                }) }}
+                <small class="form-help">Plus vous serez précis, plus le régime sera adapté à vos besoins</small>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h3>
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 0.4rem;">
+                    <line x1="12" y1="1" x2="12" y2="23"/>
+                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                </svg>
+                Budget
+            </h3>
+            
+            <div class="form-group">
+                {{ form_label(form.budgetMensuel, 'Budget mensuel pour l\'alimentation (DH)') }}
+                <div style="color: #dc2626; font-size: 0.85rem; margin-bottom: 0.25rem;">{{ form_errors(form.budgetMensuel) }}</div>
+                {{ form_widget(form.budgetMensuel, {
+                    'attr': {
+                        'class': 'form-input',
+                        'placeholder': 'Ex: 1500'
+                    }
+                }) }}
+                <small class="form-help">Budget approximatif que vous pouvez consacrer à l\'alimentation par mois</small>
+            </div>
+        </div>
+
+        {# Les champs cachés seront automatiquement rendus par form_end() #}
+
+        <div class="form-actions">
+            <button type="submit" class="btn-primary">
+                <i class="fas fa-paper-plane"></i> Envoyer la demande
+            </button>
+            
+            <a href="{{ path('app_my_nutrition') }}" class="btn-secondary">
+                <i class="fas fa-times"></i> Annuler
+            </a>
+        </div>
+
+        {{ form_end(form) }}
+    </div>
+</div>
+
+<style>
+    .dashboard-container {
+        max-width: 800px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+    }
+
+    .dashboard-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .dashboard-header h1 {
+        font-size: 2rem;
+        color: #2E7D32;
+        margin-bottom: 0.5rem;
+    }
+
+    .form-card {
+        background: white;
+        border-radius: 16px;
+        padding: 2rem;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+
+    .form-section {
+        margin-bottom: 2rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 2px solid #f1f5f9;
+    }
+
+    .form-section h3 {
+        font-size: 1.25rem;
+        color: #1a1a2e;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        color: #1a1a2e;
+    }
+
+    .form-select, .form-input, .form-textarea {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 2px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: all 0.2s;
+    }
+
+    .form-select:focus, .form-input:focus, .form-textarea:focus {
+        outline: none;
+        border-color: #2E7D32;
+        box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.1);
+    }
+
+    .form-textarea {
+        resize: vertical;
+        min-height: 100px;
+    }
+
+    .form-help {
+        display: block;
+        margin-top: 0.5rem;
+        color: #64748b;
+        font-size: 0.85rem;
+    }
+
+    .form-actions {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin-top: 2rem;
+        padding-top: 1.5rem;
+        border-top: 2px solid #f1f5f9;
+    }
+
+    .btn-primary, .btn-secondary {
+        padding: 0.75rem 1.5rem;
+        border-radius: 50px;
+        text-decoration: none;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.2s;
+        border: none;
+        cursor: pointer;
+        font-size: 1rem;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #2E7D32, #4CAF50);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(46, 125, 50, 0.3);
+    }
+
+    .btn-secondary {
+        background: #f1f5f9;
+        color: #64748b;
+        border: 2px solid #e2e8f0;
+    }
+
+    .btn-secondary:hover {
+        background: #e2e8f0;
+    }
+
+    .d-none {
+        display: none !important;
+    }
+
+    @media (max-width: 768px) {
+        .form-actions {
+            flex-direction: column;
+        }
+        
+        .btn-primary, .btn-secondary {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+

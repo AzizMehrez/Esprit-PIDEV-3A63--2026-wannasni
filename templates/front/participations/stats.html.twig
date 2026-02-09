@@ -211,12 +211,12 @@
 {% block body %}
 <div class="stats-wrapper">
     <div class="stats-container">
-        <a href="{{ path('admin_activities', {'_locale': app.request.locale}) }}" class="back-link">
+        <a href="{{ path('app_my_activities', {'_locale': app.request.locale}) }}" class="back-link">
             ← Retour aux activités
         </a>
 
         <div class="header">
-            <h1 class="header-title">📊 Statistiques: {{ activity.title }}</h1>
+            <h1 class="header-title">📊 Mes Statistiques de Participation</h1>
             <p class="header-subtitle">Participations et retours d'expérience</p>
         </div>
 

@@ -1,0 +1,57 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Treatment index{% endblock %}
+
+{% block body %}
+    <h1>Mes Traitements</h1>
+
+    <div style="display:flex; gap:1rem; align-items:center; margin-bottom:1rem;">
+        <form method="get" action="{{ path('app_treatment_index') }}" style="display:flex; gap:0.5rem; align-items:center;">
+            <input type="search" name="q" placeholder="Rechercher (médicaments, instructions...)" value="{{ q|default('') }}" style="padding:0.4rem 0.6rem; border-radius:6px; border:1px solid #e2e8f0;">
+            <select name="sort" onchange="this.form.submit()" style="padding:0.4rem 0.6rem; border-radius:6px; border:1px solid #e2e8f0;">
+                <option value="desc" {% if sort is not defined or sort == 'desc' %}selected{% endif %}>Date: plus récentes</option>
+                <option value="asc" {% if sort == 'asc' %}selected{% endif %}>Date: plus anciennes</option>
+            </select>
+            <button type="submit" class="btn btn-outline" style="padding:0.4rem 0.8rem;">🔎 Rechercher</button>
+        </form>
+        <a href="{{ path('app_treatment_export', {'q': q|default(''), 'sort': sort|default('desc')}) }}" class="btn btn-primary" style="padding:0.4rem 0.8rem;">📄 Exporter PDF</a>
+    </div>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Patient</th>
+                <th>Médecin</th>
+                <th>DatePrescription</th>
+                <th>Médicaments</th>
+                <th>Posologie</th>
+                <th>Fréquence</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for treatment in treatments %}
+            <tr>
+                <td>{{ treatment.id }}</td>
+                <td>{{ treatment.senior ? treatment.senior.getFullName() : '—' }}</td>
+                <td>{{ treatment.docteur ? treatment.docteur.getFullName() : '—' }}</td>
+                <td>{{ treatment.datePrescription ? treatment.datePrescription|date('Y-m-d') : '—' }}</td>
+                <td>{{ treatment.medicaments|slice(0,60) }}{% if treatment.medicaments|length > 60 %}…{% endif %}</td>
+                <td>{{ treatment.posologie }}</td>
+                <td>{{ treatment.frequence }}</td>
+                <td>
+                    <a href="{{ path('app_treatment_show', {'id': treatment.id}) }}">show</a>
+                    <a href="{{ path('app_treatment_edit', {'id': treatment.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="8">Aucun traitement trouvé.</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_treatment_new') }}" class="btn btn-primary">➕ Nouveau Traitement</a>
+{% endblock %}

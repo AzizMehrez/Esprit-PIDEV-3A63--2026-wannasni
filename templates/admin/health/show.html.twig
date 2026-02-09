@@ -1,74 +1,126 @@
 {% extends 'admin/base_admin.html.twig' %}
 
-{% block title %}Health Record #{{ record.id }} - Admin WANNASNI{% endblock %}
-{% block page_title %}Health Record Details{% endblock %}
+{% block title %}Dossier Santé #{{ record.id }} - Admin WANNASNI{% endblock %}
+{% block page_title %}Détails du Dossier Santé{% endblock %}
+
+{% block header_actions %}
+<a href="{{ path('admin_health') }}" class="btn btn-outline">← Retour</a>
+<a href="{{ path('admin_health_edit', {id: record.id}) }}" class="btn btn-primary">✏️ Modifier</a>
+{% endblock %}
 
 {% block content %}
-<div style="margin-bottom: 1rem;">
-    <a href="{{ path('admin_health_list') }}" class="btn btn-secondary">← Back to Health Records</a>
-</div>
-
-<div class="grid-2">
-    <div class="card">
+<div class="grid-2" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+    <div class="admin-card">
         <div class="card-header">
-            <h2 class="card-title">Record #{{ record.id }}</h2>
-            <span style="color: var(--text-secondary);">{{ record.date|date('F d, Y') }}</span>
+            <h2 class="card-title">❤️ Dossier #{{ record.id }}</h2>
+            <span class="badge badge-info">{{ record.date|date('d/m/Y H:i') }}</span>
         </div>
-        
-        <div style="padding: 1rem; background: var(--bg-tertiary); border-radius: var(--radius-md); margin-bottom: 1.5rem;">
-            <div style="font-weight: 600; font-size: 1.1rem;">{{ record.user }}</div>
-        </div>
-        
-        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
-            <div style="padding: 1rem; background: rgba(239, 68, 68, 0.1); border-radius: var(--radius-md); text-align: center;">
-                <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Blood Pressure</div>
-                <div style="font-size: 1.5rem; font-weight: 700; color: var(--danger);">{{ record.bloodPressure }}</div>
-                <div style="font-size: 0.75rem; color: var(--text-muted);">mmHg</div>
-            </div>
-            <div style="padding: 1rem; background: rgba(59, 130, 246, 0.1); border-radius: var(--radius-md); text-align: center;">
-                <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Heart Rate</div>
-                <div style="font-size: 1.5rem; font-weight: 700; color: var(--info);">{{ record.heartRate }}</div>
-                <div style="font-size: 0.75rem; color: var(--text-muted);">bpm</div>
-            </div>
-            <div style="padding: 1rem; background: rgba(34, 197, 94, 0.1); border-radius: var(--radius-md); text-align: center;">
-                <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Weight</div>
-                <div style="font-size: 1.5rem; font-weight: 700; color: var(--success);">{{ record.weight }}</div>
-                <div style="font-size: 0.75rem; color: var(--text-muted);">kg</div>
-            </div>
-            <div style="padding: 1rem; background: rgba(245, 158, 11, 0.1); border-radius: var(--radius-md); text-align: center;">
-                <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Mood</div>
-                <div style="font-size: 1.5rem; font-weight: 700; color: var(--warning);">
-                    {% if record.mood == 'excellent' %}😊{% elseif record.mood == 'good' %}🙂{% else %}😐{% endif %}
+        <div class="card-body">
+            {# Patient Info #}
+            <div style="padding: 1rem; background: var(--admin-bg); border-radius: var(--admin-radius-sm); margin-bottom: 1.5rem; border: 1px solid var(--admin-border);">
+                <div style="font-size: 0.85rem; color: var(--admin-text-muted); margin-bottom: 0.25rem;">Patient</div>
+                <div style="font-weight: 600; font-size: 1.1rem;">
+                    {{ record.senior ? (record.senior.firstName ~ ' ' ~ record.senior.lastName) : 'Non assigné' }}
                 </div>
-                <div style="font-size: 0.75rem; color: var(--text-muted);">{{ record.mood|capitalize }}</div>
+            </div>
+            
+            {# Vital Signs Grid #}
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
+                <div style="padding: 1rem; background: rgba(239, 68, 68, 0.1); border-radius: var(--admin-radius-sm); text-align: center;">
+                    <div style="font-size: 0.75rem; color: #64748b; text-transform: uppercase;">Tension</div>
+                    <div style="font-size: 1.5rem; font-weight: 700; color: #ef4444;">{{ record.tensionArterielle ?? '-' }}</div>
+                    <div style="font-size: 0.75rem; color: #64748b;">mmHg</div>
+                </div>
+                <div style="padding: 1rem; background: rgba(59, 130, 246, 0.1); border-radius: var(--admin-radius-sm); text-align: center;">
+                    <div style="font-size: 0.75rem; color: #64748b; text-transform: uppercase;">Pouls</div>
+                    <div style="font-size: 1.5rem; font-weight: 700; color: #3b82f6;">{{ record.frequenceCardiaque ?? '-' }}</div>
+                    <div style="font-size: 0.75rem; color: #64748b;">bpm</div>
+                </div>
+                <div style="padding: 1rem; background: rgba(34, 197, 94, 0.1); border-radius: var(--admin-radius-sm); text-align: center;">
+                    <div style="font-size: 0.75rem; color: #64748b; text-transform: uppercase;">Température</div>
+                    <div style="font-size: 1.5rem; font-weight: 700; color: #22c55e;">{{ record.temperature ?? '-' }}</div>
+                    <div style="font-size: 0.75rem; color: #64748b;">°C</div>
+                </div>
+                <div style="padding: 1rem; background: rgba(245, 158, 11, 0.1); border-radius: var(--admin-radius-sm); text-align: center;">
+                    <div style="font-size: 0.75rem; color: #64748b; text-transform: uppercase;">Humeur</div>
+                    <div style="font-size: 1.5rem; font-weight: 700; color: #f59e0b;">
+                        {% if record.humeur == 'excellent' %}😊
+                        {% elseif record.humeur == 'good' or record.humeur == 'bon' %}🙂
+                        {% elseif record.humeur == 'average' or record.humeur == 'moyen' %}😐
+                        {% else %}😑{% endif %}
+                    </div>
+                    <div style="font-size: 0.75rem; color: #64748b;">{{ record.humeur|default('Non renseigné')|capitalize }}</div>
+                </div>
             </div>
         </div>
     </div>
     
-    <div class="card">
+    <div class="admin-card">
         <div class="card-header">
-            <h2 class="card-title">Notes</h2>
+            <h2 class="card-title">📋 Détails</h2>
         </div>
-        <p style="color: var(--text-secondary); padding: 1rem; background: var(--bg-tertiary); border-radius: var(--radius-md);">
-            {{ record.notes }}
-        </p>
-        
-        <hr style="border: none; border-top: 1px solid var(--border-color); margin: 1.5rem 0;">
-        
-        <div class="card-header">
-            <h2 class="card-title">Actions</h2>
+        <div class="card-body">
+            {# Additional Info #}
+            <div style="display: grid; gap: 1rem; margin-bottom: 1.5rem;">
+                <div style="padding: 0.75rem 1rem; background: var(--admin-bg); border-radius: var(--admin-radius-sm); border: 1px solid var(--admin-border);">
+                    <div style="font-size: 0.75rem; color: #64748b;">Qualité du sommeil</div>
+                    <div style="font-weight: 600;">{{ record.qualiteSommeil|default('Non renseigné') }}</div>
+                </div>
+                <div style="padding: 0.75rem 1rem; background: var(--admin-bg); border-radius: var(--admin-radius-sm); border: 1px solid var(--admin-border);">
+                    <div style="font-size: 0.75rem; color: #64748b;">Appétit</div>
+                    <div style="font-weight: 600;">{{ record.appetit|default('Non renseigné') }}</div>
+                </div>
+                <div style="padding: 0.75rem 1rem; background: var(--admin-bg); border-radius: var(--admin-radius-sm); border: 1px solid var(--admin-border);">
+                    <div style="font-size: 0.75rem; color: #64748b;">Niveau de douleur</div>
+                    <div style="font-weight: 600;">{{ record.niveauDouleur is not null ? record.niveauDouleur ~ '/10' : 'Non renseigné' }}</div>
+                </div>
+                <div style="padding: 0.75rem 1rem; background: var(--admin-bg); border-radius: var(--admin-radius-sm); border: 1px solid var(--admin-border);">
+                    <div style="font-size: 0.75rem; color: #64748b;">Hydratation</div>
+                    <div style="font-weight: 600;">{{ record.hydratation|default('Non renseigné') }}</div>
+                </div>
+                <div style="padding: 0.75rem 1rem; background: var(--admin-bg); border-radius: var(--admin-radius-sm); border: 1px solid var(--admin-border);">
+                    <div style="font-size: 0.75rem; color: #64748b;">Activité physique</div>
+                    <div style="font-weight: 600;">{{ record.activitePhysique|default('Non renseigné') }}</div>
+                </div>
+            </div>
+            
+            {# Notes #}
+            {% if record.notes %}
+            <div style="padding: 1rem; background: rgba(245, 158, 11, 0.1); border-radius: var(--admin-radius-sm); border-left: 4px solid #f59e0b;">
+                <div style="font-size: 0.75rem; color: #64748b; margin-bottom: 0.5rem;">📝 Notes</div>
+                <p style="margin: 0; color: #1e293b;">{{ record.notes }}</p>
+            </div>
+            {% endif %}
+            
+            {% if record.symptomes %}
+            <div style="padding: 1rem; background: rgba(239, 68, 68, 0.1); border-radius: var(--admin-radius-sm); border-left: 4px solid #ef4444; margin-top: 1rem;">
+                <div style="font-size: 0.75rem; color: #64748b; margin-bottom: 0.5rem;">⚠️ Symptômes</div>
+                <p style="margin: 0; color: #1e293b;">{{ record.symptomes }}</p>
+            </div>
+            {% endif %}
+            
+            {% if record.medicamentsPris %}
+            <div style="padding: 1rem; background: rgba(59, 130, 246, 0.1); border-radius: var(--admin-radius-sm); border-left: 4px solid #3b82f6; margin-top: 1rem;">
+                <div style="font-size: 0.75rem; color: #64748b; margin-bottom: 0.5rem;">💊 Médicaments pris</div>
+                <p style="margin: 0; color: #1e293b;">{{ record.medicamentsPris }}</p>
+            </div>
+            {% endif %}
         </div>
-        <div style="display: grid; gap: 0.75rem;">
-            <button class="btn btn-secondary" style="justify-content: flex-start;">
-                <span>📊</span> View History
-            </button>
-            <button class="btn btn-secondary" style="justify-content: flex-start;">
-                <span>📧</span> Send to Doctor
-            </button>
-            <button class="btn btn-secondary" style="justify-content: flex-start;">
-                <span>🖨️</span> Print Report
-            </button>
-        </div>
+    </div>
+</div>
+
+{# Actions #}
+<div class="admin-card" style="margin-top: 1.5rem;">
+    <div class="card-header">
+        <h2 class="card-title">⚡ Actions</h2>
+    </div>
+    <div style="padding: 1.5rem; display: flex; gap: 1rem; flex-wrap: wrap;">
+        <a href="{{ path('admin_health_edit', {id: record.id}) }}" class="btn btn-primary" style="padding: 0.75rem 1.5rem; background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; border-radius: 8px; text-decoration: none; font-weight: 600;">✏️ Modifier</a>
+        <a href="{{ path('admin_health') }}" class="btn btn-secondary" style="padding: 0.75rem 1.5rem; background: #f1f5f9; color: #1e293b; border-radius: 8px; text-decoration: none; font-weight: 600; border: 1px solid #e2e8f0;">📋 Liste des dossiers</a>
+        <form action="{{ path('admin_health_delete', {id: record.id}) }}" method="post" style="display: inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce dossier ?');">
+            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ record.id) }}">
+            <button type="submit" style="padding: 0.75rem 1.5rem; background: linear-gradient(135deg, #ef4444, #dc2626); color: white; border-radius: 8px; border: none; font-weight: 600; cursor: pointer;">🗑️ Supprimer</button>
+        </form>
     </div>
 </div>
 {% endblock %}
