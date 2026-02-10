@@ -197,9 +197,98 @@
         color: #92400e;
     }
 
+    /* Actions */
+    .record-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        border-top: 2px dashed var(--health-border);
+    }
+
+    .btn-action {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 1rem;
+        border-radius: 12px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.2s;
+        border: 2px solid;
+    }
+
+    .btn-edit {
+        background: #dbeafe;
+        color: #1e40af;
+        border-color: #93c5fd;
+    }
+
+    .btn-edit:hover {
+        background: #1e40af;
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    .btn-delete {
+        background: #fee2e2;
+        color: #991b1b;
+        border-color: #fecaca;
+        cursor: pointer;
+    }
+
+    .btn-delete:hover {
+        background: #991b1b;
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    /* Flash Messages */
+    .alert {
+        padding: 1.25rem 1.5rem;
+        border-radius: 16px;
+        margin-bottom: 1.5rem;
+        font-size: 1.1rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .alert-success {
+        background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+        color: #065f46;
+        border: 2px solid #6ee7b7;
+    }
+
+    .alert-error {
+        background: linear-gradient(135deg, #fee2e2, #fecaca);
+        color: #991b1b;
+        border: 2px solid #fca5a5;
+    }
+
+    .alert-warning {
+        background: linear-gradient(135deg, #fef3c7, #fde68a);
+        color: #92400e;
+        border: 2px solid #fcd34d;
+    }
+
+    .alert-info {
+        background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+        color: #1e40af;
+        border: 2px solid #93c5fd;
+    }
+
     @media (max-width: 640px) {
         .health-title { font-size: 2rem; }
         .stats-grid { grid-template-columns: repeat(2, 1fr); }
+        .record-actions {
+            flex-direction: column;
+        }
     }
 </style>
 {% endblock %}
@@ -208,6 +297,20 @@
 <div class="health-wrapper">
     <div class="health-container">
         
+        {# Flash Messages #}
+        {% for message in app.flashes('success') %}
+            <div class="alert alert-success">✅ {{ message }}</div>
+        {% endfor %}
+        {% for message in app.flashes('error') %}
+            <div class="alert alert-error">❌ {{ message }}</div>
+        {% endfor %}
+        {% for message in app.flashes('warning') %}
+            <div class="alert alert-warning">⚠️ {{ message }}</div>
+        {% endfor %}
+        {% for message in app.flashes('info') %}
+            <div class="alert alert-info">ℹ️ {{ message }}</div>
+        {% endfor %}
+
         <a href="{{ path('app_dashboard', {'_locale': app.request.locale}) }}" class="back-link">
             ← Retour au tableau de bord
         </a>
@@ -224,6 +327,15 @@
 
         <!-- Records List -->
         <div class="record-list">
+            {% if health_records|length == 0 %}
+            <div class="record-card" style="text-align: center; padding: 3rem;">
+                <div style="font-size: 4rem; margin-bottom: 1rem;">📋</div>
+                <p style="font-size: 1.25rem; color: #64748b; margin-bottom: 1rem;">Aucune entrée de santé trouvée.</p>
+                <a href="{{ path('app_my_health_add', {'_locale': app.request.locale}) }}" class="btn-new-entry" style="display: inline-flex;">
+                    ➕ Ajouter une entrée
+                </a>
+            </div>
+            {% else %}
             {% for record in health_records %}
             <div class="record-card">
                 <div class="record-date">
@@ -233,32 +345,47 @@
                 <div class="stats-grid">
                     <div class="stat-card">
                         <div class="stat-icon">🩺</div>
-                        <div class="stat-value bp">{{ record.bloodPressure }}</div>
+                        <div class="stat-value bp">{{ record.tensionArterielle ?? '-' }}</div>
                         <div class="stat-label">Tension</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-icon">💓</div>
-                        <div class="stat-value hr">{{ record.heartRate }}</div>
+                        <div class="stat-value hr">{{ record.frequenceCardiaque ?? '-' }}</div>
                         <div class="stat-label">Pouls (BPM)</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-icon">⚖️</div>
-                        <div class="stat-value weight">{{ record.weight }} kg</div>
-                        <div class="stat-label">Poids</div>
+                        <div class="stat-icon">🌡️</div>
+                        <div class="stat-value weight">{{ record.temperature ? (record.temperature ~ ' °C') : '-' }}</div>
+                        <div class="stat-label">Température</div>
                     </div>
                 </div>
                 <div class="mood-display">
                     <span class="mood-emoji">
-                        {% if record.mood == 'excellent' %}😊
-                        {% elseif record.mood == 'good' %}🙂
-                        {% else %}😐{% endif %}
+                        {% if record.humeur == 'excellent' %}😊
+                        {% elseif record.humeur == 'good' or record.humeur == 'bon' %}🙂
+                        {% elseif record.humeur == 'average' or record.humeur == 'moyen' %}😐
+                        {% else %}😑{% endif %}
                     </span>
                     <span class="mood-text">
-                        Humeur: {% if record.mood == 'excellent' %}Excellente{% elseif record.mood == 'good' %}Bonne{% else %}Correcte{% endif %}
+                        Humeur: {% if record.humeur == 'excellent' %}Excellente{% elseif record.humeur == 'good' or record.humeur == 'bon' %}Bonne{% elseif record.humeur == 'average' or record.humeur == 'moyen' %}Moyenne{% else %}{{ record.humeur ?? 'Non renseigné' }}{% endif %}
                     </span>
+                </div>
+
+                <!-- Actions -->
+                <div class="record-actions">
+                    <a href="{{ path('app_my_health_edit', {'id': record.id, '_locale': app.request.locale}) }}" class="btn-action btn-edit">
+                        ✏️ Modifier
+                    </a>
+                    <form method="post" action="{{ path('app_my_health_delete', {'id': record.id, '_locale': app.request.locale}) }}" style="flex: 1;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette entrée ?');">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ record.id) }}">
+                        <button type="submit" class="btn-action btn-delete" style="width: 100%; border: 2px solid #fecaca;">
+                            🗑️ Supprimer
+                        </button>
+                    </form>
                 </div>
             </div>
             {% endfor %}
+            {% endif %}
         </div>
 
     </div>

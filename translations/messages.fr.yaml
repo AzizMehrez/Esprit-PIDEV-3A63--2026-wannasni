@@ -92,7 +92,7 @@ features:
     subtitle: "Une suite complète de fonctionnalités pensées pour le bien-être des seniors"
     profiles:
         title: "Profils & Sécurité"
-        description: "Seniors, familles, médecins, coachs — chacun a son rôle et ses accès sécurisés dans l'application."
+        description: "Seniors, familles, médecins, techniciens — chacun a son rôle et ses accès sécurisés dans l'application."
     services:
         title: "Services & Interventions"
         description: "Réservez de l'aide (plomberie, réparations, courses) en indiquant l'urgence et le budget souhaité."
@@ -133,9 +133,9 @@ roles:
     doctors:
         title: "Médecins"
         description: "Accédez aux données de santé et suivez vos patients à distance en toute sécurité."
-    coaches:
-        title: "Coachs & Aidants"
-        description: "Planifiez des activités et accompagnez les seniors dans leur bien-être quotidien."
+    technicians:
+        title: "Techniciens & Aidants"
+        description: "Planifiez des interventions et accompagnez les seniors dans leur bien-être quotidien."
 
 # Why Section
 why:

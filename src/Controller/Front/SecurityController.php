@@ -172,9 +172,12 @@ class SecurityController extends AbstractController
                 $user->setLastName($lastName);
                 $user->setPhone($phone);
                 
+                // Set user domain based on selected role
+                $user->setUserDomain('role.' . $role);
+                
                 // Map role selection to Symfony roles
                 $roles = ['ROLE_USER'];
-                if ($role === 'doctor' || $role === 'coach') {
+                if ($role === 'doctor' || $role === 'technicien') {
                     $roles[] = 'ROLE_CAREGIVER';
                 }
                 // Note: ROLE_ADMIN should be granted manually by existing admin

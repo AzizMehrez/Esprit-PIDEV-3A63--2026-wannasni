@@ -1,0 +1,332 @@
+{% extends 'base_dashboard.html.twig' %}
+
+{% block title %}Scanner un produit - WANNASNI{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    :root {
+        --nutri-primary: #10b981;
+        --nutri-primary-dark: #059669;
+        --nutri-bg: #f8fafc;
+        --nutri-card: #ffffff;
+        --nutri-text: #1f2937;
+        --nutri-border: #e2e8f0;
+    }
+
+    .nutrition-container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 2rem 1rem 4rem;
+    }
+
+    .nutri-header {
+        background: linear-gradient(135deg, var(--nutri-primary), var(--nutri-primary-dark));
+        border-radius: 24px;
+        padding: 3rem 2rem;
+        margin-bottom: 2.5rem;
+        color: white;
+        text-align: center;
+        box-shadow: 0 10px 40px rgba(16, 185, 129, 0.2);
+    }
+
+    .header-icon { font-size: 4rem; margin-bottom: 1rem; display: block; }
+    .nutri-title { font-size: 2.5rem; font-weight: 800; margin-bottom: 0.5rem; }
+    .nutri-subtitle { font-size: 1.1rem; opacity: 0.9; }
+
+    .scanner-card {
+        background: white;
+        border-radius: 24px;
+        padding: 2.5rem;
+        border: 2px solid var(--nutri-border);
+        box-shadow: 0 12px 30px rgba(0,0,0,0.04);
+        margin-bottom: 2rem;
+    }
+
+    #reader { border: none !important; border-radius: 20px; overflow: hidden; background: #f1f5f9; }
+
+    .input-group-premium {
+        background: #f8fafc;
+        border: 2px solid var(--nutri-border);
+        border-radius: 16px;
+        padding: 0.5rem;
+        display: flex;
+        transition: all 0.3s;
+    }
+
+    .input-group-premium input { border: none; background: transparent; padding: 0.75rem 1rem; flex: 1; outline: none; }
+    .btn-nutri { background: var(--nutri-primary); color: white; border: none; padding: 0.75rem 2rem; border-radius: 12px; font-weight: 700; }
+
+    .result-card { background: white; border-radius: 24px; padding: 2.5rem; animation: slideUp 0.5s ease-out; }
+    .nutriment-pill { background: #f1f5f9; border-radius: 16px; padding: 1.25rem; text-align: center; }
+    .nutriment-pill .value { font-size: 1.5rem; font-weight: 800; }
+    .nutriment-pill .label { font-size: 0.75rem; color: #64748b; text-transform: uppercase; }
+
+    .badge-nutri-a { background: #038141; color: white; }
+    .badge-nutri-b { background: #85bb2f; color: white; }
+    .badge-nutri-c { background: #fecb02; }
+    .badge-nutri-d { background: #ee8100; color: white; }
+    .badge-nutri-e { background: #e63e11; color: white; }
+
+    .nutri-loader { width: 48px; height: 48px; border: 5px solid #f3f3f3; border-top: 5px solid var(--nutri-primary); border-radius: 50%; animation: spin 1s linear infinite; margin: 2rem auto; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="nutrition-container">
+    <div class="nutri-header">
+        <span class="header-icon">🔍</span>
+        <h1 class="nutri-title">Scanner de Produits</h1>
+        <p class="nutri-subtitle">Vérifiez la compatibilité avec votre régime prescrit</p>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <!-- Scanner Zone -->
+            <div class="scanner-card">
+                <div id="reader-container" class="mb-4">
+                    <div id="reader"></div>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="input-group-premium">
+                            <input type="text" id="manual-barcode" placeholder="Code-barres manuel...">
+                            <button class="btn-nutri" id="btn-check-manual">Vérifier</button>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <input type="file" id="barcode-file" accept="image/*" style="display: none;">
+                        <button class="btn-nutri w-100 bg-white text-dark border-2" id="btn-upload-image" style="border: 2px solid var(--nutri-border)">
+                            📷 Charger une photo
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="loading" class="text-center py-5" style="display: none;">
+                <div class="nutri-loader"></div>
+                <p id="loading-msg">Analyse en cours...</p>
+            </div>
+
+            <div id="error-msg" class="alert alert-danger rounded-4 p-4 text-center" style="display: none;">
+                <i class="fas fa-exclamation-circle me-2"></i> <span id="error-text"></span>
+            </div>
+
+            <!-- Results -->
+            <div id="result-container" style="display: none;">
+                <div class="result-card shadow-sm border">
+                    <div class="row align-items-center mb-5">
+                        <div class="col-md-3 text-center">
+                            <img id="product-image" src="" class="img-fluid rounded-4" style="max-height: 150px;">
+                        </div>
+                        <div class="col-md-9">
+                            <span id="product-brand" class="badge bg-light text-dark mb-2"></span>
+                            <h2 id="product-name" class="fw-bold"></h2>
+                            <div id="nutriscore-badge" class="badge rounded-pill px-4 py-2 fs-5 mt-2"></div>
+                        </div>
+                    </div>
+
+                    <div id="compatibility-box" class="p-4 rounded-4 mb-5 d-flex align-items-center">
+                        <span id="compatibility-icon" class="me-4 fs-1"></span>
+                        <div>
+                            <h3 id="compatibility-title" class="h4 mb-1 fw-bold"></h3>
+                            <p id="compatibility-msg" class="mb-0 fs-5"></p>
+                        </div>
+                    </div>
+
+                    <!-- New: Detailed Analysis for all regimes -->
+                    <div id="detailed-analysis" class="mt-4 mb-5">
+                        <h4 class="fw-bold mb-4">🩺 Analyse par type de régime</h4>
+                        <div class="row g-3" id="analysis-grid">
+                            <!-- JS will inject cards here -->
+                        </div>
+                    </div>
+
+                    <div class="row" id="nutriments-grid"></div>
+
+                    <div id="allergy-section" class="mt-5" style="display: none;">
+                        <h4 class="text-danger fw-bold mb-3">Allergènes détectés</h4>
+                        <div id="allergy-list" class="list-group"></div>
+                    </div>
+
+                    <div class="text-center mt-5">
+                        <button onclick="location.reload()" class="btn-nutri px-5">🔄 Nouveau Scan</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://unpkg.com/html5-qrcode"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log("Scanner initialized");
+
+    const config = { 
+        fps: 20, 
+        qrbox: { width: 280, height: 200 },
+        formatsToSupport: [ 
+            Html5QrcodeSupportedFormats.EAN_13, 
+            Html5QrcodeSupportedFormats.EAN_8, 
+            Html5QrcodeSupportedFormats.CODE_128 
+        ]
+    };
+
+    const reader = new Html5QrcodeScanner("reader", config);
+    reader.render(decodedText => {
+        reader.clear();
+        processBarcode(decodedText);
+    });
+
+    document.getElementById('btn-check-manual').addEventListener('click', () => {
+        const bc = document.getElementById('manual-barcode').value.trim();
+        if (bc) processBarcode(bc);
+    });
+
+    const fileInput = document.getElementById('barcode-file');
+    document.getElementById('btn-upload-image').addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', e => {
+        if (e.target.files.length === 0) return;
+        document.getElementById('loading').style.display = 'block';
+        const html5QrCode = new Html5Qrcode("reader");
+        html5QrCode.scanFile(e.target.files[0], true)
+            .then(processBarcode)
+            .catch(err => {
+                document.getElementById('loading').style.display = 'none';
+                displayError("Code-barres illisible sur cette photo.");
+            });
+    });
+
+    function processBarcode(barcode) {
+        if (!barcode || barcode.trim() === '') {
+            console.warn("Tentative de scan avec un code-barres vide.");
+            return;
+        }
+
+        console.log("Scanning barcode:", barcode);
+        document.getElementById('result-container').style.display = 'none';
+        document.getElementById('error-msg').style.display = 'none';
+        document.getElementById('loading').style.display = 'block';
+        
+        // Use OpenFoodFacts API directly
+        const apiUrl = `https://world.openfoodfacts.org/api/v0/product/${barcode}.json`;
+        
+        fetch(apiUrl)
+            .then(response => {
+                if (response.status === 404) {
+                    throw new Error("Produit introuvable sur OpenFoodFacts (404)");
+                }
+                if (!response.ok) {
+                    throw new Error("Erreur HTTP " + response.status);
+                }
+                return response.json();
+            })
+            .then(data => {
+                document.getElementById('loading').style.display = 'none';
+                if (data.status === 1 && data.product) {
+                    // Transform OpenFoodFacts data to our format
+                    const transformedData = {
+                        success: true,
+                        produit: {
+                            nom: data.product.product_name || 'Produit inconnu',
+                            marque: data.product.brands || 'Marque inconnue',
+                            image: data.product.image_url || '',
+                            nutriscore: data.product.nutriscore_grade || 'unknown',
+                            nutriments: {
+                                calories: data.product.nutriments?.['energy-kcal_100g'] || null,
+                                sucres: data.product.nutriments?.sugars_100g || null,
+                                sel: data.product.nutriments?.salt_100g || null,
+                                proteines: data.product.nutriments?.proteins_100g || null
+                            }
+                        },
+                        regime: {
+                            compatible: true,
+                            raison: 'Analyse automatique basée sur les données nutritionnelles'
+                        },
+                        analyse_complete: []
+                    };
+                    displayResult(transformedData);
+                } else {
+                    displayError("Produit non trouvé dans la base de données (Status: " + data.status_verbose + ")");
+                }
+            })
+            .catch(err => {
+                document.getElementById('loading').style.display = 'none';
+                console.error("Erreur API:", err);
+                displayError("Erreur : " + err.message);
+            });
+    }
+
+    function displayResult(data) {
+        document.querySelector('.scanner-card').style.display = 'none';
+        document.getElementById('result-container').style.display = 'block';
+        const p = data.produit;
+        const r = data.regime;
+        const complete = data.analyse_complete || [];
+        
+        document.getElementById('product-image').src = p.image || '';
+        document.getElementById('product-name').textContent = p.nom;
+        document.getElementById('product-brand').textContent = p.marque;
+        
+        const score = (p.nutriscore || 'default').toLowerCase();
+        const badge = document.getElementById('nutriscore-badge');
+        badge.textContent = "Nutri-Score " + score.toUpperCase();
+        badge.className = "badge rounded-pill px-4 py-2 fs-5 mt-2 badge-nutri-" + score;
+
+        const cb = document.getElementById('compatibility-box');
+        cb.style.background = r.compatible ? '#ecfdf5' : '#fef2f2';
+        cb.style.color = r.compatible ? '#065f46' : '#991b1b';
+        document.getElementById('compatibility-icon').textContent = r.compatible ? '✅' : '⚠️';
+        document.getElementById('compatibility-title').textContent = r.compatible ? "Produit Adapté" : "Non Recommandé";
+        document.getElementById('compatibility-msg').textContent = r.raison;
+
+        // Inject Detailed Analysis
+        const analysisGrid = document.getElementById('analysis-grid');
+        analysisGrid.innerHTML = '';
+        complete.forEach(item => {
+            const cardHtml = `
+                <div class="col-md-6">
+                    <div class="p-3 rounded-4 border ${item.compatible ? 'bg-success-subtle border-success' : 'bg-danger-subtle border-danger'}" style="height: 100%;">
+                        <div class="d-flex align-items-center mb-2">
+                            <span class="me-2">${item.compatible ? '✅' : '❌'}</span>
+                            <span class="fw-bold text-dark">${item.nom}</span>
+                        </div>
+                        <p class="small mb-0 text-dark opacity-75">${item.raison}</p>
+                    </div>
+                </div>
+            `;
+            analysisGrid.innerHTML += cardHtml;
+        });
+
+        const grid = document.getElementById('nutriments-grid');
+        grid.innerHTML = '';
+        const nuts = [
+            { id: 'calories', label: 'Calories', unit: 'kcal' },
+            { id: 'sucres', label: 'Sucres', unit: 'g' },
+            { id: 'sel', label: 'Sel', unit: 'g' },
+            { id: 'proteines', label: 'Proteines', unit: 'g' }
+        ];
+        nuts.forEach(n => {
+            const val = p.nutriments[n.id];
+            grid.innerHTML += `
+                <div class="col-6 col-md-3">
+                    <div class="nutriment-pill mb-3">
+                        <span class="value">${val !== null ? val + n.unit : '-'}</span>
+                        <span class="label">${n.label}</span>
+                    </div>
+                </div>
+            `;
+        });
+    }
+
+    function displayError(msg) {
+        document.getElementById('error-msg').style.display = 'block';
+        document.getElementById('error-text').textContent = msg;
+    }
+});
+</script>
+{% endblock %}
+

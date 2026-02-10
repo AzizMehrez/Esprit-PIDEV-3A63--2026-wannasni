@@ -61,10 +61,7 @@
 {# Filters #}
 <div class="admin-toolbar">
     <div class="toolbar-search">
-        <form method="get" action="{{ path('admin_users') }}" style="display: flex; gap: 0.5rem;">
-            <input type="text" name="search" placeholder="Rechercher un utilisateur..." value="{{ search_term }}">
-            <button type="submit" class="btn btn-secondary">🔍</button>
-        </form>
+        <input type="text" id="searchInput" placeholder="Rechercher un utilisateur..." onkeyup="filterTable()">
     </div>
     <div class="toolbar-actions">
         <div class="filter-group">
@@ -93,16 +90,17 @@
         <h2 class="card-title">👥 Liste des Utilisateurs</h2>
         <span class="badge badge-info">{{ users|length }} utilisateurs</span>
     </div>
-    <table class="admin-table sortable-table" id="dataTable">
+    <table class="admin-table" id="dataTable">
         <thead>
             <tr>
-                <th class="sortable" data-column="0">ID <span class="sort-icon">⇅</span></th>
-                <th class="sortable" data-column="1">Utilisateur <span class="sort-icon">⇅</span></th>
-                <th class="sortable" data-column="2">Email <span class="sort-icon">⇅</span></th>
-                <th class="sortable" data-column="3">Téléphone <span class="sort-icon">⇅</span></th>
-                <th class="sortable" data-column="4">Rôle <span class="sort-icon">⇅</span></th>
-                <th class="sortable" data-column="5">Statut <span class="sort-icon">⇅</span></th>
-                <th class="sortable" data-column="6">Inscrit le <span class="sort-icon">⇅</span></th>
+                <th class="sortable" onclick="sortTable(0)">ID</th>
+                <th class="sortable" onclick="sortTable(1)">Utilisateur</th>
+                <th class="sortable" onclick="sortTable(2)">Email</th>
+                <th class="sortable" onclick="sortTable(3)">Téléphone</th>
+                <th class="sortable" onclick="sortTable(4)">Rôle</th>
+                <th class="sortable" onclick="sortTable(5)">Domaine</th>
+                <th class="sortable" onclick="sortTable(6)">Statut</th>
+                <th class="sortable" onclick="sortTable(7)">Inscrit le</th>
                 <th style="width: 150px;">Actions</th>
             </tr>
         </thead>
@@ -136,6 +134,13 @@
                     {% endif %}
                 </td>
                 <td>
+                    {% if user.userDomain %}
+                        <span class="badge badge-info">{{ user.userDomain }}</span>
+                    {% else %}
+                        <span style="color: #9ca3af; font-size: 0.875rem;">N/A</span>
+                    {% endif %}
+                </td>
+                <td>
                     {% if user.status == 'active' %}
                         <span class="badge badge-success">✓ Actif</span>
                     {% else %}
@@ -160,7 +165,7 @@
             </tr>
             {% else %}
             <tr>
-                <td colspan="8" style="text-align: center; padding: 2rem; color: #718096;">
+                <td colspan="9" style="text-align: center; padding: 2rem; color: #718096;">
                     Aucun utilisateur trouvé.
                 </td>
             </tr>
@@ -345,53 +350,67 @@
 
 {% block javascripts %}
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const table = document.getElementById('dataTable');
-    if (!table) return;
+/* ── Search ── */
+function filterTable() {
+    const filter = document.getElementById('searchInput').value.toLowerCase();
+    const tbody  = document.querySelector('#dataTable tbody');
+    if (!tbody) return;
     
-    const headers = table.querySelectorAll('th.sortable');
-    const tbody = table.querySelector('tbody');
-    
-    headers.forEach(header => {
-        header.addEventListener('click', function() {
-            const columnIndex = parseInt(this.dataset.column);
-            const isAscending = !this.classList.contains('asc');
-            
-            // Remove all sort classes
-            headers.forEach(h => h.classList.remove('asc', 'desc'));
-            
-            // Add appropriate class
-            this.classList.add(isAscending ? 'asc' : 'desc');
-            
-            // Get all rows
-            const rows = Array.from(tbody.querySelectorAll('tr'));
-            
-            // Sort rows
-            rows.sort((a, b) => {
-                let aValue = a.cells[columnIndex].textContent.trim();
-                let bValue = b.cells[columnIndex].textContent.trim();
-                
-                // Handle numeric values (ID column)
-                if (columnIndex === 0) {
-                    aValue = parseInt(aValue.replace('#', ''));
-                    bValue = parseInt(bValue.replace('#', ''));
-                }
-                
-                // Handle dates
-                if (columnIndex === 6) {
-                    aValue = new Date(aValue.split('/').reverse().join('-'));
-                    bValue = new Date(bValue.split('/').reverse().join('-'));
-                }
-                
-                if (aValue < bValue) return isAscending ? -1 : 1;
-                if (aValue > bValue) return isAscending ? 1 : -1;
-                return 0;
-            });
-            
-            // Re-append sorted rows
-            rows.forEach(row => tbody.appendChild(row));
+    const rows   = tbody.querySelectorAll('tr');
+    rows.forEach(row => {
+        // Skip empty state row (row with only 1 cell = colspan message)
+        if (row.cells.length <= 1) return;
+        
+        const cells = row.querySelectorAll('td');
+        let found = false;
+        cells.forEach((cell, idx) => {
+            if (idx < cells.length - 1 && cell.textContent.toLowerCase().includes(filter)) {
+                found = true;
+            }
         });
+        row.style.display = found || filter === '' ? '' : 'none';
     });
-});
+}
+
+/* ── Sort ── */
+let sortDirection = {};
+function sortTable(columnIndex) {
+    const table   = document.getElementById('dataTable');
+    const tbody   = table.querySelector('tbody');
+    const rows    = Array.from(tbody.querySelectorAll('tr'));
+    const headers = table.querySelectorAll('thead th');
+
+    sortDirection[columnIndex] = !sortDirection[columnIndex];
+    const ascending = sortDirection[columnIndex];
+    headers.forEach(h => h.classList.remove('asc', 'desc'));
+    headers[columnIndex].classList.add(ascending ? 'asc' : 'desc');
+
+    // ID column (0), Date column (6)
+    rows.sort((a, b) => {
+        let aText = a.cells[columnIndex]?.textContent.trim() || '';
+        let bText = b.cells[columnIndex]?.textContent.trim() || '';
+        
+        // ID column - numeric
+        if (columnIndex === 0) {
+            const aNum = parseInt(aText.replace('#', '')) || 0;
+            const bNum = parseInt(bText.replace('#', '')) || 0;
+            return ascending ? aNum - bNum : bNum - aNum;
+        }
+        
+        // Date column
+        if (columnIndex === 6) {
+            const aDate = new Date(aText.split(' ')[0].split('/').reverse().join('-'));
+            const bDate = new Date(bText.split(' ')[0].split('/').reverse().join('-'));
+            return ascending ? aDate - bDate : bDate - aDate;
+        }
+        
+        return ascending
+            ? aText.toLowerCase().localeCompare(bText.toLowerCase())
+            : bText.toLowerCase().localeCompare(aText.toLowerCase());
+    });
+    rows.forEach(row => tbody.appendChild(row));
+}
 </script>
 {% endblock %}
+
+

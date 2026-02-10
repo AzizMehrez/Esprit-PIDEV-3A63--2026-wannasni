@@ -178,9 +178,13 @@ class UserService
 
         // Assign role based on registration type
         $role = $data['role'] ?? 'ROLE_SENIOR';
-        if (in_array($role, ['ROLE_SENIOR', 'ROLE_FAMILY', 'ROLE_DOCTOR', 'ROLE_COACH'])) {
+        if (in_array($role, ['ROLE_SENIOR', 'ROLE_FAMILY', 'ROLE_DOCTOR', 'ROLE_TECHNICIEN'])) {
             $user->addRole($role);
         }
+        
+        // Set user domain based on role
+        $roleDomain = strtolower(str_replace('ROLE_', 'role.', $role));
+        $user->setUserDomain($roleDomain);
 
         // Save user (mock - no DB)
 

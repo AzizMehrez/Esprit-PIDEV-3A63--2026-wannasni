@@ -66,7 +66,7 @@ features:
     subtitle: "A complete suite of features designed for seniors' well-being"
     profiles:
         title: "Profiles & Security"
-        description: "Seniors, families, doctors, coaches — everyone has their role and secure access in the app."
+        description: "Seniors, families, doctors, technicians — everyone has their role and secure access in the app."
     services:
         title: "Services & Interventions"
         description: "Book help (plumbing, repairs, groceries) with urgency level and budget preferences."
@@ -107,8 +107,8 @@ roles:
     doctors:
         title: "Doctors"
         description: "Access health data and monitor your patients remotely and securely."
-    coaches:
-        title: "Coaches & Caregivers"
+    technicians:
+        title: "Technicians & Caregivers"
         description: "Plan activities and support seniors in their daily well-being."
 
 # Why Section

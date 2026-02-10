@@ -193,12 +193,13 @@
         <thead>
             <tr>
                 <th style="width: 5%;">ID</th>
-                <th style="width: 20%;">Nom complet</th>
-                <th style="width: 25%;">Email</th>
-                <th style="width: 15%;">Téléphone</th>
-                <th style="width: 12%;">Rôle</th>
-                <th style="width: 10%;">Statut</th>
-                <th style="width: 13%;">Inscription</th>
+                <th style="width: 18%;">Nom complet</th>
+                <th style="width: 22%;">Email</th>
+                <th style="width: 13%;">Téléphone</th>
+                <th style="width: 10%;">Rôle</th>
+                <th style="width: 12%;">Domaine</th>
+                <th style="width: 9%;">Statut</th>
+                <th style="width: 11%;">Inscription</th>
             </tr>
         </thead>
         <tbody>
@@ -215,6 +216,13 @@
                         <span class="badge badge-info">Aidant</span>
                     {% else %}
                         <span class="badge badge-success">Utilisateur</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if user.userDomain %}
+                        <span class="badge badge-info">{{ user.userDomain }}</span>
+                    {% else %}
+                        N/A
                     {% endif %}
                 </td>
                 <td>

@@ -168,6 +168,16 @@
                             <option value="suspended" {% if user.status == 'suspended' %}selected{% endif %}>Suspendu</option>
                         </select>
                     </div>
+                    <div class="form-group">
+                        <label class="form-label">Domaine utilisateur</label>
+                        <select class="form-input form-select" name="userDomain">
+                            <option value="" {% if not user.userDomain %}selected{% endif %}>-- Sélectionner --</option>
+                            <option value="role.senior" {% if user.userDomain == 'role.senior' %}selected{% endif %}>👴 Senior</option>
+                            <option value="role.family" {% if user.userDomain == 'role.family' %}selected{% endif %}>👨‍👩‍👧 Famille</option>
+                            <option value="role.doctor" {% if user.userDomain == 'role.doctor' %}selected{% endif %}>👨‍⚕️ Médecin</option>
+                            <option value="role.technicien" {% if user.userDomain == 'role.technicien' %}selected{% endif %}>🔧 Technicien</option>
+                        </select>
+                    </div>
                     <div class="form-group full">
                         <label class="form-label">Rôles</label>
                         <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.5rem;">

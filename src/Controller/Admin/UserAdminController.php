@@ -150,6 +150,14 @@ class UserAdminController extends AbstractController
             $user->setPhone($request->request->get('phone'));
             $user->setStatus($request->request->get('status'));
             
+            // Update user domain
+            $userDomain = $request->request->get('userDomain');
+            if (!empty($userDomain)) {
+                $user->setUserDomain($userDomain);
+            } else {
+                $user->setUserDomain(null);
+            }
+            
             // Get current email info
             $currentEmail = $user->getEmail();
             $currentDomain = substr($currentEmail, strpos($currentEmail, '@'));
@@ -365,7 +373,7 @@ class UserAdminController extends AbstractController
             
             // Data table headers
             fputcsv($handle, ['=== DÉTAILS DES UTILISATEURS ==='], ';');
-            fputcsv($handle, ['ID', 'Prénom', 'Nom', 'Email', 'Téléphone', 'Rôle', 'Statut', 'Date d\'inscription'], ';');
+            fputcsv($handle, ['ID', 'Prénom', 'Nom', 'Email', 'Téléphone', 'Rôle', 'Domaine', 'Statut', 'Date d\'inscription'], ';');
             
             // CSV data
             foreach ($users as $user) {
@@ -383,6 +391,7 @@ class UserAdminController extends AbstractController
                     $user->getEmail(),
                     $user->getPhone() ?? 'N/A',
                     $role,
+                    $user->getUserDomain() ?? 'N/A',
                     $user->getStatus() === 'active' ? 'Actif' : 'Inactif',
                     $user->getCreatedAt()->format('d/m/Y H:i'),
                 ], ';');
