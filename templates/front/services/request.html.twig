@@ -1,0 +1,1295 @@
+{% extends 'base_dashboard.html.twig' %}
+
+{% block title %}Demander un Service - WANNASNI{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    /* AI Image Analysis Styles */
+    .ai-section {
+        background: linear-gradient(135deg, rgba(99, 102, 241, 0.05), rgba(139, 92, 246, 0.08));
+        border: 2px dashed #8b5cf6;
+        border-radius: var(--dash-radius);
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .ai-section::before {
+        content: '🤖';
+        position: absolute;
+        top: -10px;
+        right: -10px;
+        font-size: 4rem;
+        opacity: 0.1;
+    }
+    
+    .ai-header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+    }
+    
+    .ai-badge {
+        background: linear-gradient(135deg, #8b5cf6, #6366f1);
+        color: white;
+        padding: 0.35rem 0.85rem;
+        border-radius: 50px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .ai-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--dash-text);
+    }
+    
+    .ai-description {
+        font-size: 0.9rem;
+        color: var(--dash-text-muted);
+        margin-bottom: 1.25rem;
+    }
+    
+    .image-upload-area {
+        border: 2px dashed var(--dash-border);
+        border-radius: var(--dash-radius-sm);
+        padding: 2rem;
+        text-align: center;
+        background: white;
+        cursor: pointer;
+        transition: all 0.3s;
+        position: relative;
+    }
+    
+    .image-upload-area:hover {
+        border-color: #8b5cf6;
+        background: rgba(139, 92, 246, 0.02);
+    }
+    
+    .image-upload-area.dragover {
+        border-color: #8b5cf6;
+        background: rgba(139, 92, 246, 0.05);
+        transform: scale(1.01);
+    }
+    
+    .image-upload-area.has-image {
+        padding: 1rem;
+    }
+    
+    .upload-icon {
+        font-size: 3rem;
+        margin-bottom: 0.75rem;
+        display: block;
+    }
+    
+    .upload-text {
+        font-weight: 600;
+        color: var(--dash-text);
+        margin-bottom: 0.25rem;
+    }
+    
+    .upload-hint {
+        font-size: 0.85rem;
+        color: var(--dash-text-muted);
+    }
+    
+    #image_input {
+        display: none;
+    }
+    
+    .image-preview-container {
+        display: none;
+        position: relative;
+    }
+    
+    .image-preview-container.active {
+        display: block;
+    }
+    
+    .image-preview {
+        max-width: 100%;
+        max-height: 250px;
+        border-radius: 12px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    }
+    
+    .remove-image-btn {
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: #ef4444;
+        color: white;
+        border: none;
+        cursor: pointer;
+        font-size: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform 0.2s;
+    }
+    
+    .remove-image-btn:hover {
+        transform: scale(1.1);
+    }
+    
+    .ai-analyze-btn {
+        display: none;
+        width: 100%;
+        margin-top: 1rem;
+        padding: 1rem;
+        background: linear-gradient(135deg, #8b5cf6, #6366f1);
+        color: white;
+        border: none;
+        border-radius: var(--dash-radius-sm);
+        font-size: 1rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    
+    .ai-analyze-btn.visible {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+    
+    .ai-analyze-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(139, 92, 246, 0.35);
+    }
+    
+    .ai-analyze-btn:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+        transform: none;
+    }
+    
+    .ai-analyze-btn .spinner {
+        width: 20px;
+        height: 20px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-top-color: white;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+    
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+    
+    .ai-result {
+        display: none;
+        margin-top: 1rem;
+        padding: 1rem;
+        background: white;
+        border-radius: var(--dash-radius-sm);
+        border-left: 4px solid #8b5cf6;
+    }
+    
+    .ai-result.visible {
+        display: block;
+        animation: slideIn 0.3s ease;
+    }
+    
+    @keyframes slideIn {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .ai-result-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 0.75rem;
+    }
+    
+    .ai-result-title {
+        font-weight: 700;
+        color: var(--dash-text);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .confidence-badge {
+        font-size: 0.8rem;
+        padding: 0.25rem 0.6rem;
+        border-radius: 50px;
+        font-weight: 600;
+    }
+    
+    .confidence-high {
+        background: #d1fae5;
+        color: #065f46;
+    }
+    
+    .confidence-medium {
+        background: #fef3c7;
+        color: #92400e;
+    }
+    
+    .confidence-low {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+    
+    .ai-result-body {
+        font-size: 0.95rem;
+        color: var(--dash-text-muted);
+    }
+    
+    .ai-result-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid var(--dash-border);
+    }
+    
+    .ai-result-item:last-child {
+        border-bottom: none;
+    }
+    
+    .ai-result-label {
+        font-weight: 600;
+        color: var(--dash-text);
+        min-width: 120px;
+    }
+    
+    .apply-ai-btn {
+        width: 100%;
+        margin-top: 1rem;
+        padding: 0.75rem;
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: white;
+        border: none;
+        border-radius: var(--dash-radius-sm);
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    
+    .apply-ai-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 16px rgba(16, 185, 129, 0.3);
+    }
+    
+    .ai-applied-notice {
+        display: none;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem;
+        background: #d1fae5;
+        border-radius: var(--dash-radius-sm);
+        color: #065f46;
+        font-weight: 600;
+        margin-top: 1rem;
+    }
+    
+    .ai-applied-notice.visible {
+        display: flex;
+    }
+
+    :root {
+        --dash-primary: #2E7D32;
+        --dash-primary-light: #4CAF50;
+        --dash-primary-soft: rgba(46, 125, 50, 0.08);
+        --dash-bg: #f8faf8;
+        --dash-card: #ffffff;
+        --dash-text: #1a1a2e;
+        --dash-text-muted: #64748b;
+        --dash-border: #e2e8f0;
+        --dash-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+        --dash-radius: 20px;
+        --dash-radius-sm: 12px;
+    }
+
+    body { background: var(--dash-bg); }
+
+    .page-wrapper {
+        min-height: 100vh;
+        padding: 2rem 1.5rem 4rem;
+        background: linear-gradient(180deg, #eff6ff 0%, var(--dash-bg) 30%);
+    }
+
+    .page-container {
+        max-width: 700px;
+        margin: 0 auto;
+    }
+
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #2563eb;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.95rem;
+        margin-bottom: 1.5rem;
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        transition: all 0.2s;
+    }
+
+    .back-link:hover {
+        background: rgba(37, 99, 235, 0.08);
+    }
+
+    .form-card {
+        background: var(--dash-card);
+        border-radius: var(--dash-radius);
+        box-shadow: var(--dash-shadow);
+        border: 1px solid var(--dash-border);
+        overflow: hidden;
+    }
+
+    .form-header {
+        padding: 1.5rem 2rem;
+        border-bottom: 1px solid var(--dash-border);
+        background: linear-gradient(to right, rgba(37, 99, 235, 0.08), transparent);
+    }
+
+    .form-title {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-family: 'Playfair Display', serif;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--dash-text);
+    }
+
+    .form-title-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
+        background: linear-gradient(135deg, #2563eb, #1d4ed8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.25rem;
+    }
+
+    .form-body {
+        padding: 2rem;
+    }
+
+    .form-section {
+        margin-bottom: 2.5rem;
+        padding-bottom: 2rem;
+        border-bottom: 2px solid var(--dash-border);
+    }
+
+    .form-section:last-of-type {
+        border-bottom: none;
+    }
+
+    .section-title {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--dash-text);
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+
+    .form-label {
+        display: block;
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: var(--dash-text);
+        margin-bottom: 0.75rem;
+    }
+
+    .form-label .required {
+        color: #ef4444;
+    }
+
+    .service-types {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+
+    .service-type-option {
+        padding: 1.5rem;
+        border: 2px solid var(--dash-border);
+        border-radius: var(--dash-radius-sm);
+        cursor: pointer;
+        transition: all 0.2s;
+        text-align: center;
+    }
+
+    .service-type-option:hover {
+        border-color: #2563eb;
+    }
+
+    .service-type-option.selected {
+        border-color: #2563eb;
+        background: rgba(37, 99, 235, 0.05);
+        box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+    }
+
+    .service-type-option input {
+        display: none;
+    }
+
+    .type-icon {
+        font-size: 2.5rem;
+        display: block;
+        margin-bottom: 0.75rem;
+    }
+
+    .type-name {
+        font-weight: 700;
+        font-size: 1rem;
+        color: var(--dash-text);
+        margin-bottom: 0.35rem;
+    }
+
+    .type-desc {
+        font-size: 0.8rem;
+        color: var(--dash-text-muted);
+    }
+
+    /* Locked service type */
+    .service-type-option.locked {
+        opacity: 1;
+        cursor: not-allowed;
+        position: relative;
+        border-color: #cbd5e1;
+        background: #f1f5f9;
+        overflow: hidden;
+    }
+    .service-type-option.locked:hover {
+        border-color: #cbd5e1;
+        transform: none;
+        box-shadow: none;
+    }
+    .service-type-option.locked .type-icon,
+    .service-type-option.locked .type-name,
+    .service-type-option.locked .type-desc {
+        filter: grayscale(1) blur(1.5px);
+        opacity: 0.35;
+    }
+    .service-lock-overlay {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 5;
+        background: radial-gradient(circle, rgba(241,245,249,0.85) 0%, rgba(226,232,240,0.6) 100%);
+    }
+    .lock-icon {
+        width: 56px;
+        height: 56px;
+        background: linear-gradient(145deg, #64748b, #475569);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.6rem;
+        box-shadow: 0 4px 12px rgba(71,85,105,0.4), inset 0 1px 0 rgba(255,255,255,0.15);
+        margin-bottom: 0.5rem;
+        position: relative;
+    }
+    .lock-icon::before {
+        content: '';
+        position: absolute;
+        top: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 24px;
+        height: 16px;
+        border: 4px solid #475569;
+        border-bottom: none;
+        border-radius: 12px 12px 0 0;
+    }
+    .lock-label {
+        font-size: 0.7rem;
+        font-weight: 800;
+        color: #475569;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+    }
+    .service-type-locked-badge {
+        display: none;
+    }
+
+    /* Locked form overlay */
+    .form-locked-overlay {
+        position: relative;
+        pointer-events: none;
+        user-select: none;
+    }
+    .form-locked-overlay::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(255,255,255,0.7);
+        z-index: 10;
+        border-radius: 16px;
+    }
+    .form-locked-overlay .form-section {
+        opacity: 0.4;
+    }
+    .locked-cta-box {
+        text-align: center;
+        padding: 2rem;
+        background: linear-gradient(135deg, #fef2f2, #fee2e2);
+        border: 2px solid #ef4444;
+        border-radius: 16px;
+        margin-top: 1.5rem;
+    }
+    .locked-cta-box h3 {
+        color: #991b1b;
+        font-size: 1.3rem;
+        margin-bottom: 0.5rem;
+    }
+    .locked-cta-box p {
+        color: #b91c1c;
+        font-size: 0.95rem;
+        margin-bottom: 1.25rem;
+    }
+    .locked-cta-btn {
+        display: inline-block;
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+        color: white;
+        padding: 0.85rem 2rem;
+        border-radius: 50px;
+        font-weight: 700;
+        font-size: 1rem;
+        text-decoration: none;
+        box-shadow: 0 4px 15px rgba(239,68,68,0.4);
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .locked-cta-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(239,68,68,0.5);
+        color: white;
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 1rem 1.25rem;
+        font-size: 1rem;
+        border: 2px solid var(--dash-border);
+        border-radius: var(--dash-radius-sm);
+        background: white;
+        transition: all 0.2s;
+        font-family: inherit;
+    }
+
+    .form-input:focus {
+        outline: none;
+        border-color: #2563eb;
+        box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+    }
+
+    .urgence-options {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.75rem;
+    }
+
+    .urgence-option {
+        text-align: center;
+        padding: 1rem;
+        border: 2px solid var(--dash-border);
+        border-radius: var(--dash-radius-sm);
+        cursor: pointer;
+        transition: all 0.2s;
+        font-weight: 600;
+        font-size: 0.95rem;
+    }
+
+    .urgence-option:hover {
+        border-color: #2563eb;
+    }
+
+    .urgence-option.selected {
+        border-color: #2563eb;
+        background: rgba(37, 99, 235, 0.05);
+    }
+
+    .urgence-option input { display: none; }
+
+    .checkbox-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1rem;
+        border: 2px solid var(--dash-border);
+        border-radius: var(--dash-radius-sm);
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .checkbox-wrapper:hover {
+        border-color: #2563eb;
+        background: rgba(37, 99, 235, 0.02);
+    }
+
+    .checkbox-wrapper input[type="checkbox"] {
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+    }
+
+    .checkbox-label {
+        font-weight: 600;
+        font-size: 1rem;
+        color: var(--dash-text);
+    }
+
+    .btn-group {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+
+    .btn {
+        padding: 1rem 2rem;
+        font-size: 1rem;
+        font-weight: 600;
+        border-radius: var(--dash-radius-sm);
+        cursor: pointer;
+        text-decoration: none;
+        text-align: center;
+        transition: all 0.2s;
+        border: none;
+    }
+
+    .btn-primary {
+        flex: 1;
+        background: linear-gradient(135deg, #2563eb, #1d4ed8);
+        color: white;
+        box-shadow: 0 4px 16px rgba(37, 99, 235, 0.25);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(37, 99, 235, 0.35);
+    }
+
+    .btn-secondary {
+        background: white;
+        color: var(--dash-text-muted);
+        border: 2px solid var(--dash-border);
+    }
+
+    .btn-secondary:hover {
+        border-color: #2563eb;
+        color: #2563eb;
+    }
+
+    .alert {
+        padding: 1rem 1.25rem;
+        margin-bottom: 1.5rem;
+        border-radius: 12px;
+        font-size: 1rem;
+    }
+
+    .alert-success { background: #d1fae5; color: #065f46; border-left: 4px solid #10b981; }
+    .alert-danger { background: #fee2e2; color: #991b1b; border-left: 4px solid #ef4444; }
+
+    @media (max-width: 480px) {
+        .service-types {
+            grid-template-columns: 1fr;
+        }
+
+        .urgence-options, .form-row {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="page-wrapper">
+    <div class="page-container">
+        <a href="{{ path('app_my_services', {'_locale': app.request.locale}) }}" class="back-link">
+            ← Retour aux services
+        </a>
+
+        <div class="form-card">
+            <div class="form-header">
+                <h1 class="form-title">
+                    <span class="form-title-icon">🛎️</span>
+                    Demander un Service
+                </h1>
+            </div>
+            <div class="form-body">
+                {% if errors is defined %}
+                    {% for error in errors %}
+                        <div class="alert alert-danger">❌ {{ error }}</div>
+                    {% endfor %}
+                {% endif %}
+
+                {% for message in app.flashes('success') %}
+                    <div class="alert alert-success">✅ {{ message }}</div>
+                {% endfor %}
+
+                <form method="post" enctype="multipart/form-data" novalidate>
+                    {% set allLocked = (not hasSubscription|default(false)) and (not isFirstAttempt|default(true)) %}
+                    
+                    <!-- AI Image Analysis Section -->
+                    {% if has_feature('ai_image_detection') %}
+                    <div class="ai-section">
+                        <div class="ai-header">
+                            <span class="ai-badge">✨ IA</span>
+                            <span class="ai-title">Analyse Intelligente d'Image</span>
+                        </div>
+                        <p class="ai-description">
+                            Prenez une photo du problème et notre IA détectera automatiquement le type de service, 
+                            la description et le niveau d'urgence pour vous.
+                        </p>
+                        
+                        <div class="image-upload-area" id="upload_area">
+                            <div class="upload-placeholder" id="upload_placeholder">
+                                <span class="upload-icon">📷</span>
+                                <p class="upload-text">Cliquez ici ou glissez une image</p>
+                                <p class="upload-hint">JPG, PNG, GIF ou WEBP • Max 10 Mo</p>
+                            </div>
+                            <div class="image-preview-container" id="preview_container">
+                                <img id="image_preview" class="image-preview" src="" alt="Aperçu">
+                                <button type="button" class="remove-image-btn" id="remove_image">×</button>
+                            </div>
+                            <input type="file" id="image_input" name="image_problem" accept="image/jpeg,image/png,image/gif,image/webp">
+                        </div>
+                        
+                        <button type="button" class="ai-analyze-btn" id="analyze_btn">
+                            <span class="btn-text">🔍 Analyser avec l'IA</span>
+                            <span class="spinner" style="display: none;"></span>
+                        </button>
+                        
+                        <div class="ai-result" id="ai_result">
+                            <div class="ai-result-header">
+                                <span class="ai-result-title">🤖 Suggestion de l'IA</span>
+                                <span class="confidence-badge" id="confidence_badge">--</span>
+                                <span class="ai-provider-badge" id="ai_provider_badge" style="margin-left: 0.5rem; background:#eef; color:#334155; padding:0.25rem 0.5rem; border-radius:6px; font-size:0.8rem; display:none;"></span>
+                            </div>
+                            <p class="ai-suggestion-note" style="font-size: 0.85rem; color: #6b7280; margin-bottom: 1rem; font-style: italic;">
+                                💡 Cette suggestion est basée sur l'analyse de l'image. Vous pouvez la modifier ci-dessous si nécessaire.
+                            </p>
+                            <div class="ai-result-body">
+                                <div class="ai-result-item" style="flex-direction: column; align-items: stretch;">
+                                    <span class="ai-result-label" style="margin-bottom: 0.5rem;">Type de service suggéré :</span>
+                                    <select id="ai_service_select" class="form-input" style="padding: 0.75rem; font-size: 0.95rem;">
+                                        <option value="electricite">⚡ Électricité</option>
+                                        <option value="plomberie">🔧 Plomberie</option>
+                                        <option value="courses">🛒 Courses</option>
+                                        <option value="transport">🚗 Transport Médical</option>
+                                        <option value="menage">🏠 Ménage</option>
+                                        <option value="compagnie">👋 Compagnie</option>
+                                    </select>
+                                </div>
+                                <div class="ai-result-item" style="flex-direction: column; align-items: stretch;">
+                                    <span class="ai-result-label" style="margin-bottom: 0.5rem;">Description suggérée :</span>
+                                    <textarea id="ai_description_edit" class="form-input" style="min-height: 80px; resize: vertical;"></textarea>
+                                </div>
+                                <div class="ai-result-item" style="flex-direction: column; align-items: stretch;">
+                                    <span class="ai-result-label" style="margin-bottom: 0.5rem;">Niveau d'urgence :</span>
+                                    <select id="ai_urgence_select" class="form-input" style="padding: 0.75rem; font-size: 0.95rem;">
+                                        <option value="normale">🟢 Normale</option>
+                                        <option value="moyenne">🟡 Moyenne</option>
+                                        <option value="urgente">🔴 Urgente</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <button type="button" class="apply-ai-btn" id="apply_ai_btn">
+                                ✅ Appliquer au formulaire
+                            </button>
+                            <div class="ai-applied-notice" id="applied_notice">
+                                ✅ Appliqué avec succès !
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    {# ═══ LOCKED AI SECTION ═══ #}
+                    <div class="ai-section" style="position: relative; overflow: hidden;">
+                        <div style="position: absolute; inset: 0; background: rgba(255,255,255,0.85); backdrop-filter: blur(4px); z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: inherit;">
+                            <div style="text-align: center; max-width: 380px;">
+                                <div style="font-size: 3.5rem; margin-bottom: 0.75rem;">🔒</div>
+                                <h3 style="font-family: 'Playfair Display', serif; font-size: 1.3rem; color: #1a1a2e; margin-bottom: 0.5rem;">Fonctionnalité Premium</h3>
+                                <p style="color: #64748b; font-size: 0.95rem; margin-bottom: 1.25rem;">
+                                    La détection IA par image est réservée aux abonnés <strong style="color: #2E7D32;">Premium</strong>.
+                                    Analysez vos photos pour détecter automatiquement le service nécessaire.
+                                </p>
+                                <a href="{{ path('app_subscription_plans', {'_locale': app.request.locale}) }}" style="display: inline-flex; align-items: center; gap: 0.5rem; background: linear-gradient(135deg, #2E7D32, #4CAF50); color: white; padding: 0.75rem 1.75rem; border-radius: 50px; font-weight: 600; font-size: 0.95rem; text-decoration: none; box-shadow: 0 4px 16px rgba(46,125,50,0.3); transition: all 0.2s;">
+                                    💎 Passer à Premium
+                                </a>
+                            </div>
+                        </div>
+                        <div class="ai-header" style="opacity: 0.4;">
+                            <span class="ai-badge">✨ IA</span>
+                            <span class="ai-title">Analyse Intelligente d'Image</span>
+                        </div>
+                        <p class="ai-description" style="opacity: 0.4;">
+                            Prenez une photo du problème et notre IA détectera automatiquement le type de service, 
+                            la description et le niveau d'urgence pour vous.
+                        </p>
+                        <div class="image-upload-area" style="opacity: 0.3; pointer-events: none; min-height: 120px;">
+                            <div class="upload-placeholder">
+                                <span class="upload-icon">📷</span>
+                                <p class="upload-text">Cliquez ici ou glissez une image</p>
+                            </div>
+                        </div>
+                        <button type="button" class="ai-analyze-btn" disabled style="opacity: 0.3; cursor: not-allowed;">
+                            <span class="btn-text">🔍 Analyser avec l'IA</span>
+                        </button>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Section 1: Informations de Contact -->
+                    <div class="form-section">
+                        <h2 class="section-title">📞 Informations de Contact</h2>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label" for="senior_telephone">Téléphone</label>
+                                <input type="tel" id="senior_telephone" class="form-input" name="senior_telephone" placeholder="+216 XX XXX XXX" value="{{ last_inputs.senior_telephone|default('') }}">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="senior_email">Email</label>
+                                <input type="email" id="senior_email" class="form-input" name="senior_email" placeholder="votre@email.com" value="{{ last_inputs.senior_email|default('') }}">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 2: Type de Service -->
+                    <div class="form-section">
+                        <h2 class="section-title">🛎️ Type de Service</h2>
+                        <div class="form-group">
+                            <label class="form-label"><span class="required">*</span> Choisissez un service</label>
+                            <div class="service-types">
+                                {% for type in service_types %}
+                                    <label class="service-type-option {{ last_inputs.type_service|default('') == type.id ? 'selected' : '' }} {{ allLocked ? 'locked' : '' }}" {% if allLocked %}onclick="event.preventDefault(); event.stopPropagation(); alert('Acc\u00e8s restreint\n\nVotre p\u00e9riode d\'essai est termin\u00e9e. Veuillez souscrire \u00e0 un abonnement pour acc\u00e9der \u00e0 l\'ensemble de nos services.');"{% endif %}>
+                                        <input type="radio" id="type_service_{{ type.id }}" name="type_service" value="{{ type.id }}" {{ last_inputs.type_service|default('') == type.id ? 'checked' : '' }} {% if allLocked %}disabled{% endif %}>
+                                        {% if allLocked %}
+                                            <div class="service-lock-overlay">
+                                                <div class="lock-icon">🔒</div>
+                                                <span class="lock-label">Verrouillé</span>
+                                            </div>
+                                        {% endif %}
+                                        <span class="type-icon">{{ type.icon }}</span>
+                                        <div class="type-name">{{ type.name }}</div>
+                                        <div class="type-desc">{{ type.description }}</div>
+                                    </label>
+                                {% endfor %}
+                            </div>
+                            {% if allLocked %}
+                                <div style="background: linear-gradient(135deg, #fef2f2, #fee2e2); border: 2px solid #ef4444; border-radius: 12px; padding: 1rem 1.25rem; margin-top: 1rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+                                    <div style="flex: 1; min-width: 200px;">
+                                        <div style="font-weight: 700; color: #991b1b; font-size: 0.95rem;">🔒 Abonnement requis</div>
+                                        <div style="font-size: 0.85rem; color: #b91c1c;">Votre période d'essai est terminée. Pour continuer à profiter de l'ensemble de nos services, veuillez choisir une formule d'abonnement adaptée à vos besoins.</div>
+                                    </div>
+                                    <a href="{{ path('app_subscription_plans', {'_locale': app.request.locale}) }}" style="background: linear-gradient(135deg, #ef4444, #dc2626); color: white; padding: 0.6rem 1.25rem; border-radius: 50px; font-weight: 700; font-size: 0.85rem; text-decoration: none; white-space: nowrap; box-shadow: 0 2px 8px rgba(239,68,68,0.3);">💎 Souscrire maintenant</a>
+                                </div>
+                            {% elseif not hasSubscription|default(false) %}
+                                <div style="background: linear-gradient(135deg, #f0fdf4, #dcfce7); border: 2px solid #22c55e; border-radius: 12px; padding: 1rem 1.25rem; margin-top: 1rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+                                    <div style="flex: 1; min-width: 200px;">
+                                        <div style="font-weight: 700; color: #166534; font-size: 0.95rem;">🎁 Première demande gratuite !</div>
+                                        <div style="font-size: 0.85rem; color: #15803d;">Profitez de votre premier essai sans engagement. Après cette demande, un abonnement sera nécessaire pour continuer.</div>
+                                    </div>
+                                    <a href="{{ path('app_subscription_plans', {'_locale': app.request.locale}) }}" style="background: linear-gradient(135deg, #22c55e, #16a34a); color: white; padding: 0.6rem 1.25rem; border-radius: 50px; font-weight: 700; font-size: 0.85rem; text-decoration: none; white-space: nowrap; box-shadow: 0 2px 8px rgba(34,197,94,0.3);">💎 Voir les abonnements</a>
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="description"><span class="required">*</span> Description de votre besoin</label>
+                            <textarea id="description" class="form-input" name="description" rows="4" placeholder="Décrivez votre demande en détail...">{{ last_inputs.description|default('') }}</textarea>
+                        </div>
+                    </div>
+
+                    {% if allLocked|default(false) %}
+                    <div class="form-locked-overlay">
+                    {% endif %}
+
+                    <!-- Section 3: Adresse -->
+                    <div class="form-section">
+                        <h2 class="section-title">📍 Adresse du Service</h2>
+                        <div class="form-group">
+                            <label class="form-label" for="adresse">Adresse complète</label>
+                            <input type="text" id="adresse" class="form-input" name="adresse" placeholder="12 Rue de la République" value="{{ last_inputs.adresse|default('') }}">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label" for="ville">Ville</label>
+                                <input type="text" id="ville" class="form-input" name="ville" placeholder="Tunis" value="{{ last_inputs.ville|default('') }}">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="code_postal">Code Postal</label>
+                                <input type="text" id="code_postal" class="form-input" name="code_postal" placeholder="1000" value="{{ last_inputs.code_postal|default('') }}">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 4: Planification -->
+                    <div class="form-section">
+                        <h2 class="section-title">📅 Planification</h2>
+                        <div class="form-group">
+                            <label class="form-label">⚡ Niveau d'urgence</label>
+                            <div class="urgence-options">
+                                <label class="urgence-option {{ last_inputs.niveau_urgence|default('normale') == 'normale' ? 'selected' : '' }}">
+                                    <input type="radio" id="niveau_urgence_normale" name="niveau_urgence" value="normale" {{ last_inputs.niveau_urgence|default('normale') == 'normale' ? 'checked' : '' }}>
+                                    🟢 Normale
+                                </label>
+                                <label class="urgence-option {{ last_inputs.niveau_urgence|default('') == 'moyenne' ? 'selected' : '' }}">
+                                    <input type="radio" id="niveau_urgence_moyenne" name="niveau_urgence" value="moyenne" {{ last_inputs.niveau_urgence|default('') == 'moyenne' ? 'checked' : '' }}>
+                                    🟡 Moyenne
+                                </label>
+                                <label class="urgence-option {{ last_inputs.niveau_urgence|default('') == 'urgente' ? 'selected' : '' }}">
+                                    <input type="radio" id="niveau_urgence_urgente" name="niveau_urgence" value="urgente" {{ last_inputs.niveau_urgence|default('') == 'urgente' ? 'checked' : '' }}>
+                                    🔴 Urgente
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="date_souhaitee">📅 Date souhaitée</label>
+                            <input type="date" id="date_souhaitee" class="form-input" name="date_souhaitee" value="{{ last_inputs.date_souhaitee|default('') }}">
+                        </div>
+                    </div>
+
+                    <!-- Section 5: Budget -->
+                    <div class="form-section">
+                        <h2 class="section-title">💰 Budget Estimé</h2>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label" for="budget_minimum">Budget Minimum (TND)</label>
+                                <input type="number" step="0.01" id="budget_minimum" class="form-input" name="budget_minimum" placeholder="50.00" value="{{ last_inputs.budget_minimum|default('') }}">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="budget_maximum">Budget Maximum (TND)</label>
+                                <input type="number" step="0.01" id="budget_maximum" class="form-input" name="budget_maximum" placeholder="150.00" value="{{ last_inputs.budget_maximum|default('') }}">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 6: Notification -->
+                    <div class="form-section">
+                        <h2 class="section-title">🔔 Notifications</h2>
+                        <div class="form-group">
+                            <label class="checkbox-wrapper">
+                                <input type="checkbox" id="notifier_proches" name="notifier_proches" {{ last_inputs.notifier_proches|default('') == 'on' ? 'checked' : '' }}>
+                                <span class="checkbox-label">Notifier mes proches de cette demande</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    {% if allLocked|default(false) %}
+                    </div>{# end .form-locked-overlay #}
+
+                    <div class="locked-cta-box">
+                        <h3>🔒 Abonnement requis</h3>
+                        <p>Votre période d'essai est terminée. Pour accéder à l'ensemble de nos services,<br>veuillez choisir la formule d'abonnement qui vous convient.</p>
+                        <a href="{{ path('app_subscription_plans', {'_locale': app.request.locale}) }}" class="locked-cta-btn">💎 Découvrir nos formules</a>
+                    </div>
+                    {% else %}
+                    <div class="btn-group">
+                        <button type="submit" class="btn btn-primary">📤 Envoyer la Demande</button>
+                        <a href="{{ path('app_my_services', {'_locale': app.request.locale}) }}" class="btn btn-secondary">Annuler</a>
+                    </div>
+                    {% endif %}
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// User profile data for auto-fill
+const userProfileEmail = '{{ app.user and app.user.email ? app.user.email|e('js') : '' }}';
+const userProfilePhone = '{{ app.user and app.user.phone ? app.user.phone|e('js') : '' }}';
+
+// Service type selection
+document.querySelectorAll('.service-type-option').forEach(option => {
+    option.addEventListener('click', () => {
+        if (option.classList.contains('locked')) return;
+        document.querySelectorAll('.service-type-option').forEach(o => o.classList.remove('selected'));
+        option.classList.add('selected');
+    });
+});
+
+// Urgence selection
+document.querySelectorAll('.urgence-option').forEach(option => {
+    option.addEventListener('click', () => {
+        document.querySelectorAll('.urgence-option').forEach(o => o.classList.remove('selected'));
+        option.classList.add('selected');
+    });
+});
+
+// ============================================
+// AI Image Analysis Feature
+// ============================================
+
+const uploadArea = document.getElementById('upload_area');
+const uploadPlaceholder = document.getElementById('upload_placeholder');
+const previewContainer = document.getElementById('preview_container');
+const imageInput = document.getElementById('image_input');
+const imagePreview = document.getElementById('image_preview');
+const removeImageBtn = document.getElementById('remove_image');
+const analyzeBtn = document.getElementById('analyze_btn');
+const aiResult = document.getElementById('ai_result');
+const applyAiBtn = document.getElementById('apply_ai_btn');
+const appliedNotice = document.getElementById('applied_notice');
+
+let currentAnalysis = null;
+
+// Click to upload
+uploadArea.addEventListener('click', (e) => {
+    if (e.target !== removeImageBtn && !removeImageBtn.contains(e.target)) {
+        imageInput.click();
+    }
+});
+
+// Drag & Drop
+uploadArea.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    uploadArea.classList.add('dragover');
+});
+
+uploadArea.addEventListener('dragleave', () => {
+    uploadArea.classList.remove('dragover');
+});
+
+uploadArea.addEventListener('drop', (e) => {
+    e.preventDefault();
+    uploadArea.classList.remove('dragover');
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+        handleFile(files[0]);
+    }
+});
+
+// File input change
+imageInput.addEventListener('change', (e) => {
+    if (e.target.files.length > 0) {
+        handleFile(e.target.files[0]);
+    }
+});
+
+// Handle selected file
+function handleFile(file) {
+    const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    if (!validTypes.includes(file.type)) {
+        alert('Type de fichier non autorisé. Utilisez JPG, PNG, GIF ou WEBP.');
+        return;
+    }
+    
+    if (file.size > 10 * 1024 * 1024) {
+        alert('L\'image est trop volumineuse. Maximum 10 Mo.');
+        return;
+    }
+    
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        imagePreview.src = e.target.result;
+        uploadPlaceholder.style.display = 'none';
+        previewContainer.classList.add('active');
+        uploadArea.classList.add('has-image');
+        analyzeBtn.classList.add('visible');
+        aiResult.classList.remove('visible');
+        appliedNotice.classList.remove('visible');
+        currentAnalysis = null;
+    };
+    reader.readAsDataURL(file);
+    
+    // Update file input
+    const dataTransfer = new DataTransfer();
+    dataTransfer.items.add(file);
+    imageInput.files = dataTransfer.files;
+}
+
+// Remove image
+removeImageBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    resetImageUpload();
+});
+
+function resetImageUpload() {
+    imageInput.value = '';
+    imagePreview.src = '';
+    uploadPlaceholder.style.display = 'block';
+    previewContainer.classList.remove('active');
+    uploadArea.classList.remove('has-image');
+    analyzeBtn.classList.remove('visible');
+    aiResult.classList.remove('visible');
+    appliedNotice.classList.remove('visible');
+    currentAnalysis = null;
+}
+
+// Analyze with AI
+analyzeBtn.addEventListener('click', async () => {
+    if (!imageInput.files || imageInput.files.length === 0) {
+        alert('Veuillez d\'abord sélectionner une image.');
+        return;
+    }
+    
+    const btnText = analyzeBtn.querySelector('.btn-text');
+    const spinner = analyzeBtn.querySelector('.spinner');
+    
+    // Show loading state
+    btnText.textContent = 'Analyse en cours...';
+    spinner.style.display = 'inline-block';
+    analyzeBtn.disabled = true;
+    
+    try {
+        const formData = new FormData();
+        formData.append('image', imageInput.files[0]);
+        
+        const response = await fetch('/api/ai/analyze-problem', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            currentAnalysis = data.analysis;
+            displayAnalysisResult(data.analysis);
+        } else {
+            alert(data.error || 'Erreur lors de l\'analyse. Veuillez réessayer.');
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+        alert('Erreur de connexion. Veuillez réessayer.');
+    } finally {
+        btnText.textContent = '🔍 Analyser avec l\'IA';
+        spinner.style.display = 'none';
+        analyzeBtn.disabled = false;
+    }
+});
+
+// Display analysis result
+function displayAnalysisResult(analysis) {
+    // Sélectionner le type de service dans le dropdown
+    const serviceSelect = document.getElementById('ai_service_select');
+    if (serviceSelect) {
+        serviceSelect.value = analysis.type_service;
+    }
+    
+    // Remplir la description éditable
+    const descriptionEdit = document.getElementById('ai_description_edit');
+    if (descriptionEdit) {
+        descriptionEdit.value = analysis.description;
+    }
+    
+    // Sélectionner le niveau d'urgence
+    const urgenceSelect = document.getElementById('ai_urgence_select');
+    if (urgenceSelect) {
+        urgenceSelect.value = analysis.niveau_urgence;
+    }
+    
+    // Confidence badge
+    const confidenceBadge = document.getElementById('confidence_badge');
+    confidenceBadge.textContent = analysis.confidence + '% suggestion';
+    confidenceBadge.className = 'confidence-badge';
+    
+    if (analysis.confidence >= 75) {
+        confidenceBadge.classList.add('confidence-high');
+    } else if (analysis.confidence >= 50) {
+        confidenceBadge.classList.add('confidence-medium');
+    } else {
+        confidenceBadge.classList.add('confidence-low');
+    }
+    
+    aiResult.classList.add('visible');
+    appliedNotice.classList.remove('visible');
+    applyAiBtn.style.display = 'block';
+
+    // Afficher le fournisseur IA
+    const providerBadge = document.getElementById('ai_provider_badge');
+    if (providerBadge) {
+        let providerText = '';
+        switch (analysis.ai_provider) {
+            case 'ml_model_svm': providerText = '🧠 ML Model (SVM)'; break;
+            case 'local_clip': providerText = '🎯 CLIP Local'; break;
+            case 'huggingface_clip': providerText = '🎯 CLIP (HuggingFace)'; break;
+            case 'huggingface_blip': providerText = '📝 BLIP (HuggingFace)'; break;
+            case 'openai': providerText = '🧠 OpenAI Vision'; break;
+            case 'simulation_v2': providerText = '⚙️ Analyse basique'; break;
+            default: providerText = '🤖 IA';
+        }
+        providerBadge.textContent = providerText;
+        providerBadge.style.display = 'inline-block';
+        const isML = (analysis.ai_provider === 'ml_model_svm');
+        const isClip = (analysis.ai_provider === 'huggingface_clip' || analysis.ai_provider === 'local_clip');
+        providerBadge.style.background = isML ? '#dbeafe' : (isClip ? '#dcfce7' : '#fef9c3');
+        providerBadge.style.color = isML ? '#1e40af' : (isClip ? '#166534' : '#854d0e');
+    }
+}
+
+// Apply AI suggestions to form
+applyAiBtn.addEventListener('click', () => {
+    // Récupérer les valeurs des champs éditables
+    const selectedType = document.getElementById('ai_service_select').value;
+    const editedDescription = document.getElementById('ai_description_edit').value;
+    const selectedUrgence = document.getElementById('ai_urgence_select').value;
+    
+    // Apply service type
+    const serviceTypeInput = document.querySelector(`input[name="type_service"][value="${selectedType}"]`);
+    if (serviceTypeInput) {
+        serviceTypeInput.checked = true;
+        document.querySelectorAll('.service-type-option').forEach(o => o.classList.remove('selected'));
+        serviceTypeInput.closest('.service-type-option').classList.add('selected');
+    }
+    
+    // Apply description
+    const descriptionField = document.getElementById('description');
+    if (descriptionField && editedDescription) {
+        descriptionField.value = editedDescription;
+    }
+    
+    // Apply urgence level
+    const urgenceInput = document.querySelector(`input[name="niveau_urgence"][value="${selectedUrgence}"]`);
+    if (urgenceInput) {
+        urgenceInput.checked = true;
+        document.querySelectorAll('.urgence-option').forEach(o => o.classList.remove('selected'));
+        urgenceInput.closest('.urgence-option').classList.add('selected');
+    }
+    
+    // Auto-fill email and phone from user profile if fields are empty
+    const emailField = document.getElementById('senior_email');
+    const phoneField = document.getElementById('senior_telephone');
+    
+    if (emailField && !emailField.value && userProfileEmail) {
+        emailField.value = userProfileEmail;
+    }
+    if (phoneField && !phoneField.value && userProfilePhone) {
+        phoneField.value = userProfilePhone;
+    }
+    
+    // Show applied notice
+    appliedNotice.classList.add('visible');
+    applyAiBtn.style.display = 'none';
+    
+    // Scroll to form
+    document.querySelector('.form-section').scrollIntoView({ behavior: 'smooth' });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,221 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Fidélité - {{ user.fullName ?: user.email }} - Admin WANNASNI{% endblock %}
+
+{% block page_title %}🏆 Fidélité : {{ user.fullName ?: user.email }}{% endblock %}
+
+{% block content %}
+<style>
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--admin-primary-light);
+        text-decoration: none;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+    }
+    .back-link:hover { text-decoration: underline; }
+
+    .user-loyalty-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.25rem;
+        margin-bottom: 2rem;
+    }
+    .ul-stat {
+        background: var(--admin-card);
+        border-radius: var(--admin-radius);
+        padding: 1.5rem;
+        text-align: center;
+        border: 1px solid var(--admin-border);
+    }
+    .ul-stat-icon { font-size: 1.8rem; margin-bottom: 0.5rem; }
+    .ul-stat-value { font-size: 1.8rem; font-weight: 800; color: var(--admin-primary-light); }
+    .ul-stat-label { font-size: 0.85rem; color: var(--admin-text-muted); }
+
+    .level-info {
+        background: var(--admin-card);
+        border-radius: var(--admin-radius);
+        padding: 1.5rem;
+        border: 1px solid var(--admin-border);
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+    }
+    .level-emoji { font-size: 3rem; }
+    .level-name { font-size: 1.3rem; font-weight: 700; }
+    .level-progress-bar {
+        flex: 1;
+        height: 12px;
+        background: var(--admin-border);
+        border-radius: 20px;
+        overflow: hidden;
+    }
+    .level-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #F59E0B, #FBBF24);
+        border-radius: 20px;
+    }
+
+    .admin-section {
+        margin-bottom: 2rem;
+    }
+    .admin-section-title {
+        font-size: 1.2rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: var(--admin-text);
+    }
+
+    .admin-table {
+        width: 100%;
+        background: var(--admin-card);
+        border-radius: var(--admin-radius);
+        overflow: hidden;
+        border: 1px solid var(--admin-border);
+    }
+    .admin-table th {
+        background: rgba(59, 130, 246, 0.1);
+        padding: 0.85rem 1rem;
+        text-align: left;
+        font-weight: 600;
+        font-size: 0.8rem;
+        color: var(--admin-text-muted);
+        text-transform: uppercase;
+    }
+    .admin-table td {
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid var(--admin-border);
+        font-size: 0.9rem;
+    }
+
+    .pts-positive { color: #22C55E; font-weight: 700; }
+    .pts-negative { color: #EF4444; font-weight: 700; }
+
+    .reward-status {
+        display: inline-block;
+        padding: 0.2rem 0.65rem;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+    .reward-status.available { background: rgba(34, 197, 94, 0.15); color: #22C55E; }
+    .reward-status.redeemed { background: rgba(59, 130, 246, 0.15); color: #60A5FA; }
+    .reward-status.expired { background: rgba(239, 68, 68, 0.15); color: #EF4444; }
+</style>
+
+<a href="{{ path('admin_loyalty') }}" class="back-link">← Retour au Programme Fidélité</a>
+
+{# ─── Stats ───────────────────────────────────────────────────────── #}
+<div class="user-loyalty-grid">
+    <div class="ul-stat">
+        <div class="ul-stat-icon">⭐</div>
+        <div class="ul-stat-value">{{ data.totalPoints|number_format(0, '.', ' ') }}</div>
+        <div class="ul-stat-label">Points Total</div>
+    </div>
+    <div class="ul-stat">
+        <div class="ul-stat-icon">💰</div>
+        <div class="ul-stat-value">{{ data.monthlyEarned }}</div>
+        <div class="ul-stat-label">Ce Mois</div>
+    </div>
+    <div class="ul-stat">
+        <div class="ul-stat-icon">🔧</div>
+        <div class="ul-stat-value">{{ data.interventionCount }}</div>
+        <div class="ul-stat-label">Interventions</div>
+    </div>
+    <div class="ul-stat">
+        <div class="ul-stat-icon">🎁</div>
+        <div class="ul-stat-value">{{ data.availableRewardCount }}</div>
+        <div class="ul-stat-label">Récompenses</div>
+    </div>
+</div>
+
+{# ─── Level ───────────────────────────────────────────────────────── #}
+{% if data.level %}
+<div class="level-info">
+    <div class="level-emoji">{{ data.level.emoji|default('🥉') }}</div>
+    <div>
+        <div class="level-name">Niveau {{ data.level.current_level|default('Bronze') }}</div>
+        {% if data.level.next_level %}
+        <div style="font-size: 0.85rem; color: var(--admin-text-muted);">
+            {{ data.level.points_to_next }} points pour {{ data.level.next_level }}
+        </div>
+        {% endif %}
+    </div>
+    {% if data.level.next_level %}
+    <div class="level-progress-bar" style="flex: 1;">
+        <div class="level-fill" style="width: {{ data.level.progress }}%"></div>
+    </div>
+    {% endif %}
+</div>
+{% endif %}
+
+{# ─── History ─────────────────────────────────────────────────────── #}
+<div class="admin-section">
+    <h2 class="admin-section-title">📜 Historique des Points</h2>
+    {% if data.history|length > 0 %}
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Source</th>
+                <th>Description</th>
+                <th>Points</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for entry in data.history %}
+            <tr>
+                <td>{{ entry.earnedAt|date('d/m/Y H:i') }}</td>
+                <td>{{ entry.source }}</td>
+                <td>{{ entry.description|default('—') }}</td>
+                <td class="{{ entry.points > 0 ? 'pts-positive' : 'pts-negative' }}">
+                    {{ entry.points > 0 ? '+' : '' }}{{ entry.points }}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p style="color: var(--admin-text-muted); padding: 1.5rem;">Aucun historique.</p>
+    {% endif %}
+</div>
+
+{# ─── Rewards ─────────────────────────────────────────────────────── #}
+<div class="admin-section">
+    <h2 class="admin-section-title">🎁 Récompenses</h2>
+    {% set allRewards = data.availableRewards|merge(data.redeemedRewards) %}
+    {% if allRewards|length > 0 %}
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th>Type</th>
+                <th>Titre</th>
+                <th>Coût</th>
+                <th>Statut</th>
+                <th>IA Confiance</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for reward in allRewards %}
+            <tr>
+                <td>{{ reward.typeIcon }} {{ reward.typeLabel }}</td>
+                <td>{{ reward.title }}</td>
+                <td>{{ reward.pointsCost }} pts</td>
+                <td><span class="reward-status {{ reward.status }}">{{ reward.status }}</span></td>
+                <td>
+                    {% if reward.mlConfidence %}🤖 {{ (reward.mlConfidence * 100)|round }}%{% else %}—{% endif %}
+                </td>
+                <td>{{ reward.createdAt|date('d/m/Y') }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p style="color: var(--admin-text-muted); padding: 1.5rem;">Aucune récompense.</p>
+    {% endif %}
+</div>
+{% endblock %}

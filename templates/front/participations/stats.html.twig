@@ -1,0 +1,312 @@
+{% extends 'base_dashboard.html.twig' %}
+
+{% block title %}Statistiques de Participation - WANNASNI{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    :root {
+        --stats-primary: #059669;
+        --stats-secondary: #047857;
+        --stats-bg: #f0fdf4;
+        --stats-card: #ffffff;
+    }
+
+    .stats-wrapper {
+        min-height: 100vh;
+        padding: 2rem 1.5rem 4rem;
+        background: linear-gradient(180deg, var(--stats-bg) 0%, #f8fafc 30%);
+    }
+
+    .stats-container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--stats-primary);
+        text-decoration: none;
+        font-weight: 600;
+        margin-bottom: 2rem;
+        padding: 0.75rem 1.25rem;
+        border-radius: 50px;
+        background: white;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .header {
+        background: linear-gradient(135deg, var(--stats-primary), var(--stats-secondary));
+        border-radius: 20px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        color: white;
+    }
+
+    .header-title {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .header-subtitle {
+        opacity: 0.9;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: 16px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+        border-left: 5px solid var(--stats-primary);
+        text-align: center;
+    }
+
+    .stat-icon {
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+        color: #666;
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+        text-transform: uppercase;
+        font-weight: 600;
+    }
+
+    .stat-value {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--stats-primary);
+    }
+
+    .card {
+        background: white;
+        border-radius: 16px;
+        padding: 2rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+        margin-bottom: 2rem;
+    }
+
+    .card-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #1a1a2e;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid var(--stats-bg);
+    }
+
+    .status-list {
+        display: grid;
+        gap: 1rem;
+    }
+
+    .status-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem;
+        background: var(--stats-bg);
+        border-radius: 12px;
+    }
+
+    .status-name {
+        font-weight: 600;
+        color: #1a1a2e;
+    }
+
+    .status-count {
+        background: var(--stats-primary);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-weight: 700;
+    }
+
+    .feedback-section {
+        margin-top: 2rem;
+        padding-top: 2rem;
+        border-top: 2px solid var(--stats-bg);
+    }
+
+    .feedback-list {
+        display: grid;
+        gap: 1rem;
+    }
+
+    .feedback-item {
+        padding: 1rem;
+        background: var(--stats-bg);
+        border-radius: 12px;
+    }
+
+    .feedback-participant {
+        font-weight: 600;
+        color: #1a1a2e;
+        margin-bottom: 0.5rem;
+    }
+
+    .feedback-rating {
+        color: #ea580c;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .feedback-comment {
+        color: #666;
+        font-style: italic;
+    }
+
+    .average-rating {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1.5rem;
+        background: #fef3c7;
+        border-left: 5px solid #ea580c;
+        border-radius: 12px;
+        margin-bottom: 1.5rem;
+    }
+
+    .average-rating-icon {
+        font-size: 2.5rem;
+    }
+
+    .average-rating-text {
+        flex: 1;
+    }
+
+    .average-rating-label {
+        color: #92400e;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        font-weight: 600;
+    }
+
+    .average-rating-value {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #dc2626;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 2rem;
+        color: #999;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="stats-wrapper">
+    <div class="stats-container">
+        <a href="{{ path('app_my_activities', {'_locale': app.request.locale}) }}" class="back-link">
+            ← Retour aux activités
+        </a>
+
+        <div class="header">
+            <h1 class="header-title">📊 Mes Statistiques de Participation</h1>
+            <p class="header-subtitle">Participations et retours d'expérience</p>
+        </div>
+
+        <!-- Overview Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">👥</div>
+                <div class="stat-label">Total Participations</div>
+                <div class="stat-value">{{ participations|length }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">💬</div>
+                <div class="stat-label">Avec Retour</div>
+                <div class="stat-value">{{ withFeedback|length }}</div>
+            </div>
+            {% if averageRating %}
+            <div class="stat-card">
+                <div class="stat-icon">⭐</div>
+                <div class="stat-label">Note Moyenne</div>
+                <div class="stat-value">{{ averageRating|round(1) }}</div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Status Breakdown -->
+        <div class="card">
+            <h2 class="card-title">📋 État des Participations</h2>
+            <div class="status-list">
+                {% for status in statusCounts %}
+                <div class="status-item">
+                    <span class="status-name">
+                        {% if status.status == 'inscrit' %}
+                            ✓ Inscrit
+                        {% elseif status.status == 'présent' %}
+                            ✓ Présent
+                        {% elseif status.status == 'absent_excusé' %}
+                            ⚠ Absent (excusé)
+                        {% else %}
+                            ✗ Absent
+                        {% endif %}
+                    </span>
+                    <span class="status-count">{{ status.count }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Feedback & Ratings -->
+        {% if withFeedback|length > 0 %}
+        <div class="card">
+            <h2 class="card-title">💭 Retours d'Expérience</h2>
+            
+            {% if averageRating %}
+            <div class="average-rating">
+                <div class="average-rating-icon">⭐</div>
+                <div class="average-rating-text">
+                    <div class="average-rating-label">Évaluation Moyenne</div>
+                    <div class="average-rating-value">{{ averageRating|round(1) }}/5</div>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="feedback-section">
+                <h3 style="margin-bottom: 1rem; font-weight: 700; color: #1a1a2e;">Commentaires et Évaluations</h3>
+                <div class="feedback-list">
+                    {% for feedback in withFeedback %}
+                    <div class="feedback-item">
+                        {% if feedback.feedbackRating %}
+                        <div class="feedback-rating">
+                            ⭐ {{ feedback.feedbackRating }}/5
+                        </div>
+                        {% endif %}
+                        {% if feedback.feedbackComment %}
+                        <div class="feedback-comment">
+                            "{{ feedback.feedbackComment }}"
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="card">
+            <div class="empty-state">
+                <p style="font-size: 1.2rem; margin-bottom: 0.5rem;">Aucun retour d'expérience</p>
+                <p>Les participants du groupe n'ont pas encore fourni de commentaires.</p>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

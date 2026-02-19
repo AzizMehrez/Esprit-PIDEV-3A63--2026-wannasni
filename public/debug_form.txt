@@ -1,0 +1,578 @@
+--- New Submission ---
+Inputs: Array
+(
+    [type_service] => transport
+    [description] => fjnjud
+    [senior_telephone] => +21627750877
+    [senior_email] => azizmehrez050@gmail.com
+    [adresse] => tunisia,ariana
+    [ville] => ariana
+    [code_postal] => 2040
+    [niveau_urgence] => normale
+    [date_souhaitee] => 2026-02-14
+    [budget_minimum] => 1
+    [budget_maximum] => 1000
+    [notifier_proches] => 
+)
+
+Errors: Array
+(
+    [0] => Le numéro de téléphone doit contenir exactement 8 chiffres.
+)
+
+--- New Submission ---
+Inputs: Array
+(
+    [type_service] => transport
+    [description] => hdcnhndv
+    [senior_telephone] => +21627750877
+    [senior_email] => azizmehrez050@gmail.com
+    [adresse] => tunisia,ariana
+    [ville] => ariana
+    [code_postal] => 2040
+    [niveau_urgence] => normale
+    [date_souhaitee] => 2026-02-14
+    [budget_minimum] => 1
+    [budget_maximum] => 1000
+    [notifier_proches] => 
+)
+
+Errors: Array
+(
+    [0] => Le numéro de téléphone doit contenir exactement 8 chiffres.
+)
+
+--- New Submission ---
+Inputs: Array
+(
+    [type_service] => transport
+    [description] => hdcnhndv
+    [senior_telephone] => 27750877
+    [senior_email] => azizmehrez050@gmail.com
+    [adresse] => tunisia,ariana
+    [ville] => ariana
+    [code_postal] => 2040
+    [niveau_urgence] => normale
+    [date_souhaitee] => 2026-02-14
+    [budget_minimum] => 1
+    [budget_maximum] => 1000
+    [notifier_proches] => 
+)
+
+Errors: Array
+(
+)
+
+--- New Submission ---
+Inputs: Array
+(
+    [type_service] => courses
+    [description] => fffffffffff
+    [senior_telephone] => 27750877
+    [senior_email] => fff
+    [adresse] => tunisia,ariana
+    [ville] => ariana
+    [code_postal] => 2040
+    [niveau_urgence] => urgente
+    [date_souhaitee] => 2026-02-14
+    [budget_minimum] => 1
+    [budget_maximum] => 1000
+    [notifier_proches] => 
+)
+
+Errors: Array
+(
+    [0] => L'adresse email n'est pas valide.
+)
+
+--- New Submission ---
+Inputs: Array
+(
+    [type_service] => transport
+    [description] => zddsq
+    [senior_telephone] => +21627750877
+    [senior_email] => azizmehrez050@gmail.com
+    [adresse] => tunisia,ariana
+    [ville] => ariana
+    [code_postal] => 2040
+    [niveau_urgence] => urgente
+    [date_souhaitee] => 2026-02-14
+    [budget_minimum] => 1
+    [budget_maximum] => 1000
+    [notifier_proches] => 
+)
+
+Errors: Array
+(
+    [0] => Le numéro de téléphone doit contenir exactement 8 chiffres.
+)
+
+--- New Submission ---
+Inputs: Array
+(
+    [type_service] => transport
+    [description] => zddsq
+    [senior_telephone] => 27750877
+    [senior_email] => azizmehrez050@gmail.com
+    [adresse] => tunisia,ariana
+    [ville] => ariana
+    [code_postal] => 2040
+    [niveau_urgence] => urgente
+    [date_souhaitee] => 2026-02-14
+    [budget_minimum] => 1
+    [budget_maximum] => 1000
+    [notifier_proches] => 
+)
+
+Errors: Array
+(
+)
+
+--- New Submission ---
+Inputs: Array
+(
+    [type_service] => transport
+    [description] => test 
+    [senior_telephone] => 53454568
+    [senior_email] => koussay.bk2004@gmail.com
+    [adresse] => el gazeella 
+    [ville] => tunis
+    [code_postal] => 31313
+    [niveau_urgence] => urgente
+    [date_souhaitee] => 2026-02-19
+    [budget_minimum] => 50
+    [budget_maximum] => 1
+    [notifier_proches] => 1
+)
+
+Errors: Array
+(
+    [0] => Le budget minimum doit être inférieur au budget maximum.
+)
+
+--- New Submission ---
+Inputs: Array
+(
+    [type_service] => transport
+    [description] => test 
+    [senior_telephone] => 53454568
+    [senior_email] => koussay.bk2004@gmail.com
+    [adresse] => el gazeella 
+    [ville] => tunis
+    [code_postal] => 31313
+    [niveau_urgence] => urgente
+    [date_souhaitee] => 2026-02-19
+    [budget_minimum] => 50
+    [budget_maximum] => 1000
+    [notifier_proches] => 1
+)
+
+Errors: Array
+(
+)
+
+--- New Submission ---
+Inputs: Array
+(
+    [type_service] => menage
+    [description] => dar da5la ba3atha 
+    [senior_telephone] => 21908230
+    [senior_email] => koussay.bk2004@gmail.com
+    [adresse] => el gazeella 
+    [ville] => tunis
+    [code_postal] => 2010
+    [niveau_urgence] => urgente
+    [date_souhaitee] => 2026-02-14
+    [budget_minimum] => 200
+    [budget_maximum] => 500
+    [notifier_proches] => 1
+)
+
+Errors: Array
+(
+)
+
+--- New Submission ---
+Inputs: Array
+(
+    [type_service] => electricite
+    [description] => Problème électrique identifié : câblage, prise ou éclairage défectueux.
+    [senior_telephone] => 53729619
+    [senior_email] => KOUSSAY.bk2004@gmail.com
+    [adresse] => el gazeella 
+    [ville] => tunis
+    [code_postal] => pp1000
+    [niveau_urgence] => urgente
+    [date_souhaitee] => 2026-02-27
+    [budget_minimum] => 20
+    [budget_maximum] => 10000
+    [notifier_proches] => 1
+)
+
+Errors: Array
+(
+)
+
+--- New Submission ---
+Inputs: Array
+(
+    [type_service] => menage
+    [description] => Service de ménage recommandé : nettoyage et rangement à effectuer.
+    [senior_telephone] => 53729619
+    [senior_email] => KOUSSAY.bk2004@gmail.com
+    [adresse] => el gazeella 
+    [ville] => jandouba
+    [code_postal] => 4564
+    [niveau_urgence] => normale
+    [date_souhaitee] => 
+    [budget_minimum] => 1
+    [budget_maximum] => 1502
+    [notifier_proches] => 
+)
+
+Errors: Array
+(
+)
+
+--- New Submission ---
+Inputs: Array
+(
+    [type_service] => electricite
+    [description] => fdsfsd
+    [senior_telephone] => 
+    [senior_email] => 
+    [adresse] => el gazeella 
+    [ville] => tunis
+    [code_postal] => 111313
+    [niveau_urgence] => urgente
+    [date_souhaitee] => 2026-02-21
+    [budget_minimum] => 10
+    [budget_maximum] => 150
+    [notifier_proches] => 1
+)
+
+Errors: Array
+(
+    [0] => Le numéro de téléphone est requis.
+)
+
+--- New Submission ---
+Inputs: Array
+(
+    [type_service] => electricite
+    [description] => fdsfsd
+    [senior_telephone] => 53454568
+    [senior_email] => koussay.bk2004@gmail.com
+    [adresse] => el gazeella 
+    [ville] => tunis
+    [code_postal] => 111313
+    [niveau_urgence] => urgente
+    [date_souhaitee] => 2026-02-21
+    [budget_minimum] => 10
+    [budget_maximum] => 150
+    [notifier_proches] => 1
+)
+
+Errors: Array
+(
+)
+
+--- New Submission ---
+Inputs: Array
+(
+    [type_service] => transport
+    [description] => fyjg
+    [senior_telephone] => 53454568
+    [senior_email] => koussay@gmail.com
+    [adresse] => el gazeella 
+    [ville] => tunis
+    [code_postal] => 31313
+    [niveau_urgence] => normale
+    [date_souhaitee] => 2026-03-06
+    [budget_minimum] => 1
+    [budget_maximum] => 150
+    [notifier_proches] => 
+)
+
+Errors: Array
+(
+    [0] => Vous avez déjà utilisé votre essai gratuit. Un abonnement est requis pour continuer à utiliser nos services.
+)
+
+--- New Submission ---
+Inputs: Array
+(
+    [type_service] => plomberie
+    [description] => fgf
+    [senior_telephone] => 45789321
+    [senior_email] => koussay.bk2004@gmail.com
+    [adresse] => el gazeella 
+    [ville] => tunis
+    [code_postal] => 65646
+    [niveau_urgence] => urgente
+    [date_souhaitee] => 2026-02-26
+    [budget_minimum] => 1
+    [budget_maximum] => 77
+    [notifier_proches] => 
+)
+
+Errors: Array
+(
+    [0] => Vous avez déjà utilisé votre essai gratuit. Un abonnement est requis pour continuer à utiliser nos services.
+)
+
+--- New Submission ---
+Inputs: Array
+(
+    [type_service] => electricite
+    [description] => gfdg
+    [senior_telephone] => 53454568
+    [senior_email] => yassineabdellatif53@gmail.com
+    [adresse] => el gazeella 
+    [ville] => jandouba
+    [code_postal] => 65646
+    [niveau_urgence] => urgente
+    [date_souhaitee] => 2026-02-25
+    [budget_minimum] => 10
+    [budget_maximum] => 44444
+    [notifier_proches] => 
+)
+
+Errors: Array
+(
+)
+
+--- New Submission ---
+Inputs: Array
+(
+    [type_service] => courses
+    [description] => kljlk
+    [senior_telephone] => 53454568
+    [senior_email] => koussay.bk2004@gmail.com
+    [adresse] => el gazeella 
+    [ville] => tunis
+    [code_postal] => pp1000
+    [niveau_urgence] => urgente
+    [date_souhaitee] => 2026-02-20
+    [budget_minimum] => 10
+    [budget_maximum] => 23132
+    [notifier_proches] => 
+)
+
+Errors: Array
+(
+    [0] => Vous avez déjà utilisé votre essai gratuit. Un abonnement est requis pour continuer à utiliser nos services.
+)
+
+--- New Submission ---
+Inputs: Array
+(
+    [type_service] => plomberie
+    [description] => jkhjk
+    [senior_telephone] => 53454568
+    [senior_email] => koussay.bk2004@gmail.com
+    [adresse] => el gazeella 
+    [ville] => tunis
+    [code_postal] => 65646
+    [niveau_urgence] => urgente
+    [date_souhaitee] => 2026-02-21
+    [budget_minimum] => 54
+    [budget_maximum] => 5555
+    [notifier_proches] => 
+)
+
+Errors: Array
+(
+)
+
+--- New Submission ---
+Inputs: Array
+(
+    [type_service] => courses
+    [description] => fgfd
+    [senior_telephone] => 53454568
+    [senior_email] => koussay.bk2004@gmail.com
+    [adresse] => el gazeella 
+    [ville] => tunis
+    [code_postal] => 100
+    [niveau_urgence] => urgente
+    [date_souhaitee] => 2026-02-18
+    [budget_minimum] => 156
+    [budget_maximum] => 64656
+    [notifier_proches] => 
+)
+
+Errors: Array
+(
+)
+
+--- New Submission ---
+Inputs: Array
+(
+    [type_service] => electricite
+    [description] => cgfd
+    [senior_telephone] => 45789321
+    [senior_email] => koussay.bk2004@gmail.com
+    [adresse] => el gazeella 
+    [ville] => jandouba
+    [code_postal] => 111313
+    [niveau_urgence] => urgente
+    [date_souhaitee] => 2026-02-20
+    [budget_minimum] => 1
+    [budget_maximum] => 14
+    [notifier_proches] => 
+)
+
+Errors: Array
+(
+    [0] => Vous avez déjà utilisé votre essai gratuit. Un abonnement est requis pour continuer à utiliser nos services.
+)
+
+--- New Submission ---
+Inputs: Array
+(
+    [type_service] => electricite
+    [description] => bnvbn
+    [senior_telephone] => 53454568
+    [senior_email] => koussay.bk2004@gmail.com
+    [adresse] => el gazeella 
+    [ville] => jandouba
+    [code_postal] => 15161
+    [niveau_urgence] => urgente
+    [date_souhaitee] => 2026-02-25
+    [budget_minimum] => 15
+    [budget_maximum] => 1000
+    [notifier_proches] => 
+)
+
+Errors: Array
+(
+    [0] => Votre période d'essai est terminée. Pour continuer à bénéficier de l'ensemble de nos services, veuillez souscrire à l'une de nos formules d'abonnement.
+)
+
+--- New Submission ---
+Inputs: Array
+(
+    [type_service] => electricite
+    [description] => rtetert
+    [senior_telephone] => 53454568
+    [senior_email] => koussay.bk2004@gmail.com
+    [adresse] => el gazeella 
+    [ville] => jandouba
+    [code_postal] => 4564
+    [niveau_urgence] => urgente
+    [date_souhaitee] => 2026-02-20
+    [budget_minimum] => 1
+    [budget_maximum] => 5000
+    [notifier_proches] => 1
+)
+
+Errors: Array
+(
+)
+
+--- New Submission ---
+Inputs: Array
+(
+    [type_service] => menage
+    [description] => Service de ménage recommandé : nettoyage et rangement à effectuer.
+    [senior_telephone] => 53729619
+    [senior_email] => KOUSSAY.bk2004@gmail.com
+    [adresse] => el gazeella 
+    [ville] => tunis
+    [code_postal] => 100
+    [niveau_urgence] => normale
+    [date_souhaitee] => 2026-02-20
+    [budget_minimum] => 1
+    [budget_maximum] => 10000
+    [notifier_proches] => 1
+)
+
+Errors: Array
+(
+)
+
+--- New Submission ---
+Inputs: Array
+(
+    [type_service] => plomberie
+    [description] => fh
+    [senior_telephone] => 53454568
+    [senior_email] => koussay.bk2004@gmail.com
+    [adresse] => el gazeella 
+    [ville] => tunis
+    [code_postal] => pp1000
+    [niveau_urgence] => urgente
+    [date_souhaitee] => 2026-02-21
+    [budget_minimum] => 1
+    [budget_maximum] => 1000
+    [notifier_proches] => 1
+)
+
+Errors: Array
+(
+)
+
+--- New Submission ---
+Inputs: Array
+(
+    [type_service] => electricite
+    [description] => dsqdqsd
+    [senior_telephone] => 53454568
+    [senior_email] => koussay.bk2004@gmail.com
+    [adresse] => el gazeella 
+    [ville] => jandouba
+    [code_postal] => 31313
+    [niveau_urgence] => urgente
+    [date_souhaitee] => 2026-02-19
+    [budget_minimum] => 10
+    [budget_maximum] => 1000
+    [notifier_proches] => 1
+)
+
+Errors: Array
+(
+)
+
+--- New Submission ---
+Inputs: Array
+(
+    [type_service] => menage
+    [description] => Service de ménage recommandé : nettoyage et rangement à effectuer.
+    [senior_telephone] => 53729619
+    [senior_email] => yassinabdellatif53@gmail.com
+    [adresse] => el gazeella 
+    [ville] => tunis
+    [code_postal] => 65646
+    [niveau_urgence] => normale
+    [date_souhaitee] => 2026-02-28
+    [budget_minimum] => 10
+    [budget_maximum] => 1000
+    [notifier_proches] => 1
+)
+
+Errors: Array
+(
+)
+
+--- New Submission ---
+Inputs: Array
+(
+    [type_service] => electricite
+    [description] => Problème électrique identifié : câblage, prise ou éclairage défectueux.
+    [senior_telephone] => 53729619
+    [senior_email] => yassinabdellatif53@gmail.com
+    [adresse] => el gazeella 
+    [ville] => jandouba
+    [code_postal] => 4564
+    [niveau_urgence] => urgente
+    [date_souhaitee] => 2026-02-21
+    [budget_minimum] => 1
+    [budget_maximum] => 1000
+    [notifier_proches] => 
+)
+
+Errors: Array
+(
+)
+

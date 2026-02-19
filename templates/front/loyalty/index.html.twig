@@ -1,0 +1,750 @@
+{% extends 'base_dashboard.html.twig' %}
+
+{% block title %}Programme Fidélité - WANNASNI{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    :root {
+        --dash-primary: #2E7D32;
+        --dash-primary-light: #4CAF50;
+        --dash-primary-soft: rgba(46, 125, 50, 0.08);
+        --dash-accent: #FF6B35;
+        --dash-bg: #f8faf8;
+        --dash-card: #ffffff;
+        --dash-text: #1a1a2e;
+        --dash-text-muted: #64748b;
+        --dash-border: #e2e8f0;
+        --dash-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+        --dash-radius: 20px;
+        --dash-radius-sm: 12px;
+        --gold: #F59E0B;
+        --gold-light: #FEF3C7;
+    }
+    body { background: var(--dash-bg); }
+
+    .loyalty-wrapper {
+        min-height: 100vh;
+        padding: 2rem 1.5rem 4rem;
+        background: linear-gradient(180deg, #f0f7f0 0%, var(--dash-bg) 30%);
+    }
+    .loyalty-container { max-width: 1200px; margin: 0 auto; }
+
+    /* Hero Banner */
+    .loyalty-hero {
+        background: linear-gradient(135deg, #1b5e20 0%, var(--dash-primary) 50%, var(--gold) 100%);
+        border-radius: var(--dash-radius);
+        padding: 2.5rem;
+        margin-bottom: 2rem;
+        color: white;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 8px 40px rgba(46, 125, 50, 0.25);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .loyalty-hero::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -20%;
+        width: 400px;
+        height: 400px;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
+        border-radius: 50%;
+    }
+    .loyalty-hero-left h1 {
+        font-family: 'Playfair Display', serif;
+        font-size: 2.2rem;
+        margin-bottom: 0.5rem;
+    }
+    .loyalty-hero-left p { opacity: 0.9; font-size: 1.1rem; }
+    .loyalty-hero-right {
+        text-align: center;
+        position: relative;
+        z-index: 1;
+    }
+    .points-display {
+        font-size: 3.5rem;
+        font-weight: 800;
+        line-height: 1;
+        text-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    }
+    .points-label {
+        font-size: 1rem;
+        opacity: 0.85;
+        margin-top: 0.25rem;
+    }
+
+    /* Level Badge */
+    .level-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: rgba(255,255,255,0.2);
+        backdrop-filter: blur(10px);
+        padding: 0.5rem 1.25rem;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 1rem;
+        margin-top: 1rem;
+    }
+    .level-emoji { font-size: 1.5rem; }
+
+    /* Progress Bar */
+    .level-progress-wrap {
+        margin-top: 1rem;
+        background: rgba(255,255,255,0.15);
+        border-radius: 20px;
+        height: 10px;
+        overflow: hidden;
+        max-width: 300px;
+    }
+    .level-progress-bar {
+        height: 100%;
+        background: linear-gradient(90deg, var(--gold), #FBBF24);
+        border-radius: 20px;
+        transition: width 1s ease;
+    }
+    .level-progress-text {
+        font-size: 0.85rem;
+        opacity: 0.8;
+        margin-top: 0.35rem;
+    }
+
+    /* Stats Grid */
+    .loyalty-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 1.25rem;
+        margin-bottom: 2rem;
+    }
+    .stat-card {
+        background: white;
+        border-radius: var(--dash-radius-sm);
+        padding: 1.5rem;
+        box-shadow: var(--dash-shadow);
+        text-align: center;
+        transition: transform 0.2s;
+    }
+    .stat-card:hover { transform: translateY(-4px); }
+    .stat-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+    .stat-value { font-size: 2rem; font-weight: 800; color: var(--dash-text); }
+    .stat-label { font-size: 0.9rem; color: var(--dash-text-muted); margin-top: 0.25rem; }
+
+    /* Section */
+    .loyalty-section {
+        margin-bottom: 2rem;
+    }
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.25rem;
+    }
+    .section-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.5rem;
+        color: var(--dash-text);
+    }
+    .section-link {
+        color: var(--dash-primary);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.95rem;
+    }
+    .section-link:hover { text-decoration: underline; }
+
+    /* Rewards Grid */
+    .rewards-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 1.25rem;
+    }
+    .reward-card {
+        background: white;
+        border-radius: var(--dash-radius);
+        padding: 1.75rem;
+        box-shadow: var(--dash-shadow);
+        border: 2px solid transparent;
+        transition: all 0.3s;
+        position: relative;
+        overflow: hidden;
+    }
+    .reward-card:hover {
+        border-color: var(--dash-primary);
+        transform: translateY(-4px);
+        box-shadow: 0 8px 32px rgba(46, 125, 50, 0.15);
+    }
+    .reward-card.discount { border-left: 4px solid #3B82F6; }
+    .reward-card.free_maintenance { border-left: 4px solid #22C55E; }
+    .reward-card.plan_upgrade { border-left: 4px solid var(--gold); }
+
+    .reward-icon { font-size: 2.5rem; margin-bottom: 0.75rem; }
+    .reward-type-badge {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+    }
+    .reward-type-badge.discount { background: #DBEAFE; color: #1D4ED8; }
+    .reward-type-badge.free_maintenance { background: #DCFCE7; color: #166534; }
+    .reward-type-badge.plan_upgrade { background: var(--gold-light); color: #92400E; }
+
+    .reward-title {
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: var(--dash-text);
+        margin-bottom: 0.5rem;
+    }
+    .reward-desc {
+        font-size: 0.9rem;
+        color: var(--dash-text-muted);
+        line-height: 1.5;
+        margin-bottom: 1rem;
+    }
+    .reward-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .reward-cost {
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+        font-weight: 700;
+        color: var(--dash-primary);
+    }
+    .reward-cost-icon { font-size: 1.1rem; }
+
+    .reward-ml-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        background: #F0FDF4;
+        color: #166534;
+        padding: 0.2rem 0.6rem;
+        border-radius: 50px;
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+
+    .btn-redeem {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.65rem 1.5rem;
+        background: linear-gradient(135deg, var(--dash-primary), var(--dash-primary-light));
+        color: white;
+        border: none;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    .btn-redeem:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 20px rgba(46, 125, 50, 0.3);
+    }
+    .btn-redeem:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    /* History */
+    .history-list {
+        background: white;
+        border-radius: var(--dash-radius);
+        box-shadow: var(--dash-shadow);
+        overflow: hidden;
+    }
+    .history-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid var(--dash-border);
+        transition: background 0.2s;
+    }
+    .history-item:last-child { border-bottom: none; }
+    .history-item:hover { background: #f8faf8; }
+    .history-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+        flex-shrink: 0;
+    }
+    .history-icon.earned { background: #DCFCE7; }
+    .history-icon.spent { background: #FEE2E2; }
+    .history-info { flex: 1; }
+    .history-desc { font-weight: 600; color: var(--dash-text); font-size: 0.95rem; }
+    .history-date { font-size: 0.8rem; color: var(--dash-text-muted); }
+    .history-points { font-weight: 800; font-size: 1.1rem; }
+    .history-points.positive { color: #22C55E; }
+    .history-points.negative { color: #EF4444; }
+
+    /* Points Breakdown Chart */
+    .points-chart {
+        background: white;
+        border-radius: var(--dash-radius);
+        padding: 1.5rem;
+        box-shadow: var(--dash-shadow);
+    }
+    .chart-bar-container {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        margin-top: 1rem;
+    }
+    .chart-bar-row {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    .chart-bar-label {
+        width: 120px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--dash-text);
+    }
+    .chart-bar-wrap {
+        flex: 1;
+        height: 24px;
+        background: #f1f5f9;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+    .chart-bar-fill {
+        height: 100%;
+        border-radius: 12px;
+        transition: width 1s ease;
+        min-width: 4px;
+    }
+    .chart-bar-fill.intervention { background: linear-gradient(90deg, #3B82F6, #60A5FA); }
+    .chart-bar-fill.subscription { background: linear-gradient(90deg, #8B5CF6, #A78BFA); }
+    .chart-bar-fill.activity { background: linear-gradient(90deg, #22C55E, #4ADE80); }
+    .chart-bar-fill.bonus { background: linear-gradient(90deg, var(--gold), #FBBF24); }
+    .chart-bar-value {
+        width: 60px;
+        text-align: right;
+        font-weight: 700;
+        font-size: 0.9rem;
+        color: var(--dash-text-muted);
+    }
+
+    /* Two column layout */
+    .loyalty-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 1.5rem;
+    }
+
+    /* Empty state */
+    .empty-state {
+        text-align: center;
+        padding: 3rem 2rem;
+        color: var(--dash-text-muted);
+    }
+    .empty-state-icon { font-size: 3rem; margin-bottom: 1rem; }
+    .empty-state p { font-size: 1.05rem; }
+
+    /* Flash Messages */
+    .flash-msg {
+        padding: 1rem 1.5rem;
+        border-radius: var(--dash-radius-sm);
+        margin-bottom: 1rem;
+        font-weight: 600;
+    }
+    .flash-msg.success { background: #DCFCE7; color: #166534; }
+    .flash-msg.error { background: #FEE2E2; color: #991B1B; }
+
+    /* Generate Button */
+    .btn-generate {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        background: linear-gradient(135deg, var(--gold), #D97706);
+        color: white;
+        border: none;
+        border-radius: 50px;
+        font-weight: 700;
+        cursor: pointer;
+        font-size: 0.95rem;
+        transition: all 0.3s;
+    }
+    .btn-generate:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 20px rgba(245, 158, 11, 0.4);
+    }
+
+    @media (max-width: 900px) {
+        .loyalty-grid { grid-template-columns: 1fr; }
+        .loyalty-hero { flex-direction: column; text-align: center; gap: 1.5rem; }
+        .rewards-grid { grid-template-columns: 1fr; }
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="loyalty-wrapper">
+    <div class="loyalty-container">
+
+        {# Flash Messages #}
+        {% for type, messages in app.flashes %}
+            {% for message in messages %}
+                <div class="flash-msg {{ type }}">{{ message }}</div>
+            {% endfor %}
+        {% endfor %}
+
+        {# ─── Hero Banner ─────────────────────────────────────────────── #}
+        <div class="loyalty-hero">
+            <div class="loyalty-hero-left">
+                <h1>🏆 Programme Fidélité</h1>
+                <p>Gagnez des points à chaque intervention et échangez-les contre des récompenses personnalisées !</p>
+                {% if data.level %}
+                <div class="level-badge">
+                    <span class="level-emoji">{{ data.level.emoji|default('🥉') }}</span>
+                    Niveau {{ data.level.current_level|default('Bronze') }}
+                </div>
+                {% if data.level.next_level %}
+                <div class="level-progress-wrap">
+                    <div class="level-progress-bar" style="width: {{ data.level.progress|default(0) }}%"></div>
+                </div>
+                <div class="level-progress-text">
+                    {{ data.level.points_to_next|default(0) }} points pour atteindre {{ data.level.next_level }}
+                </div>
+                {% endif %}
+                {% endif %}
+            </div>
+            <div class="loyalty-hero-right">
+                <div class="points-display">{{ data.totalPoints|default(0)|number_format(0, '.', ' ') }}</div>
+                <div class="points-label">Points de fidélité</div>
+            </div>
+        </div>
+
+        {# ─── Stats Cards ─────────────────────────────────────────────── #}
+        <div class="loyalty-stats">
+            <div class="stat-card">
+                <div class="stat-icon">💰</div>
+                <div class="stat-value">{{ data.monthlyEarned|default(0) }}</div>
+                <div class="stat-label">Points ce mois</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🔧</div>
+                <div class="stat-value">{{ data.interventionCount|default(0) }}</div>
+                <div class="stat-label">Interventions récompensées</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🎁</div>
+                <div class="stat-value">{{ data.availableRewardCount|default(0) }}</div>
+                <div class="stat-label">Récompenses disponibles</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">✅</div>
+                <div class="stat-value">{{ data.redeemedRewards|length }}</div>
+                <div class="stat-label">Récompenses échangées</div>
+            </div>
+        </div>
+
+        {# ─── Available Rewards ───────────────────────────────────────── #}
+        <div class="loyalty-section">
+            <div class="section-header">
+                <h2 class="section-title">🎁 Récompenses Personnalisées (IA)</h2>
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <button id="btn-generate-ai" class="btn-generate" onclick="generateAIReward()">
+                        🤖 Générer avec l'IA
+                    </button>
+                    <a href="{{ path('app_loyalty_rewards', {'_locale': app.request.locale}) }}" class="section-link">Voir tout →</a>
+                </div>
+            </div>
+            {# AI generation feedback #}
+            <div id="ai-feedback" style="display:none; margin-bottom: 1rem; padding: 1rem 1.5rem; border-radius: var(--dash-radius-sm); font-size: 0.95rem;"></div>
+
+            {% if data.availableRewards|length > 0 %}
+            <div class="rewards-grid">
+                {% for reward in data.availableRewards %}
+                <div class="reward-card {{ reward.type }}">
+                    <div class="reward-icon">{{ reward.typeIcon }}</div>
+                    <span class="reward-type-badge {{ reward.type }}">{{ reward.typeLabel }}</span>
+                    {% if reward.mlConfidence %}
+                    <span class="reward-ml-badge">🤖 IA {{ (reward.mlConfidence * 100)|round }}%</span>
+                    {% endif %}
+                    <div class="reward-title">{{ reward.title }}</div>
+                    <div class="reward-desc">{{ reward.description }}</div>
+                    <div class="reward-meta">
+                        <div class="reward-cost">
+                            <span class="reward-cost-icon">⭐</span>
+                            {{ reward.pointsCost }} points
+                        </div>
+                        {% if reward.isRedeemable and data.totalPoints >= reward.pointsCost %}
+                        <form method="post" action="{{ path('app_loyalty_redeem', {'_locale': app.request.locale, 'id': reward.id}) }}" style="display:inline">
+                            <button type="submit" class="btn-redeem" onclick="return confirm('Échanger {{ reward.pointsCost }} points pour cette récompense ?')">
+                                🎉 Échanger
+                            </button>
+                        </form>
+                        {% else %}
+                        <button class="btn-redeem" disabled title="Points insuffisants">
+                            🔒 {{ reward.pointsCost }} pts requis
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="empty-state" style="background: white; border-radius: var(--dash-radius); box-shadow: var(--dash-shadow);">
+                <div class="empty-state-icon">🎯</div>
+                <p>Continuez à utiliser nos services pour débloquer des récompenses personnalisées par notre IA !</p>
+                <p style="margin-top: 0.5rem; font-size: 0.9rem;">Les récompenses sont automatiquement générées selon votre profil.</p>
+            </div>
+            {% endif %}
+        </div>
+
+        {# ─── How to Exchange Points ──────────────────────────────────── #}
+        <div class="loyalty-section">
+            <h2 class="section-title">💱 Comment échanger vos points ?</h2>
+            <div style="background: white; border-radius: var(--dash-radius); padding: 2rem; box-shadow: var(--dash-shadow); margin-bottom: 1.5rem;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
+                    <div style="text-align: center; padding: 1rem;">
+                        <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">⭐</div>
+                        <h4 style="color: var(--dash-text); margin-bottom: 0.5rem;">Accumulez des points</h4>
+                        <p style="color: var(--dash-text-muted); font-size: 0.9rem;">Chaque intervention complétée vous rapporte <strong>50+ points</strong>. Les abonnements et activités en donnent aussi !</p>
+                    </div>
+                    <div style="text-align: center; padding: 1rem;">
+                        <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🤖</div>
+                        <h4 style="color: var(--dash-text); margin-bottom: 0.5rem;">L'IA vous propose</h4>
+                        <p style="color: var(--dash-text-muted); font-size: 0.9rem;">Notre IA analyse votre profil et génère des <strong>récompenses personnalisées</strong> adaptées à vos besoins.</p>
+                    </div>
+                    <div style="text-align: center; padding: 1rem;">
+                        <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🎉</div>
+                        <h4 style="color: var(--dash-text); margin-bottom: 0.5rem;">Échangez !</h4>
+                        <p style="color: var(--dash-text-muted); font-size: 0.9rem;">Cliquez sur <strong>"Échanger"</strong> sur n'importe quelle récompense si vous avez assez de points.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# ─── Reward Catalog: What you can get ───────────────────────── #}
+        {% if catalog is defined and catalog.catalog is defined %}
+        <div class="loyalty-section">
+            <div class="section-header">
+                <h2 class="section-title">🛒 Catalogue des Récompenses</h2>
+                <span style="background: linear-gradient(135deg, #8B5CF6, #6D28D9); color: white; padding: 0.3rem 1rem; border-radius: 50px; font-size: 0.8rem; font-weight: 600;">🤖 Propulsé par IA</span>
+            </div>
+
+            {# Rewards the user CAN redeem now #}
+            {% if catalog.redeemable|length > 0 %}
+            <h3 style="font-size: 1.1rem; color: var(--dash-primary); margin-bottom: 1rem;">✅ Échangeables maintenant avec vos {{ data.totalPoints|default(0) }} points :</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+                {% for item in catalog.redeemable %}
+                <div style="background: white; border-radius: var(--dash-radius-sm); padding: 1.25rem; box-shadow: var(--dash-shadow); border-left: 4px solid #22C55E;">
+                    <div style="display: flex; justify-content: space-between; align-items: start;">
+                        <div>
+                            <div style="font-weight: 700; color: var(--dash-text); margin-bottom: 0.35rem;">{{ item.title }}</div>
+                            <div style="font-size: 0.85rem; color: var(--dash-text-muted); margin-bottom: 0.5rem;">{{ item.description }}</div>
+                        </div>
+                        <span style="background: linear-gradient(135deg, #8B5CF6, #6D28D9); color: white; padding: 0.15rem 0.6rem; border-radius: 50px; font-size: 0.7rem; font-weight: 600; white-space: nowrap;">🤖 IA</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-weight: 700; color: var(--dash-primary);">⭐ {{ item.points_cost }} pts</span>
+                        <span style="background: #DCFCE7; color: #166534; padding: 0.2rem 0.75rem; border-radius: 50px; font-size: 0.75rem; font-weight: 600;">✅ Disponible</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            {# Rewards the user COULD unlock with more points #}
+            {% if catalog.upcoming|length > 0 %}
+            <h3 style="font-size: 1.1rem; color: var(--gold); margin-bottom: 1rem;">🔒 Collectez plus de points pour débloquer :</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+                {% for item in catalog.upcoming %}
+                <div style="background: white; border-radius: var(--dash-radius-sm); padding: 1.25rem; box-shadow: var(--dash-shadow); border-left: 4px solid #94a3b8; opacity: 0.85;">
+                    <div style="display: flex; justify-content: space-between; align-items: start;">
+                        <div>
+                            <div style="font-weight: 700; color: var(--dash-text); margin-bottom: 0.35rem;">{{ item.title }}</div>
+                            <div style="font-size: 0.85rem; color: var(--dash-text-muted); margin-bottom: 0.5rem;">{{ item.description }}</div>
+                        </div>
+                        <span style="background: #e2e8f0; color: #64748b; padding: 0.15rem 0.6rem; border-radius: 50px; font-size: 0.7rem; font-weight: 600; white-space: nowrap;">🤖 IA</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-weight: 700; color: var(--dash-text-muted);">⭐ {{ item.points_cost }} pts requis</span>
+                        <span style="background: #FEF3C7; color: #92400E; padding: 0.2rem 0.75rem; border-radius: 50px; font-size: 0.75rem; font-weight: 600;">🔒 Encore {{ item.points_needed }} pts</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        {# ─── Two Column Layout ───────────────────────────────────────── #}
+        <div class="loyalty-grid">
+            {# History #}
+            <div class="loyalty-section">
+                <div class="section-header">
+                    <h2 class="section-title">📜 Historique des Points</h2>
+                    <a href="{{ path('app_loyalty_history', {'_locale': app.request.locale}) }}" class="section-link">Historique complet →</a>
+                </div>
+                {% if data.history|length > 0 %}
+                <div class="history-list">
+                    {% for entry in data.history %}
+                    <div class="history-item">
+                        <div class="history-icon {{ entry.points > 0 ? 'earned' : 'spent' }}">
+                            {% if entry.source == 'intervention' %}🔧
+                            {% elseif entry.source == 'subscription' %}💎
+                            {% elseif entry.source == 'activity' %}🎯
+                            {% elseif entry.source == 'bonus' %}🎁
+                            {% elseif entry.source == 'redemption' %}🔄
+                            {% else %}⭐{% endif %}
+                        </div>
+                        <div class="history-info">
+                            <div class="history-desc">{{ entry.description|default('Points de fidélité') }}</div>
+                            <div class="history-date">{{ entry.earnedAt|date('d/m/Y à H:i') }}</div>
+                        </div>
+                        <div class="history-points {{ entry.points > 0 ? 'positive' : 'negative' }}">
+                            {{ entry.points > 0 ? '+' : '' }}{{ entry.points }}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty-state" style="background: white; border-radius: var(--dash-radius); box-shadow: var(--dash-shadow);">
+                    <div class="empty-state-icon">📜</div>
+                    <p>Aucun historique de points pour le moment.</p>
+                    <p style="font-size: 0.85rem; margin-top: 0.5rem;">Demandez un service pour commencer à gagner des points !</p>
+                </div>
+                {% endif %}
+            </div>
+
+            {# Points Breakdown #}
+            <div class="loyalty-section">
+                <h2 class="section-title" style="margin-bottom: 1.25rem;">📊 Répartition des Points</h2>
+                <div class="points-chart">
+                    <div class="chart-bar-container">
+                        {% set maxPoints = 1 %}
+                        {% for source in data.pointsBySource %}
+                            {% if source.total > maxPoints %}
+                                {% set maxPoints = source.total %}
+                            {% endif %}
+                        {% endfor %}
+
+                        {% for source in data.pointsBySource %}
+                        <div class="chart-bar-row">
+                            <div class="chart-bar-label">{{ source.label }}</div>
+                            <div class="chart-bar-wrap">
+                                <div class="chart-bar-fill {{ source.source }}" style="width: {{ (source.total / maxPoints * 100)|round }}%"></div>
+                            </div>
+                            <div class="chart-bar-value">{{ source.total }}</div>
+                        </div>
+                        {% endfor %}
+
+                        {% if data.pointsBySource|length == 0 %}
+                        <div style="text-align: center; padding: 2rem; color: var(--dash-text-muted);">
+                            <div style="font-size: 2rem; margin-bottom: 0.5rem;">📊</div>
+                            <p>Pas encore de données</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                {# How it works #}
+                <div style="background: white; border-radius: var(--dash-radius); padding: 1.5rem; box-shadow: var(--dash-shadow); margin-top: 1.25rem;">
+                    <h3 style="font-size: 1.1rem; margin-bottom: 1rem; color: var(--dash-text);">💡 Comment ça marche ?</h3>
+                    <div style="display: flex; flex-direction: column; gap: 0.75rem; font-size: 0.9rem; color: var(--dash-text-muted);">
+                        <div style="display: flex; align-items: start; gap: 0.75rem;">
+                            <span style="font-size: 1.2rem;">1️⃣</span>
+                            <span><strong>Gagnez des points</strong> à chaque intervention complétée (50+ pts)</span>
+                        </div>
+                        <div style="display: flex; align-items: start; gap: 0.75rem;">
+                            <span style="font-size: 1.2rem;">2️⃣</span>
+                            <span><strong>Notre IA analyse</strong> votre profil pour des récompenses personnalisées</span>
+                        </div>
+                        <div style="display: flex; align-items: start; gap: 0.75rem;">
+                            <span style="font-size: 1.2rem;">3️⃣</span>
+                            <span><strong>Échangez vos points</strong> contre des réductions, maintenances gratuites ou upgrades</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{# ─── AI Generation JavaScript ───────────────────────────────── #}
+<script>
+async function generateAIReward() {
+    const btn = document.getElementById('btn-generate-ai');
+    const feedback = document.getElementById('ai-feedback');
+
+    // Disable button & show loading
+    btn.disabled = true;
+    btn.innerHTML = '<span class="ai-spinner"></span> L\'IA analyse votre profil...';
+    feedback.style.display = 'none';
+
+    try {
+        const response = await fetch('{{ path("app_loyalty_generate", {"_locale": app.request.locale}) }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
+
+        const data = await response.json();
+
+        if (data.success && data.reward) {
+            feedback.style.display = 'block';
+            feedback.style.background = '#DCFCE7';
+            feedback.style.color = '#166534';
+            feedback.innerHTML = '🤖 <strong>L\'IA a généré une récompense !</strong> ' +
+                '<strong>' + data.reward.title + '</strong> — ' +
+                data.reward.description +
+                ' (Confiance IA : ' + Math.round(data.reward.confidence * 100) + '%) ' +
+                '<br><em style="font-size:0.85rem;">Rechargez la page pour la voir dans votre liste.</em>';
+
+            // Auto-reload after 2.5s
+            setTimeout(() => { window.location.reload(); }, 2500);
+        } else {
+            feedback.style.display = 'block';
+            feedback.style.background = '#FEF3C7';
+            feedback.style.color = '#92400E';
+            feedback.innerHTML = '⚠️ ' + (data.message || 'L\'IA n\'a pas pu générer de nouvelle récompense (vous avez peut-être déjà toutes les récompenses disponibles).');
+            btn.disabled = false;
+            btn.innerHTML = '🤖 Générer avec l\'IA';
+        }
+    } catch (err) {
+        feedback.style.display = 'block';
+        feedback.style.background = '#FEE2E2';
+        feedback.style.color = '#991B1B';
+        feedback.innerHTML = '❌ Erreur de connexion. Réessayez.';
+        btn.disabled = false;
+        btn.innerHTML = '🤖 Générer avec l\'IA';
+    }
+}
+</script>
+
+<style>
+    .ai-spinner {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        border: 2px solid rgba(255,255,255,0.3);
+        border-top: 2px solid white;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+{% endblock %}

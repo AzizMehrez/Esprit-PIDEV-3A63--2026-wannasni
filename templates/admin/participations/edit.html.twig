@@ -1,0 +1,55 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Modifier Participation - Admin WANNASNI{% endblock %}
+{% block page_title %}Modifier Participation{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 1rem;">
+    <a href="{{ path('admin_participations') }}" class="btn btn-secondary">← Retour aux Participations</a>
+</div>
+
+<div class="admin-card" style="max-width: 700px;">
+    <div class="card-header">
+        <h2 class="card-title">Modifier : {{ participation.seniorName }} — {{ participation.activityName }}</h2>
+    </div>
+
+    <div style="padding: 1.5rem;">
+        <form method="post" action="{{ path('admin_participations_edit', {id: participation.id}) }}">
+            <div style="margin-bottom: 1.25rem;">
+                <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: var(--admin-text);">Statut</label>
+                <select name="status" style="width: 100%; padding: 0.75rem 1rem; background: var(--admin-bg); border: 1px solid var(--admin-border); border-radius: 8px; color: var(--admin-text); font-size: 0.9rem;">
+                    <option value="inscrit" {{ participation.status in ['registered', 'inscrit'] ? 'selected' : '' }}>Inscrit</option>
+                    <option value="attended" {{ participation.status == 'attended' ? 'selected' : '' }}>Présent</option>
+                    <option value="annulé" {{ participation.status in ['cancelled', 'annulé'] ? 'selected' : '' }}>Annulé</option>
+                </select>
+            </div>
+
+            <div style="margin-bottom: 1.25rem;">
+                <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: var(--admin-text);">Note (1-5)</label>
+                <input type="number" name="rating" min="1" max="5" value="{{ participation.rating }}" style="width: 100%; padding: 0.75rem 1rem; background: var(--admin-bg); border: 1px solid var(--admin-border); border-radius: 8px; color: var(--admin-text); font-size: 0.9rem;">
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem;">
+                <div>
+                    <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: var(--admin-text);">Humeur Avant (1-5)</label>
+                    <input type="number" name="mood_before" min="1" max="5" value="{{ participation.moodBefore }}" style="width: 100%; padding: 0.75rem 1rem; background: var(--admin-bg); border: 1px solid var(--admin-border); border-radius: 8px; color: var(--admin-text); font-size: 0.9rem;">
+                </div>
+                <div>
+                    <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: var(--admin-text);">Humeur Après (1-5)</label>
+                    <input type="number" name="mood_after" min="1" max="5" value="{{ participation.moodAfter }}" style="width: 100%; padding: 0.75rem 1rem; background: var(--admin-bg); border: 1px solid var(--admin-border); border-radius: 8px; color: var(--admin-text); font-size: 0.9rem;">
+                </div>
+            </div>
+
+            <div style="margin-bottom: 1.5rem;">
+                <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: var(--admin-text);">Commentaire</label>
+                <textarea name="feedback" rows="4" style="width: 100%; padding: 0.75rem 1rem; background: var(--admin-bg); border: 1px solid var(--admin-border); border-radius: 8px; color: var(--admin-text); font-size: 0.9rem; resize: vertical;">{{ participation.feedback }}</textarea>
+            </div>
+
+            <div style="display: flex; gap: 1rem;">
+                <button type="submit" class="btn btn-primary">Sauvegarder</button>
+                <a href="{{ path('admin_participations_show', {id: participation.id}) }}" class="btn btn-secondary">Annuler</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

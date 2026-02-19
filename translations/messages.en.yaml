@@ -1,0 +1,184 @@
+# WANNASNI - English Translations (EN)
+
+# Meta & Site
+site:
+    name: "WANNASNI"
+meta:
+    description: "WANNASNI - The smart digital assistant for seniors. Care, safety, and daily life, all in one app."
+
+# Navigation
+nav:
+    features: "Features"
+    why: "Why Us"
+    contact: "Contact"
+
+# Greetings (Time-based)
+greeting:
+    morning: "Good morning"
+    afternoon: "Good afternoon"
+    evening: "Good evening"
+
+# Story-Driven Narrative Sections
+narrative:
+    problem:
+        title: "The Worry That Never Sleeps"
+        text: "Every family knows the feeling. The late-night calls, the constant wondering, the fear of not being there when it matters most. You deserve peace of mind."
+    solution:
+        title: "Your Family's Daily Guardian"
+        text: "WANNASNI brings peace of mind to every moment. A gentle presence that watches over your loved ones with care and compassion."
+    trust:
+        title: "Trusted by Families Like Yours"
+        text: "Join thousands of families who have found peace of mind. Real care, real results, real trust."
+    action:
+        title: "Start Your Peace of Mind"
+        cta: "Get Started Today"
+
+# AI Companion
+ai:
+    label: "Always-There Assistant"
+
+# Trust Counter
+trust:
+    counter:
+        label: "Families trust us daily"
+    badge:
+        data: "Data Protected"
+        family: "Family-First"
+        senior: "Senior-Friendly"
+
+# Hero Section
+hero:
+    tagline: "Your Digital Companion"
+    title: "The smart assistant that cares for your loved ones"
+    subtitle: "Care, safety, and daily life — all in one app."
+    description: "We are here when you need us."
+
+# Call to Action
+cta:
+    contact_us: "Contact Us"
+    call_us: "Call Us"
+    title: "Ready to improve your loved ones' lives?"
+    subtitle: "Join the families who trust WANNASNI to support their seniors every day."
+
+# Features Section
+features:
+    title: "What WANNASNI Does"
+    subtitle: "A complete suite of features designed for seniors' well-being"
+    profiles:
+        title: "Profiles & Security"
+        description: "Seniors, families, doctors, technicians — everyone has their role and secure access in the app."
+    services:
+        title: "Services & Interventions"
+        description: "Book help (plumbing, repairs, groceries) with urgency level and budget preferences."
+    health:
+        title: "Health & Well-Being"
+        description: "Health journal, vitals tracking, medications, prescriptions, and automatic reminders."
+    nutrition:
+        title: "Food & Nutrition"
+        description: "Personalized diet plans, meal logs, and daily hydration tracking."
+    activities:
+        title: "Activities & Events"
+        description: "Social and physical activities to fight isolation and maintain an active lifestyle."
+    family:
+        title: "Family Connection"
+        description: "Stay connected with loved ones through notifications, data sharing, and built-in messaging."
+
+# Testimonials Section
+testimonials:
+    title: "Stories from Our Families"
+    subtitle: "Real experiences from caregivers who found peace of mind"
+    quote1: "Finally, I can sleep peacefully knowing Mom is safe. WANNASNI changed our family's life."
+    author1: "Marie, daughter of Fatima (78)"
+    quote2: "The care my father receives is exceptional. The team truly understands what seniors need."
+    author2: "Ahmed, son of Hassan (82)"
+    quote3: "What I love most is the warmth and respect they show to my grandmother. It feels like family."
+    author3: "Leila, granddaughter of Kheira (85)"
+
+# Roles Section
+roles:
+    title: "Who Is It For?"
+    subtitle: "A multi-role platform adapted to every need"
+    seniors:
+        title: "Seniors"
+        description: "A simple and accessible interface to manage daily life independently."
+    family:
+        title: "Families"
+        description: "Stay informed and connected, wherever you are, with real-time notifications."
+    doctors:
+        title: "Doctors"
+        description: "Access health data and monitor your patients remotely and securely."
+    technicians:
+        title: "Technicians & Caregivers"
+        description: "Plan activities and support seniors in their daily well-being."
+
+# Why Section
+why:
+    title: "Why It Matters"
+    lead: "WANNASNI isn't just an app — it's a digital companion that helps seniors stay independent while keeping families and professionals in the loop."
+    point1: "A simple, human-first user experience designed for all ages"
+    point2: "A modular architecture that adapts to every need"
+    point3: "Real-world impact on seniors' quality of life"
+    point4: "Peace of mind for the whole family"
+    tagline: "Simple. Human. Useful."
+
+# Comfort Message (Exit Intent)
+comfort:
+    message: "You're doing great. We're here when you need us. 💚"
+
+# Footer
+footer:
+    tagline: "The smart digital assistant for seniors"
+    contact_title: "Contact Us"
+    navigation: "Navigation"
+    rights: "All rights reserved."
+
+# Authentication
+auth:
+    or_continue_with: "Or continue with"
+    continue_google: "Continue with Google"
+    continue_x: "Continue with X"
+    continue_facebook: "Continue with Facebook"
+    # Face ID Authentication
+    face_id: "Face Recognition"
+    face_id_desc: "Capture your face for secure login."
+    capture_face: "Capture my face"
+    retake_face: "Retake photo"
+    face_captured: "Face captured"
+    capture_face_title: "Capture your face"
+    capture_face_instructions: "Position your face in the frame and click Capture."
+    capture: "Capture"
+    retake: "Retake"
+    # Face ID Login
+    face_login: "Login with Face ID"
+    face_login_title: "Face ID Login"
+    face_instruction: "Position your face in the frame and click Capture"
+    face_captured_login: "Face captured! You can now log in."
+    confirm: "Confirm"
+    cancel: "Cancel"
+    verifying_face: "Verifying face..."
+    face_verify_error: "Verification error"
+    face_already_registered: "This face is already registered for"
+    use_login: "Please log in."
+    face_verified: "Face verified successfully!"
+    no_face_detected: "No face detected. Please try again."
+    face_verify_network_error: "Network error. Please try again."
+    face_consent: "I authorize the processing of my biometric facial data for authentication."
+    face_consent_required: "You must accept the processing of your biometric data."
+    camera_error: "Unable to access camera. Please allow access."
+
+# Success messages
+success:
+    face_login: "Login successful via Face ID!"
+
+# Error messages
+error:
+    face_not_recognized: "Face not recognized. Please try again or use your password."
+    camera_access: "Unable to access camera"
+    network: "Connection error"
+
+# Action labels
+action:
+    processing: "Processing..."
+    login: "Log In"
+    capture_face: "Capture Face"
+    retake: "Retake"

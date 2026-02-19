@@ -1,0 +1,452 @@
+{% extends 'base_dashboard.html.twig' %}
+
+{% block title %}Plans d'Abonnement - SilverAssist Premium{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    :root {
+        --dash-primary: #2E7D32;
+        --dash-primary-light: #4CAF50;
+        --dash-primary-soft: rgba(46, 125, 50, 0.08);
+        --dash-accent: #FF6B35;
+        --dash-bg: #f8faf8;
+        --dash-card: #ffffff;
+        --dash-text: #1a1a2e;
+        --dash-text-muted: #64748b;
+        --dash-border: #e2e8f0;
+        --dash-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+        --dash-radius: 20px;
+        --dash-radius-sm: 12px;
+    }
+    body { background: var(--dash-bg); }
+
+    .plans-wrapper {
+        min-height: 100vh;
+        padding: 2rem 1.5rem 4rem;
+        background: linear-gradient(180deg, #f0f7f0 0%, var(--dash-bg) 30%);
+    }
+    .plans-container { max-width: 1200px; margin: 0 auto; }
+
+    /* Hero */
+    .plans-hero {
+        background: linear-gradient(135deg, var(--dash-primary) 0%, #1b5e20 50%, var(--dash-accent) 100%);
+        border-radius: var(--dash-radius);
+        padding: 3rem 2.5rem;
+        margin-bottom: 2.5rem;
+        color: white;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 8px 40px rgba(46, 125, 50, 0.25);
+    }
+    .plans-hero::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -20%;
+        width: 400px;
+        height: 400px;
+        background: rgba(255,255,255,0.05);
+        border-radius: 50%;
+    }
+    .plans-hero h1 { font-family: 'Playfair Display', serif; font-size: 2.5rem; margin-bottom: 0.75rem; }
+    .plans-hero p { opacity: 0.9; font-size: 1.15rem; max-width: 700px; margin: 0 auto; }
+
+    /* Flash Messages */
+    .flash-msg {
+        padding: 1rem 1.5rem;
+        border-radius: var(--dash-radius-sm);
+        margin-bottom: 1.25rem;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    .flash-success { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+    .flash-error { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+    .flash-warning { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+
+    /* Family Senior Selector */
+    .family-selector {
+        background: white;
+        border-radius: var(--dash-radius);
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: var(--dash-shadow);
+        text-align: center;
+    }
+    .family-selector h3 { font-family: 'Playfair Display', serif; color: var(--dash-primary); margin-bottom: 1rem; font-size: 1.3rem; }
+    .family-selector p { color: var(--dash-text-muted); margin-bottom: 1.25rem; }
+    .senior-select {
+        display: inline-block;
+        padding: 0.75rem 2rem;
+        font-size: 1.05rem;
+        border: 2px solid var(--dash-primary);
+        border-radius: 50px;
+        background: white;
+        color: var(--dash-text);
+        cursor: pointer;
+        min-width: 280px;
+    }
+    .senior-select:focus { outline: none; box-shadow: 0 0 0 3px rgba(46,125,50,0.2); }
+
+    /* Plans Grid */
+    .plans-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.75rem;
+        margin-bottom: 3rem;
+        align-items: start;
+    }
+    .plan-card {
+        background: white;
+        border-radius: var(--dash-radius);
+        padding: 2rem;
+        box-shadow: var(--dash-shadow);
+        border: 2px solid transparent;
+        position: relative;
+        transition: all 0.3s ease;
+        display: flex;
+        flex-direction: column;
+    }
+    .plan-card:hover {
+        border-color: var(--dash-primary);
+        transform: translateY(-8px);
+        box-shadow: 0 12px 48px rgba(46,125,50,0.18);
+    }
+    .plan-card.popular {
+        border-color: var(--dash-accent);
+        transform: scale(1.04);
+    }
+    .plan-card.popular:hover {
+        transform: scale(1.04) translateY(-8px);
+    }
+    .plan-card.current {
+        border-color: var(--dash-primary);
+        background: #f0fdf4;
+    }
+
+    .plan-tag {
+        position: absolute;
+        top: -14px;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 0.4rem 1.25rem;
+        border-radius: 50px;
+        font-weight: 700;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        white-space: nowrap;
+    }
+    .plan-tag-popular { background: var(--dash-accent); color: white; }
+    .plan-tag-current { background: var(--dash-primary); color: white; }
+
+    .plan-icon { font-size: 3rem; margin-bottom: 1rem; text-align: center; }
+    .plan-name { font-family: 'Playfair Display', serif; font-size: 1.6rem; text-align: center; color: var(--dash-primary); margin-bottom: 0.5rem; }
+    .plan-price-wrap { text-align: center; margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--dash-border); }
+    .plan-price { font-size: 2.8rem; font-weight: 800; color: var(--dash-text); line-height: 1; }
+    .plan-price-unit { font-size: 1rem; font-weight: 400; color: var(--dash-text-muted); }
+    .plan-price-save {
+        display: inline-block;
+        background: #dcfce7;
+        color: #166534;
+        padding: 0.3rem 0.75rem;
+        border-radius: 50px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        margin-top: 0.5rem;
+    }
+
+    .plan-features { list-style: none; padding: 0; margin: 0 0 1.5rem; flex-grow: 1; }
+    .plan-features li {
+        padding: 0.6rem 0;
+        font-size: 0.95rem;
+        color: var(--dash-text);
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        border-bottom: 1px solid #f1f5f9;
+    }
+    .plan-features li:last-child { border: none; }
+    .plan-features li .check { color: var(--dash-primary); font-weight: 700; font-size: 1.1rem; flex-shrink: 0; }
+    .plan-features li .cross { color: #cbd5e1; font-size: 1.1rem; flex-shrink: 0; }
+    .plan-features li.disabled { color: var(--dash-text-muted); text-decoration: line-through; opacity: 0.5; }
+
+    .plan-cta {
+        display: block;
+        width: 100%;
+        padding: 1rem;
+        border-radius: 50px;
+        font-weight: 700;
+        font-size: 1.05rem;
+        border: none;
+        cursor: pointer;
+        text-decoration: none;
+        text-align: center;
+        transition: all 0.2s;
+    }
+    .plan-cta-primary {
+        background: linear-gradient(135deg, var(--dash-primary), var(--dash-primary-light));
+        color: white;
+    }
+    .plan-cta-primary:hover { box-shadow: 0 6px 24px rgba(46,125,50,0.35); color: white; }
+    .plan-cta-accent {
+        background: linear-gradient(135deg, var(--dash-accent), #ff8a50);
+        color: white;
+    }
+    .plan-cta-accent:hover { box-shadow: 0 6px 24px rgba(255,107,53,0.35); color: white; }
+    .plan-cta-disabled {
+        background: #e2e8f0;
+        color: #94a3b8;
+        cursor: default;
+    }
+
+    /* Comparison Table */
+    .comparison-section {
+        background: white;
+        border-radius: var(--dash-radius);
+        padding: 2rem;
+        box-shadow: var(--dash-shadow);
+        margin-bottom: 2rem;
+    }
+    .comparison-section h2 { font-family: 'Playfair Display', serif; color: var(--dash-primary); text-align: center; margin-bottom: 1.5rem; }
+    .comparison-table { width: 100%; border-collapse: collapse; }
+    .comparison-table th, .comparison-table td { padding: 0.75rem 1rem; text-align: center; border-bottom: 1px solid var(--dash-border); }
+    .comparison-table th:first-child, .comparison-table td:first-child { text-align: left; }
+    .comparison-table thead th { background: var(--dash-primary-soft); color: var(--dash-primary); font-weight: 700; font-size: 0.95rem; }
+
+    /* Back link */
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--dash-primary);
+        text-decoration: none;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+    }
+    .back-link:hover { text-decoration: underline; }
+
+    @media (max-width: 960px) {
+        .plans-grid { grid-template-columns: 1fr; max-width: 420px; margin-left: auto; margin-right: auto; }
+        .plan-card.popular { transform: none; }
+        .plan-card.popular:hover { transform: translateY(-8px); }
+    }
+    @media (max-width: 768px) {
+        .plans-wrapper { padding: 1rem 1rem 6rem; }
+        .plans-hero { padding: 2rem 1.5rem; }
+        .plans-hero h1 { font-size: 1.7rem; }
+        .comparison-section { overflow-x: auto; }
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="plans-wrapper">
+    <div class="plans-container">
+
+        {# Flash Messages #}
+        {% for label, messages in app.flashes %}
+            {% for message in messages %}
+                <div class="flash-msg flash-{{ label }}">
+                    {% if label == 'success' %}✅{% else %}❌{% endif %}
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endfor %}
+
+        <a href="{{ path('app_subscription', {'_locale': app.request.locale}) }}" class="back-link">← Retour à mon abonnement</a>
+
+        {# Hero #}
+        <div class="plans-hero">
+            <h1>💎 Plans SilverAssist Premium</h1>
+            <p>Choisissez le plan qui correspond à vos besoins. Des réductions automatiques sur chaque intervention, un entretien préventif et un service prioritaire.</p>
+        </div>
+
+        {# ═══ Banner abonnement en cours ═══ #}
+        {% if currentPlan %}
+            <div style="background: linear-gradient(135deg, #f0fdf4, #dcfce7); border: 2px solid #4CAF50; border-radius: 16px; padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <span style="font-size: 2rem;">✅</span>
+                    <div>
+                        <strong style="color: #166534; font-size: 1.1rem;">Abonnement en cours — Plan {{ currentPlan.name }}</strong><br>
+                        <span style="color: #15803d; font-size: 0.9rem;">Vous bénéficiez de {{ currentPlan.discountPercent }}% de réduction sur toutes vos interventions. Changez de plan ci-dessous si besoin.</span>
+                    </div>
+                </div>
+                <a href="{{ path('app_subscription', {'_locale': app.request.locale}) }}" style="background: #2E7D32; color: white; padding: 0.6rem 1.25rem; border-radius: 50px; text-decoration: none; font-weight: 600; font-size: 0.9rem;">
+                    📋 Gérer mon abonnement
+                </a>
+            </div>
+        {% endif %}
+
+        {# Family: Senior Selector #}
+        {% if isFamily %}
+            <div class="family-selector">
+                <h3>👨‍👩‍👧 Pour quel senior souhaitez-vous souscrire ?</h3>
+                <p>Sélectionnez le proche pour lequel vous souscrivez cet abonnement.</p>
+                <select class="senior-select" id="seniorSelect">
+                    <option value="">-- Choisir un senior --</option>
+                    {% for senior in seniors %}
+                        <option value="{{ senior.id }}">{{ senior.fullName }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        {% endif %}
+
+        {# Plans Grid #}
+        <div class="plans-grid">
+            {% for plan in plans %}
+                <div class="plan-card {% if plan.slug == 'confort' %}popular{% endif %} {% if currentPlan and currentPlan.slug == plan.slug %}current{% endif %}">
+
+                    {% if currentPlan and currentPlan.slug == plan.slug %}
+                        <div class="plan-tag plan-tag-current">✓ Plan actuel</div>
+                    {% elseif plan.slug == 'confort' %}
+                        <div class="plan-tag plan-tag-popular">⭐ Le plus populaire</div>
+                    {% endif %}
+
+                    <div class="plan-icon">
+                        {% if plan.slug == 'essentiel' %}🥉
+                        {% elseif plan.slug == 'confort' %}🥈
+                        {% else %}🥇{% endif %}
+                    </div>
+
+                    <div class="plan-name">{{ plan.name }}</div>
+
+                    <div class="plan-price-wrap">
+                        <div class="plan-price">{{ plan.priceMonthly|number_format(2, ',', '') }}<span class="plan-price-unit">€/mois</span></div>
+                        <div class="plan-price-save">💰 Économisez {{ plan.discountPercent }}% sur chaque intervention</div>
+                    </div>
+
+                    <ul class="plan-features">
+                        <li><span class="check">✓</span> {{ plan.discountPercent }}% de réduction sur les interventions</li>
+                        <li><span class="check">✓</span> {{ plan.maintenanceLabel }}</li>
+                        <li {% if not plan.prioriteUrgences %}class="disabled"{% endif %}>
+                            <span class="{% if plan.prioriteUrgences %}check{% else %}cross{% endif %}">{% if plan.prioriteUrgences %}✓{% else %}✕{% endif %}</span>
+                            Priorité dans les urgences
+                        </li>
+                        <li {% if not plan.technicienDedie %}class="disabled"{% endif %}>
+                            <span class="{% if plan.technicienDedie %}check{% else %}cross{% endif %}">{% if plan.technicienDedie %}✓{% else %}✕{% endif %}</span>
+                            Technicien dédié
+                        </li>
+                        <li><span class="check">✓</span> Badge Abonné sur le profil</li>
+                        <li><span class="check">✓</span> Récapitulatif mensuel d'économies</li>
+                    </ul>
+
+                    {# Fonctionnalités débloquées #}
+                    {% if planFeatures[plan.slug] is defined and planFeatures[plan.slug]|length > 0 %}
+                        <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; padding: 0.75rem 1rem; margin-bottom: 1.25rem;">
+                            <div style="font-size: 0.8rem; font-weight: 700; color: #166534; margin-bottom: 0.4rem;">🔓 Fonctionnalités débloquées :</div>
+                            {% for feat in planFeatures[plan.slug] %}
+                                <div style="font-size: 0.85rem; color: #15803d; padding: 0.15rem 0;">
+                                    {{ feat.icon }} {{ feat.label }}
+                                    {% if feat.isNew %}<span style="background: #dcfce7; color: #166534; padding: 0.1rem 0.4rem; border-radius: 4px; font-size: 0.7rem; font-weight: 700; margin-left: 0.3rem;">NOUVEAU</span>{% endif %}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    {% if currentPlan and currentPlan.slug == plan.slug %}
+                        <span class="plan-cta plan-cta-disabled">Plan actuel</span>
+                    {% elseif currentPlan %}
+                        {# Change plan #}
+                        <form method="post" action="{{ path('app_subscription_change', {'planSlug': plan.slug, '_locale': app.request.locale}) }}" onsubmit="return confirm('Changer vers le plan {{ plan.name }} ?');">
+                            <button type="submit" class="plan-cta plan-cta-primary">Passer à {{ plan.name }}</button>
+                        </form>
+                    {% else %}
+                        <a href="{{ path('app_subscription_checkout', {'planSlug': plan.slug, '_locale': app.request.locale}) }}" class="plan-cta {% if plan.slug == 'confort' %}plan-cta-accent{% else %}plan-cta-primary{% endif %} subscribe-btn" {% if isFamily %}data-needs-senior="true"{% endif %}>
+                            Souscrire maintenant
+                        </a>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+
+        {# Comparison Table #}
+        <div class="comparison-section">
+            <h2>📊 Comparaison détaillée</h2>
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Fonctionnalité</th>
+                        {% for plan in plans %}
+                            <th>{{ plan.name }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Prix mensuel</strong></td>
+                        {% for plan in plans %}
+                            <td><strong>{{ plan.formattedPrice }}</strong></td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td>Réduction interventions</td>
+                        {% for plan in plans %}
+                            <td><strong>{{ plan.discountPercent }}%</strong></td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td>Maintenances / an</td>
+                        {% for plan in plans %}
+                            <td>{{ plan.maintenanceLabel }}</td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td>Priorité urgences</td>
+                        {% for plan in plans %}
+                            <td>{% if plan.prioriteUrgences %}✅{% else %}❌{% endif %}</td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td>Technicien dédié</td>
+                        {% for plan in plans %}
+                            <td>{% if plan.technicienDedie %}✅{% else %}❌{% endif %}</td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td>🤖 Détection IA par image</td>
+                        {% for plan in plans %}
+                            <td>{% if plan.slug == 'premium' %}✅{% else %}❌{% endif %}</td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td>Badge Abonné</td>
+                        {% for plan in plans %}
+                            <td>✅</td>
+                        {% endfor %}
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</div>
+
+{% if isFamily %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const seniorSelect = document.getElementById('seniorSelect');
+        const subscribeButtons = document.querySelectorAll('.subscribe-btn[data-needs-senior]');
+
+        subscribeButtons.forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                const seniorId = seniorSelect.value;
+                if (!seniorId) {
+                    e.preventDefault();
+                    alert('Veuillez d\'abord sélectionner un senior.');
+                    seniorSelect.focus();
+                    return false;
+                }
+                // Append senior_id to the URL
+                const url = new URL(this.href);
+                url.searchParams.set('senior_id', seniorId);
+                this.href = url.toString();
+            });
+        });
+    });
+</script>
+{% endif %}
+{% endblock %}
