@@ -29,6 +29,95 @@
         background: var(--dash-bg);
     }
 
+    /* Chat Toggle Button Styles */
+    .chat-toggle-btn {
+        position: fixed;
+        bottom: 24px;
+        right: 24px;
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, #6366f1, #8b5cf6);
+        border: none;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 8px 32px rgba(99, 102, 241, 0.3);
+        transition: all 0.3s ease;
+        z-index: 1000;
+    }
+
+    .chat-toggle-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 40px rgba(99, 102, 241, 0.4);
+    }
+
+    .chat-toggle-btn .icon-chat {
+        color: white;
+        width: 24px;
+        height: 24px;
+    }
+
+    .notification-badge {
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        background: #ef4444;
+        color: white;
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: bold;
+    }
+
+    /* Help Button Styles */
+    .help-trigger {
+        position: fixed;
+        bottom: 24px;
+        left: 24px;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.85rem 1.5rem;
+        background: linear-gradient(135deg, #dc2626, #ef4444);
+        color: white;
+        border: none;
+        border-radius: 50px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        box-shadow: 0 8px 32px rgba(220, 38, 38, 0.35);
+        transition: all 0.3s ease;
+        z-index: 1000;
+        animation: pulse-help 2s infinite;
+    }
+
+    .help-trigger:hover {
+        transform: translateY(-2px) scale(1.05);
+        box-shadow: 0 12px 40px rgba(220, 38, 38, 0.45);
+    }
+
+    .help-icon {
+        font-size: 1.3rem;
+    }
+
+    .help-text {
+        color: white;
+        font-size: 0.9rem;
+        font-weight: 600;
+        letter-spacing: 0.025em;
+    }
+    
+    @keyframes pulse-help {
+        0%, 100% { box-shadow: 0 8px 32px rgba(220, 38, 38, 0.35); }
+        50% { box-shadow: 0 8px 32px rgba(220, 38, 38, 0.55), 0 0 16px rgba(220, 38, 38, 0.25); }
+    }
+
     /* Dashboard Layout */
     .dashboard-wrapper {
         min-height: 100vh;
@@ -620,6 +709,7 @@
     @media (max-width: 767px) {
         .dashboard-wrapper {
             padding: 1rem;
+            padding-bottom: 5rem;
         }
 
         .welcome-hero {
@@ -646,6 +736,251 @@
         .health-mood {
             grid-column: span 1;
         }
+
+        .service-type-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        /* Move floating buttons above mobile nav */
+        .chat-toggle-btn {
+            bottom: 5.5rem;
+        }
+        
+        .help-trigger {
+            bottom: 5.5rem;
+        }
+
+        .help-text {
+            display: none;
+        }
+    }
+
+    /* ===== Service Type Cards ===== */
+    .service-type-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .service-type-card {
+        display: block;
+        text-decoration: none;
+        padding: 1.25rem;
+        border-radius: 16px;
+        border: 2px solid transparent;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .service-type-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    }
+
+    .service-type-card.transport {
+        background: linear-gradient(135deg, #dbeafe, #eff6ff);
+    }
+    .service-type-card.transport:hover { border-color: #3b82f6; }
+
+    .service-type-card.home {
+        background: linear-gradient(135deg, #dcfce7, #f0fdf4);
+    }
+    .service-type-card.home:hover { border-color: #22c55e; }
+
+    .service-type-card.grocery {
+        background: linear-gradient(135deg, #fef3c7, #fefce8);
+    }
+    .service-type-card.grocery:hover { border-color: #f59e0b; }
+
+    .service-type-card.companion {
+        background: linear-gradient(135deg, #f3e8ff, #faf5ff);
+    }
+    .service-type-card.companion:hover { border-color: #a855f7; }
+
+    .service-type-emoji {
+        font-size: 2.5rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .service-type-name {
+        font-weight: 700;
+        font-size: 1rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .service-type-card.transport .service-type-name { color: #1e40af; }
+    .service-type-card.home .service-type-name { color: #166534; }
+    .service-type-card.grocery .service-type-name { color: #92400e; }
+    .service-type-card.companion .service-type-name { color: #7c3aed; }
+
+    .service-type-desc {
+        font-size: 0.8rem;
+        opacity: 0.8;
+    }
+
+    .service-type-card.transport .service-type-desc { color: #3b82f6; }
+    .service-type-card.home .service-type-desc { color: #22c55e; }
+    .service-type-card.grocery .service-type-desc { color: #f59e0b; }
+    .service-type-card.companion .service-type-desc { color: #a855f7; }
+
+    /* ===== Recent Services List ===== */
+    .recent-services-wrapper {
+        background: #f8fafc;
+        border-radius: 12px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .recent-services-title {
+        font-weight: 600;
+        color: #64748b;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 0.75rem;
+    }
+
+    .recent-service-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.75rem;
+        background: white;
+        border-radius: 10px;
+        margin-bottom: 0.5rem;
+        border: 1px solid #e2e8f0;
+        transition: all 0.2s ease;
+    }
+
+    .recent-service-item:last-child {
+        margin-bottom: 0;
+    }
+
+    .recent-service-item:hover {
+        border-color: var(--dash-primary);
+    }
+
+    .recent-service-info {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .recent-service-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+    }
+
+    .recent-service-name {
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: #1a1a2e;
+    }
+
+    .recent-service-date {
+        font-size: 0.75rem;
+        color: #64748b;
+    }
+
+    .service-status-badge {
+        padding: 0.35rem 0.85rem;
+        border-radius: 50px;
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+
+    .service-status-badge.pending { background: #fef3c7; color: #92400e; }
+    .service-status-badge.in-progress { background: #dbeafe; color: #1e40af; }
+    .service-status-badge.completed { background: #dcfce7; color: #166534; }
+
+    /* ===== New Service Button ===== */
+    .btn-new-service {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        width: 100%;
+        padding: 1rem;
+        background: linear-gradient(135deg, #2563eb, #3b82f6);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-size: 1rem;
+        font-weight: 600;
+        text-decoration: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 16px rgba(37, 99, 235, 0.25);
+    }
+
+    .btn-new-service:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(37, 99, 235, 0.35);
+        color: white;
+    }
+
+    /* ===== Nutrition Cards ===== */
+    .nutrition-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .nutrition-stat {
+        text-align: center;
+        padding: 1rem;
+        border-radius: 12px;
+    }
+
+    .nutrition-stat.water { background: linear-gradient(135deg, #dbeafe, #eff6ff); }
+    .nutrition-stat.calories { background: linear-gradient(135deg, #fef3c7, #fefce8); }
+
+    .nutrition-stat-icon {
+        font-size: 1.5rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .nutrition-stat-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        line-height: 1.2;
+    }
+
+    .nutrition-stat.water .nutrition-stat-value { color: #3b82f6; }
+    .nutrition-stat.calories .nutrition-stat-value { color: #f59e0b; }
+
+    .nutrition-stat-label {
+        font-size: 0.75rem;
+        color: #64748b;
+        text-transform: uppercase;
+    }
+
+    .nutrition-next-meal {
+        background: #f0fdf4;
+        padding: 0.85rem 1rem;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+    }
+
+    .nutrition-next-meal-icon {
+        font-size: 1.25rem;
+    }
+
+    .nutrition-next-meal-text {
+        font-size: 0.9rem;
+        color: #166534;
+        font-weight: 500;
     }
 </style>
 {% endblock %}
@@ -803,59 +1138,48 @@
                     </div>
                     <div class="dash-card-body">
                         <!-- Service Type Cards -->
-                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-bottom: 1.5rem;">
-                            <a href="{{ path('app_services_request', {'_locale': app.request.locale}) }}?type=transport" style="text-decoration: none;">
-                                <div style="padding: 1.25rem; background: linear-gradient(135deg, #dbeafe, #eff6ff); border-radius: 16px; border: 2px solid transparent; transition: all 0.3s; cursor: pointer;" onmouseover="this.style.borderColor='#3b82f6'; this.style.transform='translateY(-4px)';" onmouseout="this.style.borderColor='transparent'; this.style.transform='translateY(0)';">
-                                    <div style="font-size: 2.5rem; margin-bottom: 0.75rem;">🚗</div>
-                                    <div style="font-weight: 700; color: #1e40af; font-size: 1rem; margin-bottom: 0.25rem;">Transport</div>
-                                    <div style="font-size: 0.8rem; color: #3b82f6; opacity: 0.8;">Médical & Personnel</div>
-                                </div>
+                        <div class="service-type-grid">
+                            <a href="{{ path('app_services_request', {'_locale': app.request.locale}) }}?type=transport" class="service-type-card transport">
+                                <div class="service-type-emoji">🚗</div>
+                                <div class="service-type-name">Transport</div>
+                                <div class="service-type-desc">Médical & Personnel</div>
                             </a>
-                            <a href="{{ path('app_services_request', {'_locale': app.request.locale}) }}?type=home" style="text-decoration: none;">
-                                <div style="padding: 1.25rem; background: linear-gradient(135deg, #dcfce7, #f0fdf4); border-radius: 16px; border: 2px solid transparent; transition: all 0.3s; cursor: pointer;" onmouseover="this.style.borderColor='#22c55e'; this.style.transform='translateY(-4px)';" onmouseout="this.style.borderColor='transparent'; this.style.transform='translateY(0)';">
-                                    <div style="font-size: 2.5rem; margin-bottom: 0.75rem;">🏠</div>
-                                    <div style="font-weight: 700; color: #166534; font-size: 1rem; margin-bottom: 0.25rem;">Aide à Domicile</div>
-                                    <div style="font-size: 0.8rem; color: #22c55e; opacity: 0.8;">Ménage & Cuisine</div>
-                                </div>
+                            <a href="{{ path('app_services_request', {'_locale': app.request.locale}) }}?type=home" class="service-type-card home">
+                                <div class="service-type-emoji">🏠</div>
+                                <div class="service-type-name">Aide à Domicile</div>
+                                <div class="service-type-desc">Ménage & Cuisine</div>
                             </a>
-                            <a href="{{ path('app_services_request', {'_locale': app.request.locale}) }}?type=grocery" style="text-decoration: none;">
-                                <div style="padding: 1.25rem; background: linear-gradient(135deg, #fef3c7, #fefce8); border-radius: 16px; border: 2px solid transparent; transition: all 0.3s; cursor: pointer;" onmouseover="this.style.borderColor='#f59e0b'; this.style.transform='translateY(-4px)';" onmouseout="this.style.borderColor='transparent'; this.style.transform='translateY(0)';">
-                                    <div style="font-size: 2.5rem; margin-bottom: 0.75rem;">🛒</div>
-                                    <div style="font-weight: 700; color: #92400e; font-size: 1rem; margin-bottom: 0.25rem;">Courses</div>
-                                    <div style="font-size: 0.8rem; color: #f59e0b; opacity: 0.8;">Alimentation & Produits</div>
-                                </div>
+                            <a href="{{ path('app_services_request', {'_locale': app.request.locale}) }}?type=grocery" class="service-type-card grocery">
+                                <div class="service-type-emoji">🛒</div>
+                                <div class="service-type-name">Courses</div>
+                                <div class="service-type-desc">Alimentation & Produits</div>
                             </a>
-                            <a href="{{ path('app_services_request', {'_locale': app.request.locale}) }}?type=companion" style="text-decoration: none;">
-                                <div style="padding: 1.25rem; background: linear-gradient(135deg, #f3e8ff, #faf5ff); border-radius: 16px; border: 2px solid transparent; transition: all 0.3s; cursor: pointer;" onmouseover="this.style.borderColor='#a855f7'; this.style.transform='translateY(-4px)';" onmouseout="this.style.borderColor='transparent'; this.style.transform='translateY(0)';">
-                                    <div style="font-size: 2.5rem; margin-bottom: 0.75rem;">👥</div>
-                                    <div style="font-weight: 700; color: #7c3aed; font-size: 1rem; margin-bottom: 0.25rem;">Compagnie</div>
-                                    <div style="font-size: 0.8rem; color: #a855f7; opacity: 0.8;">Visites & Accompagnement</div>
-                                </div>
+                            <a href="{{ path('app_services_request', {'_locale': app.request.locale}) }}?type=companion" class="service-type-card companion">
+                                <div class="service-type-emoji">👥</div>
+                                <div class="service-type-name">Compagnie</div>
+                                <div class="service-type-desc">Visites & Accompagnement</div>
                             </a>
                         </div>
                         
                         <!-- Recent Services -->
                         {% if services|length > 0 %}
-                        <div style="background: #f8fafc; border-radius: 12px; padding: 1rem; margin-bottom: 1rem;">
-                            <div style="font-weight: 600; color: #64748b; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.75rem;">📋 Mes demandes récentes</div>
+                        <div class="recent-services-wrapper">
+                            <div class="recent-services-title">📋 Mes demandes récentes</div>
                             {% for service in services|slice(0, 3) %}
-                            <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.75rem; background: white; border-radius: 10px; margin-bottom: 0.5rem; border: 1px solid #e2e8f0;">
-                                <div style="display: flex; align-items: center; gap: 0.75rem;">
-                                    <div style="width: 36px; height: 36px; border-radius: 8px; background: linear-gradient(135deg, #dbeafe, #bfdbfe); display: flex; align-items: center; justify-content: center; font-size: 1rem;">
+                            <div class="recent-service-item">
+                                <div class="recent-service-info">
+                                    <div class="recent-service-icon">
                                         {% if 'Transport' in service.type %}🚗
                                         {% elseif 'Home' in service.type %}🏠
                                         {% elseif 'Grocery' in service.type %}🛒
                                         {% else %}👥{% endif %}
                                     </div>
                                     <div>
-                                        <div style="font-weight: 600; font-size: 0.9rem; color: #1a1a2e;">{{ service.type }}</div>
-                                        <div style="font-size: 0.75rem; color: #64748b;">{{ service.requestedAt|date('d/m/Y') }}</div>
+                                        <div class="recent-service-name">{{ service.type }}</div>
+                                        <div class="recent-service-date">{{ service.requestedAt|date('d/m/Y') }}</div>
                                     </div>
                                 </div>
-                                <span style="padding: 0.35rem 0.85rem; border-radius: 50px; font-size: 0.7rem; font-weight: 600; 
-                                    {% if service.status == 'pending' %}background: #fef3c7; color: #92400e;
-                                    {% elseif service.status == 'in_progress' %}background: #dbeafe; color: #1e40af;
-                                    {% else %}background: #dcfce7; color: #166534;{% endif %}">
+                                <span class="service-status-badge {% if service.status == 'pending' %}pending{% elseif service.status == 'in_progress' %}in-progress{% else %}completed{% endif %}">
                                     {% if service.status == 'pending' %}⏳ En attente{% elseif service.status == 'in_progress' %}🔄 En cours{% else %}✅ Terminé{% endif %}
                                 </span>
                             </div>
@@ -863,7 +1187,7 @@
                         </div>
                         {% endif %}
                         
-                        <a href="{{ path('app_services_request', {'_locale': app.request.locale}) }}" style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; width: 100%; padding: 1rem; background: linear-gradient(135deg, #2563eb, #3b82f6); color: white; border: none; border-radius: 12px; font-size: 1rem; font-weight: 600; text-decoration: none; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 16px rgba(37, 99, 235, 0.25);">
+                        <a href="{{ path('app_services_request', {'_locale': app.request.locale}) }}" class="btn-new-service">
                             ➕ Demander un nouveau service
                         </a>
                     </div>
@@ -925,24 +1249,24 @@
                         </a>
                     </div>
                     <div class="dash-card-body">
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
-                            <div style="text-align: center; padding: 1rem; background: linear-gradient(135deg, #dbeafe, #eff6ff); border-radius: 12px;">
-                                <div style="font-size: 1.5rem; margin-bottom: 0.25rem;">💧</div>
-                                <div style="font-size: 1.5rem; font-weight: 700; color: #3b82f6;">{{ nutrition.water_intake }}/{{ nutrition.water_goal }}</div>
-                                <div style="font-size: 0.75rem; color: #64748b; text-transform: uppercase;">Verres d'eau</div>
+                        <div class="nutrition-grid">
+                            <div class="nutrition-stat water">
+                                <div class="nutrition-stat-icon">💧</div>
+                                <div class="nutrition-stat-value">{{ nutrition.water_intake }}/{{ nutrition.water_goal }}</div>
+                                <div class="nutrition-stat-label">Verres d'eau</div>
                             </div>
-                            <div style="text-align: center; padding: 1rem; background: linear-gradient(135deg, #fef3c7, #fefce8); border-radius: 12px;">
-                                <div style="font-size: 1.5rem; margin-bottom: 0.25rem;">🔥</div>
-                                <div style="font-size: 1.5rem; font-weight: 700; color: #f59e0b;">{{ nutrition.calories_today }}</div>
-                                <div style="font-size: 0.75rem; color: #64748b; text-transform: uppercase;">Calories</div>
+                            <div class="nutrition-stat calories">
+                                <div class="nutrition-stat-icon">🔥</div>
+                                <div class="nutrition-stat-value">{{ nutrition.calories_today }}</div>
+                                <div class="nutrition-stat-label">Calories</div>
                             </div>
                         </div>
-                        <div style="background: #f0fdf4; padding: 0.85rem 1rem; border-radius: 10px; display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
-                            <span style="font-size: 1.25rem;">⏰</span>
-                            <span style="font-size: 0.9rem; color: #166534; font-weight: 500;">{{ nutrition.next_meal }}</span>
+                        <div class="nutrition-next-meal">
+                            <span class="nutrition-next-meal-icon">⏰</span>
+                            <span class="nutrition-next-meal-text">{{ nutrition.next_meal }}</span>
                         </div>
-                        <a href="{{ path('app_my_nutrition_add', {'_locale': app.request.locale}) }}" class="btn-primary-action" style="background: linear-gradient(135deg, #22c55e, #4ade80);">
-                            ➕ Enregistrer un repas
+                        <a href="{{ path('app_nutrition_request', {'_locale': app.request.locale}) }}" class="btn-primary-action" style="background: linear-gradient(135deg, #22c55e, #4ade80);">
+                            ➕ Nouvelle demande de régime
                         </a>
                     </div>
                 </div>
@@ -990,4 +1314,204 @@
         </div>
     </div>
 </div>
+
+<!-- Help Button -->
+<button class="help-trigger" onclick="document.getElementById('helpModal').classList.add('active')" aria-label="Get Help">
+    <span class="help-icon">🆘</span>
+    <span class="help-text">Aide</span>
+</button>
+
+<!-- Chat Toggle Button -->
+<button class="chat-toggle-btn" id="chat-toggle" aria-label="Open Chat">
+    <svg class="icon-chat" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+    </svg>
+    <span class="notification-badge" style="display: none;">1</span>
+</button>
+
+<!-- Smart Chat Container -->
+<div id="smart-chat-container">
+    <!-- Chat Window -->
+    <div class="chat-window" id="chat-window">
+        <div class="chat-header">
+            <div class="header-info">
+                <div class="avatar-ring">
+                    <img src="https://ui-avatars.com/api/?name=AI&background=6366f1&color=fff" alt="AI Agent">
+                    <span class="status-dot"></span>
+                </div>
+                <div class="agent-details">
+                    <span class="agent-name">Assistant WANNASNI</span>
+                    <span class="agent-status" id="agent-status">Online & Ready</span>
+                </div>
+            </div>
+            <!-- Persona Selector -->
+            <select id="persona-select" class="persona-select" title="AI Persona">
+                <option value="default">🤖 Assistant</option>
+                <option value="health">🎩 Santé</option>
+                <option value="nutrition">🥗 Nutrition</option>
+                <option value="activity">🏃 Activités</option>
+                <option value="service">🛠️ Services</option>
+            </select>
+            <div class="header-actions">
+                <!-- Export Chat -->
+                <button class="header-icon-btn" id="export-chat" title="Exporter Chat">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                </button>
+                <!-- Clear Chat -->
+                <button class="header-icon-btn" id="clear-chat" title="Nouveau Chat">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 20h9"></path>
+                        <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                    </svg>
+                </button>
+                <!-- Close -->
+                <button class="close-btn" id="close-chat" aria-label="Fermer Chat">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 6L6 18M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Drag & Drop Zone -->
+        <div class="drop-zone" id="drop-zone">
+            <div class="drop-zone-content">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="17 8 12 3 7 8"></polyline>
+                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                </svg>
+                <span>Déposez un fichier ou une image ici</span>
+            </div>
+        </div>
+
+        <div class="chat-messages" id="chat-messages">
+            <div class="message bot-message welcome">
+                <p>Bonjour! Je suis votre <strong>Assistant WANNASNI</strong> 🤖<br>
+                   Vos fonctionnalités: 🔍 Recherche · 📋 Données Santé · 🏃 Activités · 🍽️ Nutrition</p>
+                <span class="timestamp">Maintenant</span>
+            </div>
+        </div>
+
+        <!-- Usage Stats -->
+        <div class="usage-stats" id="usage-stats">
+            <span>💬 <span id="msg-count">0</span> msgs</span>
+            <span>📈 <span id="token-count">0</span> tokens</span>
+        </div>
+
+        <!-- Suggested Prompts -->
+        <div class="suggested-prompts" id="suggested-prompts">
+            <button class="prompt-chip" data-prompt="Comment puis-je améliorer ma santé?">📊 Santé</button>
+            <button class="prompt-chip" data-prompt="Quelles activités me recommandez-vous?">🏃 Activités</button>
+            <button class="prompt-chip" data-prompt="Aide-moi avec mon régime alimentaire">🥗 Nutrition</button>
+            <button class="prompt-chip" data-prompt="Quels services puis-je demander?">🛠️ Services</button>
+        </div>
+
+        <div class="chat-input-area">
+            <div class="typing-indicator" id="typing-indicator">
+                <span></span><span></span><span></span>
+            </div>
+            <div id="image-preview-container" class="image-preview hidden">
+                <img id="image-preview" src="" alt="Preview">
+                <button id="remove-image" class="remove-btn">×</button>
+            </div>
+
+            <div class="input-wrapper">
+                <input type="file" id="image-upload" accept="image/*" style="display: none;">
+                <input type="file" id="file-upload" accept=".pdf,.csv,.txt,.json,.xml,.html,.md,.js,.py,.php,.css" style="display: none;">
+                <button id="upload-btn" title="Télécharger Image">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path>
+                    </svg>
+                </button>
+                <button id="file-upload-btn" title="Télécharger Fichier">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="12" y1="18" x2="12" y2="12"></line>
+                        <line x1="9" y1="15" x2="15" y2="15"></line>
+                    </svg>
+                </button>
+                <button id="voice-btn" title="Entrée Vocale">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                        <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                        <line x1="12" y1="19" x2="12" y2="23"></line>
+                        <line x1="8" y1="23" x2="16" y2="23"></line>
+                    </svg>
+                </button>
+                <input type="text" id="user-input" placeholder="Tapez votre message..." autocomplete="off">
+                <button id="send-btn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="22" y1="2" x2="11" y2="13"></line>
+                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Voice Call Overlay -->
+<div class="voice-call-overlay" id="voice-call-overlay">
+    <div class="voice-call-container">
+        <!-- Animated Orb -->
+        <div class="voice-orb-wrapper">
+            <div class="voice-orb" id="voice-orb">
+                <div class="orb-inner"></div>
+            </div>
+            <div class="voice-orb-ring ring-1"></div>
+            <div class="voice-orb-ring ring-2"></div>
+            <div class="voice-orb-ring ring-3"></div>
+        </div>
+
+        <!-- Status -->
+        <div class="voice-call-status" id="voice-call-status">Connecting...</div>
+
+        <!-- User Transcript -->
+        <div class="voice-transcript" id="voice-transcript"></div>
+
+        <!-- AI Response Text -->
+        <div class="voice-ai-text" id="voice-ai-text"></div>
+
+        <!-- Call Controls -->
+        <div class="voice-call-controls">
+            <button class="voice-control-btn mute-btn" id="voice-mute-btn" title="Mute/Unmute">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                    <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                    <line x1="12" y1="19" x2="12" y2="23"></line>
+                    <line x1="8" y1="23" x2="16" y2="23"></line>
+                </svg>
+            </button>
+
+            <button class="voice-control-btn end-call-btn" id="voice-end-call" title="End Call">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M22 10.5c-1.6-1.6-3.7-2.5-5.9-2.5-1.4 0-2.7.3-3.9.8l1.5 1.5c.7-.2 1.5-.3 2.3-.3 1.6 0 3.1.6 4.2 1.8l1.8-1.8zM7 12.5c-.8 0-1.6.1-2.3.3L3.2 11.3C4.3 10.8 5.6 10.5 7 10.5c2.2 0 4.3.9 5.9 2.5l-1.8 1.8c-1.1-1.2-2.6-1.8-4.1-1.8zm5 3.5h5v5h-5v-5zm-10 0h5v5H2v-5z"/>
+                </svg>
+            </button>
+
+            <button class="voice-control-btn speaker-btn" id="voice-speaker-btn" title="Speaker On/Off">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                    <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                    <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Call Timer -->
+        <div class="voice-call-timer" id="voice-call-timer">00:00</div>
+    </div>
+</div>
+
+<!-- Include Chat Styles and Scripts -->
+<link rel="stylesheet" href="{{ asset('chat/style.css') }}?v=2">
+<script src="{{ asset('chat/api.js') }}"></script>
+<script src="{{ asset('chat/script.js') }}"></script>
+
 {% endblock %}

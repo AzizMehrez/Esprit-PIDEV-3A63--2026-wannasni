@@ -66,7 +66,7 @@ features:
     subtitle: "A complete suite of features designed for seniors' well-being"
     profiles:
         title: "Profiles & Security"
-        description: "Seniors, families, doctors, coaches — everyone has their role and secure access in the app."
+        description: "Seniors, families, doctors, technicians — everyone has their role and secure access in the app."
     services:
         title: "Services & Interventions"
         description: "Book help (plumbing, repairs, groceries) with urgency level and budget preferences."
@@ -107,8 +107,8 @@ roles:
     doctors:
         title: "Doctors"
         description: "Access health data and monitor your patients remotely and securely."
-    coaches:
-        title: "Coaches & Caregivers"
+    technicians:
+        title: "Technicians & Caregivers"
         description: "Plan activities and support seniors in their daily well-being."
 
 # Why Section
@@ -138,6 +138,15 @@ auth:
     continue_google: "Continue with Google"
     continue_x: "Continue with X"
     continue_facebook: "Continue with Facebook"
+    continue_github: "Continue with GitHub"
+    confirm_link_title: "Link your account"
+    confirm_link_desc: "An account already exists with the email %email%. Would you like to link your %provider% account?"
+    confirm_link_info_title: "What will happen?"
+    confirm_link_bullet1: "Your %provider% account will be linked to your existing account."
+    confirm_link_bullet2: "You can log in using either method."
+    confirm_link_bullet3: "Your existing data will be preserved."
+    confirm_link_button: "Yes, link my %provider% account"
+    confirm_link_cancel: "No, cancel"
     # Face ID Authentication
     face_id: "Face Recognition"
     face_id_desc: "Capture your face for secure login."
@@ -166,6 +175,15 @@ auth:
     face_consent_required: "You must accept the processing of your biometric data."
     camera_error: "Unable to access camera. Please allow access."
 
+# Captcha
+captcha:
+    label: "Security Captcha"
+    hint: "Enter the characters shown"
+    placeholder: "Enter the code above"
+    refresh: "New image"
+    invalid: "The captcha is incorrect. Please try again."
+    required: "Please solve the captcha to continue."
+
 # Success messages
 success:
     face_login: "Login successful via Face ID!"
@@ -182,3 +200,50 @@ action:
     login: "Log In"
     capture_face: "Capture Face"
     retake: "Retake"
+
+# Content Moderation
+moderation:
+    rejected: "Your message contains inappropriate words and has been rejected."
+    affects_rate: "This affects your networking reputation."
+    warnings: "Warnings: %count%"
+    banned_notice: "Your networking access is read-only. You cannot post or comment."
+    inappropriate_content: "Inappropriate content detected."
+    image_sensitive: "This photo contains sensitive content and will not be shared."
+    image_unavailable: "Unable to verify this image at the moment. For safety reasons, it will not be published."
+    image_share_appropriate: "Please share only appropriate, respectful content."
+
+# Subscription
+subscription:
+    title: "My Subscription"
+    plans: "Our Plans"
+    subscribe: "Subscribe"
+    cancel: "Cancel Subscription"
+    suspend: "Suspend"
+    reactivate: "Reactivate"
+    checkout: "Checkout"
+    status:
+        active: "Active"
+        suspended: "Suspended"
+        cancelled: "Cancelled"
+        past_due: "Past Due"
+        pending: "Pending"
+    plan:
+        essentiel: "Essential"
+        confort: "Comfort"
+        premium: "Premium"
+    no_subscription: "You don't have a subscription yet"
+    choose_plan: "Choose a plan"
+
+# Loyalty
+loyalty:
+    title: "Loyalty Programme"
+    points: "Points"
+    rewards: "Rewards"
+    history: "History"
+    redeem: "Redeem"
+    balance: "Points Balance"
+    earn_points: "Earn Points"
+    no_points: "You don't have any points yet"
+    no_rewards: "No rewards available"
+    reward_redeemed: "Reward redeemed successfully!"
+    points_earned: "%points% points earned"

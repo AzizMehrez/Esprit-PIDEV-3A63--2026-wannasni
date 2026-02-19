@@ -3,11 +3,16 @@
 namespace App\Controller\Admin;
 
 use App\Entity\User;
+use App\Entity\VerificationRequest;
 use App\Repository\UserRepository;
+use App\Repository\VerificationRequestRepository;
+use App\Service\NotificationService;
+use App\Service\VerificationAnalyzerService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
@@ -21,7 +26,10 @@ class UserAdminController extends AbstractController
         private UserRepository $userRepository,
         private EntityManagerInterface $entityManager,
         private MailerInterface $mailer,
-        private UserPasswordHasherInterface $passwordHasher
+        private UserPasswordHasherInterface $passwordHasher,
+        private VerificationRequestRepository $verificationRequestRepo,
+        private VerificationAnalyzerService $verificationAnalyzer,
+        private NotificationService $notificationService,
     ) {
     }
 
@@ -43,6 +51,10 @@ class UserAdminController extends AbstractController
             $queryBuilder->andWhere('u.roles LIKE :role')->setParameter('role', '%ROLE_ADMIN%');
         } elseif ($filter === 'caregivers') {
             $queryBuilder->andWhere('u.roles LIKE :role')->setParameter('role', '%ROLE_CAREGIVER%');
+        } elseif ($filter === 'verified') {
+            $queryBuilder->andWhere('u.isAccountVerified = :verified')->setParameter('verified', true);
+        } elseif ($filter === 'banned') {
+            $queryBuilder->andWhere('u.isNetworkingBanned = :banned')->setParameter('banned', true);
         }
 
         // Apply search
@@ -53,12 +65,18 @@ class UserAdminController extends AbstractController
 
         $users = $queryBuilder->getQuery()->getResult();
 
+        // Verification requests
+        $pendingRequests = $this->verificationRequestRepo->findAllPending();
+        $pendingRequestCount = count($pendingRequests);
+
         // Calculate statistics
         $stats = [
             'total' => $this->userRepository->count([]),
             'active' => $this->userRepository->count(['status' => 'active']),
             'inactive' => $this->userRepository->count(['status' => 'inactive']),
             'admins' => count($this->userRepository->findByRole('ROLE_ADMIN')),
+            'verified' => $this->userRepository->count(['isAccountVerified' => true]),
+            'pending_verifications' => $pendingRequestCount,
         ];
 
         return $this->render('admin/users/index.html.twig', [
@@ -66,6 +84,8 @@ class UserAdminController extends AbstractController
             'stats' => $stats,
             'current_filter' => $filter,
             'search_term' => $search,
+            'pendingRequests' => $pendingRequests,
+            'pendingRequestCount' => $pendingRequestCount,
         ]);
     }
 
@@ -149,6 +169,14 @@ class UserAdminController extends AbstractController
             $user->setLastName($request->request->get('lastName'));
             $user->setPhone($request->request->get('phone'));
             $user->setStatus($request->request->get('status'));
+            
+            // Update user domain
+            $userDomain = $request->request->get('userDomain');
+            if (!empty($userDomain)) {
+                $user->setUserDomain($userDomain);
+            } else {
+                $user->setUserDomain(null);
+            }
             
             // Get current email info
             $currentEmail = $user->getEmail();
@@ -365,7 +393,7 @@ class UserAdminController extends AbstractController
             
             // Data table headers
             fputcsv($handle, ['=== DÉTAILS DES UTILISATEURS ==='], ';');
-            fputcsv($handle, ['ID', 'Prénom', 'Nom', 'Email', 'Téléphone', 'Rôle', 'Statut', 'Date d\'inscription'], ';');
+            fputcsv($handle, ['ID', 'Prénom', 'Nom', 'Email', 'Téléphone', 'Rôle', 'Domaine', 'Statut', 'Date d\'inscription'], ';');
             
             // CSV data
             foreach ($users as $user) {
@@ -383,6 +411,7 @@ class UserAdminController extends AbstractController
                     $user->getEmail(),
                     $user->getPhone() ?? 'N/A',
                     $role,
+                    $user->getUserDomain() ?? 'N/A',
                     $user->getStatus() === 'active' ? 'Actif' : 'Inactif',
                     $user->getCreatedAt()->format('d/m/Y H:i'),
                 ], ';');
@@ -399,6 +428,158 @@ class UserAdminController extends AbstractController
         $response->headers->set('Content-Disposition', 'attachment; filename="WANNASNI_Utilisateurs_' . date('Y-m-d_His') . '.csv"');
 
         return $response;
+    }
+
+    // ─── Verification Request Review ───────────────────────────────
+    #[Route('/verification/{id}', name: 'admin_users_verification_review', requirements: ['id' => '\d+'])]
+    public function verificationReview(int $id): Response
+    {
+        $vr = $this->verificationRequestRepo->find($id);
+        if (!$vr) {
+            $this->addFlash('error', 'Demande de vérification introuvable.');
+            return $this->redirectToRoute('admin_users');
+        }
+
+        return $this->render('admin/users/verification_review.html.twig', [
+            'request' => $vr,
+            'user' => $vr->getUser(),
+        ]);
+    }
+
+    // ─── Run AI Analysis on Verification Request ────────────────────
+    #[Route('/verification/{id}/analyze', name: 'admin_users_verification_analyze', requirements: ['id' => '\d+'], methods: ['POST'])]
+    public function runAiAnalysis(int $id): JsonResponse
+    {
+        $vr = $this->verificationRequestRepo->find($id);
+        if (!$vr) {
+            return new JsonResponse(['success' => false, 'error' => 'Request not found'], 404);
+        }
+
+        try {
+            $result = $this->verificationAnalyzer->analyze($vr);
+        } catch (\Throwable $e) {
+            return new JsonResponse(['success' => false, 'error' => 'Erreur lors de l\'analyse: ' . $e->getMessage()]);
+        }
+
+        // If AI auto-rejected, send rejection email
+        if ($vr->getStatus() === VerificationRequest::STATUS_AI_REJECTED) {
+            try {
+                $this->sendVerificationEmail($vr->getUser(), false, $result['decision_reason'] ?? 'Votre compte ne remplit pas les critères.');
+            } catch (\Throwable $e) {
+                // Email failure shouldn't block the response
+            }
+        }
+
+        return new JsonResponse([
+            'success' => true,
+            'score' => $result['score'] ?? null,
+            'decision' => $result['decision'] ?? 'review',
+            'decision_reason' => $result['decision_reason'] ?? '',
+            'report' => $result['factors'] ?? [],
+            'status' => $vr->getStatus(),
+        ]);
+    }
+
+    // ─── Approve Verification Request ───────────────────────────────
+    #[Route('/verification/{id}/approve', name: 'admin_users_verification_approve', requirements: ['id' => '\d+'], methods: ['POST'])]
+    public function approveVerification(int $id): Response
+    {
+        $vr = $this->verificationRequestRepo->find($id);
+        if (!$vr || !$vr->isPending()) {
+            $this->addFlash('error', 'Demande non valide ou déjà traitée.');
+            return $this->redirectToRoute('admin_users');
+        }
+
+        /** @var User $admin */
+        $admin = $this->getUser();
+        $user = $vr->getUser();
+
+        $vr->setStatus(VerificationRequest::STATUS_APPROVED);
+        $vr->setReviewedBy($admin);
+        $vr->setReviewedAt(new \DateTime());
+
+        $user->setIsAccountVerified(true);
+        $user->setVerifiedAt(new \DateTime());
+        $user->setVerificationBadgeType($user->getEffectiveBadge());
+
+        $this->entityManager->flush();
+
+        // Send approval email
+        $this->sendVerificationEmail($user, true);
+
+        $this->notificationService->create(
+            'verification_approved',
+            sprintf('La vérification de %s a été approuvée.', $user->getFullName()),
+            $user->getId()
+        );
+
+        $this->addFlash('success', 'Utilisateur ' . $user->getFullName() . ' vérifié avec succès ! Email envoyé.');
+        return $this->redirectToRoute('admin_users');
+    }
+
+    // ─── Reject Verification Request ────────────────────────────────
+    #[Route('/verification/{id}/reject', name: 'admin_users_verification_reject', requirements: ['id' => '\d+'], methods: ['POST'])]
+    public function rejectVerification(Request $request, int $id): Response
+    {
+        $vr = $this->verificationRequestRepo->find($id);
+        if (!$vr || !$vr->isPending()) {
+            $this->addFlash('error', 'Demande non valide ou déjà traitée.');
+            return $this->redirectToRoute('admin_users');
+        }
+
+        /** @var User $admin */
+        $admin = $this->getUser();
+
+        $vr->setStatus(VerificationRequest::STATUS_REJECTED);
+        $vr->setReviewedBy($admin);
+        $vr->setReviewedAt(new \DateTime());
+        $vr->setReviewNote($request->request->get('note', 'Demande refusée par l\'administrateur.'));
+
+        $this->entityManager->flush();
+
+        // Send rejection email
+        $this->sendVerificationEmail($vr->getUser(), false, $vr->getReviewNote());
+
+        $this->addFlash('success', 'Demande de vérification refusée. Email envoyé.');
+        return $this->redirectToRoute('admin_users');
+    }
+
+    // ─── Toggle Networking Ban ──────────────────────────────────────
+    #[Route('/{id}/toggle-networking-ban', name: 'admin_users_toggle_networking_ban', requirements: ['id' => '\d+'], methods: ['POST'])]
+    public function toggleNetworkingBan(User $user): Response
+    {
+        $user->setIsNetworkingBanned(!$user->isNetworkingBanned());
+        $this->entityManager->flush();
+
+        $status = $user->isNetworkingBanned() ? 'banni du networking' : 'débanni du networking';
+        $this->addFlash('success', $user->getFullName() . ' a été ' . $status . '.');
+        return $this->redirectToRoute('admin_users');
+    }
+
+    /**
+     * Send verification result email (approval or rejection).
+     */
+    private function sendVerificationEmail(User $user, bool $approved, ?string $reason = null): void
+    {
+        try {
+            $template = $approved ? 'emails/verification_approved.html.twig' : 'emails/verification_rejected.html.twig';
+            $subject = $approved
+                ? '🎉 Félicitations ! Votre compte WANNASNI est vérifié'
+                : '❌ Votre demande de vérification WANNASNI';
+
+            $email = (new Email())
+                ->from('noreply@wannasni.com')
+                ->to($user->getEmail())
+                ->subject($subject)
+                ->html($this->renderView($template, [
+                    'user' => $user,
+                    'reason' => $reason,
+                ]));
+
+            $this->mailer->send($email);
+        } catch (\Exception $e) {
+            $this->addFlash('warning', 'L\'email n\'a pas pu être envoyé: ' . $e->getMessage());
+        }
     }
 
     /**

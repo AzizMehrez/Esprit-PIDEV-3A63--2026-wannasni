@@ -495,23 +495,32 @@
                     <td>{{ entry.date|date('d/m/Y') }}</td>
                     <td>{{ entry.duration }} min</td>
                     <td>
-                        {% if entry.status == 'completed' %}
-                            <span class="badge badge-completed">✅ Complétée</span>
-                        {% elseif entry.status == 'missed' %}
-                            <span class="badge badge-missed">❌ Manquée</span>
+                        {% if entry.status == 'présent' or entry.status == 'attended' %}
+                            <span class="badge badge-completed">✅ Présent</span>
+                        {% elseif entry.status == 'annulé' or entry.status == 'cancelled' %}
+                            <span class="badge badge-missed">❌ Annulée</span>
+                        {% elseif entry.status == 'inscrit' or entry.status == 'registered' %}
+                            <span class="badge" style="background: #dbeafe; color: #1e40af;">📝 Inscrit</span>
                         {% else %}
                             <span class="badge">{{ entry.status }}</span>
                         {% endif %}
                     </td>
                     <td>
-                        {% if entry.status == 'completed' %}
+                        {% if entry.status == 'présent' or entry.status == 'attended' %}
                             {% if entry.has_feedback is defined and entry.has_feedback %}
                                 <span class="btn-feedback done">✅ Avis envoyé</span>
                             {% else %}
-                                <button type="button" class="btn-feedback" onclick="openFeedbackModal({{ entry.id }}, '{{ entry.activity_name|e('js') }}')">
+                                <button type="button" class="btn-feedback" onclick="openFeedbackModal({{ entry.activity_id }}, '{{ entry.activity_name|e('js') }}')">
                                     📝 Donnez votre avis
                                 </button>
                             {% endif %}
+                        {% elseif entry.status == 'inscrit' or entry.status == 'registered' %}
+                            <form method="POST" action="{{ path('app_mark_attended', {'_locale': app.request.locale, 'id': entry.id}) }}" style="display: inline;">
+                                <input type="hidden" name="_token" value="{{ csrf_token('mark_attended_' ~ entry.id) }}">
+                                <button type="submit" class="btn-feedback" style="background: #3b82f6;">
+                                    ✓ Marquer présent
+                                </button>
+                            </form>
                         {% endif %}
                     </td>
                 </tr>

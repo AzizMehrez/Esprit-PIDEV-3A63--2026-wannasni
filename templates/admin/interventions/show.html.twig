@@ -1,0 +1,222 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Intervention #{{ intervention.id }} - Admin WANNASNI{% endblock %}
+{% block page_title %}Détails de l'Intervention{% endblock %}
+
+{% block content %}
+
+<div class="admin-toolbar" style="margin-bottom: 2rem;">
+    <a href="{{ path('admin_interventions') }}" class="btn btn-secondary">
+        ← Retour à la liste
+    </a>
+    <div class="toolbar-actions">
+        <a href="{{ path('admin_interventions_edit', {id: intervention.id}) }}" class="btn btn-primary">
+            ✏️ Modifier
+        </a>
+        <a href="{{ path('admin_interventions_pdf', {id: intervention.id}) }}" class="btn btn-warning" target="_blank" style="background: #f59e0b; color: white;">
+            📄 Télécharger PDF
+        </a>
+        {% if intervention.serviceRequest %}
+        <form action="{{ path('admin_interventions_send_email', {id: intervention.id}) }}" method="POST" style="display:inline;">
+            <input type="hidden" name="_token" value="{{ csrf_token('send_email' ~ intervention.id) }}">
+            <button type="submit" class="btn" style="background: #3b82f6; color: white; cursor: pointer; border: none; padding: 0.5rem 1rem; border-radius: 6px; font-size: 0.9rem;">
+                📧 Renvoyer le Devis
+            </button>
+        </form>
+        {% endif %}
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        {% if intervention.serviceRequest %}
+        <div class="admin-card" style="margin-bottom: 1.5rem;">
+            <div class="card-header">
+                <h2 class="card-title">🛎️ Service Associé</h2>
+            </div>
+            <div class="card-body">
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <label>Type de service</label>
+                        <div class="detail-value"><strong>{{ intervention.serviceRequest.typeService }}</strong></div>
+                    </div>
+                    <div class="detail-item">
+                        <label>Description</label>
+                        <div class="detail-value">{{ intervention.serviceRequest.description }}</div>
+                    </div>
+                    <div class="detail-item">
+                        <label>Senior</label>
+                        <div class="detail-value">
+                            {{ intervention.serviceRequest.seniorEmail }}<br>
+                            <small>{{ intervention.serviceRequest.seniorTelephone }}</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="admin-card" style="margin-bottom: 1.5rem;">
+            <div class="card-header">
+                <h2 class="card-title">🔧 Détails de l'Intervention</h2>
+            </div>
+            <div class="card-body">
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <label>Compétences requises</label>
+                        <div class="detail-value">{{ intervention.competences }}</div>
+                    </div>
+                    <div class="detail-item">
+                        <label>Zone d'intervention</label>
+                        <div class="detail-value">
+                            <span class="badge badge-info">📍 {{ intervention.zoneIntervention }}</span>
+                        </div>
+                    </div>
+                    <div class="detail-item">
+                        <label>Heures de travail</label>
+                        <div class="detail-value"><strong>{{ intervention.heuresTravail }} heures</strong></div>
+                    </div>
+                    <div class="detail-item">
+                        <label>Tarif horaire</label>
+                        <div class="detail-value"><strong>{{ intervention.tarifHoraire }}€ / heure</strong></div>
+                    </div>
+                    <div class="detail-item">
+                        <label>Coût total estimé</label>
+                        <div class="detail-value">
+                            <strong style="color: #f59e0b; font-size: 1.2rem;">
+                                {{ (intervention.heuresTravail * intervention.tarifHoraire)|number_format(2, '.', '') }}€
+                            </strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="admin-card" style="margin-bottom: 1.5rem;">
+            <div class="card-header">
+                <h2 class="card-title">👤 Technicien Assigné</h2>
+            </div>
+            <div class="card-body">
+                {% if intervention.technicienNom %}
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <label>Nom</label>
+                        <div class="detail-value"><strong>{{ intervention.technicienNom }}</strong></div>
+                    </div>
+                    <div class="detail-item">
+                        <label>Email</label>
+                        <div class="detail-value">
+                            {% if intervention.technicienEmail %}
+                                <a href="mailto:{{ intervention.technicienEmail }}">{{ intervention.technicienEmail }}</a>
+                            {% else %}
+                                Non renseigné
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="detail-item">
+                        <label>Téléphone</label>
+                        <div class="detail-value">
+                            {% if intervention.technicienTelephone %}
+                                <a href="tel:{{ intervention.technicienTelephone }}">{{ intervention.technicienTelephone }}</a>
+                            {% else %}
+                                Non renseigné
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <p style="text-align: center; color: var(--admin-text-muted); padding: 2rem;">
+                    Aucun technicien assigné
+                </p>
+                {% endif %}
+            </div>
+        </div>
+
+        {% if intervention.notes %}
+        <div class="admin-card">
+            <div class="card-header">
+                <h2 class="card-title">📝 Notes</h2>
+            </div>
+            <div class="card-body">
+                <p style="white-space: pre-wrap;">{{ intervention.notes }}</p>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="col-md-4">
+        <div class="admin-card" style="margin-bottom: 1.5rem;">
+            <div class="card-header">
+                <h2 class="card-title">📊 Statut</h2>
+            </div>
+            <div class="card-body" style="text-align: center;">
+                {% if intervention.statutActuel == 'en_attente' %}
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">⏳</div>
+                    <span class="badge badge-warning" style="font-size: 1.1rem; padding: 0.5rem 1rem;">En attente</span>
+                {% elseif intervention.statutActuel == 'assignee' %}
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">👤</div>
+                    <span class="badge badge-info" style="font-size: 1.1rem; padding: 0.5rem 1rem;">Assignée</span>
+                {% elseif intervention.statutActuel == 'en_cours' %}
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">🔄</div>
+                    <span class="badge badge-primary" style="font-size: 1.1rem; padding: 0.5rem 1rem;">En cours</span>
+                {% elseif intervention.statutActuel == 'terminee' %}
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">✅</div>
+                    <span class="badge badge-success" style="font-size: 1.1rem; padding: 0.5rem 1rem;">Terminée</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="admin-card">
+            <div class="card-header">
+                <h2 class="card-title">📅 Timeline</h2>
+            </div>
+            <div class="card-body">
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-icon" style="background: #3b82f6;">📝</div>
+                        <div class="timeline-content">
+                            <div class="timeline-label">Créée le</div>
+                            <div class="timeline-value">{{ intervention.dateCreation ? intervention.dateCreation|date('d/m/Y à H:i') : 'Non défini' }}</div>
+                        </div>
+                    </div>
+                    {% if intervention.dateDebut %}
+                    <div class="timeline-item">
+                        <div class="timeline-icon" style="background: #10b981;">▶️</div>
+                        <div class="timeline-content">
+                            <div class="timeline-label">Débutée le</div>
+                            <div class="timeline-value">{{ intervention.dateDebut|date('d/m/Y à H:i') }}</div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% if intervention.dateFin %}
+                    <div class="timeline-item">
+                        <div class="timeline-icon" style="background: #22c55e;">✅</div>
+                        <div class="timeline-content">
+                            <div class="timeline-label">Terminée le</div>
+                            <div class="timeline-value">{{ intervention.dateFin|date('d/m/Y à H:i') }}</div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.row { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+.col-md-8 { flex: 0 0 calc(66.666% - 1rem); }
+.col-md-4 { flex: 0 0 calc(33.333% - 0.5rem); }
+@media (max-width: 768px) { .col-md-8, .col-md-4 { flex: 0 0 100%; } }
+.detail-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; }
+.detail-item label { display: block; font-size: 0.85rem; color: var(--admin-text-muted); margin-bottom: 0.5rem; text-transform: uppercase; }
+.detail-value { font-size: 1rem; color: var(--admin-text); }
+.timeline { display: flex; flex-direction: column; gap: 1.5rem; }
+.timeline-item { display: flex; gap: 1rem; align-items: flex-start; }
+.timeline-icon { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0; }
+.timeline-content { flex: 1; }
+.timeline-label { font-size: 0.85rem; color: var(--admin-text-muted); margin-bottom: 0.25rem; }
+.timeline-value { font-weight: 600; color: var(--admin-text); }
+</style>
+
+{% endblock %}

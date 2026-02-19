@@ -3,9 +3,11 @@
 namespace App\Controller\Front;
 
 use App\Entity\User;
+use App\Service\CaptchaService;
 use App\Service\FaceService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -36,7 +38,18 @@ class SecurityController extends AbstractController
 
         return $this->render('front/login.html.twig', [
             'last_username' => $lastUsername,
-            'error' => $error,
+            'error'         => $error,
+        ]);
+    }
+
+    #[Route(path: '/{_locale}/captcha/refresh', name: 'app_captcha_refresh', requirements: ['_locale' => 'fr|en|ar'], methods: ['GET'])]
+    public function refreshCaptcha(CaptchaService $captchaService): JsonResponse
+    {
+        $captchaData = $captchaService->generateCaptcha();
+
+        return $this->json([
+            'success' => $captchaData !== null,
+            'image'   => $captchaData ? $captchaData['image'] : null,
         ]);
     }
 
@@ -172,9 +185,12 @@ class SecurityController extends AbstractController
                 $user->setLastName($lastName);
                 $user->setPhone($phone);
                 
+                // Set user domain based on selected role
+                $user->setUserDomain('role.' . $role);
+                
                 // Map role selection to Symfony roles
                 $roles = ['ROLE_USER'];
-                if ($role === 'doctor' || $role === 'coach') {
+                if ($role === 'doctor' || $role === 'technicien') {
                     $roles[] = 'ROLE_CAREGIVER';
                 }
                 // Note: ROLE_ADMIN should be granted manually by existing admin
@@ -321,7 +337,7 @@ class SecurityController extends AbstractController
             if ($user->getStatus() !== 'active') {
                 return $this->json([
                     'success' => false,
-                    'error' => 'Account is not active',
+                    'error' => 'Votre compte a été suspendu par l\'administrateur. Veuillez contacter le support pour plus d\'informations.',
                     'code' => 'ACCOUNT_INACTIVE'
                 ]);
             }

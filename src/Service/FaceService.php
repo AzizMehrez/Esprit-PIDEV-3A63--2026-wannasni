@@ -55,7 +55,8 @@ class FaceService
         );
         
         // Set proper encoding environment
-        $env = array_merge($_ENV, [
+        $sysEnv = getenv();
+        $env = array_merge(is_array($sysEnv) ? $sysEnv : [], $_ENV ?? [], [
             'PYTHONIOENCODING' => 'utf-8',
             'PYTHONDONTWRITEBYTECODE' => '1',
             'OPENCV_LOG_LEVEL' => 'SILENT'

@@ -22,8 +22,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'string', length: 180, unique: true)]
     private ?string $email = null;
 
-    #[ORM\Column(type: 'string')]
-    private ?string $password = null; // Hashed
+    #[ORM\Column(type: 'string', nullable: true)]
+    private ?string $password = null; // Hashed — null for social-only accounts
 
     #[ORM\Column(type: 'json')]
     private array $roles = ['ROLE_USER'];
@@ -85,6 +85,47 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(type: 'datetime', nullable: true)]
     private ?\DateTimeInterface $faceConsentAt = null;
+
+    // Technician fields for intervention assignment
+    #[ORM\Column(type: 'string', length: 100, nullable: true)]
+    private ?string $specialite = null;
+
+    #[ORM\Column(type: 'decimal', precision: 10, scale: 2, nullable: true)]
+    private ?string $tarifHoraire = null;
+
+    #[ORM\Column(type: 'boolean')]
+    private bool $disponible = true;
+
+    #[ORM\Column(type: 'string', length: 50, nullable: true)]
+    private ?string $userDomain = null;
+
+    // Networking profile fields
+    #[ORM\Column(type: 'boolean')]
+    private bool $profilePublic = true;
+
+    #[ORM\Column(type: 'text', nullable: true)]
+    private ?string $bio = null;
+
+    // Verification fields
+    #[ORM\Column(type: 'boolean')]
+    private bool $isAccountVerified = false;
+
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    private ?\DateTimeInterface $verifiedAt = null;
+
+    #[ORM\Column(type: 'string', length: 20, nullable: true)]
+    private ?string $verificationBadgeType = null; // 'blue', 'purple'
+
+    // Networking ban (soft-ban: read-only networking)
+    #[ORM\Column(type: 'boolean')]
+    private bool $isNetworkingBanned = false;
+
+    // Networking moderation: strike counter for content violations
+    #[ORM\Column(type: 'integer', options: ['default' => 0])]
+    private int $networkingStrikes = 0;
+
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    private ?\DateTimeInterface $lastStrikeAt = null;
 
     public function __construct()
     {
@@ -392,5 +433,178 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function eraseCredentials(): void
     {
         // Clear temporary, sensitive data if stored
+    }
+
+    // Technician getters and setters
+    public function getSpecialite(): ?string
+    {
+        return $this->specialite;
+    }
+
+    public function setSpecialite(?string $specialite): self
+    {
+        $this->specialite = $specialite;
+        return $this;
+    }
+
+    public function getTarifHoraire(): ?string
+    {
+        return $this->tarifHoraire;
+    }
+
+    public function setTarifHoraire(?string $tarifHoraire): self
+    {
+        $this->tarifHoraire = $tarifHoraire;
+        return $this;
+    }
+
+    public function isDisponible(): bool
+    {
+        return $this->disponible;
+    }
+
+    public function setDisponible(bool $disponible): self
+    {
+        $this->disponible = $disponible;
+        return $this;
+    }
+
+    public function getUserDomain(): ?string
+    {
+        return $this->userDomain;
+    }
+
+    public function setUserDomain(?string $userDomain): self
+    {
+        $this->userDomain = $userDomain;
+        return $this;
+    }
+
+    // Networking profile getters and setters
+    public function isProfilePublic(): bool
+    {
+        return $this->profilePublic;
+    }
+
+    public function setProfilePublic(bool $profilePublic): self
+    {
+        $this->profilePublic = $profilePublic;
+        return $this;
+    }
+
+    public function getBio(): ?string
+    {
+        return $this->bio;
+    }
+
+    public function setBio(?string $bio): self
+    {
+        $this->bio = $bio;
+        return $this;
+    }
+
+    // ── Verification getters/setters ──
+
+    public function isAccountVerified(): bool
+    {
+        return $this->isAccountVerified;
+    }
+
+    public function setIsAccountVerified(bool $isAccountVerified): self
+    {
+        $this->isAccountVerified = $isAccountVerified;
+        return $this;
+    }
+
+    public function getVerifiedAt(): ?\DateTimeInterface
+    {
+        return $this->verifiedAt;
+    }
+
+    public function setVerifiedAt(?\DateTimeInterface $verifiedAt): self
+    {
+        $this->verifiedAt = $verifiedAt;
+        return $this;
+    }
+
+    public function getVerificationBadgeType(): ?string
+    {
+        return $this->verificationBadgeType;
+    }
+
+    public function setVerificationBadgeType(?string $verificationBadgeType): self
+    {
+        $this->verificationBadgeType = $verificationBadgeType;
+        return $this;
+    }
+
+    /**
+     * Effective badge: purple for admins/@wannasni.com, blue for verified regulars.
+     * Purple always overrides blue.
+     */
+    public function getEffectiveBadge(): ?string
+    {
+        // Admin or @wannasni.com domain => always purple
+        if (in_array('ROLE_ADMIN', $this->getRoles()) ||
+            ($this->email && str_ends_with(strtolower($this->email), '@wannasni.com'))) {
+            return 'purple';
+        }
+        // Regular verified user => blue
+        if ($this->isAccountVerified) {
+            return 'blue';
+        }
+        return null;
+    }
+
+    // ── Networking ban getters/setters ──
+
+    public function isNetworkingBanned(): bool
+    {
+        return $this->isNetworkingBanned;
+    }
+
+    public function setIsNetworkingBanned(bool $isNetworkingBanned): self
+    {
+        $this->isNetworkingBanned = $isNetworkingBanned;
+        return $this;
+    }
+
+    // ── Networking moderation strikes ──
+
+    public function getNetworkingStrikes(): int
+    {
+        return $this->networkingStrikes;
+    }
+
+    public function setNetworkingStrikes(int $strikes): self
+    {
+        $this->networkingStrikes = $strikes;
+        return $this;
+    }
+
+    public function incrementNetworkingStrikes(): self
+    {
+        $this->networkingStrikes++;
+        $this->lastStrikeAt = new \DateTime();
+        return $this;
+    }
+
+    public function getLastStrikeAt(): ?\DateTimeInterface
+    {
+        return $this->lastStrikeAt;
+    }
+
+    public function setLastStrikeAt(?\DateTimeInterface $lastStrikeAt): self
+    {
+        $this->lastStrikeAt = $lastStrikeAt;
+        return $this;
+    }
+
+    /**
+     * Check if user profile is complete (has firstName, lastName, imageProfil)
+     */
+    public function isProfileComplete(): bool
+    {
+        return !empty($this->firstName) && !empty($this->lastName) && !empty($this->imageProfil);
     }
 }

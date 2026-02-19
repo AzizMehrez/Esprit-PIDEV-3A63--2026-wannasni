@@ -631,6 +631,12 @@
                 <span class="nav-icon">🥗</span>
                 Plans Nutrition
             </a>
+
+            <div class="nav-section">Fidélité</div>
+            <a href="{{ path('admin_loyalty') }}" class="nav-item {% if 'admin_loyalty' in app.request.get('_route') %}active{% endif %}">
+                <span class="nav-icon">🏆</span>
+                Programme Fidélité
+            </a>
         </nav>
 
         <div class="sidebar-footer">
@@ -648,8 +654,12 @@
     <main class="admin-main">
         <header class="admin-header">
             <h1 class="header-title">{% block page_title %}Dashboard{% endblock %}</h1>
-            <div class="header-actions">
-                {% block header_actions %}{% endblock %}
+            <div style="display: flex; align-items: center; gap: 1.5rem;">
+                <div class="header-actions">
+                    {% block header_actions %}{% endblock %}
+                </div>
+                <!-- Notifications -->
+                {{ render(controller('App\\Controller\\Admin\\NotificationController::menu')) }}
             </div>
         </header>
 
@@ -657,5 +667,8 @@
             {% block content %}{% endblock %}
         </div>
     </main>
+    
+    {% block javascripts %}{% endblock %}
 </body>
 </html>
+

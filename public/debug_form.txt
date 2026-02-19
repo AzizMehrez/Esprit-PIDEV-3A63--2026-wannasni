@@ -1,0 +1,194 @@
+--- New Submission ---
+Inputs: Array
+(
+    [type_service] => transport
+    [description] => fjnjud
+    [senior_telephone] => +21627750877
+    [senior_email] => azizmehrez050@gmail.com
+    [adresse] => tunisia,ariana
+    [ville] => ariana
+    [code_postal] => 2040
+    [niveau_urgence] => normale
+    [date_souhaitee] => 2026-02-14
+    [budget_minimum] => 1
+    [budget_maximum] => 1000
+    [notifier_proches] => 
+)
+
+Errors: Array
+(
+    [0] => Le numéro de téléphone doit contenir exactement 8 chiffres.
+)
+
+--- New Submission ---
+Inputs: Array
+(
+    [type_service] => transport
+    [description] => hdcnhndv
+    [senior_telephone] => +21627750877
+    [senior_email] => azizmehrez050@gmail.com
+    [adresse] => tunisia,ariana
+    [ville] => ariana
+    [code_postal] => 2040
+    [niveau_urgence] => normale
+    [date_souhaitee] => 2026-02-14
+    [budget_minimum] => 1
+    [budget_maximum] => 1000
+    [notifier_proches] => 
+)
+
+Errors: Array
+(
+    [0] => Le numéro de téléphone doit contenir exactement 8 chiffres.
+)
+
+--- New Submission ---
+Inputs: Array
+(
+    [type_service] => transport
+    [description] => hdcnhndv
+    [senior_telephone] => 27750877
+    [senior_email] => azizmehrez050@gmail.com
+    [adresse] => tunisia,ariana
+    [ville] => ariana
+    [code_postal] => 2040
+    [niveau_urgence] => normale
+    [date_souhaitee] => 2026-02-14
+    [budget_minimum] => 1
+    [budget_maximum] => 1000
+    [notifier_proches] => 
+)
+
+Errors: Array
+(
+)
+
+--- New Submission ---
+Inputs: Array
+(
+    [type_service] => courses
+    [description] => fffffffffff
+    [senior_telephone] => 27750877
+    [senior_email] => fff
+    [adresse] => tunisia,ariana
+    [ville] => ariana
+    [code_postal] => 2040
+    [niveau_urgence] => urgente
+    [date_souhaitee] => 2026-02-14
+    [budget_minimum] => 1
+    [budget_maximum] => 1000
+    [notifier_proches] => 
+)
+
+Errors: Array
+(
+    [0] => L'adresse email n'est pas valide.
+)
+
+--- New Submission ---
+Inputs: Array
+(
+    [type_service] => transport
+    [description] => zddsq
+    [senior_telephone] => +21627750877
+    [senior_email] => azizmehrez050@gmail.com
+    [adresse] => tunisia,ariana
+    [ville] => ariana
+    [code_postal] => 2040
+    [niveau_urgence] => urgente
+    [date_souhaitee] => 2026-02-14
+    [budget_minimum] => 1
+    [budget_maximum] => 1000
+    [notifier_proches] => 
+)
+
+Errors: Array
+(
+    [0] => Le numéro de téléphone doit contenir exactement 8 chiffres.
+)
+
+--- New Submission ---
+Inputs: Array
+(
+    [type_service] => transport
+    [description] => zddsq
+    [senior_telephone] => 27750877
+    [senior_email] => azizmehrez050@gmail.com
+    [adresse] => tunisia,ariana
+    [ville] => ariana
+    [code_postal] => 2040
+    [niveau_urgence] => urgente
+    [date_souhaitee] => 2026-02-14
+    [budget_minimum] => 1
+    [budget_maximum] => 1000
+    [notifier_proches] => 
+)
+
+Errors: Array
+(
+)
+
+--- New Submission ---
+Inputs: Array
+(
+    [type_service] => transport
+    [description] => jbjn
+    [senior_telephone] => +21623204052
+    [senior_email] => azizmehrez050@gmail.com
+    [adresse] => tunisia,ariana
+    [ville] => ariana
+    [code_postal] => 2040
+    [niveau_urgence] => normale
+    [date_souhaitee] => 2026-02-13
+    [budget_minimum] => 500.00
+    [budget_maximum] => 1600.00
+    [notifier_proches] => 1
+)
+
+Errors: Array
+(
+    [0] => Le numéro de téléphone doit contenir exactement 8 chiffres.
+)
+
+--- New Submission ---
+Inputs: Array
+(
+    [type_service] => transport
+    [description] => jbjn
+    [senior_telephone] => 27750877
+    [senior_email] => azizmehrez050@gmail.com
+    [adresse] => tunisia,ariana
+    [ville] => ariana
+    [code_postal] => 2040
+    [niveau_urgence] => normale
+    [date_souhaitee] => 2026-02-13
+    [budget_minimum] => 500.00
+    [budget_maximum] => 1600.00
+    [notifier_proches] => 1
+)
+
+Errors: Array
+(
+)
+
+--- New Submission ---
+Inputs: Array
+(
+    [type_service] => menage
+    [description] => Service de ménage recommandé : nettoyage et rangement à effectuer.
+    [senior_telephone] => 27750877
+    [senior_email] => aziz@wannasni.com
+    [adresse] => tunisia,ariana
+    [ville] => ariana
+    [code_postal] => 2040
+    [niveau_urgence] => normale
+    [date_souhaitee] => 2026-02-27
+    [budget_minimum] => 500.00
+    [budget_maximum] => 1600.00
+    [notifier_proches] => 
+)
+
+Errors: Array
+(
+)
+

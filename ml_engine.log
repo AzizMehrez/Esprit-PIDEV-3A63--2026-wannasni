@@ -1,0 +1,8 @@
+2026-02-16 19:48:12,619 - root - ERROR - Database connection failed: No module named 'utils.config'
+2026-02-16 19:48:12,651 - root - ERROR - Failed to start ML Engine: No module named 'utils.config'
+2026-02-16 19:49:58,048 - root - INFO - Database connection established
+2026-02-16 19:49:58,129 - root - INFO - Database connection successful
+2026-02-16 19:49:58,728 - root - ERROR - Failed to start ML Engine: attempted relative import beyond top-level package
+2026-02-16 19:50:47,009 - root - INFO - Database connection established
+2026-02-16 19:50:47,027 - root - INFO - Database connection successful
+2026-02-16 19:50:47,191 - root - ERROR - Failed to start ML Engine: attempted relative import beyond top-level package

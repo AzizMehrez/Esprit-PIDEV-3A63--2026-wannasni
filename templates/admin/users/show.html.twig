@@ -254,6 +254,16 @@
                         </span>
                     </div>
                     <div class="info-row">
+                        <span class="info-label">Domaine</span>
+                        <span class="info-value">
+                            {% if user.userDomain %}
+                                <span class="badge badge-info">{{ user.userDomain }}</span>
+                            {% else %}
+                                N/A
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="info-row">
                         <span class="info-label">Inscrit le</span>
                         <span class="info-value">{{ user.createdAt|date('d/m/Y H:i') }}</span>
                     </div>

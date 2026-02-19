@@ -1,0 +1,73 @@
+{% extends 'base_dashboard.html.twig' %}
+
+{% set current_locale = app.request.locale|default('fr') %}
+
+{% block title %}Reels - Networking{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<link rel="stylesheet" href="/css/networking.css">
+{% endblock %}
+
+{% block body %}
+<div class="net-page">
+    <div class="net-topbar">
+        <div class="net-topbar-inner">
+            <a href="{{ path('app_networking', {'_locale': current_locale}) }}" class="net-back-btn">← Feed</a>
+            <h1 class="net-topbar-title">🎞️ Reels</h1>
+        </div>
+    </div>
+
+    <div class="net-reels-feed">
+        {% for reel in reels %}
+            <div class="net-reel-card">
+                <div class="net-reel-header">
+                    <a href="{{ path('app_networking_user_profile', {'_locale': current_locale, 'id': reel.author.id}) }}" class="net-post-author">
+                        <div class="net-avatar-sm">
+                            {% if reel.author.imageProfil %}
+                                <img src="{{ reel.author.imageProfil }}" alt="">
+                            {% else %}
+                                {{ reel.author.firstName|default('U')|first|upper }}
+                            {% endif %}
+                        </div>
+                        <strong>{{ reel.author.fullName }}</strong>
+                    </a>
+                </div>
+                {% if reel.media|length > 0 %}
+                    {% for m in reel.media %}
+                        {% if m.mediaType == 'video' %}
+                            <video controls class="net-reel-video" preload="metadata">
+                                <source src="{{ m.filePath }}">
+                            </video>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+                {% if reel.content %}
+                    <div class="net-reel-caption">{{ reel.content }}</div>
+                {% endif %}
+                <div class="net-post-actions">
+                    <button class="net-action-btn" data-action="like" data-post-id="{{ reel.id }}">🤍 J'aime</button>
+                    <button class="net-action-btn" data-action="comment" data-post-id="{{ reel.id }}">💬</button>
+                </div>
+            </div>
+        {% else %}
+            <div class="net-empty">
+                <p>🎬 Aucun reel pour le moment. Créez votre premier reel depuis le fil principal !</p>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+    window.NET_CONFIG = {
+        locale: '{{ current_locale }}',
+        userId: {{ user.id }},
+        urls: {
+            likePost: '{{ path('app_networking_post_like', {'_locale': current_locale, 'id': 0}) }}'.replace('/0/', '/{id}/'),
+            commentPost: '{{ path('app_networking_post_comment', {'_locale': current_locale, 'id': 0}) }}'.replace('/0/', '/{id}/'),
+            getComments: '{{ path('app_networking_post_comments', {'_locale': current_locale, 'id': 0}) }}'.replace('/0/', '/{id}/'),
+        }
+    };
+</script>
+<script src="/js/networking.js"></script>
+{% endblock %}

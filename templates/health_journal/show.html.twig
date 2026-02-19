@@ -1,0 +1,78 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}HealthJournal{% endblock %}
+
+{% block body %}
+    <h1>HealthJournal</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ health_journal.id }}</td>
+            </tr>
+            <tr>
+                <th>SeniorId</th>
+                <td>{{ health_journal.seniorId }}</td>
+            </tr>
+            <tr>
+                <th>Date</th>
+                <td>{{ health_journal.date ? health_journal.date|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>Humeur</th>
+                <td>{{ health_journal.humeur }}</td>
+            </tr>
+            <tr>
+                <th>QualiteSommeil</th>
+                <td>{{ health_journal.qualiteSommeil }}</td>
+            </tr>
+            <tr>
+                <th>Appetit</th>
+                <td>{{ health_journal.appetit }}</td>
+            </tr>
+            <tr>
+                <th>NiveauDouleur</th>
+                <td>{{ health_journal.niveauDouleur }}</td>
+            </tr>
+            <tr>
+                <th>Symptomes</th>
+                <td>{{ health_journal.symptomes }}</td>
+            </tr>
+            <tr>
+                <th>TensionArterielle</th>
+                <td>{{ health_journal.tensionArterielle }}</td>
+            </tr>
+            <tr>
+                <th>FrequenceCardiaque</th>
+                <td>{{ health_journal.frequenceCardiaque }}</td>
+            </tr>
+            <tr>
+                <th>Temperature</th>
+                <td>{{ health_journal.temperature }}</td>
+            </tr>
+            <tr>
+                <th>MedicamentsPris</th>
+                <td>{{ health_journal.medicamentsPris }}</td>
+            </tr>
+            <tr>
+                <th>ActivitePhysique</th>
+                <td>{{ health_journal.activitePhysique }}</td>
+            </tr>
+            <tr>
+                <th>Hydratation</th>
+                <td>{{ health_journal.hydratation }}</td>
+            </tr>
+            <tr>
+                <th>Notes</th>
+                <td>{{ health_journal.notes }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_health_journal_index') }}">back to list</a>
+
+    <a href="{{ path('app_health_journal_edit', {'id': health_journal.id}) }}">edit</a>
+
+    {{ include('health_journal/_delete_form.html.twig') }}
+{% endblock %}

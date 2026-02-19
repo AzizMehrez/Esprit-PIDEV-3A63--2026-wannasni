@@ -1,0 +1,327 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Interventions - Admin WANNASNI{% endblock %}
+{% block page_title %}Gestion des Interventions{% endblock %}
+
+{% block content %}
+
+{# Flash Messages #}
+{% for message in app.flashes('success') %}
+    <div class="alert alert-success">
+        ✅ {{ message }}
+    </div>
+{% endfor %}
+
+{% for message in app.flashes('error') %}
+    <div class="alert alert-danger">
+        ❌ {{ message }}
+    </div>
+{% endfor %}
+
+{# Statistics Cards #}
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon orange">🔧</div>
+        <div class="stat-info">
+            <div class="stat-value">{{ stats.total }}</div>
+            <div class="stat-label">Total Interventions</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon blue">⏳</div>
+        <div class="stat-info">
+            <div class="stat-value">{{ stats.en_attente }}</div>
+            <div class="stat-label">En Attente</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon cyan">🔄</div>
+        <div class="stat-info">
+            <div class="stat-value">{{ stats.en_cours }}</div>
+            <div class="stat-label">En Cours</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon green">✅</div>
+        <div class="stat-info">
+            <div class="stat-value">{{ stats.terminee }}</div>
+            <div class="stat-label">Terminées</div>
+        </div>
+    </div>
+</div>
+
+{# Navigation entre Services et Interventions #}
+<div style="margin-bottom: 2rem; text-align: center;">
+    <a href="{{ path('admin_services') }}" class="btn btn-info" style="margin: 0.5rem;">
+        ← 🛎️ Voir les Services
+    </a>
+</div>
+
+{# Toolbar #}
+<div class="admin-toolbar">
+    <div class="toolbar-search">
+        <input type="text" id="searchInput" placeholder="Rechercher une intervention..." onkeyup="filterTable()">
+    </div>
+    <div class="toolbar-actions">
+        <a href="{{ path('admin_interventions_create') }}" class="btn btn-primary">
+            ➕ Nouvelle intervention
+        </a>
+    </div>
+</div>
+
+{# Table #}
+<div class="admin-card">
+    <div class="card-header">
+        <h2 class="card-title">🔧 Interventions Planifiées</h2>
+        <span class="badge badge-warning">{{ interventions|length }} interventions</span>
+    </div>
+    <table class="admin-table" id="dataTable">
+        <thead>
+            <tr>
+                <th class="sortable" onclick="sortTable(0)">Service</th>
+                <th class="sortable" onclick="sortTable(1)">Technicien</th>
+                <th class="sortable" onclick="sortTable(2)">Zone</th>
+                <th class="sortable" onclick="sortTable(3)">Statut</th>
+                <th class="sortable" onclick="sortTable(4)">Heures</th>
+                <th class="sortable" onclick="sortTable(5)">Tarif/h</th>
+                <th style="width: 220px;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for intervention in interventions %}
+            <tr>
+                <td>
+                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                        <div style="width: 40px; height: 40px; border-radius: 10px; background: linear-gradient(135deg, #8b5cf6, #a78bfa); display: flex; align-items: center; justify-content: center; font-size: 1.1rem;">
+                            {% if intervention.serviceRequest %}
+                                {% if 'transport' in intervention.serviceRequest.typeService|lower %}🚗
+                                {% elseif 'menage' in intervention.serviceRequest.typeService|lower or 'ménage' in intervention.serviceRequest.typeService|lower %}🏠
+                                {% elseif 'course' in intervention.serviceRequest.typeService|lower %}🛒
+                                {% elseif 'accompagnement' in intervention.serviceRequest.typeService|lower %}🤝
+                                {% else %}🔧{% endif %}
+                            {% else %}
+                                🔧
+                            {% endif %}
+                        </div>
+                        <div>
+                            <div style="font-weight: 600;">
+                                {{ intervention.serviceRequest ? intervention.serviceRequest.typeService : 'Service non lié' }}
+                            </div>
+                            <div style="font-size: 0.8rem; color: var(--admin-text-muted);">
+                                {{ intervention.competences }}
+                            </div>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <div>
+                        <div style="font-weight: 500;">{{ intervention.technicienNom ?: 'Non assigné' }}</div>
+                        <div style="font-size: 0.8rem; color: var(--admin-text-muted);">
+                            {{ intervention.technicienEmail ?: 'Pas d\'email' }}
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <span class="badge badge-info">📍 {{ intervention.zoneIntervention }}</span>
+                </td>
+                <td>
+                    {% if intervention.statutActuel == 'en_attente' %}
+                        <span class="badge badge-warning">⏳ En attente</span>
+                    {% elseif intervention.statutActuel == 'assignee' %}
+                        <span class="badge badge-info">👤 Assignée</span>
+                    {% elseif intervention.statutActuel == 'en_cours' %}
+                        <span class="badge badge-primary">🔄 En cours</span>
+                    {% elseif intervention.statutActuel == 'terminee' %}
+                        <span class="badge badge-success">✅ Terminée</span>
+                    {% else %}
+                        <span class="badge badge-secondary">{{ intervention.statutActuel }}</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <strong>{{ intervention.heuresTravail }}h</strong>
+                </td>
+                <td>
+                    <strong>{{ intervention.tarifHoraire }}€</strong>
+                </td>
+                <td>
+                    <div style="display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap;">
+                        <a href="{{ path('admin_interventions_show', {id: intervention.id}) }}" 
+                           class="action-btn action-btn-view" 
+                           title="Voir les détails">
+                            👁️
+                        </a>
+                        <a href="{{ path('admin_interventions_edit', {id: intervention.id}) }}" 
+                           class="action-btn action-btn-edit" 
+                           title="Modifier">
+                            ✏️
+                        </a>
+                        <button type="button" 
+                                class="action-btn action-btn-delete" 
+                                title="Supprimer"
+                                data-intervention-id="{{ intervention.id }}"
+                                data-intervention-name="{{ intervention.serviceRequest ? intervention.serviceRequest.typeService : 'Intervention #' ~ intervention.id }}"
+                                data-csrf-token="{{ csrf_token('delete' ~ intervention.id) }}"
+                                onclick="confirmDelete(this)">
+                            🗑️
+                        </button>
+                    </div>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="7" style="text-align: center; padding: 2rem; color: var(--admin-text-muted);">
+                    Aucune intervention pour le moment
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{# Modal de confirmation de suppression #}
+<div id="deleteModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>⚠️ Confirmer la suppression</h3>
+        </div>
+        <div class="modal-body">
+            <p>Êtes-vous sûr de vouloir supprimer cette intervention ?</p>
+            <p><strong id="interventionToDelete"></strong></p>
+            <p style="color: #dc3545; font-size: 0.9rem;">⚠️ Cette action est irréversible.</p>
+        </div>
+        <div class="modal-footer">
+            <button onclick="closeDeleteModal()" class="btn btn-secondary">Annuler</button>
+            <form id="deleteForm" method="post" style="display: inline;">
+                <input type="hidden" name="_token" id="deleteToken">
+                <button type="submit" class="btn btn-danger">🗑️ Supprimer</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+.alert {
+    padding: 1rem 1.5rem;
+    margin-bottom: 1.5rem;
+    border-radius: 8px;
+    border-left: 4px solid;
+}
+.alert-success {
+    background-color: #d4edda;
+    border-color: #28a745;
+    color: #155724;
+}
+.alert-danger {
+    background-color: #f8d7da;
+    border-color: #dc3545;
+    color: #721c24;
+}
+.action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.2s;
+    text-decoration: none;
+}
+.action-btn-view { background: #e3f2fd; }
+.action-btn-view:hover { background: #2196f3; transform: scale(1.1); }
+.action-btn-edit { background: #fff3e0; }
+.action-btn-edit:hover { background: #ff9800; transform: scale(1.1); }
+.action-btn-delete { background: #ffebee; }
+.action-btn-delete:hover { background: #f44336; transform: scale(1.1); }
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+.modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.modal-content {
+    background-color: white;
+    border-radius: 12px;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+.modal-header { padding: 1.5rem; border-bottom: 1px solid #e9ecef; }
+.modal-header h3 { margin: 0; color: #333; }
+.modal-body { padding: 1.5rem; }
+.modal-footer {
+    padding: 1rem 1.5rem;
+    border-top: 1px solid #e9ecef;
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+}
+</style>
+
+<script>
+function filterTable() {
+    const input = document.getElementById('searchInput');
+    const filter = input.value.toLowerCase();
+    const table = document.getElementById('dataTable');
+    const rows = table.getElementsByTagName('tr');
+    for (let i = 1; i < rows.length; i++) {
+        const cells = rows[i].getElementsByTagName('td');
+        let found = false;
+        for (let j = 0; j < cells.length - 1; j++) {
+            if (cells[j].textContent.toLowerCase().includes(filter)) {
+                found = true;
+                break;
+            }
+        }
+        rows[i].style.display = found ? '' : 'none';
+    }
+}
+
+let sortDirection = {};
+function sortTable(columnIndex) {
+    const table = document.getElementById('dataTable');
+    const tbody = table.getElementsByTagName('tbody')[0];
+    const rows = Array.from(tbody.getElementsByTagName('tr'));
+    sortDirection[columnIndex] = !sortDirection[columnIndex];
+    const ascending = sortDirection[columnIndex];
+    rows.sort((a, b) => {
+        const aText = a.cells[columnIndex].textContent.trim().toLowerCase();
+        const bText = b.cells[columnIndex].textContent.trim().toLowerCase();
+        return ascending ? aText.localeCompare(bText) : bText.localeCompare(aText);
+    });
+    rows.forEach(row => tbody.appendChild(row));
+}
+
+function confirmDelete(button) {
+    const interventionId = button.dataset.interventionId;
+    const interventionName = button.dataset.interventionName;
+    const csrfToken = button.dataset.csrfToken;
+    
+    const modal = document.getElementById('deleteModal');
+    document.getElementById('interventionToDelete').textContent = interventionName;
+    document.getElementById('deleteForm').action = `/admin/interventions/${interventionId}/delete`;
+    document.getElementById('deleteToken').value = csrfToken;
+    modal.classList.add('active');
+}
+
+function closeDeleteModal() {
+    document.getElementById('deleteModal').classList.remove('active');
+}
+
+window.onclick = function(event) {
+    const modal = document.getElementById('deleteModal');
+    if (event.target == modal) closeDeleteModal();
+}
+</script>
+{% endblock %}

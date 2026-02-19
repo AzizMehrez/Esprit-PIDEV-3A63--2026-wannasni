@@ -56,15 +56,26 @@
             <div class="stat-label">Admins</div>
         </div>
     </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background: linear-gradient(135deg, #dbeafe, #bfdbfe); color: #2563eb;">✓</div>
+        <div class="stat-info">
+            <div class="stat-value">{{ stats.verified }}</div>
+            <div class="stat-label">Vérifiés</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background: linear-gradient(135deg, #fef3c7, #fde68a); color: #92400e;">⏳</div>
+        <div class="stat-info">
+            <div class="stat-value">{{ stats.pending_verifications }}</div>
+            <div class="stat-label">Demandes en attente</div>
+        </div>
+    </div>
 </div>
 
 {# Filters #}
 <div class="admin-toolbar">
     <div class="toolbar-search">
-        <form method="get" action="{{ path('admin_users') }}" style="display: flex; gap: 0.5rem;">
-            <input type="text" name="search" placeholder="Rechercher un utilisateur..." value="{{ search_term }}">
-            <button type="submit" class="btn btn-secondary">🔍</button>
-        </form>
+        <input type="text" id="searchInput" placeholder="Rechercher un utilisateur..." onkeyup="filterTable()">
     </div>
     <div class="toolbar-actions">
         <div class="filter-group">
@@ -73,6 +84,8 @@
             <a href="{{ path('admin_users', {filter: 'inactive'}) }}" class="filter-btn {% if current_filter == 'inactive' %}active{% endif %}">Inactifs</a>
             <a href="{{ path('admin_users', {filter: 'admins'}) }}" class="filter-btn {% if current_filter == 'admins' %}active{% endif %}">Admins</a>
             <a href="{{ path('admin_users', {filter: 'caregivers'}) }}" class="filter-btn {% if current_filter == 'caregivers' %}active{% endif %}">Aidants</a>
+            <a href="{{ path('admin_users', {filter: 'verified'}) }}" class="filter-btn {% if current_filter == 'verified' %}active{% endif %}">✓ Vérifiés</a>
+            <a href="{{ path('admin_users', {filter: 'banned'}) }}" class="filter-btn {% if current_filter == 'banned' %}active{% endif %}">⛔ Bannis</a>
         </div>
         <div class="export-group">
             <a href="{{ path('admin_users_export_pdf', {filter: current_filter, search: search_term}) }}" class="btn-export btn-export-pdf" title="Exporter en PDF" target="_blank">
@@ -93,17 +106,18 @@
         <h2 class="card-title">👥 Liste des Utilisateurs</h2>
         <span class="badge badge-info">{{ users|length }} utilisateurs</span>
     </div>
-    <table class="admin-table sortable-table" id="dataTable">
+    <table class="admin-table" id="dataTable">
         <thead>
             <tr>
-                <th class="sortable" data-column="0">ID <span class="sort-icon">⇅</span></th>
-                <th class="sortable" data-column="1">Utilisateur <span class="sort-icon">⇅</span></th>
-                <th class="sortable" data-column="2">Email <span class="sort-icon">⇅</span></th>
-                <th class="sortable" data-column="3">Téléphone <span class="sort-icon">⇅</span></th>
-                <th class="sortable" data-column="4">Rôle <span class="sort-icon">⇅</span></th>
-                <th class="sortable" data-column="5">Statut <span class="sort-icon">⇅</span></th>
-                <th class="sortable" data-column="6">Inscrit le <span class="sort-icon">⇅</span></th>
-                <th style="width: 150px;">Actions</th>
+                <th class="sortable" onclick="sortTable(0)">ID</th>
+                <th class="sortable" onclick="sortTable(1)">Utilisateur</th>
+                <th class="sortable" onclick="sortTable(2)">Email</th>
+                <th class="sortable" onclick="sortTable(3)">Rôle</th>
+                <th>Badge</th>
+                <th class="sortable" onclick="sortTable(5)">Statut</th>
+                <th>Networking</th>
+                <th class="sortable" onclick="sortTable(7)">Inscrit le</th>
+                <th style="width: 200px;">Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -120,12 +134,18 @@
                             {% endif %}
                         </div>
                         <div>
-                            <div style="font-weight: 600;">{{ user.firstName }} {{ user.lastName }}</div>
+                            <div style="font-weight: 600;">
+                                {{ user.firstName }} {{ user.lastName }}
+                                {% if user.effectiveBadge == 'purple' %}
+                                    <span style="display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:linear-gradient(135deg,#8b5cf6,#7c3aed);color:white;font-size:9px;font-weight:800;margin-left:3px;vertical-align:middle;" title="Admin vérifié">✓</span>
+                                {% elseif user.effectiveBadge == 'blue' %}
+                                    <span style="display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:linear-gradient(135deg,#3b82f6,#2563eb);color:white;font-size:9px;font-weight:800;margin-left:3px;vertical-align:middle;" title="Vérifié">✓</span>
+                                {% endif %}
+                            </div>
                         </div>
                     </div>
                 </td>
                 <td>{{ user.email }}</td>
-                <td>{{ user.phone ?? 'N/A' }}</td>
                 <td>
                     {% if 'ROLE_ADMIN' in user.roles %}
                         <span class="badge badge-danger">Admin</span>
@@ -136,15 +156,31 @@
                     {% endif %}
                 </td>
                 <td>
+                    {% if user.effectiveBadge == 'purple' %}
+                        <span class="badge" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed);color:white;">🟣 Purple</span>
+                    {% elseif user.effectiveBadge == 'blue' %}
+                        <span class="badge" style="background:linear-gradient(135deg,#3b82f6,#2563eb);color:white;">🔵 Bleu</span>
+                    {% else %}
+                        <span style="color: #9ca3af; font-size: 0.875rem;">—</span>
+                    {% endif %}
+                </td>
+                <td>
                     {% if user.status == 'active' %}
                         <span class="badge badge-success">✓ Actif</span>
                     {% else %}
                         <span class="badge badge-warning">⏸ Inactif</span>
                     {% endif %}
                 </td>
+                <td>
+                    {% if user.isNetworkingBanned() %}
+                        <span class="badge" style="background:#fee2e2;color:#991b1b;">⛔ Banni</span>
+                    {% else %}
+                        <span style="color: #22c55e; font-size: 0.85rem;">✓ OK</span>
+                    {% endif %}
+                </td>
                 <td>{{ user.createdAt|date('d/m/Y H:i') }}</td>
                 <td>
-                    <div style="display: flex; gap: 0.25rem;">
+                    <div style="display: flex; gap: 0.25rem; flex-wrap: wrap;">
                         <a href="{{ path('admin_users_show', {id: user.id}) }}" class="action-btn" title="Voir">👁️</a>
                         <a href="{{ path('admin_users_edit', {id: user.id}) }}" class="action-btn" title="Modifier">✏️</a>
                         <form method="post" action="{{ path('admin_users_toggle_status', {id: user.id}) }}" style="display: inline;">
@@ -152,7 +188,12 @@
                                 {% if user.status == 'active' %}⏸{% else %}▶{% endif %}
                             </button>
                         </form>
-                        <form method="post" action="{{ path('admin_users_delete', {id: user.id}) }}" style="display: inline;" onsubmit="return confirm('⚠️ Êtes-vous sûr de vouloir supprimer l\'utilisateur :\n\n{{ user.firstName }} {{ user.lastName }}\n\nCette action est irréversible et toutes les données de cet utilisateur seront définitivement supprimées !')">
+                        <form method="post" action="{{ path('admin_users_toggle_networking_ban', {id: user.id}) }}" style="display: inline;">
+                            <button type="submit" class="action-btn" title="{% if user.isNetworkingBanned() %}Débannir networking{% else %}Bannir networking{% endif %}" onclick="return confirm('{% if user.isNetworkingBanned() %}Débannir cet utilisateur du networking ?{% else %}Bannir cet utilisateur du networking (lecture seule) ?{% endif %}')" style="{% if user.isNetworkingBanned() %}color:#22c55e{% else %}color:#ef4444{% endif %}">
+                                {% if user.isNetworkingBanned() %}🔓{% else %}🚫{% endif %}
+                            </button>
+                        </form>
+                        <form method="post" action="{{ path('admin_users_delete', {id: user.id}) }}" style="display: inline;" onsubmit="return confirm('⚠️ Supprimer {{ user.firstName }} {{ user.lastName }} ? Irréversible !')">
                             <button type="submit" class="action-btn action-btn-delete" title="Supprimer">🗑️</button>
                         </form>
                     </div>
@@ -160,7 +201,7 @@
             </tr>
             {% else %}
             <tr>
-                <td colspan="8" style="text-align: center; padding: 2rem; color: #718096;">
+                <td colspan="9" style="text-align: center; padding: 2rem; color: #718096;">
                     Aucun utilisateur trouvé.
                 </td>
             </tr>
@@ -168,6 +209,55 @@
         </tbody>
     </table>
 </div>
+
+{# ═══════════════════════════════════════════════════════════════
+   Verification Requests Queue
+   ═══════════════════════════════════════════════════════════════ #}
+{% if pendingRequests|length > 0 %}
+<div class="admin-card" style="margin-top: 2rem;">
+    <div class="card-header">
+        <h2 class="card-title">⏳ Demandes de vérification en attente</h2>
+        <span class="badge" style="background:linear-gradient(135deg,#fbbf24,#f59e0b);color:white;">{{ pendingRequestCount }} en attente</span>
+    </div>
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th>Utilisateur</th>
+                <th>Email</th>
+                <th>Raison</th>
+                <th>Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for vr in pendingRequests %}
+            <tr>
+                <td>
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <div style="width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #3b82f6, #8b5cf6); display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 0.75rem; color: white; overflow: hidden;">
+                            {% if vr.user.imageProfil %}
+                                <img src="{{ vr.user.imageProfil }}" alt="" style="width: 100%; height: 100%; object-fit: cover;">
+                            {% else %}
+                                {{ vr.user.firstName|default('U')|first|upper }}
+                            {% endif %}
+                        </div>
+                        <strong>{{ vr.user.fullName }}</strong>
+                    </div>
+                </td>
+                <td>{{ vr.user.email }}</td>
+                <td style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{{ vr.reason }}">{{ vr.reason|length > 80 ? vr.reason|slice(0, 80) ~ '...' : vr.reason }}</td>
+                <td>{{ vr.createdAt|date('d/m/Y H:i') }}</td>
+                <td>
+                    <a href="{{ path('admin_users_verification_review', {id: vr.id}) }}" class="btn-examiner">
+                        📋 Examiner
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
 
 <style>
 .filter-group {
@@ -340,58 +430,99 @@
     content: ' ▼';
     opacity: 1;
 }
+
+.btn-examiner {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.5rem 1.2rem;
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: white !important;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.85rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3);
+    white-space: nowrap;
+}
+
+.btn-examiner:hover {
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+.btn-examiner:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 3px rgba(59, 130, 246, 0.3);
+}
 </style>
 {% endblock %}
 
 {% block javascripts %}
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const table = document.getElementById('dataTable');
-    if (!table) return;
+/* ── Search ── */
+function filterTable() {
+    const filter = document.getElementById('searchInput').value.toLowerCase();
+    const tbody  = document.querySelector('#dataTable tbody');
+    if (!tbody) return;
     
-    const headers = table.querySelectorAll('th.sortable');
-    const tbody = table.querySelector('tbody');
-    
-    headers.forEach(header => {
-        header.addEventListener('click', function() {
-            const columnIndex = parseInt(this.dataset.column);
-            const isAscending = !this.classList.contains('asc');
-            
-            // Remove all sort classes
-            headers.forEach(h => h.classList.remove('asc', 'desc'));
-            
-            // Add appropriate class
-            this.classList.add(isAscending ? 'asc' : 'desc');
-            
-            // Get all rows
-            const rows = Array.from(tbody.querySelectorAll('tr'));
-            
-            // Sort rows
-            rows.sort((a, b) => {
-                let aValue = a.cells[columnIndex].textContent.trim();
-                let bValue = b.cells[columnIndex].textContent.trim();
-                
-                // Handle numeric values (ID column)
-                if (columnIndex === 0) {
-                    aValue = parseInt(aValue.replace('#', ''));
-                    bValue = parseInt(bValue.replace('#', ''));
-                }
-                
-                // Handle dates
-                if (columnIndex === 6) {
-                    aValue = new Date(aValue.split('/').reverse().join('-'));
-                    bValue = new Date(bValue.split('/').reverse().join('-'));
-                }
-                
-                if (aValue < bValue) return isAscending ? -1 : 1;
-                if (aValue > bValue) return isAscending ? 1 : -1;
-                return 0;
-            });
-            
-            // Re-append sorted rows
-            rows.forEach(row => tbody.appendChild(row));
+    const rows   = tbody.querySelectorAll('tr');
+    rows.forEach(row => {
+        // Skip empty state row (row with only 1 cell = colspan message)
+        if (row.cells.length <= 1) return;
+        
+        const cells = row.querySelectorAll('td');
+        let found = false;
+        cells.forEach((cell, idx) => {
+            if (idx < cells.length - 1 && cell.textContent.toLowerCase().includes(filter)) {
+                found = true;
+            }
         });
+        row.style.display = found || filter === '' ? '' : 'none';
     });
-});
+}
+
+/* ── Sort ── */
+let sortDirection = {};
+function sortTable(columnIndex) {
+    const table   = document.getElementById('dataTable');
+    const tbody   = table.querySelector('tbody');
+    const rows    = Array.from(tbody.querySelectorAll('tr'));
+    const headers = table.querySelectorAll('thead th');
+
+    sortDirection[columnIndex] = !sortDirection[columnIndex];
+    const ascending = sortDirection[columnIndex];
+    headers.forEach(h => h.classList.remove('asc', 'desc'));
+    headers[columnIndex].classList.add(ascending ? 'asc' : 'desc');
+
+    // ID column (0), Date column (6)
+    rows.sort((a, b) => {
+        let aText = a.cells[columnIndex]?.textContent.trim() || '';
+        let bText = b.cells[columnIndex]?.textContent.trim() || '';
+        
+        // ID column - numeric
+        if (columnIndex === 0) {
+            const aNum = parseInt(aText.replace('#', '')) || 0;
+            const bNum = parseInt(bText.replace('#', '')) || 0;
+            return ascending ? aNum - bNum : bNum - aNum;
+        }
+        
+        // Date column
+        if (columnIndex === 6) {
+            const aDate = new Date(aText.split(' ')[0].split('/').reverse().join('-'));
+            const bDate = new Date(bText.split(' ')[0].split('/').reverse().join('-'));
+            return ascending ? aDate - bDate : bDate - aDate;
+        }
+        
+        return ascending
+            ? aText.toLowerCase().localeCompare(bText.toLowerCase())
+            : bText.toLowerCase().localeCompare(aText.toLowerCase());
+    });
+    rows.forEach(row => tbody.appendChild(row));
+}
 </script>
 {% endblock %}
+
+

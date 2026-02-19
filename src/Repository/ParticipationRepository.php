@@ -61,4 +61,16 @@ class ParticipationRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    /**
+     * Count participations with feedback
+     */
+    public function countWithFeedback(): int
+    {
+        return (int) $this->createQueryBuilder('p')
+            ->select('COUNT(p.id)')
+            ->andWhere('p.feedbackRating IS NOT NULL OR p.feedbackComment IS NOT NULL OR p.feedback IS NOT NULL')
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
 }

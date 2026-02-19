@@ -18,6 +18,7 @@ class UserDTO
     public array $roles;
     public string $status;
     public ?string $phone;
+    public ?string $userDomain;
     public string $createdAt;
     public ?string $lastLoginAt;
 
@@ -35,6 +36,7 @@ class UserDTO
         $dto->roles = $user->getRoles();
         $dto->status = $user->getStatus();
         $dto->phone = $user->getPhone();
+        $dto->userDomain = $user->getUserDomain();
         $dto->createdAt = $user->getCreatedAt()?->format('Y-m-d H:i:s') ?? '';
         $dto->lastLoginAt = $user->getLastLoginAt()?->format('Y-m-d H:i:s');
         
@@ -55,6 +57,7 @@ class UserDTO
             'roles' => $this->roles,
             'status' => $this->status,
             'phone' => $this->phone,
+            'user_domain' => $this->userDomain,
             'created_at' => $this->createdAt,
             'last_login_at' => $this->lastLoginAt,
         ];

@@ -1,0 +1,21 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Accès Refusé{% endblock %}
+
+{% block body %}
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="text-center">
+                    <h1 class="display-1 text-muted">403</h1>
+                    <h2>Accès Refusé</h2>
+                    <p class="lead">Vous n'avez pas les permissions nécessaires pour accéder à cette page.</p>
+                    <a href="{{ path('app_home', {'_locale': app.request.locale|default('fr')}) }}" class="btn btn-primary">
+                        <i class="fas fa-home me-1"></i>
+                        Retour à l'Accueil
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
