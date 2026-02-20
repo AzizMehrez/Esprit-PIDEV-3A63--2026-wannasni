@@ -1,0 +1,304 @@
+{% extends 'base_dashboard.html.twig' %}
+
+{% block title %}Mon Profil - WANNASNI{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    :root {
+        --dash-primary: #2E7D32;
+        --dash-primary-light: #4CAF50;
+        --dash-primary-soft: rgba(46, 125, 50, 0.08);
+        --dash-bg: #f8faf8;
+        --dash-card: #ffffff;
+        --dash-text: #1a1a2e;
+        --dash-text-muted: #64748b;
+        --dash-border: #e2e8f0;
+        --dash-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+        --dash-shadow-hover: 0 8px 32px rgba(46, 125, 50, 0.12);
+        --dash-radius: 20px;
+        --dash-radius-sm: 12px;
+    }
+
+    body { background: var(--dash-bg); }
+
+    .page-wrapper {
+        min-height: 100vh;
+        padding: 2rem 1.5rem 4rem;
+        background: linear-gradient(180deg, #f0f7f0 0%, var(--dash-bg) 30%);
+    }
+
+    .page-container {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--dash-primary);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.95rem;
+        margin-bottom: 1.5rem;
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        transition: all 0.2s;
+    }
+
+    .back-link:hover {
+        background: var(--dash-primary-soft);
+    }
+
+    .profile-header {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+        padding: 2rem;
+        background: linear-gradient(135deg, var(--dash-primary) 0%, #1b5e20 100%);
+        border-radius: var(--dash-radius);
+        box-shadow: 0 8px 40px rgba(46, 125, 50, 0.25);
+    }
+
+    .profile-avatar {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.2);
+        backdrop-filter: blur(10px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: white;
+        border: 3px solid rgba(255,255,255,0.3);
+        flex-shrink: 0;
+    }
+
+    .profile-info {
+        color: white;
+    }
+
+    .profile-name {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+    }
+
+    .profile-email {
+        opacity: 0.9;
+        font-size: 1rem;
+    }
+
+    .profile-card {
+        background: var(--dash-card);
+        border-radius: var(--dash-radius);
+        box-shadow: var(--dash-shadow);
+        border: 1px solid var(--dash-border);
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+    }
+
+    .card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid var(--dash-border);
+        background: linear-gradient(to right, var(--dash-primary-soft), transparent);
+    }
+
+    .card-title {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--dash-text);
+    }
+
+    .card-title-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        background: linear-gradient(135deg, var(--dash-primary), var(--dash-primary-light));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1rem;
+    }
+
+    .btn-edit {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        background: linear-gradient(135deg, var(--dash-primary), var(--dash-primary-light));
+        color: white;
+        text-decoration: none;
+        border-radius: 50px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        transition: all 0.2s;
+        box-shadow: 0 4px 12px rgba(46, 125, 50, 0.25);
+    }
+
+    .btn-edit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(46, 125, 50, 0.35);
+    }
+
+    .card-body {
+        padding: 1.5rem;
+    }
+
+    .info-grid {
+        display: grid;
+        gap: 0;
+    }
+
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 0;
+        border-bottom: 1px solid var(--dash-border);
+    }
+
+    .info-row:last-child {
+        border-bottom: none;
+    }
+
+    .info-label {
+        color: var(--dash-text-muted);
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+
+    .info-value {
+        font-weight: 600;
+        color: var(--dash-text);
+        font-size: 0.95rem;
+        text-align: right;
+    }
+
+    @media (max-width: 640px) {
+        .profile-header {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .info-row {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.25rem;
+        }
+
+        .info-value {
+            text-align: left;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="page-wrapper">
+    <div class="page-container">
+        <a href="{{ path('app_dashboard', {'_locale': app.request.locale}) }}" class="back-link">
+            ← Retour au tableau de bord
+        </a>
+
+        {% if app.flashes('success') %}
+            <div style="padding: 1rem 1.5rem; background: linear-gradient(135deg, #d4f4dd 0%, #c6f6d5 100%); color: #276749; border: 2px solid #48bb78; border-radius: 12px; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem; animation: slideIn 0.4s ease-out;">
+                <span style="font-size: 1.5rem;">✅</span>
+                {% for message in app.flashes('success') %}
+                    <span style="font-weight: 500;">{{ message }}</span>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <div class="profile-header">
+            <div class="profile-avatar">
+                {% if user.imageProfil %}
+                    <img src="{{ user.imageProfil }}" alt="{{ user.firstName }} {{ user.lastName }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                {% else %}
+                    {{ user.firstName|first }}{{ user.lastName|first }}
+                {% endif %}
+            </div>
+            <div class="profile-info">
+                <h1 class="profile-name">{{ user.firstName }} {{ user.lastName }}</h1>
+                <p class="profile-email">{{ user.email }}</p>
+            </div>
+        </div>
+
+        <div class="profile-card">
+            <div class="card-header">
+                <div class="card-title">
+                    <span class="card-title-icon">👤</span>
+                    Informations Personnelles
+                </div>
+                <a href="{{ path('app_profile_edit', {'_locale': app.request.locale}) }}" class="btn-edit">
+                    ✏️ Modifier
+                </a>
+            </div>
+            <div class="card-body">
+                <div class="info-grid">
+                    <div class="info-row">
+                        <span class="info-label">Prénom</span>
+                        <span class="info-value">{{ user.firstName|default('Non renseigné') }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Nom</span>
+                        <span class="info-value">{{ user.lastName|default('Non renseigné') }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Email</span>
+                        <span class="info-value">{{ user.email }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Téléphone</span>
+                        <span class="info-value">{{ user.phone|default('Non renseigné') }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Date de Naissance</span>
+                        <span class="info-value">{{ user.dateNaissance ? user.dateNaissance|date('d/m/Y') : 'Non renseigné' }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Adresse</span>
+                        <span class="info-value">{{ user.adresse|default('Non renseigné') }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Ville</span>
+                        <span class="info-value">{{ user.ville|default('Non renseigné') }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Code Postal</span>
+                        <span class="info-value">{{ user.codePostal|default('Non renseigné') }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Pays</span>
+                        <span class="info-value">{{ user.pays|default('Non renseigné') }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Location</span>
+                        <span class="info-value">{{ user.location|default('Non renseigné') }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Statut du compte</span>
+                        <span class="info-value">{{ user.status|capitalize }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Membre depuis</span>
+                        <span class="info-value">{{ user.createdAt|date('d/m/Y') }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

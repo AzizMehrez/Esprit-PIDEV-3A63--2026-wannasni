@@ -1,0 +1,364 @@
+{% extends 'base_auth.html.twig' %}
+
+{% block title %}{{ 'cta.login'|trans|default('Connexion') }} — {{ 'site.name'|trans }}{% endblock %}
+
+{% block body %}
+<div class="auth-page">
+    {# Left Side - Image & Quote #}
+    <div class="auth-image-side">
+        <div class="auth-image-overlay"></div>
+        <img src="/images/hero.png" alt="" class="auth-bg-image" aria-hidden="true">
+        <div class="auth-image-content">
+            <div class="auth-logo">
+                <img src="/images/logo.png" alt="WANNASNI" class="auth-logo-img">
+            </div>
+            <blockquote class="auth-quote">
+                <p>"{{ 'auth.quote'|trans|default('Des soins qui ressemblent à de la famille.') }}"</p>
+                <cite>— WANNASNI</cite>
+            </blockquote>
+        </div>
+    </div>
+    
+    {# Right Side - Login Form #}
+    <div class="auth-form-side">
+        <div class="auth-form-container">
+            {# Mobile Logo (shown on small screens only) #}
+            <div class="auth-mobile-header">
+                <a href="{{ path('app_home') }}" class="auth-back-link">
+                    ← {{ 'nav.back'|trans|default('Retour') }}
+                </a>
+                <img src="/images/logo.png" alt="WANNASNI" class="auth-mobile-logo">
+            </div>
+            
+            <div class="auth-form-header">
+                <h1 class="auth-title">{{ 'auth.login.title'|trans|default('Bon retour !') }}</h1>
+                <p class="auth-subtitle">{{ 'auth.login.subtitle'|trans|default('Connectez-vous pour accéder à votre espace.') }}</p>
+            </div>
+            
+            {% if error is defined and error %}
+                <div class="auth-error" role="alert">
+                    <span class="error-icon">⚠️</span>
+                    {{ error.messageKey|trans(error.messageData, 'security') }}
+                </div>
+            {% endif %}
+            
+            {% if app.flashes('success') %}
+                <div class="alert alert-success">
+                    {% for message in app.flashes('success') %}
+                        <p>{{ message }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            
+            <form method="post" action="{{ path('app_login', {_locale: app.request.locale}) }}" class="auth-form">
+                <div class="form-group">
+                    <label for="inputEmail" class="form-label">{{ 'auth.email'|trans|default('Adresse email') }}</label>
+                    <input type="email" 
+                           id="inputEmail" 
+                           name="_username" 
+                           class="form-input" 
+                           value="{{ last_username }}"
+                           placeholder="exemple@email.com"
+                           autocomplete="email"
+                           required 
+                           autofocus>
+                </div>
+                
+                <div class="form-group">
+                    <label for="inputPassword" class="form-label">{{ 'auth.password'|trans|default('Mot de passe') }}</label>
+                    <input type="password" 
+                           id="inputPassword" 
+                           name="_password" 
+                           class="form-input" 
+                           placeholder="••••••••"
+                           autocomplete="current-password"
+                           required>
+                </div>
+                
+                <div class="form-row">
+                    <label class="form-checkbox">
+                        <input type="checkbox" name="_remember_me">
+                        <span class="checkbox-label">{{ 'auth.remember_me'|trans|default('Se souvenir de moi') }}</span>
+                    </label>
+                    <a href="{{ path('app_forgot_password', {_locale: app.request.locale}) }}" class="auth-link">{{ 'auth.forgot_password_link'|trans|default('Mot de passe oublié ?') }}</a>
+                </div>
+                
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+                
+                <button type="submit" class="btn btn-primary btn-large btn-full">
+                    {{ 'cta.login'|trans|default('Se connecter') }}
+                </button>
+            </form>
+            
+            {# Social Authentication Buttons #}
+            {# Face ID Login Button #}
+            <div class="face-id-section" style="margin-top: 1.25rem;">
+                <div class="auth-divider" style="margin-bottom: 1rem;">
+                    <span class="auth-divider-text">{{ 'auth.or'|trans|default('OU') }}</span>
+                </div>
+                <button type="button" id="faceLoginBtn" class="btn btn-secondary btn-large btn-full face-id-btn">
+                    <span class="btn-icon">👤</span>
+                    {{ 'auth.face_login'|trans|default('Se connecter avec Face ID') }}
+                </button>
+            </div>
+            
+            <div class="auth-divider">
+                <span class="auth-divider-text">{{ 'auth.or_continue_with'|trans|default('Ou continuer avec') }}</span>
+            </div>
+            
+            <div class="social-auth-buttons">
+                <button type="button" class="btn-social btn-google" disabled>
+                    <span class="btn-social-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="20" height="20">
+                            <path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"/>
+                            <path fill="#FF3D00" d="m6.306 14.691 6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 16.318 4 9.656 8.337 6.306 14.691z"/>
+                            <path fill="#4CAF50" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238A11.91 11.91 0 0 1 24 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z"/>
+                            <path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303a12.04 12.04 0 0 1-4.087 5.571l.003-.002 6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"/>
+                        </svg>
+                    </span>
+                    <span>{{ 'auth.continue_google'|trans|default('Continuer avec Google') }}</span>
+                </button>
+                <button type="button" class="btn-social btn-x" disabled>
+                    <span class="btn-social-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18">
+                            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                        </svg>
+                    </span>
+                    <span>{{ 'auth.continue_x'|trans|default('Continuer avec X') }}</span>
+                </button>
+                <button type="button" class="btn-social btn-facebook" disabled>
+                    <span class="btn-social-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20">
+                            <path fill="#1877F2" d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                        </svg>
+                    </span>
+                    <span>{{ 'auth.continue_facebook'|trans|default('Continuer avec Facebook') }}</span>
+                </button>
+            </div>
+            
+            <div class="auth-footer">
+                <p>{{ 'auth.no_account'|trans|default("Vous n'avez pas de compte ?") }} 
+                   <a href="{{ path('app_register') }}" class="auth-link-strong">{{ 'cta.signup'|trans|default("S'inscrire") }}</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Face ID Modal -->
+<div id="faceLoginModal" class="face-modal" style="display: none;">
+    <div class="face-modal-content">
+        <div class="face-modal-header">
+            <h3 class="face-modal-title">{{ 'auth.face_login_title'|trans|default('Connexion par Face ID') }}</h3>
+            <button type="button" class="face-modal-close" id="closeFaceLoginModal">&times;</button>
+        </div>
+        
+        <div class="face-modal-body">
+            <div class="face-camera-container">
+                <video id="faceLoginVideo" class="face-video" autoplay playsinline></video>
+                <canvas id="faceLoginCanvas" class="face-canvas" style="display: none;"></canvas>
+                
+                <div class="face-overlay">
+                    <div class="face-detection-area"></div>
+                </div>
+            </div>
+            
+            <div class="face-instructions">
+                <p id="faceLoginInstruction" class="instruction-text">
+                    {{ 'auth.face_instruction'|trans|default('Positionnez votre visage dans le cadre et cliquez sur Capturer') }}
+                </p>
+            </div>
+            
+            <div id="faceLoginPreview" class="face-preview" style="display: none;">
+                <img id="faceLoginPreviewImg" src="" alt="Preview">
+                <div class="face-preview-actions">
+                    <button type="button" id="retakeFaceLogin" class="btn btn-secondary">
+                        {{ 'action.retake'|trans|default('Reprendre') }}
+                    </button>
+                    <button type="button" id="confirmFaceLogin" class="btn btn-primary" disabled>
+                        {{ 'action.login'|trans|default('Se connecter') }}
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="face-modal-footer">
+            <button type="button" id="captureFaceLogin" class="btn btn-primary btn-large">
+                {{ 'action.capture_face'|trans|default('Capturer le visage') }}
+            </button>
+        </div>
+        
+        <div id="faceLoginStatus" class="face-status"></div>
+    </div>
+</div>
+
+<script>
+// Face ID Login functionality
+(function() {
+    let faceLoginStream = null;
+    const faceLoginModal = document.getElementById('faceLoginModal');
+    const faceLoginBtn = document.getElementById('faceLoginBtn');
+    const closeFaceLoginBtn = document.getElementById('closeFaceLoginModal');
+    const faceLoginVideo = document.getElementById('faceLoginVideo');
+    const faceLoginCanvas = document.getElementById('faceLoginCanvas');
+    const captureFaceLoginBtn = document.getElementById('captureFaceLogin');
+    const retakeFaceLoginBtn = document.getElementById('retakeFaceLogin');
+    const confirmFaceLoginBtn = document.getElementById('confirmFaceLogin');
+    const faceLoginPreview = document.getElementById('faceLoginPreview');
+    const faceLoginPreviewImg = document.getElementById('faceLoginPreviewImg');
+    const faceLoginInstructionEl = document.getElementById('faceLoginInstruction');
+    const faceLoginStatus = document.getElementById('faceLoginStatus');
+    
+    let capturedFaceData = null;
+    
+    // Open Face Login Modal
+    faceLoginBtn.addEventListener('click', function() {
+        faceLoginModal.style.display = 'flex';
+        startFaceLoginCamera();
+    });
+    
+    // Close Modal
+    function closeFaceLoginModal() {
+        faceLoginModal.style.display = 'none';
+        stopFaceLoginCamera();
+        resetFaceLoginModal();
+    }
+    
+    closeFaceLoginBtn.addEventListener('click', closeFaceLoginModal);
+    
+    // Close modal when clicking outside
+    faceLoginModal.addEventListener('click', function(e) {
+        if (e.target === faceLoginModal) {
+            closeFaceLoginModal();
+        }
+    });
+    
+    // Start camera for face login
+    async function startFaceLoginCamera() {
+        try {
+            faceLoginStream = await navigator.mediaDevices.getUserMedia({ 
+                video: { 
+                    facingMode: 'user',
+                    width: { ideal: 640 },
+                    height: { ideal: 480 }
+                } 
+            });
+            faceLoginVideo.srcObject = faceLoginStream;
+            faceLoginInstructionEl.textContent = "{{ 'auth.face_instruction'|trans|default('Positionnez votre visage dans le cadre et cliquez sur Capturer') }}";
+        } catch (error) {
+            console.error('Error accessing camera:', error);
+            showFaceLoginStatus('error', "{{ 'error.camera_access'|trans|default('Impossible d\'accéder à la caméra') }}");
+        }
+    }
+    
+    // Stop camera
+    function stopFaceLoginCamera() {
+        if (faceLoginStream) {
+            faceLoginStream.getTracks().forEach(track => track.stop());
+            faceLoginStream = null;
+        }
+    }
+    
+    // Capture face for login
+    captureFaceLoginBtn.addEventListener('click', function() {
+        if (!faceLoginStream) return;
+        
+        const context = faceLoginCanvas.getContext('2d');
+        faceLoginCanvas.width = faceLoginVideo.videoWidth;
+        faceLoginCanvas.height = faceLoginVideo.videoHeight;
+        
+        // Flip horizontally to match mirror view (consistent with registration)
+        context.translate(faceLoginCanvas.width, 0);
+        context.scale(-1, 1);
+        context.drawImage(faceLoginVideo, 0, 0);
+        
+        capturedFaceData = faceLoginCanvas.toDataURL('image/jpeg', 0.8);
+        faceLoginPreviewImg.src = capturedFaceData;
+        
+        // Show preview
+        faceLoginVideo.style.display = 'none';
+        captureFaceLoginBtn.style.display = 'none';
+        faceLoginPreview.style.display = 'block';
+        
+        // Enable confirm button
+        confirmFaceLoginBtn.disabled = false;
+        
+        faceLoginInstructionEl.textContent = "{{ 'auth.face_captured_login'|trans|default('Visage capturé ! Vous pouvez maintenant vous connecter.') }}";
+    });
+    
+    // Retake face photo
+    retakeFaceLoginBtn.addEventListener('click', function() {
+        faceLoginVideo.style.display = 'block';
+        captureFaceLoginBtn.style.display = 'block';
+        faceLoginPreview.style.display = 'none';
+        confirmFaceLoginBtn.disabled = true;
+        capturedFaceData = null;
+        faceLoginInstructionEl.textContent = "{{ 'auth.face_instruction'|trans|default('Positionnez votre visage dans le cadre et cliquez sur Capturer') }}";
+    });
+    
+    // Confirm face login
+    confirmFaceLoginBtn.addEventListener('click', function() {
+        if (!capturedFaceData) return;
+        
+        confirmFaceLoginBtn.disabled = true;
+        confirmFaceLoginBtn.textContent = "{{ 'action.processing'|trans|default('Traitement...') }}";
+        
+        // Send face data for authentication
+        fetch('/api/face/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                image: capturedFaceData
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showFaceLoginStatus('success', data.message || "{{ 'success.face_login'|trans|default('Connexion réussie !') }}");
+                // Redirect after short delay
+                setTimeout(() => {
+                    window.location.href = data.redirect || '/{{ app.request.locale ?? "fr" }}/dashboard';
+                }, 1500);
+            } else {
+                showFaceLoginStatus('error', data.error || "{{ 'error.face_not_recognized'|trans|default('Visage non reconnu') }}");
+                confirmFaceLoginBtn.disabled = false;
+                confirmFaceLoginBtn.textContent = "{{ 'action.login'|trans|default('Se connecter') }}";
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showFaceLoginStatus('error', "{{ 'error.network'|trans|default('Erreur de connexion') }}");
+            confirmFaceLoginBtn.disabled = false;
+            confirmFaceLoginBtn.textContent = "{{ 'action.login'|trans|default('Se connecter') }}";
+        });
+    });
+    
+    // Show status message
+    function showFaceLoginStatus(type, message) {
+        faceLoginStatus.className = `face-status face-status-${type}`;
+        faceLoginStatus.textContent = message;
+        faceLoginStatus.style.display = 'block';
+        
+        if (type === 'success') {
+            setTimeout(() => {
+                faceLoginStatus.style.display = 'none';
+            }, 3000);
+        }
+    }
+    
+    // Reset modal state
+    function resetFaceLoginModal() {
+        faceLoginVideo.style.display = 'block';
+        captureFaceLoginBtn.style.display = 'block';
+        faceLoginPreview.style.display = 'none';
+        confirmFaceLoginBtn.disabled = true;
+        confirmFaceLoginBtn.textContent = "{{ 'action.login'|trans|default('Se connecter') }}";
+        capturedFaceData = null;
+        faceLoginStatus.style.display = 'none';
+        faceLoginInstructionEl.textContent = "{{ 'auth.face_instruction'|trans|default('Positionnez votre visage dans le cadre et cliquez sur Capturer') }}";
+    }
+})();
+</script>
+{% endblock %}

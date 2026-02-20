@@ -1,0 +1,287 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Alternatives Médicamenteuses - WANNASNI{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    .ml-container {
+        padding: 4rem 2rem;
+        background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%);
+        min-height: 100vh;
+    }
+    .search-card {
+        background: white;
+        border-radius: 20px;
+        padding: 2.5rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        max-width: 800px;
+        margin: 0 auto 3rem;
+        border: 1px solid rgba(0,0,0,0.05);
+    }
+    .search-title {
+        font-family: 'Playfair Display', serif;
+        color: #1f2937;
+        margin-bottom: 1.5rem;
+        font-size: 2.2rem;
+        text-align: center;
+    }
+    .input-group-custom {
+        display: flex;
+        gap: 1rem;
+    }
+    .input-custom {
+        flex: 1;
+        padding: 1rem 1.5rem;
+        border-radius: 12px;
+        border: 2px solid #e5e7eb;
+        font-size: 1rem;
+        transition: all 0.3s;
+    }
+    .input-custom:focus {
+        border-color: #5cb85c;
+        box-shadow: 0 0 0 4px rgba(92, 184, 92, 0.1);
+        outline: none;
+    }
+    .btn-search {
+        background: #5cb85c;
+        color: white;
+        border: none;
+        padding: 0 2rem;
+        border-radius: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    .btn-search:hover {
+        background: #4cae4c;
+        transform: translateY(-2px);
+    }
+    .results-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 2rem;
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+    .alt-card {
+        background: white;
+        border-radius: 16px;
+        padding: 1.5rem;
+        border-left: 5px solid #5cb85c;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+        transition: all 0.3s;
+    }
+    .alt-card:hover {
+        transform: scale(1.02);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.07);
+    }
+    .alt-name {
+        font-weight: 700;
+        font-size: 1.25rem;
+        color: #065f46;
+        margin-bottom: 0.5rem;
+    }
+    .alt-meta {
+        font-size: 0.9rem;
+        color: #6b7280;
+    }
+    .badge-senior {
+        background: #d1fae5;
+        color: #065f46;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        display: inline-block;
+        margin-top: 1rem;
+    }
+    .no-results {
+        text-align: center;
+        padding: 3rem;
+        color: #9ca3af;
+    }
+    .error-box {
+        background: #fef2f2;
+        border-left: 4px solid #ef4444;
+        padding: 1rem;
+        border-radius: 8px;
+        color: #991b1b;
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+    .upload-section {
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        border-top: 1px dashed #e5e7eb;
+        text-align: center;
+    }
+    .file-input-wrapper {
+        position: relative;
+        display: inline-block;
+        width: 100%;
+    }
+    .file-input-label {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        background: #f8fafc;
+        border: 2px dashed #cbd5e1;
+        padding: 1rem;
+        border-radius: 12px;
+        color: #64748b;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    .file-input-label:hover {
+        background: #f1f5f9;
+        border-color: #5cb85c;
+        color: #5cb85c;
+    }
+    .btn-camera {
+        background: #3b82f6;
+        color: white;
+        border: none;
+        padding: 0.8rem 1.5rem;
+        border-radius: 12px;
+        font-weight: 600;
+        margin-top: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin: 1rem auto 0;
+        cursor: pointer;
+    }
+    .preview-container {
+        margin-top: 1.5rem;
+        display: none;
+        text-align: center;
+    }
+    .preview-image {
+        max-width: 250px;
+        max-height: 250px;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        border: 3px solid #5cb85c;
+    }
+    .loading-overlay {
+        display: none;
+        margin-top: 1rem;
+        color: #5cb85c;
+        font-weight: 600;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="ml-container">
+    <div class="container">
+        <div class="search-card">
+            <h1 class="search-title">💊 Recommandation d'alternatives (ML)</h1>
+            <p style="text-align: center; color: #6b7280; margin-bottom: 2rem;">
+                Notre intelligence artificielle KNN analyse les molécules et les posologies pour recommander les meilleures alternatives pour les seniors.
+            </p>
+            
+            <form action="{{ path('app_medicament_alternatives', {'_locale': app.request.locale}) }}" method="POST" enctype="multipart/form-data">
+                <div class="input-group-custom">
+                    <input type="text" name="nom" class="input-custom" value="{{ nom }}" placeholder="Entrez le nom du médicament (ex: Doliprane)...">
+                    <button type="submit" class="btn-search">Rechercher</button>
+                </div>
+
+                <div class="upload-section">
+                    <p style="font-size: 0.9rem; color: #94a3b8; margin-bottom: 0.8rem;">Ou prenez une photo de la boîte :</p>
+                    
+                    <div id="imagePreviewContainer" class="preview-container" {% if image_preview %}style="display: block;"{% endif %}>
+                        <img id="imagePreview" src="{{ image_preview ?? '#' }}" class="preview-image" alt="Aperçu du médicament">
+                        <div id="loadingText" class="loading-overlay">
+                            🔍 Analyse en cours par l'IA...
+                        </div>
+                    </div>
+
+                    <label class="file-input-label" id="uploadLabel" {% if image_preview %}style="display: none;"{% endif %}>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                        <span>Choisir une image (JPG, PNG)</span>
+                        <input type="file" id="medicamentInput" name="medicament_image" accept="image/*" style="display: none;">
+                    </label>
+                </div>
+            </form>
+        </div>
+
+        <script>
+            document.getElementById('medicamentInput').addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        // Afficher l'aperçu instantanément
+                        document.getElementById('imagePreview').src = event.target.result;
+                        document.getElementById('imagePreviewContainer').style.display = 'block';
+                        document.getElementById('uploadLabel').style.display = 'none';
+                        document.getElementById('loadingText').style.display = 'block';
+                        
+                        // Soumettre le formulaire après un court délai pour que l'utilisateur voit l'image
+                        setTimeout(() => {
+                            document.getElementById('medicamentInput').form.submit();
+                        }, 500);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        </script>
+
+        {% if data.error is defined %}
+            <div class="error-box">
+                <strong>Attention :</strong> {{ data.error }}
+                <br>
+                {% if 'Tesseract' in data.error %}
+                    <div style="margin-top: 10px; font-size: 0.85rem;">
+                        Le moteur OCR n'est pas installé sur votre PC. 
+                        <a href="https://github.com/UB-Mannheim/tesseract/wiki" target="_blank" style="color: #ef4444; text-decoration: underline; font-weight: bold;">
+                            Cliquez ici pour télécharger et installer Tesseract
+                        </a>
+                        puis redémarrez le service Python.
+                    </div>
+                {% elseif data.error is defined %}
+                    <div style="margin-top: 10px; font-size: 0.85rem;">
+                        Une erreur est survenue lors de l'analyse. Vérifiez que l'image est bien lisible.
+                    </div>
+                {% else %}
+                    <small>Assurez-vous que le service Python FastAPI est bien lancé sur le port 8080.</small>
+                {% endif %}
+            </div>
+        {% endif %}
+
+        {% if nom %}
+            {% if data.alternatives is defined and data.alternatives|length > 0 %}
+                <h2 style="text-align: center; margin-bottom: 2rem; color: #374151;">
+                    Alternatives recommandées pour <span style="color: #5cb85c;">{{ data.original }}</span> :
+                </h2>
+                <div class="results-grid">
+                    {% for alt in data.alternatives %}
+                        <div class="alt-card">
+                            <div class="alt-name">{{ alt.nom }}</div>
+                            <div class="alt-meta">
+                                <strong>Classe :</strong> {{ alt.classe }}<br>
+                                <strong>Molécule :</strong> {{ alt.molecule }}<br>
+                                <strong>Indication :</strong> {{ alt.indication }}<br>
+                                <strong>Prix indicatif :</strong> {{ alt.prix }} DT
+                            </div>
+                            {% if alt.senior_friendly == 1 %}
+                                <span class="badge-senior">✔ Adapté aux seniors</span>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                {% if data.error is not defined %}
+                    <div class="no-results">
+                        <img src="https://cdn-icons-png.flaticon.com/512/6134/6134065.png" alt="No results" style="width: 100px; opacity: 0.3; margin-bottom: 1rem;">
+                        <p>Désolé, nous n'avons pas trouvé d'alternatives pour ce médicament dans notre modèle ML.</p>
+                    </div>
+                {% endif %}
+            {% endif %}
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

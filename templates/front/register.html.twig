@@ -1,0 +1,597 @@
+{% extends 'base_auth.html.twig' %}
+
+{% block title %}{{ 'cta.signup'|trans|default("S'inscrire") }} — {{ 'site.name'|trans }}{% endblock %}
+
+{% block body %}
+<div class="auth-page">
+    {# Left Side - Image & Quote #}
+    <div class="auth-image-side">
+        <div class="auth-image-overlay"></div>
+        <img src="/images/hero.png" alt="" class="auth-bg-image" aria-hidden="true">
+        <div class="auth-image-content">
+            <div class="auth-logo">
+                <img src="/images/logo.png" alt="WANNASNI" class="auth-logo-img">
+            </div>
+            <blockquote class="auth-quote">
+                <p>"{{ 'auth.quote.register'|trans|default('Rejoignez des milliers de familles qui ont trouvé la sérénité.') }}"</p>
+                <cite>— WANNASNI</cite>
+            </blockquote>
+        </div>
+    </div>
+    
+    {# Right Side - Register Form #}
+    <div class="auth-form-side">
+        <div class="auth-form-container auth-form-container--register">
+            {# Mobile Logo (shown on small screens only) #}
+            <div class="auth-mobile-header">
+                <a href="{{ path('app_home') }}" class="auth-back-link">
+                    ← {{ 'nav.back'|trans|default('Retour') }}
+                </a>
+                <img src="/images/logo.png" alt="WANNASNI" class="auth-mobile-logo">
+            </div>
+            
+            <div class="auth-form-header">
+                <h1 class="auth-title">{{ 'register'|trans|default('Créez votre compte') }}</h1>
+                <p class="auth-subtitle">{{ 'register'|trans|default('Rejoignez la famille WANNASNI en quelques étapes.') }}</p>
+            </div>
+            
+            {% for message in app.flashes('error') %}
+                {% if loop.first %}
+                <div class="alert alert-error" style="padding: 1rem; background: #fed7d7; color: #c53030; border: 1px solid #fc8181; border-radius: 8px; margin-bottom: 1rem;">
+                {% endif %}
+                    <p style="margin: 0;">⚠️ {{ message }}</p>
+                {% if loop.last %}
+                </div>
+                {% endif %}
+            {% endfor %}
+            
+            {% for message in app.flashes('success') %}
+                {% if loop.first %}
+                <div class="alert alert-success" style="padding: 1rem; background: #c6f6d5; color: #276749; border: 1px solid #9ae6b4; border-radius: 8px; margin-bottom: 1rem;">
+                {% endif %}
+                    <p style="margin: 0;">✓ {{ message }}</p>
+                {% if loop.last %}
+                </div>
+                {% endif %}
+            {% endfor %}
+            
+            {% for message in app.flashes('info') %}
+                {% if loop.first %}
+                <div class="alert alert-info" style="padding: 1rem; background: #bee3f8; color: #2b6cb0; border: 1px solid #90cdf4; border-radius: 8px; margin-bottom: 1rem;">
+                {% endif %}
+                    <p style="margin: 0;">ℹ️ {{ message }}</p>
+                {% if loop.last %}
+                </div>
+                {% endif %}
+            {% endfor %}
+            
+            <form method="post" action="{{ path('app_register', {_locale: app.request.locale}) }}" class="auth-form">
+                {# Role Selection - Big Icon Cards #}
+                <div class="role-selection">
+                    <p class="role-label">{{ 'select_role'|trans|default('Je suis...') }}</p>
+                    <div class="role-cards">
+                        <label class="role-card-option">
+                            <input type="radio" name="role" value="senior" checked>
+                            <div class="role-card-content">
+                                <span class="role-emoji">👴</span>
+                                <span class="role-name">{{ 'role.senior'|trans|default('Senior') }}</span>
+                            </div>
+                        </label>
+                        <label class="role-card-option">
+                            <input type="radio" name="role" value="family">
+                            <div class="role-card-content">
+                                <span class="role-emoji">👨‍👩‍👧</span>
+                                <span class="role-name">{{ 'role.family'|trans|default('Famille') }}</span>
+                            </div>
+                        </label>
+                        <label class="role-card-option">
+                            <input type="radio" name="role" value="doctor">
+                            <div class="role-card-content">
+                                <span class="role-emoji">👨‍⚕️</span>
+                                <span class="role-name">{{ 'role.doctor'|trans|default('Médecin') }}</span>
+                            </div>
+                        </label>
+                        <label class="role-card-option">
+                            <input type="radio" name="role" value="technicien">
+                            <div class="role-card-content">
+                                <span class="role-emoji">🔧</span>
+                                <span class="role-name">{{ 'role.technicien'|trans|default('Technicien') }}</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="form-row-2col">
+                    <div class="form-group">
+                        <label for="inputFirstName" class="form-label">{{ 'auth.first_name'|trans|default('Prénom') }}</label>
+                        <input type="text" 
+                               id="inputFirstName" 
+                               name="firstName" 
+                               class="form-input" 
+                               placeholder="Jean"
+                               autocomplete="given-name"
+                               required>
+                        <span class="error-message" id="firstNameError" style="display: none; color: #c53030; font-size: 0.875rem; margin-top: 0.25rem;"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="inputLastName" class="form-label">{{ 'auth.last_name'|trans|default('Nom') }}</label>
+                        <input type="text" 
+                               id="inputLastName" 
+                               name="lastName" 
+                               class="form-input" 
+                               placeholder="Dupont"
+                               autocomplete="family-name"
+                               required>
+                        <span class="error-message" id="lastNameError" style="display: none; color: #c53030; font-size: 0.875rem; margin-top: 0.25rem;"></span>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="inputEmail" class="form-label">{{ 'auth.email'|trans|default('Adresse email') }}</label>
+                    <input type="email" 
+                           id="inputEmail" 
+                           name="email" 
+                           class="form-input" 
+                           placeholder="exemple@email.com"
+                           autocomplete="email"
+                           required>
+                    <span class="error-message" id="emailError" style="display: none; color: #c53030; font-size: 0.875rem; margin-top: 0.25rem;"></span>
+                </div>
+
+                
+                <div class="form-group">
+                    <label for="inputPhone" class="form-label">{{ 'auth.phone'|trans|default('Numéro de téléphone') }}</label>
+                    <input type="tel" 
+                           id="inputPhone" 
+                           name="phone" 
+                           class="form-input" 
+                           placeholder="+216 XX XXX XXX"
+                           autocomplete="tel">
+                    <span class="error-message" id="phoneError" style="display: none; color: #c53030; font-size: 0.875rem; margin-top: 0.25rem;"></span>
+                </div>
+
+                {# Face ID Capture Section #}
+                <div class="form-group face-id-section">
+                    <label class="form-label">{{ 'auth.face_id'|trans|default('Reconnaissance faciale') }}</label>
+                    <p class="face-id-description" style="font-size: 0.875rem; color: #666; margin-bottom: 0.75rem;">
+                        {{ 'auth.face_id_desc'|trans|default('Capturez votre visage pour une connexion sécurisée.') }}
+                    </p>
+                    
+                    <div id="facePreviewContainer" style="display: none; margin-bottom: 1rem; text-align: center;">
+                        <img id="facePreview" src="" alt="Face preview" style="max-width: 150px; border-radius: 12px; border: 3px solid #4CAF50;">
+                        <p id="faceStatus" style="margin-top: 0.5rem; font-size: 0.875rem; color: #4CAF50;">✓ {{ 'auth.face_captured'|trans|default('Visage capturé') }}</p>
+                    </div>
+                    
+                    <button type="button" id="openCameraBtn" class="btn btn-outline" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                            <circle cx="12" cy="13" r="4"/>
+                        </svg>
+                        <span id="cameraButtonText" style="color: #5CB85C; font-weight: 500;">{{ 'auth.capture_face'|trans|default('Capturer mon visage') }}</span>
+                    </button>
+                    <input type="hidden" id="faceImageData" name="faceImageData" value="">
+                    <input type="hidden" id="faceVerified" name="faceVerified" value="0">
+                    <span class="error-message" id="faceError" style="display: none; color: #c53030; font-size: 0.875rem; margin-top: 0.25rem;"></span>
+                </div>
+                
+                <div class="form-group">
+                    <label for="inputPassword" class="form-label">{{ 'auth.password'|trans|default('Mot de passe') }}</label>
+                    <input type="password" 
+                           id="inputPassword" 
+                           name="password" 
+                           class="form-input" 
+                           placeholder="••••••••"
+                           autocomplete="new-password"
+                           required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="inputPasswordConfirm" class="form-label">{{ 'auth.password_confirm'|trans|default('Confirmer le mot de passe') }}</label>
+                    <input type="password" 
+                           id="inputPasswordConfirm" 
+                           name="passwordConfirm" 
+                           class="form-input" 
+                           placeholder="••••••••"
+                           autocomplete="new-password"
+                           required>
+                </div>
+                
+                <label class="form-checkbox terms-checkbox">
+                    <input type="checkbox" name="agreeTerms">
+                    <span class="checkbox-label">
+                        {{ 'auth.agree_terms'|trans|default("J'accepte les") }} 
+                        <a href="#terms" class="auth-link">{{ 'auth.terms'|trans|default("conditions d'utilisation") }}</a>
+                    </span>
+                </label>
+
+                {# Face Data Consent Checkbox #}
+                <label class="form-checkbox face-consent-checkbox" id="faceConsentContainer" style="display: none;">
+                    <input type="checkbox" name="faceConsent" id="faceConsentCheckbox">
+                    <span class="checkbox-label">
+                        {{ 'auth.face_consent'|trans|default("J'autorise le traitement de mes données biométriques faciales pour l'authentification.") }}
+                    </span>
+                </label>
+                <span class="error-message" id="faceConsentError" style="display: none; color: #c53030; font-size: 0.875rem; margin-top: 0.25rem;"></span>
+                
+                <button type="submit" class="btn btn-primary btn-large btn-full">
+                    {{ 'auth.create_account'|trans|default('Créer mon compte') }}
+                </button>
+            </form>
+            
+            {# Social Authentication Buttons #}
+            <div class="auth-divider">
+                <span class="auth-divider-text">{{ 'auth.or_continue_with'|trans|default('Ou continuer avec') }}</span>
+            </div>
+            
+            <div class="social-auth-buttons">
+                <button type="button" class="btn-social btn-google" disabled>
+                    <span class="btn-social-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="20" height="20">
+                            <path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"/>
+                            <path fill="#FF3D00" d="m6.306 14.691 6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 16.318 4 9.656 8.337 6.306 14.691z"/>
+                            <path fill="#4CAF50" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238A11.91 11.91 0 0 1 24 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z"/>
+                            <path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303a12.04 12.04 0 0 1-4.087 5.571l.003-.002 6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"/>
+                        </svg>
+                    </span>
+                    <span>{{ 'auth.continue_google'|trans|default('Continuer avec Google') }}</span>
+                </button>
+                <button type="button" class="btn-social btn-x" disabled>
+                    <span class="btn-social-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18">
+                            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                        </svg>
+                    </span>
+                    <span>{{ 'auth.continue_x'|trans|default('Continuer avec X') }}</span>
+                </button>
+                <button type="button" class="btn-social btn-facebook" disabled>
+                    <span class="btn-social-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20">
+                            <path fill="#1877F2" d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                        </svg>
+                    </span>
+                    <span>{{ 'auth.continue_facebook'|trans|default('Continuer avec Facebook') }}</span>
+                </button>
+            </div>
+            
+            <div class="auth-footer">
+                <p>{{ 'auth.have_account'|trans|default('Vous avez déjà un compte ?') }} 
+                   <a href="{{ path('app_login') }}" class="auth-link-strong">{{ 'cta.login'|trans|default('Se connecter') }}</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const firstNameInput = document.getElementById('inputFirstName');
+    const lastNameInput = document.getElementById('inputLastName');
+    const emailInput = document.getElementById('inputEmail');
+    const phoneInput = document.getElementById('inputPhone');
+
+    const firstNameError = document.getElementById('firstNameError');
+    const lastNameError = document.getElementById('lastNameError');
+    const emailError = document.getElementById('emailError');
+    const phoneError = document.getElementById('phoneError');
+
+    // Validate first name - only letters
+    function validateFirstName() {
+        const value = firstNameInput.value.trim();
+        const letterPattern = /^[a-zA-ZÀ-ÿ\s\-']+$/;
+        
+        if (value && !letterPattern.test(value)) {
+            firstNameError.textContent = '⚠️ Le prénom ne doit contenir que des lettres.';
+            firstNameError.style.display = 'block';
+            firstNameInput.style.borderColor = '#c53030';
+            return false;
+        } else {
+            firstNameError.style.display = 'none';
+            firstNameInput.style.borderColor = '';
+            return true;
+        }
+    }
+
+    // Validate last name - only letters
+    function validateLastName() {
+        const value = lastNameInput.value.trim();
+        const letterPattern = /^[a-zA-ZÀ-ÿ\s\-']+$/;
+        
+        if (value && !letterPattern.test(value)) {
+            lastNameError.textContent = '⚠️ Le nom ne doit contenir que des lettres.';
+            lastNameError.style.display = 'block';
+            lastNameInput.style.borderColor = '#c53030';
+            return false;
+        } else {
+            lastNameError.style.display = 'none';
+            lastNameInput.style.borderColor = '';
+            return true;
+        }
+    }
+
+    // Validate email
+    function validateEmail() {
+        const value = emailInput.value.trim();
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        
+        if (value && !emailPattern.test(value)) {
+            emailError.textContent = '⚠️ Veuillez entrer une adresse email valide (exemple: nom@gmail.com).';
+            emailError.style.display = 'block';
+            emailInput.style.borderColor = '#c53030';
+            return false;
+        } else {
+            emailError.style.display = 'none';
+            emailInput.style.borderColor = '';
+            return true;
+        }
+    }
+
+    // Validate phone - only numbers and at least 8 digits
+    function validatePhone() {
+        const value = phoneInput.value.trim();
+        if (!value) {
+            phoneError.style.display = 'none';
+            phoneInput.style.borderColor = '';
+            return true;
+        }
+
+        const phonePattern = /^[0-9\s\-\+\(\)]+$/;
+        const digitsOnly = value.replace(/\D/g, '');
+        
+        if (!phonePattern.test(value)) {
+            phoneError.textContent = '⚠️ Le numéro de téléphone ne doit contenir que des chiffres.';
+            phoneError.style.display = 'block';
+            phoneInput.style.borderColor = '#c53030';
+            return false;
+        } else if (digitsOnly.length < 8) {
+            phoneError.textContent = '⚠️ Le numéro de téléphone doit contenir au moins 8 chiffres.';
+            phoneError.style.display = 'block';
+            phoneInput.style.borderColor = '#c53030';
+            return false;
+        } else {
+            phoneError.style.display = 'none';
+            phoneInput.style.borderColor = '';
+            return true;
+        }
+    }
+
+
+    // Add event listeners for real-time validation
+    firstNameInput.addEventListener('input', validateFirstName);
+    firstNameInput.addEventListener('blur', validateFirstName);
+    
+    lastNameInput.addEventListener('input', validateLastName);
+    lastNameInput.addEventListener('blur', validateLastName);
+    
+    emailInput.addEventListener('input', validateEmail);
+    emailInput.addEventListener('blur', validateEmail);
+    
+    phoneInput.addEventListener('input', validatePhone);
+    phoneInput.addEventListener('blur', validatePhone);
+});
+</script>
+
+{# Camera Modal for Face ID #}
+<div id="cameraModal" class="face-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 9999; align-items: center; justify-content: center;">
+    <div class="face-modal-content" style="background: white; border-radius: 16px; padding: 2rem; max-width: 500px; width: 90%; text-align: center;">
+        <h3 style="margin-bottom: 1rem; color: #333;">{{ 'auth.capture_face_title'|trans|default('Capturez votre visage') }}</h3>
+        <p style="font-size: 0.875rem; color: #666; margin-bottom: 1rem;">
+            {{ 'auth.capture_face_instructions'|trans|default('Positionnez votre visage dans le cadre et cliquez sur Capturer.') }}
+        </p>
+        
+        <div id="cameraContainer" style="position: relative; margin-bottom: 1rem;">
+            <video id="cameraVideo" autoplay playsinline style="width: 100%; max-width: 400px; border-radius: 12px; transform: scaleX(-1);"></video>
+            <div id="faceOverlay" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 180px; height: 220px; border: 3px dashed #4CAF50; border-radius: 50%; pointer-events: none;"></div>
+        </div>
+        
+        <canvas id="cameraCanvas" style="display: none;"></canvas>
+        
+        <div id="capturePreview" style="display: none; margin-bottom: 1rem;">
+            <img id="capturedImage" src="" alt="Captured face" style="max-width: 200px; border-radius: 12px;">
+        </div>
+        
+        <div id="verificationStatus" style="display: none; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;"></div>
+        
+        <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+            <button type="button" id="captureBtn" class="btn btn-primary" style="min-width: 120px;">
+                {{ 'auth.capture'|trans|default('Capturer') }}
+            </button>
+            <button type="button" id="retakeBtn" class="btn btn-outline" style="display: none; min-width: 120px;">
+                {{ 'auth.retake'|trans|default('Reprendre') }}
+            </button>
+            <button type="button" id="confirmBtn" class="btn btn-success" style="display: none; min-width: 120px; background: #4CAF50; color: white;">
+                {{ 'auth.confirm'|trans|default('Confirmer') }}
+            </button>
+            <button type="button" id="closeCameraBtn" class="btn btn-outline" style="min-width: 120px;">
+                {{ 'auth.cancel'|trans|default('Annuler') }}
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Face ID Camera Elements
+    const openCameraBtn = document.getElementById('openCameraBtn');
+    const cameraModal = document.getElementById('cameraModal');
+    const cameraVideo = document.getElementById('cameraVideo');
+    const cameraCanvas = document.getElementById('cameraCanvas');
+    const captureBtn = document.getElementById('captureBtn');
+    const retakeBtn = document.getElementById('retakeBtn');
+    const confirmBtn = document.getElementById('confirmBtn');
+    const closeCameraBtn = document.getElementById('closeCameraBtn');
+    const capturePreview = document.getElementById('capturePreview');
+    const capturedImage = document.getElementById('capturedImage');
+    const cameraContainer = document.getElementById('cameraContainer');
+    const verificationStatus = document.getElementById('verificationStatus');
+    
+    // Form elements
+    const faceImageData = document.getElementById('faceImageData');
+    const faceVerified = document.getElementById('faceVerified');
+    const facePreviewContainer = document.getElementById('facePreviewContainer');
+    const facePreview = document.getElementById('facePreview');
+    const faceStatus = document.getElementById('faceStatus');
+    const faceError = document.getElementById('faceError');
+    const cameraButtonText = document.getElementById('cameraButtonText');
+    const faceConsentContainer = document.getElementById('faceConsentContainer');
+    const faceConsentCheckbox = document.getElementById('faceConsentCheckbox');
+    const faceConsentError = document.getElementById('faceConsentError');
+    
+    let stream = null;
+    let capturedImageData = null;
+    
+    // Open camera modal
+    openCameraBtn.addEventListener('click', async function() {
+        try {
+            stream = await navigator.mediaDevices.getUserMedia({ 
+                video: { 
+                    facingMode: 'user',
+                    width: { ideal: 640 },
+                    height: { ideal: 480 }
+                } 
+            });
+            cameraVideo.srcObject = stream;
+            cameraModal.style.display = 'flex';
+            resetCameraUI();
+        } catch (err) {
+            console.error('Camera access denied:', err);
+            faceError.textContent = '{{ 'auth.camera_error'|trans|default('Impossible d\'accéder à la caméra. Veuillez autoriser l\'accès.') }}';
+            faceError.style.display = 'block';
+        }
+    });
+    
+    // Capture photo
+    captureBtn.addEventListener('click', function() {
+        const context = cameraCanvas.getContext('2d');
+        cameraCanvas.width = cameraVideo.videoWidth;
+        cameraCanvas.height = cameraVideo.videoHeight;
+        
+        // Flip horizontally to match mirror view
+        context.translate(cameraCanvas.width, 0);
+        context.scale(-1, 1);
+        context.drawImage(cameraVideo, 0, 0);
+        
+        capturedImageData = cameraCanvas.toDataURL('image/jpeg', 0.8);
+        capturedImage.src = capturedImageData;
+        
+        // Show preview, hide video
+        cameraContainer.style.display = 'none';
+        capturePreview.style.display = 'block';
+        captureBtn.style.display = 'none';
+        retakeBtn.style.display = 'inline-block';
+        
+        // Verify face with server
+        verifyFace(capturedImageData);
+    });
+    
+    // Retake photo
+    retakeBtn.addEventListener('click', function() {
+        resetCameraUI();
+    });
+    
+    // Confirm and use photo
+    confirmBtn.addEventListener('click', function() {
+        faceImageData.value = capturedImageData;
+        faceVerified.value = '1';
+        facePreview.src = capturedImageData;
+        facePreviewContainer.style.display = 'block';
+        faceConsentContainer.style.display = 'block';
+        cameraButtonText.textContent = '{{ 'auth.retake_face'|trans|default('Reprendre la photo') }}';
+        faceError.style.display = 'none';
+        closeCamera();
+    });
+    
+    // Close camera modal
+    closeCameraBtn.addEventListener('click', function() {
+        closeCamera();
+    });
+    
+    // Close on backdrop click
+    cameraModal.addEventListener('click', function(e) {
+        if (e.target === cameraModal) {
+            closeCamera();
+        }
+    });
+    
+    function closeCamera() {
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+            stream = null;
+        }
+        cameraModal.style.display = 'none';
+    }
+    
+    function resetCameraUI() {
+        cameraContainer.style.display = 'block';
+        capturePreview.style.display = 'none';
+        captureBtn.style.display = 'inline-block';
+        retakeBtn.style.display = 'none';
+        confirmBtn.style.display = 'none';
+        verificationStatus.style.display = 'none';
+        capturedImageData = null;
+    }
+    
+    async function verifyFace(imageData) {
+        verificationStatus.style.display = 'block';
+        verificationStatus.style.background = '#e3f2fd';
+        verificationStatus.style.color = '#1976d2';
+        verificationStatus.innerHTML = '<span>⏳ {{ 'auth.verifying_face'|trans|default('Vérification du visage...') }}</span>';
+        
+        try {
+            const response = await fetch('/api/face/verify', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ image: imageData })
+            });
+            
+            const result = await response.json();
+            
+            if (!result.success) {
+                verificationStatus.style.background = '#ffebee';
+                verificationStatus.style.color = '#c62828';
+                verificationStatus.innerHTML = '❌ ' + (result.error || '{{ 'auth.face_verify_error'|trans|default('Erreur de vérification') }}');
+                return;
+            }
+            
+            if (result.code === 'FACE_EXISTS') {
+                // Face already registered
+                verificationStatus.style.background = '#fff3e0';
+                verificationStatus.style.color = '#e65100';
+                verificationStatus.innerHTML = '⚠️ {{ 'auth.face_already_registered'|trans|default('Ce visage est déjà enregistré pour') }} <strong>' + result.existingUser.name + '</strong>. {{ 'auth.use_login'|trans|default('Veuillez vous connecter.') }}';
+                confirmBtn.style.display = 'none';
+            } else if (result.code === 'FACE_OK') {
+                // Face is unique, allow confirmation
+                verificationStatus.style.background = '#e8f5e9';
+                verificationStatus.style.color = '#2e7d32';
+                verificationStatus.innerHTML = '✓ {{ 'auth.face_verified'|trans|default('Visage vérifié avec succès !') }}';
+                confirmBtn.style.display = 'inline-block';
+            } else if (result.code === 'NO_FACE') {
+                verificationStatus.style.background = '#ffebee';
+                verificationStatus.style.color = '#c62828';
+                verificationStatus.innerHTML = '❌ {{ 'auth.no_face_detected'|trans|default('Aucun visage détecté. Veuillez réessayer.') }}';
+            }
+        } catch (err) {
+            console.error('Face verification error:', err);
+            verificationStatus.style.background = '#ffebee';
+            verificationStatus.style.color = '#c62828';
+            verificationStatus.innerHTML = '❌ {{ 'auth.face_verify_network_error'|trans|default('Erreur réseau. Veuillez réessayer.') }}';
+        }
+    }
+    
+    // Form submission validation
+    const form = document.querySelector('.auth-form');
+    form.addEventListener('submit', function(e) {
+        // If face was captured, consent is required
+        if (faceImageData.value && !faceConsentCheckbox.checked) {
+            e.preventDefault();
+            faceConsentError.textContent = '{{ 'auth.face_consent_required'|trans|default('Vous devez accepter le traitement de vos données biométriques.') }}';
+            faceConsentError.style.display = 'block';
+            faceConsentContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            return false;
+        }
+        faceConsentError.style.display = 'none';
+    });
+});
+</script>
+{% endblock %}

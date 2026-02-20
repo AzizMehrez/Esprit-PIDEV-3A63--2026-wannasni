@@ -1,0 +1,78 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}{{ plan.name }} - Admin WANNASNI{% endblock %}
+{% block page_title %}Nutrition Plan Details{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 1rem;">
+    <a href="{{ path('admin_nutrition_list') }}" class="btn btn-secondary">← Back to Nutrition Plans</a>
+</div>
+
+<div class="grid-2">
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">{{ plan.name }}</h2>
+            <a href="{{ path('admin_nutrition_edit', {id: plan.id}) }}" class="btn btn-sm btn-primary">Edit</a>
+        </div>
+        
+        <div style="padding: 1rem; background: var(--bg-tertiary); border-radius: var(--radius-md); margin-bottom: 1.5rem;">
+            <div style="font-weight: 600; font-size: 1.1rem;">{{ plan.user }}</div>
+            <div style="color: var(--text-muted); font-size: 0.875rem;">Started {{ plan.startDate|date('F d, Y') }}</div>
+        </div>
+        
+        <div style="display: grid; gap: 0.75rem;">
+            <div style="display: flex; justify-content: space-between;">
+                <span style="color: var(--text-secondary);">Type</span>
+                {% if plan.type == 'therapeutic' %}
+                    <span class="badge badge-danger">Therapeutic</span>
+                {% elseif plan.type == 'weight_loss' %}
+                    <span class="badge badge-warning">Weight Loss</span>
+                {% else %}
+                    <span class="badge badge-success">General</span>
+                {% endif %}
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+                <span style="color: var(--text-secondary);">Daily Calories</span>
+                <span style="font-weight: 500;">{{ plan.calories|number_format }} kcal</span>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+                <span style="color: var(--text-secondary);">Status</span>
+                <span class="badge {% if plan.status == 'active' %}badge-success{% else %}badge-default{% endif %}">
+                    {{ plan.status|capitalize }}
+                </span>
+            </div>
+        </div>
+        
+        <hr style="border: none; border-top: 1px solid var(--border-color); margin: 1.5rem 0;">
+        
+        <div>
+            <div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.5rem;">Notes</div>
+            <p style="padding: 1rem; background: var(--bg-tertiary); border-radius: var(--radius-md);">{{ plan.notes }}</p>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">Meal Distribution</h2>
+        </div>
+        <div style="display: grid; gap: 0.75rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; background: var(--bg-tertiary); border-radius: var(--radius-md);">
+                <span>🌅 Breakfast</span>
+                <span style="font-weight: 600;">{{ (plan.calories * 0.25)|number_format }} kcal</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; background: var(--bg-tertiary); border-radius: var(--radius-md);">
+                <span>☀️ Lunch</span>
+                <span style="font-weight: 600;">{{ (plan.calories * 0.35)|number_format }} kcal</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; background: var(--bg-tertiary); border-radius: var(--radius-md);">
+                <span>🍎 Snacks</span>
+                <span style="font-weight: 600;">{{ (plan.calories * 0.10)|number_format }} kcal</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; background: var(--bg-tertiary); border-radius: var(--radius-md);">
+                <span>🌙 Dinner</span>
+                <span style="font-weight: 600;">{{ (plan.calories * 0.30)|number_format }} kcal</span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

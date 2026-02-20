@@ -1,0 +1,293 @@
+{% extends 'base_dashboard.html.twig' %}
+
+{% block title %}Mes Demandes de Régime - WANNASNI{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    :root {
+        --nutri-primary: #10b981;
+        --nutri-primary-dark: #059669;
+        --nutri-bg: #f8fafc;
+        --nutri-card: #ffffff;
+        --nutri-text: #1f2937;
+        --nutri-border: #e2e8f0;
+    }
+
+    .nutrition-container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 2rem 1rem 4rem;
+    }
+
+    /* Header Section */
+    .nutri-header {
+        background: linear-gradient(135deg, var(--nutri-primary), var(--nutri-primary-dark));
+        border-radius: 24px;
+        padding: 3rem 2rem;
+        margin-bottom: 2.5rem;
+        color: white;
+        text-align: center;
+        box-shadow: 0 10px 40px rgba(16, 185, 129, 0.2);
+    }
+
+    .header-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        display: block;
+    }
+
+    .nutri-title {
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin-bottom: 0.5rem;
+    }
+
+    .nutri-subtitle {
+        font-size: 1.1rem;
+        opacity: 0.9;
+    }
+
+    /* Create Button */
+    .btn-create-floating {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        background: white;
+        color: var(--nutri-primary-dark);
+        padding: 1.25rem 2.5rem;
+        border-radius: 50px;
+        font-weight: 700;
+        font-size: 1.2rem;
+        text-decoration: none;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        margin-top: 1.5rem;
+        transition: all 0.3s;
+    }
+
+    .btn-create-floating:hover {
+        transform: scale(1.05);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+
+    /* Demandes Grid */
+    .demandes-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .demande-premium-card {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        border: 2px solid var(--nutri-border);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .demande-premium-card:hover {
+        border-color: var(--nutri-primary);
+        transform: translateY(-5px);
+        box-shadow: 0 12px 30px rgba(0,0,0,0.06);
+    }
+
+    .card-id {
+        position: absolute;
+        top: -10px;
+        right: -10px;
+        background: var(--nutri-bg);
+        color: var(--nutri-text);
+        padding: 1rem;
+        border-radius: 20px;
+        font-weight: 800;
+        font-size: 0.8rem;
+        opacity: 0.5;
+    }
+
+    .card-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 1.5rem;
+    }
+
+    .statut-badge-p {
+        padding: 0.5rem 1.25rem;
+        border-radius: 50px;
+        font-weight: 700;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .status-traite { background: #dcfce7; color: #065f46; }
+    .status-attente { background: #fef3c7; color: #92400e; }
+
+    .card-content h3 {
+        font-size: 1.4rem;
+        margin-bottom: 1rem;
+        color: var(--nutri-text);
+    }
+
+    .meta-info {
+        display: flex;
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .meta-box {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .meta-box label {
+        font-size: 0.75rem;
+        color: #94a3b8;
+        font-weight: 700;
+        text-transform: uppercase;
+        margin-bottom: 0.25rem;
+    }
+
+    .meta-box span {
+        font-weight: 700;
+        color: #334155;
+    }
+
+    .card-actions-p {
+        display: flex;
+        gap: 1rem;
+        padding-top: 1.5rem;
+        border-top: 1px dashed var(--nutri-border);
+    }
+
+    .btn-nutri-view {
+        flex: 2;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.85rem;
+        background: var(--nutri-primary);
+        color: white;
+        border-radius: 14px;
+        text-decoration: none;
+        font-weight: 700;
+        transition: all 0.2s;
+    }
+
+    .btn-nutri-view:hover {
+        background: var(--nutri-primary-dark);
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    }
+
+    .btn-nutri-delete {
+        flex: 0.5;
+        background: #fee2e2;
+        color: #991b1b;
+        border: none;
+        border-radius: 14px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .btn-nutri-delete:hover { background: #fecaca; }
+
+    .empty-nutri {
+        text-align: center;
+        padding: 5rem 2rem;
+        background: white;
+        border-radius: 24px;
+        border: 3px dashed var(--nutri-border);
+    }
+
+    @media (max-width: 600px) {
+        .demandes-grid { grid-template-columns: 1fr; }
+        .meta-info { flex-direction: column; gap: 0.5rem; }
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="nutrition-container">
+    
+    <!-- Header Hero -->
+    <div class="nutri-header">
+        <span class="header-icon">🍎</span>
+        <h1 class="nutri-title">Mon Service Nutrition</h1>
+        <p class="nutri-subtitle">Gérez vos demandes et consultez vos programmes alimentaires</p>
+        
+        <div class="d-flex justify-content-center gap-3">
+            <a href="{{ path('app_nutrition_request') }}" class="btn-create-floating">
+                ➕ Nouvelle demande
+            </a>
+            <a href="{{ path('app_nutrition_scan') }}" class="btn-create-floating" style="background: #212529; color: white;">
+                🔍 Scanner un produit
+            </a>
+        </div>
+    </div>
+
+    <!-- Stats summary (facultatif si disponible) -->
+    
+    {% if demande_regimes is not empty %}
+        <div class="demandes-grid">
+            {% for demande in demande_regimes %}
+                {% set isTraitee = (demande.statut == 'traité') %}
+                <div class="demande-premium-card">
+                    <span class="card-id">ID #{{ demande.id }}</span>
+                    
+                    <div class="card-top">
+                        <div class="date-tag">
+                            <span style="display:block; font-size: 0.75rem; color: #94a3b8; font-weight: 700;">DATE</span>
+                            <span style="font-weight: 700; color: #334155;">{{ demande.dateDemande|date('d/m/Y') }}</span>
+                        </div>
+                        <span class="statut-badge-p {{ isTraitee ? 'status-traite' : 'status-attente' }}">
+                            {{ isTraitee ? '✅ Traitée' : '🕒 En attente' }}
+                        </span>
+                    </div>
+
+                    <div class="card-content">
+                        <h3>{{ demande.typeRegimeSouhaite }}</h3>
+                        
+                        <div class="meta-info">
+                            <div class="meta-box">
+                                <label>Objectif</label>
+                                <span>{{ demande.objectifPrincipal|length > 30 ? demande.objectifPrincipal|slice(0, 30) ~ '...' : demande.objectifPrincipal }}</span>
+                            </div>
+                            <div class="meta-box">
+                                <label>Budget</label>
+                                <span>{{ demande.budgetMensuel ?: '0' }} DH</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-actions-p">
+                        <a href="{{ path('app_nutrition_show', {'id': demande.id}) }}" class="btn-nutri-view">
+                            {{ isTraitee ? '👁️ Voir mon régime' : '👁️ Détails demande' }}
+                        </a>
+                        
+                        <form method="post" action="{{ path('app_nutrition_delete', {'id': demande.id}) }}" 
+                              onsubmit="return confirm('Supprimer définitivement ?');">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ demande.id) }}">
+                            <button type="submit" class="btn-nutri-delete">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-nutri">
+            <div style="font-size: 5rem; margin-bottom: 2rem;">🍽️</div>
+            <h2>Prêt pour une vie plus saine ?</h2>
+            <p style="color: #64748b; margin-bottom: 2rem;">Créez votre première demande de régime pour recevoir un programme personnalisé de nos experts.</p>
+            <a href="{{ path('app_nutrition_request') }}" class="btn-nutri-view" style="display:inline-flex; width: auto; padding: 1.25rem 3rem;">
+                Commencer maintenant
+            </a>
+        </div>
+    {% endif %}
+
+</div>
+{% endblock %}

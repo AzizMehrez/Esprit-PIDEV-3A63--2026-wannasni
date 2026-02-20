@@ -1,0 +1,57 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}{{ activity.name }} - Admin WANNASNI{% endblock %}
+{% block page_title %}Activity Details{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 1rem; display: flex; gap: 0.5rem;">
+    <a href="{{ path('admin_activities') }}" class="btn btn-secondary">← Retour aux Activités</a>
+    <form method="post" action="{{ path('admin_activities_delete', {id: activity.id}) }}" style="display:inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette activité ?')">
+        <button type="submit" class="btn btn-danger">🗑️ Supprimer</button>
+    </form>
+</div>
+
+<div class="grid-2">
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">{{ activity.name }}</h2>
+            <a href="{{ path('admin_activities_edit', {id: activity.id}) }}" class="btn btn-sm btn-primary">Edit</a>
+        </div>
+        
+        <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">{{ activity.description }}</p>
+        
+        <div style="display: grid; gap: 0.75rem;">
+            <div style="display: flex; justify-content: space-between;">
+                <span style="color: var(--text-secondary);">Type</span>
+                <span class="badge {% if activity.type == 'physical' %}badge-success{% elseif activity.type == 'cognitive' %}badge-info{% else %}badge-warning{% endif %}">
+                    {{ activity.type|capitalize }}
+                </span>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+                <span style="color: var(--text-secondary);">Duration</span>
+                <span style="font-weight: 500;">{{ activity.duration }} minutes</span>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+                <span style="color: var(--text-secondary);">Schedule</span>
+                <span style="font-weight: 500;">{{ activity.schedule }}</span>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+                <span style="color: var(--text-secondary);">Status</span>
+                <span class="badge {% if activity.status == 'active' %}badge-success{% else %}badge-default{% endif %}">
+                    {{ activity.status|capitalize }}
+                </span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">Participants ({{ activity.participants }})</h2>
+        </div>
+        <div style="text-align: center; padding: 2rem; color: var(--text-muted);">
+            <span style="font-size: 3rem;">👥</span>
+            <p style="margin-top: 1rem;">{{ activity.participants }} people enrolled</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

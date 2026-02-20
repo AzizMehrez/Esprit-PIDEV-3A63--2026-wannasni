@@ -1,0 +1,321 @@
+{% extends 'base_dashboard.html.twig' %}
+
+{% block title %}Pharmacies & Hôpitaux Proches{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <style>
+        .map-section {
+            padding: 5rem 0; /* Augmenté pour éviter tout chevauchement avec la barre de navigation */
+            background: #f8fafc;
+        }
+        .map-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        .map-layout {
+            display: flex;
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+            height: 550px;
+        }
+        #map {
+            flex: 2;
+            height: 100%;
+            border-radius: 12px;
+            z-index: 1;
+        }
+        #poiList {
+            flex: 1;
+            height: 100%;
+            overflow-y: auto;
+            background: #f8fafc;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            padding: 1rem;
+        }
+        .poi-item {
+            background: white;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 0.75rem;
+            border-left: 4px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+        .poi-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+        }
+        .poi-item.pharmacy { border-left-color: #e11d48; }
+        .poi-item.hospital { border-left-color: #2563eb; }
+        
+        .poi-item-name {
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 0.25rem;
+            display: block;
+        }
+        .poi-item-type {
+            font-size: 0.85rem;
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .search-box {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            position: relative;
+            z-index: 1000; /* Priorité absolue pour le clic */
+        }
+        .location-input {
+            flex: 1;
+            padding: 1rem 1.5rem;
+            border: 3px solid #cbd5e1; /* Bordure plus épaisse pour les seniors */
+            border-radius: 12px;
+            outline: none;
+            font-size: 1.2rem;
+            transition: all 0.3s;
+            background: white;
+            cursor: text;
+        }
+        .location-input:focus {
+            border-color: #5cb85c;
+            box-shadow: 0 0 0 4px rgba(92, 184, 92, 0.2);
+            background: #ffffff;
+        }
+        .btn-find {
+            background: #5cb85c;
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-find:hover {
+            background: #4cae4c;
+            transform: translateY(-2px);
+        }
+        .poi-legend {
+            display: flex;
+            gap: 1.5rem;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .dot {
+            height: 12px;
+            width: 12px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .dot-pharmacy { background-color: #e11d48; } /* Rouge pour pharmacie */
+        .dot-hospital { background-color: #2563eb; } /* Bleu pour hôpital */
+        
+        .loading-overlay {
+            display: none;
+            color: #5cb85c;
+            font-weight: 600;
+            margin-top: 0.5rem;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+<section class="map-section">
+    <div class="container">
+        <div class="map-container">
+            <h1 class="text-center mb-4">📍 Trouver une pharmacie ou un hôpital</h1>
+            <p class="text-center text-muted mb-5">
+                Entrez votre ville ou votre quartier pour voir les services de santé à proximité.
+            </p>
+
+            <div class="search-box">
+                <input type="text" id="locationInput" class="location-input" placeholder="Ex: Tunis, Sousse, Ariana...">
+                <button type="button" onclick="searchLocation()" class="btn-find">Trouver</button>
+            </div>
+            
+            <div id="loadingInfo" class="loading-overlay text-center">
+                🔍 Recherche des services de santé en cours...
+            </div>
+
+            <div class="map-layout">
+                <div id="map"></div>
+                <div id="poiList">
+                    <div style="text-align: center; color: #94a3b8; padding-top: 5rem;">
+                        <span style="font-size: 3rem; display: block; margin-bottom: 1rem;">📍</span>
+                        La liste des résultats s'affichera ici après votre recherche.
+                    </div>
+                </div>
+            </div>
+
+            <div class="poi-legend">
+                <div class="legend-item">
+                    <span class="dot dot-pharmacy"></span> Pharmacie
+                </div>
+                <div class="legend-item">
+                    <span class="dot dot-hospital"></span> Hôpital / Clinique
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script>
+    let map, markers = [];
+
+    // Fonction globale pour être accessible depuis onclick=""
+    async function searchLocation() {
+        const input = document.getElementById('locationInput');
+        const query = input.value.trim();
+        if (!query) {
+            alert("Veuillez entrer une ville.");
+            return;
+        }
+
+        const loadingInfo = document.getElementById('loadingInfo');
+        const poiListContainer = document.getElementById('poiList');
+        
+        loadingInfo.style.display = 'block';
+        loadingInfo.innerHTML = "🔍 Recherche de '" + query + "'...";
+
+        try {
+            let geoData = null;
+            
+            // 1. Essai Nominatim
+            try {
+                const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`);
+                const data = await res.json();
+                if (data && data.length > 0) {
+                    geoData = { lat: data[0].lat, lon: data[0].lon };
+                }
+            } catch (e) { console.warn("Nominatim fail"); }
+
+            // 2. Essai Photon si besoin
+            if (!geoData) {
+                try {
+                    const res = await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=1`);
+                    const data = await res.json();
+                    if (data.features && data.features.length > 0) {
+                        const coords = data.features[0].geometry.coordinates;
+                        geoData = { lat: coords[1], lon: coords[0] };
+                    }
+                } catch (e) { console.warn("Photon fail"); }
+            }
+
+            if (geoData) {
+                loadingInfo.innerHTML = "📍 Ville trouvée ! Recherche des services de santé...";
+                map.setView([geoData.lat, geoData.lon], 14);
+                
+                // Nettoyage
+                markers.forEach(m => map.removeLayer(m));
+                markers = [];
+                poiListContainer.innerHTML = '';
+
+                // Recherche plus large (20km) et plus exhaustive (amenity + healthcare + relations)
+                const overpassQuery = `[out:json][timeout:30];
+                    (
+                      node["amenity"~"pharmacy|hospital|clinic|doctors"](around:20000,${geoData.lat},${geoData.lon});
+                      way["amenity"~"pharmacy|hospital|clinic|doctors"](around:20000,${geoData.lat},${geoData.lon});
+                      rel["amenity"~"pharmacy|hospital|clinic|doctors"](around:20000,${geoData.lat},${geoData.lon});
+                      node["healthcare"~"pharmacy|hospital|clinic|doctor"](around:20000,${geoData.lat},${geoData.lon});
+                      way["healthcare"~"pharmacy|hospital|clinic|doctor"](around:20000,${geoData.lat},${geoData.lon});
+                      rel["healthcare"~"pharmacy|hospital|clinic|doctor"](around:20000,${geoData.lat},${geoData.lon});
+                    );
+                    out center;`;
+                
+                const servers = [
+                    'https://overpass-api.de/api/interpreter',
+                    'https://lz4.overpass-api.de/api/interpreter',
+                    'https://overpass.kumi.systems/api/interpreter',
+                    'https://z.overpass-api.de/api/interpreter'
+                ];
+
+                let overpassData = null;
+                for (const server of servers) {
+                    try {
+                        const res = await fetch(server, { method: 'POST', body: overpassQuery });
+                        if (res.ok) {
+                            overpassData = await res.json();
+                            break;
+                        }
+                    } catch (e) { console.warn(`Server ${server} down`); }
+                }
+
+                if (!overpassData || !overpassData.elements || overpassData.elements.length === 0) {
+                    loadingInfo.style.display = 'none';
+                    alert("Aucune pharmacie ou hôpital trouvé à proximité.");
+                    poiListContainer.innerHTML = '<div style="padding:2rem;text-align:center;color:#94a3b8;">Aucun résultat.</div>';
+                    return;
+                }
+
+                overpassData.elements.forEach(el => {
+                    const pos = el.center ? [el.center.lat, el.center.lon] : [el.lat, el.lon];
+                    const type = el.tags.amenity;
+                    const name = el.tags.name || (type === 'pharmacy' ? 'Pharmacie' : 'Hôpital');
+                    
+                    const marker = L.circleMarker(pos, {
+                        radius: 10,
+                        fillColor: type === 'pharmacy' ? '#e11d48' : '#2563eb',
+                        color: "#fff",
+                        weight: 2,
+                        fillOpacity: 0.9
+                    }).addTo(map);
+
+                    marker.bindPopup(`<strong>${name}</strong>`);
+                    markers.push(marker);
+
+                    const item = document.createElement('div');
+                    item.className = `poi-item ${type}`;
+                    item.innerHTML = `<strong>${name}</strong><br><small>${type === 'pharmacy' ? '💊 Pharmacie' : '🏥 Hôpital'}</small>`;
+                    item.onclick = () => {
+                        map.setView(pos, 16);
+                        marker.openPopup();
+                    };
+                    poiListContainer.appendChild(item);
+                });
+            } else {
+                alert("Désolé, nous n'avons pas pu localiser cette ville.");
+            }
+        } catch (error) {
+            alert("Une erreur technique est survenue. Veuillez rafraîchir la page.");
+        } finally {
+            loadingInfo.style.display = 'none';
+        }
+    }
+
+    // Initialisation sécurisée
+    document.addEventListener('DOMContentLoaded', function() {
+        if (typeof L !== 'undefined') {
+            map = L.map('map').setView([33.8869, 9.5375], 7);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap'
+            }).addTo(map);
+            
+            setTimeout(() => map.invalidateSize(), 500);
+
+            // Gérer la touche Entrée
+            document.getElementById('locationInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') searchLocation();
+            });
+        } else {
+            console.error("Leaflet non chargé");
+        }
+    });
+</script>
+{% endblock %}

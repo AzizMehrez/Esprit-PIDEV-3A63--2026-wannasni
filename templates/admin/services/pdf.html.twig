@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Liste des Demandes de Services</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 11px;
+            color: #333;
+            margin: 20px;
+        }
+        h1 {
+            color: #667eea;
+            font-size: 24px;
+            margin-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+        .header-info {
+            margin-bottom: 20px;
+            color: #666;
+            font-size: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th {
+            background-color: #667eea;
+            color: white;
+            padding: 10px 8px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 11px;
+        }
+        td {
+            padding: 8px;
+            border-bottom: 1px solid #e5e7eb;
+            vertical-align: top;
+        }
+        tr:nth-child(even) {
+            background-color: #f9fafb;
+        }
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 9px;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+        .badge-warning {
+            background-color: #fbbf24;
+            color: #92400e;
+        }
+        .badge-info {
+            background-color: #60a5fa;
+            color: #1e3a8a;
+        }
+        .badge-success {
+            background-color: #34d399;
+            color: #065f46;
+        }
+        .badge-danger {
+            background-color: #f87171;
+            color: #7f1d1d;
+        }
+        .badge-secondary {
+            background-color: #9ca3af;
+            color: #1f2937;
+        }
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 9px;
+            color: #9ca3af;
+            border-top: 1px solid #e5e7eb;
+            padding-top: 10px;
+        }
+        .stats {
+            display: table;
+            width: 100%;
+            margin-bottom: 20px;
+            background: #f9fafb;
+            padding: 15px;
+            border-radius: 8px;
+        }
+        .stat-item {
+            display: inline-block;
+            margin-right: 30px;
+            font-size: 11px;
+        }
+        .stat-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: #667eea;
+        }
+        .stat-label {
+            color: #666;
+            font-size: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>📋 Liste des Demandes de Services</h1>
+    
+    <div class="header-info">
+        <strong>Date d'export:</strong> {{ "now"|date('d/m/Y à H:i') }}<br>
+        {% if searchQuery %}
+        <strong>Recherche:</strong> "{{ searchQuery }}"<br>
+        {% endif %}
+        <strong>Nombre total:</strong> {{ services|length }} demande(s)
+    </div>
+
+    <div class="stats">
+        <div class="stat-item">
+            <div class="stat-value">{{ services|length }}</div>
+            <div class="stat-label">Total</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value">{{ services|filter(s => s.statut == 'pending')|length }}</div>
+            <div class="stat-label">En Attente</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value">{{ services|filter(s => s.statut == 'assigned' or s.statut == 'in_progress')|length }}</div>
+            <div class="stat-label">En Cours</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value">{{ services|filter(s => s.statut == 'completed')|length }}</div>
+            <div class="stat-label">Terminés</div>
+        </div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 8%;">ID</th>
+                <th style="width: 20%;">Service</th>
+                <th style="width: 18%;">Demandeur</th>
+                <th style="width: 12%;">Ville</th>
+                <th style="width: 10%;">Urgence</th>
+                <th style="width: 12%;">Statut</th>
+                <th style="width: 10%;">Date</th>
+                <th style="width: 10%;">Technicien</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for service in services %}
+            <tr>
+                <td>#{{ service.id }}</td>
+                <td>
+                    <strong>{{ service.typeService }}</strong><br>
+                    <span style="color: #666; font-size: 9px;">{{ service.description|slice(0, 50) }}{% if service.description|length > 50 %}...{% endif %}</span>
+                </td>
+                <td style="font-size: 10px;">
+                    {{ service.seniorEmail }}<br>
+                    <span style="color: #666;">{{ service.seniorTelephone }}</span>
+                </td>
+                <td>{{ service.ville ?: 'N/A' }}</td>
+                <td>
+                    {% if service.niveauUrgence == 'haute' or service.niveauUrgence == 'urgent' %}
+                        <span class="badge badge-danger">Urgent</span>
+                    {% elseif service.niveauUrgence == 'moyenne' or service.niveauUrgence == 'moyen' %}
+                        <span class="badge badge-warning">Moyen</span>
+                    {% else %}
+                        <span class="badge badge-success">Normal</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if service.statut == 'pending' %}
+                        <span class="badge badge-warning">En attente</span>
+                    {% elseif service.statut == 'assigned' %}
+                        <span class="badge badge-info">Assigné</span>
+                    {% elseif service.statut == 'in_progress' %}
+                        <span class="badge badge-info">En cours</span>
+                    {% elseif service.statut == 'completed' %}
+                        <span class="badge badge-success">Terminé</span>
+                    {% else %}
+                        <span class="badge badge-secondary">{{ service.statut }}</span>
+                    {% endif %}
+                </td>
+                <td>{{ service.createdAt|date('d/m/Y') }}</td>
+                <td style="font-size: 9px;">
+                    {% if service.technicienNom %}
+                        {{ service.technicienNom }}
+                    {% else %}
+                        <span style="color: #9ca3af;">Non assigné</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="8" style="text-align: center; padding: 20px; color: #9ca3af;">
+                    Aucune demande de service trouvée
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="footer">
+        WANNASNI - Gestion des Services<br>
+        Document généré automatiquement le {{ "now"|date('d/m/Y à H:i') }}
+    </div>
+</body>
+</html>

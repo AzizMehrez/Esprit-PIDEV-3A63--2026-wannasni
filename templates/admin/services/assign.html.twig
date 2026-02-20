@@ -1,0 +1,231 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Assigner un Technicien - Admin WANNASNI{% endblock %}
+{% block page_title %}Assigner un Technicien{% endblock %}
+
+{% block content %}
+
+{% for message in app.flashes('success') %}
+    <div class="alert alert-success">✅ {{ message }}</div>
+{% endfor %}
+{% for message in app.flashes('error') %}
+    <div class="alert alert-danger">❌ {{ message }}</div>
+{% endfor %}
+{% for message in app.flashes('warning') %}
+    <div class="alert alert-warning">⚠️ {{ message }}</div>
+{% endfor %}
+
+<div class="admin-toolbar" style="margin-bottom: 2rem;">
+    <a href="{{ path('admin_services') }}" class="btn btn-secondary">← Retour aux services</a>
+    <a href="{{ path('admin_services_show', {id: service.id}) }}" class="btn btn-secondary">👁️ Voir le service</a>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <form method="post" novalidate>
+            <div class="admin-card" style="margin-bottom: 1.5rem;">
+                <div class="card-header">
+                    <h2 class="card-title">🛎️ Détails du Service</h2>
+                </div>
+                <div class="card-body">
+                    <div style="display: grid; gap: 1rem;">
+                        <div style="padding: 1rem; background: #f9fafb; border-radius: 8px;">
+                            <div style="font-size: 0.875rem; color: #6b7280; margin-bottom: 0.5rem;">Service #{{ service.id }}</div>
+                            <div style="font-weight: 600; font-size: 1.1rem;">{{ service.typeService }}</div>
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                            <div>
+                                <div style="font-size: 0.875rem; color: #6b7280;">Client</div>
+                                <div style="font-weight: 500;">{{ service.seniorEmail }}</div>
+                                <div style="font-size: 0.875rem;">{{ service.seniorTelephone }}</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 0.875rem; color: #6b7280;">Localisation</div>
+                                <div style="font-weight: 500;">{{ service.ville ?: 'Non spécifié' }}</div>
+                                <div style="font-size: 0.875rem;">{{ service.codePostal }}</div>
+                            </div>
+                        </div>
+
+                        {% if service.description %}
+                        <div>
+                            <div style="font-size: 0.875rem; color: #6b7280; margin-bottom: 0.5rem;">Description</div>
+                            <div style="padding: 0.75rem; background: white; border-radius: 6px; border: 1px solid #e5e7eb;">
+                                {{ service.description }}
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if service.dateSouhaitee %}
+                        <div>
+                            <div style="font-size: 0.875rem; color: #6b7280;">Date souhaitée</div>
+                            <div style="font-weight: 500;">{{ service.dateSouhaitee|date('d/m/Y à H:i') }}</div>
+                        </div>
+                        {% endif %}
+                        
+                        <div style="padding: 1rem; background: #e0f2fe; border-radius: 8px; border-left: 4px solid #0284c7;">
+                            <strong>📧 Notification par email</strong><br>
+                            <small>Le devis sera automatiquement envoyé à :</small>
+                            <div style="margin-top: 0.5rem; font-weight: 500;">
+                                {% set emails = [service.seniorEmail] %}
+                                {% if service.user and service.user.email and service.user.email != service.seniorEmail %}
+                                    {% set emails = emails|merge([service.user.email]) %}
+                                {% endif %}
+                                {{ emails|join(', ') }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="admin-card" style="margin-bottom: 1.5rem;">
+                <div class="card-header">
+                    <h2 class="card-title">👤 Sélectionner un Technicien</h2>
+                </div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label for="technicien_id">Technicien *</label>
+                        <select id="technicien_id" name="technicien_id" class="form-control" required>
+                            <option value="">-- Sélectionnez un technicien --</option>
+                            {% for tech in techniciens %}
+                            <option value="{{ tech.id }}" 
+                                    data-email="{{ tech.email }}" 
+                                    data-telephone="{{ tech.phone }}" 
+                                    data-specialite="{{ tech.specialite ?: 'Non spécifié' }}"
+                                    data-tarif="{{ tech.tarifHoraire ?: '25.00' }}"
+                                    {% if not tech.disponible %}disabled{% endif %}>
+                                {{ tech.fullName ?: tech.email }}
+                                {% if tech.specialite %} - {{ tech.specialite }}{% endif %}
+                                {% if tech.tarifHoraire %} ({{ tech.tarifHoraire }}€/h){% endif %}
+                                {% if not tech.disponible %} - ⚠️ Indisponible{% endif %}
+                            </option>
+                            {% else %}
+                            <option value="" disabled>Aucun technicien disponible (créez des utilisateurs avec @gmail.com)</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    {% if techniciens|length == 0 %}
+                    <div style="margin-top: 1rem; padding: 1rem; background: #fef3c7; border-radius: 8px; border-left: 4px solid #f59e0b;">
+                        <strong>⚠️ Aucun technicien trouvé</strong><br>
+                        <small>Pour créer des techniciens, enregistrez des utilisateurs avec une adresse email @gmail.com dans le système.</small>
+                    </div>
+                    {% endif %}
+
+                    <div id="technicienInfo" style="display: none; margin-top: 1rem; padding: 1rem; background: #f3f4f6; border-radius: 8px;">
+                        <strong>Informations du technicien :</strong>
+                        <div id="technicienDetails" style="margin-top: 0.5rem;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="admin-card" style="margin-bottom: 1.5rem;">
+                <div class="card-header">
+                    <h2 class="card-title">📅 Planification</h2>
+                </div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label for="date_debut">Date de début (optionnel)</label>
+                        <input type="datetime-local" id="date_debut" name="date_debut" class="form-control">
+                    </div>
+                </div>
+            </div>
+
+            <div class="admin-card" style="margin-bottom: 1.5rem;">
+                <div class="card-header">
+                    <h2 class="card-title">📝 Notes</h2>
+                </div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label for="notes">Notes internes (optionnel)</label>
+                        <textarea id="notes" name="notes" class="form-control" rows="4" placeholder="Ajoutez des notes concernant cette assignation..."></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                <a href="{{ path('admin_services_show', {id: service.id}) }}" class="btn btn-secondary">Annuler</a>
+                <button type="submit" class="btn btn-primary" {% if techniciens|length == 0 %}disabled{% endif %}>✅ Assigner le Technicien</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="col-md-4">
+        <div class="admin-card">
+            <div class="card-header">
+                <h2 class="card-title">ℹ️ Informations</h2>
+            </div>
+            <div class="card-body">
+                <div style="font-size: 0.875rem; line-height: 1.6;">
+                    <p><strong>Assignation de technicien</strong></p>
+                    <p>Cette action va :</p>
+                    <ul style="margin-left: 1.25rem;">
+                        <li>Créer une intervention</li>
+                        <li>Assigner le technicien sélectionné</li>
+                        <li>Mettre à jour le statut du service</li>
+                        <li>📧 Envoyer un devis par email au client</li>
+                    </ul>
+                    <div style="margin-top: 1rem; padding: 0.75rem; background: #e0f2fe; border-radius: 6px; font-size: 0.8rem;">
+                        <strong>📧 Envoi automatique</strong><br>
+                        Le devis sera envoyé à l'adresse email fournie par le client
+                        {% if service.user and service.user.email and service.user.email != service.seniorEmail %}
+                         et à son compte utilisateur
+                        {% endif %}.
+                    </div>
+                    <p style="margin-top: 1rem; padding: 0.75rem; background: #fef3c7; border-radius: 6px; font-size: 0.8rem;">
+                        <strong>💡 Astuce :</strong> Seuls les utilisateurs avec une adresse email @gmail.com peuvent être sélectionnés comme techniciens.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        {% if techniciens|length > 0 %}
+        <div class="admin-card" style="margin-top: 1.5rem;">
+            <div class="card-header">
+                <h2 class="card-title">👥 Techniciens disponibles</h2>
+            </div>
+            <div class="card-body">
+                <div style="font-size: 0.875rem;">
+                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                        <span style="width: 12px; height: 12px; background: #10b981; border-radius: 50%;"></span>
+                        <span>{{ techniciens|filter(t => t.disponible)|length }} Disponibles</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <span style="width: 12px; height: 12px; background: #ef4444; border-radius: 50%;"></span>
+                        <span>{{ techniciens|filter(t => not t.disponible)|length }} Indisponibles</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+document.getElementById('technicien_id').addEventListener('change', function() {
+    const selected = this.options[this.selectedIndex];
+    const infoDiv = document.getElementById('technicienInfo');
+    const detailsDiv = document.getElementById('technicienDetails');
+    
+    if (this.value) {
+        const email = selected.dataset.email;
+        const telephone = selected.dataset.telephone;
+        const specialite = selected.dataset.specialite;
+        const tarif = selected.dataset.tarif;
+        
+        detailsDiv.innerHTML = `
+            <div style="display: grid; gap: 0.5rem;">
+                <div><strong>Email:</strong> ${email}</div>
+                <div><strong>Téléphone:</strong> ${telephone || 'Non renseigné'}</div>
+                <div><strong>Spécialité:</strong> ${specialite}</div>
+                <div><strong>Tarif horaire:</strong> ${tarif}€/h</div>
+            </div>
+        `;
+        infoDiv.style.display = 'block';
+    } else {
+        infoDiv.style.display = 'none';
+    }
+});
+</script>
+
+{% endblock %}

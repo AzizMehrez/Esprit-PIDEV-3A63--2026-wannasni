@@ -1,0 +1,503 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nouvelle Entrée Santé - WANNASNI{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    :root {
+        --dash-primary: #dc2626;
+        --dash-primary-light: #ef4444;
+        --dash-bg: #f8faf8;
+        --dash-card: #ffffff;
+        --dash-text: #1a1a2e;
+        --dash-text-muted: #64748b;
+        --dash-border: #e2e8f0;
+        --dash-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+        --dash-radius: 20px;
+        --dash-radius-sm: 12px;
+    }
+
+    body { background: var(--dash-bg); }
+
+    .page-wrapper {
+        min-height: 100vh;
+        padding: 2rem 1.5rem 4rem;
+        background: linear-gradient(180deg, #fef2f2 0%, var(--dash-bg) 30%);
+    }
+
+    .page-container {
+        max-width: 700px;
+        margin: 0 auto;
+    }
+
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #dc2626;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.95rem;
+        margin-bottom: 1.5rem;
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        transition: all 0.2s;
+    }
+
+    .back-link:hover {
+        background: rgba(220, 38, 38, 0.08);
+    }
+
+    .form-card {
+        background: var(--dash-card);
+        border-radius: var(--dash-radius);
+        box-shadow: var(--dash-shadow);
+        border: 1px solid var(--dash-border);
+        overflow: hidden;
+    }
+
+    .form-header {
+        padding: 1.5rem 2rem;
+        border-bottom: 1px solid var(--dash-border);
+        background: linear-gradient(to right, rgba(220, 38, 38, 0.08), transparent);
+    }
+
+    .form-title {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-family: 'Playfair Display', serif;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--dash-text);
+    }
+
+    .form-title-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
+        background: linear-gradient(135deg, #dc2626, #b91c1c);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.25rem;
+    }
+
+    .form-body {
+        padding: 2rem;
+    }
+
+    .form-section {
+        margin-bottom: 2rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid var(--dash-border);
+    }
+
+    .form-section:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+    }
+
+    .section-title {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--dash-text);
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.25rem;
+    }
+
+    .form-group label {
+        display: block;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--dash-text);
+        margin-bottom: 0.5rem;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        width: 100%;
+        padding: 0.875rem 1rem;
+        font-size: 1rem;
+        border: 2px solid var(--dash-border);
+        border-radius: var(--dash-radius-sm);
+        background: white;
+        transition: all 0.2s;
+        font-family: inherit;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+        outline: none;
+        border-color: #dc2626;
+        box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.1);
+    }
+
+    .btn-group {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+
+    .btn {
+        padding: 1rem 2rem;
+        font-size: 1rem;
+        font-weight: 600;
+        border-radius: var(--dash-radius-sm);
+        cursor: pointer;
+        text-decoration: none;
+        text-align: center;
+        transition: all 0.2s;
+        border: none;
+    }
+
+    .btn-primary {
+        flex: 1;
+        background: linear-gradient(135deg, #dc2626, #b91c1c);
+        color: white;
+        box-shadow: 0 4px 16px rgba(220, 38, 38, 0.25);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(220, 38, 38, 0.35);
+    }
+
+    .btn-secondary {
+        background: white;
+        color: var(--dash-text-muted);
+        border: 2px solid var(--dash-border);
+    }
+
+    .btn-secondary:hover {
+        border-color: #dc2626;
+        color: #dc2626;
+    }
+
+    /* Flash Messages */
+    .alert {
+        padding: 1rem 1.25rem;
+        border-radius: 12px;
+        margin-bottom: 1.5rem;
+        font-size: 1rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .alert-success {
+        background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+        color: #065f46;
+        border: 2px solid #6ee7b7;
+    }
+
+    .alert-error {
+        background: linear-gradient(135deg, #fee2e2, #fecaca);
+        color: #991b1b;
+        border: 2px solid #fca5a5;
+    }
+
+    @media (max-width: 600px) {
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* Suggestion Box Styles */
+    .suggestion-box {
+        padding: 1.25rem;
+        background: linear-gradient(135deg, #eff6ff, #dbeafe);
+        border-radius: 16px;
+        border: 2px solid #bfdbfe;
+        box-shadow: 0 4px 15px rgba(37, 99, 235, 0.05);
+        margin-top: 1rem;
+        transition: all 0.3s ease;
+    }
+    .suggestion-header {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 700;
+        color: #1e40af;
+        margin-bottom: 0.75rem;
+        font-size: 1rem;
+    }
+    .suggestion-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.5rem;
+        padding: 0.75rem;
+        background: rgba(255, 255, 255, 0.6);
+        border-radius: 10px;
+        margin-bottom: 0.5rem;
+        font-size: 0.95rem;
+        color: #1e3a8a;
+        line-height: 1.4;
+        border-left: 4px solid #3b82f6;
+    }
+    .suggestion-item:last-child {
+        margin-bottom: 0;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="page-wrapper">
+    <div class="page-container">
+        {# Flash Messages #}
+        {% for message in app.flashes('success') %}
+            <div class="alert alert-success">✅ {{ message }}</div>
+        {% endfor %}
+        {% for message in app.flashes('error') %}
+            <div class="alert alert-error">❌ {{ message }}</div>
+        {% endfor %}
+
+        <a href="{{ path('app_my_health', {'_locale': app.request.locale}) }}" class="back-link">
+            ← Retour au journal
+        </a>
+
+        <div class="form-card">
+            <div class="form-header">
+                <h1 class="form-title">
+                    <span class="form-title-icon">❤️</span>
+                    Nouvelle Entrée Santé
+                </h1>
+            </div>
+            <div class="form-body">
+                {{ form_start(form) }}
+                
+                {# Date Section #}
+                <div class="form-section">
+                    <h3 class="section-title">📅 Date de l'entrée</h3>
+                    <div class="form-group">
+                        {{ form_label(form.date) }}
+                        {{ form_widget(form.date, {'attr': {'class': 'form-input'}}) }}
+                        {{ form_errors(form.date) }}
+                    </div>
+                </div>
+                
+                {# Vital Signs Section #}
+                <div class="form-section">
+                    <h3 class="section-title">🩺 Signes Vitaux</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            {{ form_label(form.tensionArterielle) }}
+                            {{ form_widget(form.tensionArterielle, {'attr': {'class': 'form-input', 'placeholder': '120/80'}}) }}
+                            {{ form_errors(form.tensionArterielle) }}
+                        </div>
+                        <div class="form-group">
+                            {{ form_label(form.frequenceCardiaque) }}
+                            {{ form_widget(form.frequenceCardiaque, {'attr': {'class': 'form-input', 'placeholder': '72'}}) }}
+                            {{ form_errors(form.frequenceCardiaque) }}
+                        </div>
+                    </div>
+                    <div class="form-group">
+
+                        {{ form_label(form.temperature) }}
+                        {{ form_widget(form.temperature, {'attr': {'class': 'form-input', 'placeholder': '36.5'}}) }}
+                        {{ form_errors(form.temperature) }}
+
+                        <!-- Real-time Suggestion Box -->
+                        <div id="realtime-suggestion" class="suggestion-box" style="display: none;">
+                            <div class="suggestion-header">
+                                <span>💡 Conseil instantané :</span>
+                            </div>
+                            <div id="suggestion-list" class="suggestion-content">
+                                <!-- Dynamically filled by JS -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                {# Mood & Sleep Section #}
+                <div class="form-section">
+                    <h3 class="section-title">😊 Humeur & Bien-être</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            {{ form_label(form.humeur) }}
+                            {{ form_widget(form.humeur, {'attr': {'class': 'form-input'}}) }}
+                            {{ form_errors(form.humeur) }}
+                        </div>
+                        <div class="form-group">
+                            {{ form_label(form.qualiteSommeil) }}
+                            {{ form_widget(form.qualiteSommeil, {'attr': {'class': 'form-input'}}) }}
+                            {{ form_errors(form.qualiteSommeil) }}
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            {{ form_label(form.appetit) }}
+                            {{ form_widget(form.appetit, {'attr': {'class': 'form-input'}}) }}
+                            {{ form_errors(form.appetit) }}
+                        </div>
+                        <div class="form-group">
+                            {{ form_label(form.niveauDouleur) }}
+                            {{ form_widget(form.niveauDouleur, {'attr': {'class': 'form-input', 'placeholder': '0-10'}}) }}
+                            {{ form_errors(form.niveauDouleur) }}
+                        </div>
+                    </div>
+                </div>
+                
+                {# Activity & Hydration Section #}
+                <div class="form-section">
+                    <h3 class="section-title">🏃 Activité & Hydratation</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            {{ form_label(form.activitePhysique) }}
+                            {{ form_widget(form.activitePhysique, {'attr': {'class': 'form-input', 'placeholder': 'Marche 30 min'}}) }}
+                            {{ form_errors(form.activitePhysique) }}
+                        </div>
+                        <div class="form-group">
+                            {{ form_label(form.hydratation) }}
+                            {{ form_widget(form.hydratation, {'attr': {'class': 'form-input'}}) }}
+                            {{ form_errors(form.hydratation) }}
+                        </div>
+                    </div>
+                </div>
+                
+                {# Medications & Symptoms Section #}
+                <div class="form-section">
+                    <h3 class="section-title">💊 Médicaments & Symptômes</h3>
+                    <div class="form-group">
+                        {{ form_label(form.medicamentsPris) }}
+                        {{ form_widget(form.medicamentsPris, {'attr': {'class': 'form-input', 'rows': 2}}) }}
+                        {{ form_errors(form.medicamentsPris) }}
+                    </div>
+                    <div class="form-group">
+                        {{ form_label(form.symptomes) }}
+                        {{ form_widget(form.symptomes, {'attr': {'class': 'form-input', 'rows': 2}}) }}
+                        {{ form_errors(form.symptomes) }}
+                    </div>
+                </div>
+                
+                {# Notes Section #}
+                <div class="form-section">
+                    <h3 class="section-title">📝 Notes Additionnelles</h3>
+                    <div class="form-group">
+                        {{ form_widget(form.notes, {'attr': {'class': 'form-input', 'rows': 3, 'placeholder': 'Observations, remarques...'}}) }}
+                        {{ form_errors(form.notes) }}
+                    </div>
+                </div>
+
+                {# Hide senior field for regular users - auto-set in controller #}
+                {{ form_widget(form.senior, {'attr': {'style': 'display:none'}}) }}
+                
+                <div class="btn-group">
+                    <button type="submit" class="btn btn-primary">💾 Enregistrer</button>
+                    <a href="{{ path('app_my_health', {'_locale': app.request.locale}) }}" class="btn btn-secondary">Annuler</a>
+                </div>
+                
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+(function() {
+    function initHealthSuggestions() {
+        // Sélecteurs flexibles pour supporter différents préfixes de formulaire Symfony
+        const tempInput = document.querySelector('input[id*="_temperature"]');
+        const heartInput = document.querySelector('input[id*="_frequenceCardiaque"]');
+        const tensionInput = document.querySelector('input[id*="_tensionArterielle"]');
+        const suggestionBox = document.getElementById('realtime-suggestion');
+        const suggestionList = document.getElementById('suggestion-list');
+
+        if (!tempInput || !heartInput || !tensionInput || !suggestionBox || !suggestionList) {
+            return;
+        }
+
+        // --- BASE DE CONNAISSANCES SANTÉ ---
+        const healthBase = {
+            temperature: (val) => {
+                if (val > 39) return { status: 'danger', text: '🌡️ <strong>Forte fièvre :</strong> Votre température est très élevée (' + val + '°C). Veuillez contacter un médecin rapidement.' };
+                if (val > 38) return { status: 'warning', text: '🤒 <strong>Fièvre :</strong> Vous semblez avoir de la fièvre. Reposez-vous et hydratez-vous bien.' };
+                if (val < 35.5) return { status: 'warning', text: '🥶 <strong>Hypothermie :</strong> Votre température est basse. Couvrez-vous bien et prenez une boisson chaude.' };
+                if (val >= 36 && val <= 37.5) return { status: 'success', text: '✅ <strong>Température :</strong> Votre température est normale.' };
+                return null;
+            },
+            heart: (val) => {
+                if (val > 100) return { status: 'danger', text: '💓 <strong>Tachycardie :</strong> Votre pouls est rapide (' + val + ' bpm). Essayez de vous asseoir et de respirer calmement.' };
+                if (val < 50) return { status: 'warning', text: '🧘 <strong>Bradycardie :</strong> Votre pouls est lent. Si vous ressentez des vertiges, parlez-en à un médecin.' };
+                if (val >= 60 && val <= 90) return { status: 'success', text: '✅ <strong>Pouls :</strong> Votre rythme cardiaque est excellent.' };
+                return null;
+            },
+            tension: (str) => {
+                const parts = str.split('/');
+                if (parts.length === 2) {
+                    let sys = parseInt(parts[0]);
+                    // Gérer les deux formats (ex: 14/8 ou 140/80)
+                    if (sys < 25) sys = sys * 10; 
+                    
+                    if (sys > 150) return { status: 'danger', text: '⚠️ <strong>Hypertension :</strong> Votre tension est élevée (' + str + '). Évitez les efforts et le sel aujourd\'hui.' };
+                    if (sys < 95) return { status: 'warning', text: '📉 <strong>Hypotension :</strong> Votre tension est un peu basse. Levez-vous doucement pour éviter les vertiges.' };
+                    if (sys >= 110 && sys <= 135) return { status: 'success', text: '✅ <strong>Tension :</strong> Votre pression artérielle est parfaite.' };
+                }
+                return null;
+            }
+        };
+
+        function updateSuggestions() {
+            const temp = parseFloat(tempInput.value);
+            const heart = parseInt(heartInput.value);
+            const tension = tensionInput.value;
+            let finalSuggestions = [];
+
+            const tSug = healthBase.temperature(temp);
+            if (tSug) finalSuggestions.push(tSug);
+
+            const hSug = healthBase.heart(heart);
+            if (hSug) finalSuggestions.push(hSug);
+
+            const pSug = healthBase.tension(tension);
+            if (pSug) finalSuggestions.push(pSug);
+
+            if (finalSuggestions.length > 0) {
+                suggestionList.innerHTML = finalSuggestions.map(s => `
+                    <div class="suggestion-item" style="border-left: 5px solid ${s.status === 'danger' ? '#ef4444' : (s.status === 'warning' ? '#f59e0b' : '#10b981')}; background: white; padding: 10px; margin-bottom: 8px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                        <span>${s.text}</span>
+                    </div>
+                `).join('');
+                suggestionBox.style.display = 'block';
+            } else {
+                suggestionBox.style.display = 'none';
+            }
+        }
+
+        // Écouteurs d'événements
+        [tempInput, heartInput, tensionInput].forEach(input => {
+            input.addEventListener('input', updateSuggestions);
+            input.addEventListener('change', updateSuggestions);
+        });
+        
+        // Appel initial
+        updateSuggestions();
+    }
+
+    // Support pour Turbo et chargement classique
+    document.addEventListener('turbo:load', initHealthSuggestions);
+    document.addEventListener('DOMContentLoaded', initHealthSuggestions);
+})();
+</script>
+{% endblock %}

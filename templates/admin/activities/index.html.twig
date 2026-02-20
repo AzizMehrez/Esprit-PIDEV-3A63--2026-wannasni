@@ -1,0 +1,250 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Activités - Admin WANNASNI{% endblock %}
+{% block page_title %}Gestion des Activités{% endblock %}
+
+{% block header_actions %}
+<a href="{{ path('admin_dashboard') }}" class="btn btn-secondary">🏠 Accueil</a>
+<a href="{{ path('admin_activities_new') }}" class="btn btn-primary">➕ Nouvelle Activité</a>
+{% endblock %}
+
+{% block content %}
+{# Statistics Cards #}
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon green">🎯</div>
+        <div class="stat-info">
+            <div class="stat-value">{{ activities|length }}</div>
+            <div class="stat-label">Total Activités</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon blue">✓</div>
+        <div class="stat-info">
+            <div class="stat-value">{{ activities|filter(a => a.status == 'active')|length }}</div>
+            <div class="stat-label">Actives</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon purple">👥</div>
+        <div class="stat-info">
+            <div class="stat-value">{{ activities|reduce((carry, a) => carry + a.participants, 0) }}</div>
+            <div class="stat-label">Participants</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon orange">⏱️</div>
+        <div class="stat-info">
+            <div class="stat-value">{{ (activities|reduce((carry, a) => carry + a.duration, 0) / activities|length)|round }}min</div>
+            <div class="stat-label">Durée Moyenne</div>
+        </div>
+    </div>
+</div>
+
+{# Toolbar #}
+<div class="admin-toolbar">
+    <div class="toolbar-search">
+        <input type="text" id="searchInput" placeholder="Rechercher une activité..." onkeyup="filterTable()">
+    </div>
+    <div class="toolbar-actions">
+        <button class="filter-btn">
+            🔽 Filtrer
+        </button>
+        <a href="#" class="export-btn pdf" onclick="exportPDF(); return false;">
+            📄 PDF
+        </a>
+        <a href="#" class="export-btn excel" onclick="exportExcel(); return false;">
+            📊 Excel
+        </a>
+    </div>
+</div>
+
+{# Table #}
+<div class="admin-card">
+    <div class="card-header">
+        <h2 class="card-title">🎯 Liste des Activités</h2>
+        <span class="badge badge-success">{{ activities|length }} activités</span>
+    </div>
+    <table class="admin-table" id="dataTable">
+        <thead>
+            <tr>
+                <th class="sortable" onclick="sortTable(0)">Activité</th>
+                <th class="sortable" onclick="sortTable(1)">Type</th>
+                <th class="sortable" onclick="sortTable(2)">Horaire</th>
+                <th class="sortable" onclick="sortTable(3)">Participants</th>
+                <th class="sortable" onclick="sortTable(4)">Statut</th>
+                <th style="width: 120px;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for activity in activities %}
+            <tr>
+                <td>
+                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                        <div style="width: 40px; height: 40px; border-radius: 10px; background: linear-gradient(135deg, #22c55e, #4ade80); display: flex; align-items: center; justify-content: center; font-size: 1.1rem;">
+                            {% if activity.type == 'physical' %}🏃
+                            {% elseif activity.type == 'cognitive' %}🧠
+                            {% elseif activity.type == 'creative' %}🎨
+                            {% else %}👥{% endif %}
+                        </div>
+                        <div>
+                            <div style="font-weight: 600;">{{ activity.name }}</div>
+                            <div style="font-size: 0.8rem; color: var(--admin-text-muted);">{{ activity.description|slice(0, 40) }}...</div>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <span class="badge badge-info">{{ activity.type|capitalize }}</span>
+                </td>
+                <td>{{ activity.schedule }}</td>
+                <td>
+                    <span style="font-weight: 600;">{{ activity.participants }}</span>
+                </td>
+                <td>
+                    {% if activity.status == 'active' %}
+                        <span class="badge badge-success">✓ Active</span>
+                    {% else %}
+                        <span class="badge badge-warning">⏸ Inactive</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{{ path('admin_activities_show', {id: activity.id}) }}" class="action-btn" title="Voir">👁️</a>
+                    <a href="{{ path('admin_activities_edit', {id: activity.id}) }}" class="action-btn" title="Modifier">✏️</a>
+                    <form method="post" action="{{ path('admin_activities_delete', {id: activity.id}) }}" style="display:inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette activité ?')">
+                        <button type="submit" class="action-btn danger" title="Supprimer">🗑️</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+/* ── Search / Filter ── */
+function filterTable() {
+    const filter = document.getElementById('searchInput').value.toLowerCase();
+    const tbody  = document.querySelector('#dataTable tbody');
+    const rows   = tbody.querySelectorAll('tr');
+
+    rows.forEach(row => {
+        const cells = row.querySelectorAll('td');
+        let found = false;
+        cells.forEach((cell, idx) => {
+            if (idx < cells.length - 1 && cell.textContent.toLowerCase().includes(filter)) {
+                found = true;
+            }
+        });
+        row.style.display = found ? '' : 'none';
+    });
+}
+
+/* ── Sort ── */
+let sortDirection = {};
+function sortTable(columnIndex) {
+    const table   = document.getElementById('dataTable');
+    const tbody   = table.querySelector('tbody');
+    const rows    = Array.from(tbody.querySelectorAll('tr'));
+    const headers = table.querySelectorAll('thead th');
+
+    sortDirection[columnIndex] = !sortDirection[columnIndex];
+    const ascending = sortDirection[columnIndex];
+
+    headers.forEach(h => h.classList.remove('asc', 'desc'));
+    headers[columnIndex].classList.add(ascending ? 'asc' : 'desc');
+
+    // Numeric columns: Participants (index 3)
+    const numericCols = [3];
+
+    rows.sort((a, b) => {
+        let aText = a.cells[columnIndex].textContent.trim();
+        let bText = b.cells[columnIndex].textContent.trim();
+
+        if (numericCols.includes(columnIndex)) {
+            const aNum = parseFloat(aText) || 0;
+            const bNum = parseFloat(bText) || 0;
+            return ascending ? aNum - bNum : bNum - aNum;
+        }
+        return ascending
+            ? aText.toLowerCase().localeCompare(bText.toLowerCase())
+            : bText.toLowerCase().localeCompare(aText.toLowerCase());
+    });
+
+    rows.forEach(row => tbody.appendChild(row));
+}
+
+/* ── PDF Export ── */
+function exportPDF() {
+    const table = document.getElementById('dataTable');
+    const rows  = table.querySelectorAll('tbody tr');
+    const date  = new Date().toLocaleDateString('fr-FR');
+
+    let tableHTML = '';
+    rows.forEach(row => {
+        if (row.style.display === 'none') return;
+        const cells = row.querySelectorAll('td');
+        tableHTML += '<tr>';
+        tableHTML += '<td>' + cells[0].textContent.trim().replace(/\s+/g, ' ') + '</td>';
+        tableHTML += '<td>' + cells[1].textContent.trim() + '</td>';
+        tableHTML += '<td>' + cells[2].textContent.trim() + '</td>';
+        tableHTML += '<td style="text-align:center;">' + cells[3].textContent.trim() + '</td>';
+        tableHTML += '<td>' + cells[4].textContent.trim() + '</td>';
+        tableHTML += '</tr>';
+    });
+
+    const html = `<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>Activités - WANNASNI</title>
+<style>
+    body{font-family:Arial,sans-serif;padding:30px;color:#1e293b}
+    h1{text-align:center;margin-bottom:4px;color:#1e40af}
+    .subtitle{text-align:center;color:#64748b;margin-bottom:24px;font-size:14px}
+    table{width:100%;border-collapse:collapse;margin-top:10px}
+    th{background:#1e40af;color:#fff;padding:10px 12px;text-align:left;font-size:13px}
+    td{padding:9px 12px;border-bottom:1px solid #e2e8f0;font-size:13px}
+    tr:nth-child(even){background:#f8fafc}
+    .footer{text-align:center;margin-top:30px;font-size:11px;color:#94a3b8}
+</style></head><body>
+    <h1>📋 Liste des Activités</h1>
+    <p class="subtitle">WANNASNI – Généré le ${date}</p>
+    <table>
+        <thead><tr><th>Activité</th><th>Type</th><th>Horaire</th><th>Participants</th><th>Statut</th></tr></thead>
+        <tbody>${tableHTML}</tbody>
+    </table>
+    <p class="footer">WANNASNI – Système de Gestion – ${date}</p>
+</body></html>`;
+
+    const win = window.open('', '_blank');
+    win.document.write(html);
+    win.document.close();
+    win.focus();
+    setTimeout(() => win.print(), 400);
+}
+
+/* ── Excel / CSV Export ── */
+function exportExcel() {
+    const table = document.getElementById('dataTable');
+    const rows  = table.querySelectorAll('tbody tr');
+    const BOM   = '\uFEFF';
+    let csv     = BOM + 'Activité;Type;Horaire;Participants;Statut\n';
+
+    rows.forEach(row => {
+        if (row.style.display === 'none') return;
+        const cells = row.querySelectorAll('td');
+        const name  = cells[0].textContent.trim().replace(/\s+/g, ' ').replace(/;/g, ',');
+        const type  = cells[1].textContent.trim();
+        const sched = cells[2].textContent.trim();
+        const part  = cells[3].textContent.trim();
+        const stat  = cells[4].textContent.trim();
+        csv += `${name};${type};${sched};${part};${stat}\n`;
+    });
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href     = url;
+    a.download = 'activites_wannasni_' + new Date().toISOString().slice(0, 10) + '.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+}
+</script>
+{% endblock %}

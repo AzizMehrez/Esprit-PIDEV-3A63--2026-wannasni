@@ -1,0 +1,370 @@
+{% extends 'base_dashboard.html.twig' %}
+
+{% block title %}Mes Services - WANNASNI{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    /* ============================================
+       SERVICES PAGE - Senior-Friendly Design
+       Large fonts, simple layout, clear actions
+       ============================================ */
+    
+    :root {
+        --svc-primary: #2563eb;
+        --svc-primary-light: #3b82f6;
+        --svc-bg: #eff6ff;
+        --svc-card: #ffffff;
+        --svc-text: #1a1a2e;
+        --svc-text-muted: #64748b;
+        --svc-border: #dbeafe;
+    }
+
+    .services-wrapper {
+        min-height: 100vh;
+        padding: 2rem 1.5rem 4rem;
+        background: linear-gradient(180deg, var(--svc-bg) 0%, #f8fafc 30%);
+    }
+
+    .services-container {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    /* Back Link - Large & Clear */
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--svc-primary);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 1.1rem;
+        margin-bottom: 1.5rem;
+        padding: 0.75rem 1.25rem;
+        border-radius: 50px;
+        background: white;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        transition: all 0.2s;
+    }
+
+    .back-link:hover {
+        background: var(--svc-bg);
+        transform: translateX(-4px);
+    }
+
+    /* Header - Big & Welcoming */
+    .services-header {
+        background: linear-gradient(135deg, var(--svc-primary), var(--svc-primary-light));
+        border-radius: 24px;
+        padding: 2.5rem;
+        margin-bottom: 2rem;
+        color: white;
+        text-align: center;
+        box-shadow: 0 8px 32px rgba(37, 99, 235, 0.3);
+    }
+
+    .services-header-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+    }
+
+    .services-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .services-subtitle {
+        font-size: 1.25rem;
+        opacity: 0.9;
+        margin-bottom: 1.5rem;
+    }
+
+    .btn-new-request {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1.25rem 2.5rem;
+        background: white;
+        color: var(--svc-primary);
+        border-radius: 50px;
+        font-size: 1.25rem;
+        font-weight: 700;
+        text-decoration: none;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+        transition: all 0.3s;
+    }
+
+    .btn-new-request:hover {
+        transform: scale(1.05);
+        box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    }
+
+    /* Flash Messages */
+    .alert {
+        padding: 1.25rem 1.5rem;
+        margin-bottom: 1.5rem;
+        border-radius: 12px;
+        font-size: 1.1rem;
+        font-weight: 500;
+        animation: slideDown 0.3s ease-out;
+    }
+
+    @keyframes slideDown {
+        from { opacity: 0; transform: translateY(-20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .alert-success { background: #d1fae5; color: #065f46; border-left: 5px solid #10b981; }
+    .alert-error { background: #fee2e2; color: #991b1b; border-left: 5px solid #ef4444; }
+    .alert-warning { background: #fef3c7; color: #92400e; border-left: 5px solid #f59e0b; }
+    .alert-info { background: #dbeafe; color: #0c2340; border-left: 5px solid #3b82f6; }
+
+    /* Service Cards - Big & Clear */
+    .service-list {
+        display: grid;
+        gap: 1.25rem;
+    }
+
+    .service-card {
+        background: var(--svc-card);
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+        border: 2px solid var(--svc-border);
+        transition: all 0.3s;
+    }
+
+    .service-card:hover {
+        border-color: var(--svc-primary);
+        transform: translateY(-4px);
+        box-shadow: 0 8px 32px rgba(37, 99, 235, 0.15);
+    }
+
+    .service-card.en_attente { border-left: 6px solid #f59e0b; }
+    .service-card.en_cours { border-left: 6px solid #2563eb; }
+    .service-card.terminee { border-left: 6px solid #22c55e; }
+
+    .service-header {
+        display: flex;
+        align-items: center;
+        gap: 1.25rem;
+        margin-bottom: 1rem;
+    }
+
+    .service-icon {
+        width: 72px;
+        height: 72px;
+        border-radius: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+        flex-shrink: 0;
+    }
+
+    .service-type {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--svc-text);
+    }
+
+    .service-desc {
+        font-size: 1.1rem;
+        color: var(--svc-text-muted);
+        margin-bottom: 1rem;
+        line-height: 1.6;
+    }
+
+    .service-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+        align-items: center;
+    }
+
+    .service-date {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 1rem;
+        color: var(--svc-text-muted);
+    }
+
+    .service-badge {
+        padding: 0.75rem 1.5rem;
+        border-radius: 50px;
+        font-size: 1.1rem;
+        font-weight: 700;
+    }
+
+    .badge-en_attente { background: #fef3c7; color: #92400e; }
+    .badge-en_cours { background: #dbeafe; color: #1e40af; }
+    .badge-terminee { background: #dcfce7; color: #166534; }
+
+    /* Service Actions */
+    .service-actions {
+        display: flex;
+        gap: 0.75rem;
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--svc-border);
+    }
+
+    .btn-action {
+        padding: 0.75rem 1.5rem;
+        border-radius: 12px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.2s;
+        border: 2px solid;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-view { background: white; color: #2563eb; border-color: #2563eb; }
+    .btn-view:hover { background: #2563eb; color: white; }
+
+    .btn-edit { background: white; color: #f59e0b; border-color: #f59e0b; }
+    .btn-edit:hover { background: #f59e0b; color: white; }
+
+    .btn-delete { background: white; color: #ef4444; border-color: #ef4444; }
+    .btn-delete:hover { background: #ef4444; color: white; }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: white;
+        border-radius: 24px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+    }
+
+    .empty-icon { font-size: 5rem; margin-bottom: 1.5rem; }
+    
+    .empty-text {
+        font-size: 1.5rem;
+        color: var(--svc-text-muted);
+        margin-bottom: 2rem;
+    }
+
+    @media (max-width: 640px) {
+        .services-title { font-size: 2rem; }
+        .service-header { flex-direction: column; text-align: center; }
+        .service-meta { justify-content: center; }
+        .service-actions { flex-direction: column; }
+        .btn-action { width: 100%; justify-content: center; }
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="services-wrapper">
+    <div class="services-container">
+        {# Flash Messages #}
+        {% for message in app.flashes('success') %}
+            <div class="alert alert-success">✅ {{ message }}</div>
+        {% endfor %}
+        {% for message in app.flashes('error') %}
+            <div class="alert alert-error">❌ {{ message }}</div>
+        {% endfor %}
+        {% for message in app.flashes('warning') %}
+            <div class="alert alert-warning">⚠️ {{ message }}</div>
+        {% endfor %}
+        {% for message in app.flashes('info') %}
+            <div class="alert alert-info">ℹ️ {{ message }}</div>
+        {% endfor %}
+        
+        <a href="{{ path('app_dashboard', {'_locale': app.request.locale}) }}" class="back-link">
+            ← Retour au tableau de bord
+        </a>
+        
+        <!-- Header -->
+        <div class="services-header">
+            <div class="services-header-icon">🛎️</div>
+            <h1 class="services-title">Mes Services</h1>
+            <p class="services-subtitle">Gérez vos demandes d'aide au quotidien</p>
+            <a href="{{ path('app_services_request', {'_locale': app.request.locale}) }}" class="btn-new-request">
+                ➕ Demander un service
+            </a>
+        </div>
+
+        <!-- Service List -->
+        {% if my_services|length > 0 %}
+        <div class="service-list">
+            {% for service in my_services %}
+            <div class="service-card {{ service.statut }}">
+                <div class="service-header">
+                    <div class="service-icon">
+                        {% if 'transport' in service.typeService|lower %}🚗
+                        {% elseif 'menage' in service.typeService|lower or 'ménage' in service.typeService|lower %}🏠
+                        {% elseif 'course' in service.typeService|lower %}🛒
+                        {% else %}🛎️{% endif %}
+                    </div>
+                    <div class="service-type">{{ service.typeService }}</div>
+                </div>
+                <p class="service-desc">{{ service.description }}</p>
+                <div class="service-meta">
+                    <span class="service-date">📅 Demandé le {{ service.createdAt|date('d/m/Y') }}</span>
+                    {% if service.dateSouhaitee %}
+                    <span class="service-date">🗓️ Prévu le {{ service.dateSouhaitee|date('d/m/Y') }}</span>
+                    {% endif %}
+                    <span class="service-badge badge-{{ service.statut }}">
+                        {% if service.statut == 'en_attente' %}⏳ En attente
+                        {% elseif service.statut == 'en_cours' %}🔄 En cours
+                        {% else %}✅ Terminé{% endif %}
+                    </span>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="service-actions">
+                    <a href="{{ path('app_services_show', {'_locale': app.request.locale, 'id': service.id}) }}" class="btn-action btn-view">
+                        👁️ Voir
+                    </a>
+                    <a href="{{ path('app_services_edit', {'_locale': app.request.locale, 'id': service.id}) }}" class="btn-action btn-edit">
+                        ✏️ Modifier
+                    </a>
+                    <form method="post" action="{{ path('app_services_delete', {'_locale': app.request.locale, 'id': service.id}) }}" style="display: inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce service ?');">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ service.id) }}">
+                        <button type="submit" class="btn-action btn-delete">
+                            🗑️ Supprimer
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">📋</div>
+            <p class="empty-text">Vous n'avez pas encore de demandes de service.</p>
+            <a href="{{ path('app_services_request', {'_locale': app.request.locale}) }}" class="btn-new-request">
+                Faire ma première demande
+            </a>
+        </div>
+        {% endif %}
+
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const alerts = document.querySelectorAll('.alert');
+    alerts.forEach(alert => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.innerText = '✖';
+        btn.style.cssText = 'margin-left:12px;background:transparent;border:none;cursor:pointer;font-size:0.9rem;';
+        btn.addEventListener('click', () => alert.remove());
+        alert.appendChild(btn);
+        setTimeout(() => { if (alert && alert.parentNode) alert.remove(); }, 6000);
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,27 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Traitement #{{ record.id }} - Admin WANNASNI{% endblock %}
+{% block page_title %}Détails du Traitement{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 1rem;">
+    <a href="{{ path('admin_treatment') }}" class="btn btn-secondary">← Retour</a>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">Traitement #{{ record.id }}</h2>
+        <span style="color: var(--text-secondary);">{{ record.datePrescription ? record.datePrescription|date('d/m/Y') : '—' }}</span>
+    </div>
+    <div style="padding: 1rem; background: var(--bg-tertiary);">
+        <p><strong>Patient:</strong> {{ record.senior ? record.senior.getFullName() : '—' }}</p>
+        <p><strong>Médecin:</strong> {{ record.docteur ? record.docteur.getFullName() : '—' }}</p>
+        <p><strong>Médicaments:</strong> {{ record.medicaments }}</p>
+        <p><strong>Posologie:</strong> {{ record.posologie }}</p>
+        <p><strong>Fréquence:</strong> {{ record.frequence }}</p>
+        <p><strong>Instructions:</strong> {{ record.instructions }}</p>
+        <p><strong>Statut:</strong> {{ record.statut }}</p>
+        <p><strong>Effets Secondaires:</strong> {{ record.effetsSecondaires }}</p>
+    </div>
+</div>
+{% endblock %}

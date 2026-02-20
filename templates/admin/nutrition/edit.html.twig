@@ -1,0 +1,55 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Edit Nutrition Plan - Admin WANNASNI{% endblock %}
+{% block page_title %}Edit Nutrition Plan{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 1rem;">
+    <a href="{{ path('admin_nutrition_list') }}" class="btn btn-secondary">← Back to Nutrition Plans</a>
+</div>
+
+<div class="card" style="max-width: 600px;">
+    <div class="card-header">
+        <h2 class="card-title">Edit: {{ plan.name }}</h2>
+    </div>
+    
+    <form method="post">
+        <div class="form-group">
+            <label class="form-label">Plan Name</label>
+            <input type="text" class="form-input" name="name" value="{{ plan.name }}" required>
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">Type</label>
+            <select class="form-input" name="type">
+                <option value="general" {{ plan.type == 'general' ? 'selected' : '' }}>General</option>
+                <option value="therapeutic" {{ plan.type == 'therapeutic' ? 'selected' : '' }}>Therapeutic</option>
+                <option value="weight_loss" {{ plan.type == 'weight_loss' ? 'selected' : '' }}>Weight Loss</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">Daily Calories (kcal)</label>
+            <input type="number" class="form-input" name="calories" value="{{ plan.calories }}" min="1000" max="4000">
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">Status</label>
+            <select class="form-input" name="status">
+                <option value="active" {{ plan.status == 'active' ? 'selected' : '' }}>Active</option>
+                <option value="completed" {{ plan.status == 'completed' ? 'selected' : '' }}>Completed</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">Notes</label>
+            <textarea class="form-input" name="notes" rows="3">{{ plan.notes }}</textarea>
+        </div>
+        
+        <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+            <a href="{{ path('admin_nutrition_show', {id: plan.id}) }}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

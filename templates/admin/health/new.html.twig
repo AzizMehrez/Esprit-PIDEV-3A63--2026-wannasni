@@ -1,0 +1,151 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Nouvelle Entrée Santé - Admin WANNASNI{% endblock %}
+{% block page_title %}Nouvelle Entrée Santé{% endblock %}
+
+{% block header_actions %}
+<a href="{{ path('admin_health') }}" class="btn btn-outline">← Retour</a>
+{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .form-container { max-width: 800px; }
+    .form-section { margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--admin-border); }
+    .form-section:last-child { border-bottom: none; }
+    .section-title { font-size: 1rem; font-weight: 700; color: var(--admin-text); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .form-group { margin-bottom: 1.25rem; }
+    .form-group.full { grid-column: span 2; }
+    .form-group label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--admin-text); margin-bottom: 0.5rem; }
+    .form-group input,
+    .form-group select,
+    .form-group textarea { width: 100%; padding: 0.85rem 1rem; font-size: 0.95rem; border: 1px solid var(--admin-border); border-radius: var(--admin-radius-sm); background: var(--admin-bg); color: var(--admin-text); transition: all 0.2s; }
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus { outline: none; border-color: var(--admin-primary); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); }
+    .btn-group { display: flex; gap: 1rem; margin-top: 1.5rem; }
+    @media (max-width: 600px) { .form-grid { grid-template-columns: 1fr; } .form-group.full { grid-column: span 1; } }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <div class="admin-card">
+        <div class="card-header">
+            <h2 class="card-title">❤️ Nouvelle Entrée Santé</h2>
+        </div>
+        <div class="card-body">
+            {{ form_start(form) }}
+            
+            {# Patient & Date Section #}
+            <div class="form-section">
+                <h3 class="section-title">👤 Patient & Date</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        {{ form_label(form.senior) }}
+                        {{ form_widget(form.senior) }}
+                        {{ form_errors(form.senior) }}
+                    </div>
+                    <div class="form-group">
+                        {{ form_label(form.date) }}
+                        {{ form_widget(form.date) }}
+                        {{ form_errors(form.date) }}
+                    </div>
+                </div>
+            </div>
+            
+            {# Vital Signs Section #}
+            <div class="form-section">
+                <h3 class="section-title">🩺 Signes Vitaux</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        {{ form_label(form.tensionArterielle) }}
+                        {{ form_widget(form.tensionArterielle, {'attr': {'placeholder': '120/80'}}) }}
+                        {{ form_errors(form.tensionArterielle) }}
+                    </div>
+                    <div class="form-group">
+                        {{ form_label(form.frequenceCardiaque) }}
+                        {{ form_widget(form.frequenceCardiaque, {'attr': {'placeholder': '72'}}) }}
+                        {{ form_errors(form.frequenceCardiaque) }}
+                    </div>
+                    <div class="form-group">
+                        {{ form_label(form.temperature) }}
+                        {{ form_widget(form.temperature, {'attr': {'placeholder': '36.5'}}) }}
+                        {{ form_errors(form.temperature) }}
+                    </div>
+                    <div class="form-group">
+                        {{ form_label(form.niveauDouleur) }}
+                        {{ form_widget(form.niveauDouleur, {'attr': {'placeholder': '0-10'}}) }}
+                        {{ form_errors(form.niveauDouleur) }}
+                    </div>
+                </div>
+            </div>
+            
+            {# Mood & Well-being Section #}
+            <div class="form-section">
+                <h3 class="section-title">😊 Humeur & Bien-être</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        {{ form_label(form.humeur) }}
+                        {{ form_widget(form.humeur) }}
+                        {{ form_errors(form.humeur) }}
+                    </div>
+                    <div class="form-group">
+                        {{ form_label(form.qualiteSommeil) }}
+                        {{ form_widget(form.qualiteSommeil) }}
+                        {{ form_errors(form.qualiteSommeil) }}
+                    </div>
+                    <div class="form-group">
+                        {{ form_label(form.appetit) }}
+                        {{ form_widget(form.appetit) }}
+                        {{ form_errors(form.appetit) }}
+                    </div>
+                    <div class="form-group">
+                        {{ form_label(form.hydratation) }}
+                        {{ form_widget(form.hydratation) }}
+                        {{ form_errors(form.hydratation) }}
+                    </div>
+                </div>
+            </div>
+            
+            {# Activity & Medications Section #}
+            <div class="form-section">
+                <h3 class="section-title">💊 Activité & Médicaments</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        {{ form_label(form.activitePhysique) }}
+                        {{ form_widget(form.activitePhysique, {'attr': {'placeholder': 'Marche 30 min'}}) }}
+                        {{ form_errors(form.activitePhysique) }}
+                    </div>
+                    <div class="form-group full">
+                        {{ form_label(form.medicamentsPris) }}
+                        {{ form_widget(form.medicamentsPris, {'attr': {'rows': 2}}) }}
+                        {{ form_errors(form.medicamentsPris) }}
+                    </div>
+                    <div class="form-group full">
+                        {{ form_label(form.symptomes) }}
+                        {{ form_widget(form.symptomes, {'attr': {'rows': 2}}) }}
+                        {{ form_errors(form.symptomes) }}
+                    </div>
+                </div>
+            </div>
+            
+            {# Notes Section #}
+            <div class="form-section">
+                <h3 class="section-title">📝 Notes</h3>
+                <div class="form-group">
+                    {{ form_widget(form.notes, {'attr': {'rows': 3, 'placeholder': 'Observations additionnelles...'}}) }}
+                    {{ form_errors(form.notes) }}
+                </div>
+            </div>
+            
+            <div class="btn-group">
+                <button type="submit" class="btn btn-primary">💾 Enregistrer</button>
+                <a href="{{ path('admin_health') }}" class="btn btn-outline">Annuler</a>
+            </div>
+            
+            {{ form_end(form) }}
+        </div>
+    </div>
+</div>
+{% endblock %}
