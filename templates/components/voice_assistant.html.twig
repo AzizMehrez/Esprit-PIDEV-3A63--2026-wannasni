@@ -1,0 +1,736 @@
+<style>
+/* Voice Assistant Widget - Modern & Accessibility Focused */
+#voice-assistant-widget {
+    position: fixed;
+    bottom: 2rem;
+    left: 2rem;
+    z-index: 9998;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+}
+
+/* Main Voice Activation Button */
+#voice-btn-main {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+    border: none;
+    box-shadow: 0 10px 30px rgba(59, 130, 246, 0.3), 0 0 0 0 rgba(59, 130, 246, 0.7);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    animation: pulse-breath 2.5s infinite;
+}
+
+#voice-btn-main:hover {
+    transform: scale(1.12);
+    box-shadow: 0 15px 40px rgba(59, 130, 246, 0.4);
+}
+
+#voice-btn-main.listening {
+    background: linear-gradient(135deg, #ef4444 0%, #991b1b 100%);
+    animation: pulse-listen 1s infinite;
+}
+
+@keyframes pulse-breath {
+    0%, 100% {
+        box-shadow: 0 10px 30px rgba(59, 130, 246, 0.3), 0 0 0 0 rgba(59, 130, 246, 0.7);
+    }
+    50% {
+        box-shadow: 0 10px 30px rgba(59, 130, 246, 0.3), 0 0 0 20px rgba(59, 130, 246, 0);
+    }
+}
+
+@keyframes pulse-listen {
+    0%, 100% { 
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+    }
+    50% { 
+        box-shadow: 0 0 0 25px rgba(239, 68, 68, 0);
+    }
+}
+
+#voice-btn-main svg {
+    width: 40px;
+    height: 40px;
+    color: white;
+}
+
+/* Assistant Panel */
+#assistant-panel {
+    position: absolute;
+    bottom: 100px;
+    left: 0;
+    width: 450px;
+    max-width: calc(100vw - 2rem);
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    opacity: 0;
+    visibility: hidden;
+    transform: scale(0.9) translateY(20px);
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+#assistant-panel.active {
+    opacity: 1;
+    visibility: visible;
+    transform: scale(1) translateY(0);
+}
+
+/* Panel Header */
+.panel-header {
+    background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+    padding: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: white;
+}
+
+.panel-header h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.panel-header-icon {
+    font-size: 1.5rem;
+    animation: wave 1s ease-in-out infinite;
+}
+
+@keyframes wave {
+    0%, 100% { transform: rotateZ(0deg); }
+    25% { transform: rotateZ(25deg); }
+    75% { transform: rotateZ(-25deg); }
+}
+
+.close-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.close-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: rotate(90deg);
+}
+
+/* Status Display */
+.status-section {
+    padding: 1.5rem;
+    background: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
+    display: none;
+}
+
+.status-section.active {
+    display: block;
+}
+
+.listening-indicator {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.sound-wave {
+    display: flex;
+    gap: 4px;
+    align-items: flex-end;
+    height: 30px;
+}
+
+.sound-bar {
+    width: 4px;
+    background: linear-gradient(180deg, #3b82f6, #1e40af);
+    border-radius: 2px;
+    animation: soundwave 0.6s ease-in-out infinite;
+}
+
+.sound-bar:nth-child(1) { animation-delay: -0.4s; }
+.sound-bar:nth-child(2) { animation-delay: -0.2s; }
+.sound-bar:nth-child(3) { animation-delay: 0s; }
+
+@keyframes soundwave {
+    0%, 100% { height: 8px; }
+    50% { height: 24px; }
+}
+
+/* Response Area */
+.response-area {
+    padding: 1.5rem;
+    max-height: 350px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.response-area::-webkit-scrollbar {
+    width: 6px;
+}
+
+.response-area::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+}
+
+.response {
+    background: #f1f5f9;
+    padding: 1.25rem;
+    border-radius: 12px;
+    border-left: 4px solid #3b82f6;
+    animation: slideInUp 0.4s ease-out;
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.response-text {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: #1e293b;
+    margin: 0;
+}
+
+.response-action {
+    margin-top: 0.75rem;
+    font-size: 0.85rem;
+    color: #3b82f6;
+    font-weight: 600;
+}
+
+/* Activity List */
+.activities-list {
+    padding: 1rem 1.5rem;
+}
+
+.activity-item {
+    background: white;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.activity-item:hover {
+    border-color: #3b82f6;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+}
+
+.activity-title {
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 0.25rem;
+}
+
+.activity-meta {
+    font-size: 0.8rem;
+    color: #64748b;
+    display: flex;
+    gap: 1rem;
+}
+
+/* Control Buttons */
+.control-buttons {
+    padding: 1.25rem 1.5rem;
+    background: #f8fafc;
+    border-top: 1px solid #e2e8f0;
+    display: flex;
+    gap: 0.75rem;
+}
+
+.action-btn {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.action-btn.primary {
+    background: #3b82f6;
+    color: white;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.action-btn.primary:hover {
+    background: #1e40af;
+    transform: translateY(-2px);
+}
+
+.action-btn.secondary {
+    background: white;
+    color: #3b82f6;
+    border: 2px solid #3b82f6;
+}
+
+.action-btn.secondary:hover {
+    background: #eff6ff;
+}
+
+/* Transcript Display */
+.transcript-display {
+    padding: 1rem 1.5rem;
+    background: #f1f5f9;
+    font-style: italic;
+    color: #64748b;
+    font-size: 0.9rem;
+    border-bottom: 1px solid #e2e8f0;
+    display: none;
+}
+
+.transcript-display.active {
+    display: block;
+}
+
+/* Mobile Responsive */
+@media (max-width: 640px) {
+    #voice-assistant-widget {
+        bottom: 1.5rem;
+        left: 1.5rem;
+    }
+
+    #voice-btn-main {
+        width: 70px;
+        height: 70px;
+    }
+
+    #assistant-panel {
+        width: calc(100vw - 1rem);
+        bottom: 80px;
+    }
+}
+
+/* Loading Animation */
+.loading {
+    display: hex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 1.5rem;
+}
+
+.loading span {
+    width: 8px;
+    height: 8px;
+    background: #3b82f6;
+    border-radius: 50%;
+    animation: bounce 1.4s infinite;
+}
+
+.loading span:nth-child(1) { animation-delay: -0.32s; }
+.loading span:nth-child(2) { animation-delay: -0.16s; }
+
+@keyframes bounce {
+    0%, 80%, 100% { transform: scale(0); }
+    40% { transform: scale(1); }
+}
+</style>
+
+<div id="voice-assistant-widget">
+    <!-- Main Voice Button (Always Visible) -->
+    <button id="voice-btn-main" aria-label="Voice Assistant" title="Click to activate voice control">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+            <path d="M17 16.91c-1.48 1.45-3.5 2.38-5.77 2.38C9.92 19.29 8 18.62 6.58 17.5H5c.57 1 1.4 1.88 2.38 2.6.3.23.62.45.97.66 1.6.95 3.5 1.5 5.65 1.5s4.05-.55 5.65-1.5c.35-.21.67-.43.97-.66.98-.72 1.81-1.6 2.38-2.6h-1.58zM19 13h2c0-1.23-.2-2.41-.57-3.5h-1.48c.3 1.01.47 2.08.53 3.5zm0-5h1.48C20.8 6.41 21 5.23 21 4h-2c-.06 1.42-.23 2.49-.53 3.5z"/>
+        </svg>
+    </button>
+
+    <!-- Assistant Panel (Hidden by default) -->
+    <div id="assistant-panel">
+        <!-- Header -->
+        <div class="panel-header">
+            <h3>
+                <span class="panel-header-icon">🎤</span>
+                <span id="panel-title">Voice Assistant</span>
+            </h3>
+            <button class="close-btn" id="close-panel">✕</button>
+        </div>
+
+        <!-- Status Section -->
+        <div class="status-section" id="status-section">
+            <div class="listening-indicator">
+                <div class="sound-wave">
+                    <div class="sound-bar"></div>
+                    <div class="sound-bar"></div>
+                    <div class="sound-bar"></div>
+                </div>
+                <span id="status-text">Listening...</span>
+            </div>
+        </div>
+
+        <!-- Transcript Display -->
+        <div class="transcript-display" id="transcript-display"></div>
+
+        <!-- Response Area -->
+        <div class="response-area" id="response-area">
+            <div class="response">
+                <p class="response-text" id="initial-message">👋 Hello! I can help you find activities, register for events, and manage your schedule using voice commands.</p>
+            </div>
+        </div>
+
+        <!-- Activities List (Dynamic) -->
+        <div class="activities-list" id="activities-list" style="display: none;"></div>
+
+        <!-- Control Buttons -->
+        <div class="control-buttons">
+            <button class="action-btn primary" id="start-listening-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+                </svg>
+                <span id="start-listening-text">Start Listening</span>
+            </button>
+            <button class="action-btn secondary" id="help-btn">Help</button>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    initVoiceAssistant();
+});
+
+// Also attempt immediate initialization in case DOMContentLoaded already fired
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initVoiceAssistant);
+} else {
+    document.addEventListener('DOMContentLoaded', initVoiceAssistant);
+    // Try to initialize immediately if DOM is already ready
+    setTimeout(initVoiceAssistant, 100);
+}
+
+function initVoiceAssistant() {
+    const voiceBtnMain = document.getElementById('voice-btn-main');
+    const assistantPanel = document.getElementById('assistant-panel');
+    
+    // Skip if elements don't exist yet
+    if (!voiceBtnMain || !assistantPanel) {
+        return;
+    }
+    
+    const closeBtn = document.getElementById('close-panel');
+    const responseArea = document.getElementById('response-area');
+    const statusSection = document.getElementById('status-section');
+    const statusText = document.getElementById('status-text');
+    const transcriptDisplay = document.getElementById('transcript-display');
+    const startListeningBtn = document.getElementById('start-listening-btn');
+    const helpBtn = document.getElementById('help-btn');
+    const panelTitle = document.getElementById('panel-title');
+    const initialMessage = document.getElementById('initial-message');
+
+    let isListening = false;
+    let recognition = null;
+    let currentLang = document.documentElement.lang || 'en';
+
+    // Detect language from DOM
+    function detectLanguage() {
+        const htmlLang = document.documentElement.lang;
+        if (htmlLang) {
+            currentLang = htmlLang.substring(0, 2);
+        }
+        updateLanguageText();
+    }
+
+    function updateLanguageText() {
+        const texts = {
+            en: {
+                title: 'Voice Assistant',
+                initialMsg: '👋 Hello! I can help you find activities, register for events, and manage your schedule using voice commands.',
+                listening: 'Listening...',
+                startBtn: 'Start Listening',
+                help: 'Try saying: "Show me activities", "Register for yoga", "What activities am I in?", or "Cancel workout"'
+            },
+            fr: {
+                title: 'Assistant Voix',
+                initialMsg: '👋 Bonjour! Je peux vous aider à trouver des activités, vous inscrire et gérer votre emploi du temps par commande vocale.',
+                listening: 'À l\'écoute...',
+                startBtn: 'Démarrer Écoute',
+                help: 'Essayez: "Affiche-moi les activités", "Inscris-moi au yoga", "Quelles activités ai-je?", ou "Annule yoga"'
+            },
+            ar: {
+                title: 'مساعد صوتي',
+                initialMsg: '👋 مرحبا! يمكنني مساعدتك في العثور على الأنشطة والتسجيل والتحكم في جدولك الزمني.',
+                listening: 'استماع...',
+                startBtn: 'ابدأ الاستماع',
+                help: 'جرب: "أظهر لي الأنشطة", "سجلني في اليوجا", "ما هي أنشطتي؟", أو "ألغِ اليوجا"'
+            }
+        };
+
+        const lang = texts[currentLang] || texts['en'];
+        panelTitle.textContent = lang.title;
+        initialMessage.textContent = lang.initialMsg;
+        statusText.textContent = lang.listening;
+        startListeningBtn.querySelector('span').textContent = lang.startBtn;
+        helpBtn.title = lang.help;
+    }
+
+    // Toggle panel
+    function togglePanel() {
+        assistantPanel.classList.toggle('active');
+        if (assistantPanel.classList.contains('active')) {
+            setTimeout(() => startListeningBtn.focus(), 300);
+        }
+    }
+
+    // Close panel
+    function closePanel() {
+        assistantPanel.classList.remove('active');
+        stopListening();
+    }
+
+    // Start voice recognition
+    function startListening() {
+        if (!recognition) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                addResponse('Speech recognition not supported in your browser.');
+                return;
+            }
+            recognition = new SpeechRecognition();
+            recognition.continuous = false;
+            recognition.interimResults = true;
+            
+            recognition.onstart = () => {
+                isListening = true;
+                voiceBtnMain.classList.add('listening');
+                statusSection.classList.add('active');
+                transcriptDisplay.classList.remove('active');
+                startListeningBtn.disabled = true;
+            };
+
+            recognition.onresult = (event) => {
+                let interim = '';
+                for (let i = event.resultIndex; i < event.results.length; i++) {
+                    const transcript = event.results[i][0].transcript;
+                    if (event.results[i].isFinal) {
+                        processVoiceCommand(transcript);
+                    } else {
+                        interim += transcript;
+                    }
+                }
+                if (interim) {
+                    transcriptDisplay.textContent = interim;
+                    transcriptDisplay.classList.add('active');
+                }
+            };
+
+            recognition.onerror = (event) => {
+                addResponse(`Error: ${event.error}`);
+                stopListening();
+            };
+
+            recognition.onend = () => {
+                stopListening();
+            };
+        }
+
+        recognition.lang = currentLang + '-' + currentLang.toUpperCase();
+        recognition.start();
+    }
+
+    function stopListening() {
+        if (recognition) {
+            recognition.stop();
+        }
+        isListening = false;
+        voiceBtnMain.classList.remove('listening');
+        statusSection.classList.remove('active');
+        transcriptDisplay.classList.remove('active');
+        startListeningBtn.disabled = false;
+    }
+
+    async function processVoiceCommand(transcript) {
+        transcriptDisplay.textContent = transcript;
+        transcriptDisplay.classList.add('active');
+        
+        // Show loading
+        const loadingId = showLoading();
+
+        try {
+            const response = await fetch('/api/voice-assistant', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    message: transcript,
+                    lang: currentLang,
+                    action: 'chat'
+                })
+            });
+
+            const data = await response.json();
+            removeLoading(loadingId);
+
+            // Handle both 'text' and 'message' fields for compatibility
+            const message = data.message || data.text || 'Error processing your request';
+            
+            if (response.ok && message) {
+                addResponse(message, data.action);
+                
+                // Refresh page if join/cancel was successful
+                if (data.should_refresh || data.success) {
+                    // If audio is available, wait for it to finish before refreshing
+                    if (data.audio) {
+                        playAudio(data.audio, () => {
+                            setTimeout(() => {
+                                location.reload();
+                            }, 500);
+                        });
+                    } else {
+                        // No audio, wait a bit and then refresh
+                        setTimeout(() => {
+                            location.reload();
+                        }, 2000);
+                    }
+                } else if (data.audio) {
+                    // Just play audio without refreshing
+                    playAudio(data.audio);
+                }
+
+                // Show activities if provided
+                if (data.activities && data.activities.length > 0) {
+                    displayActivities(data.activities);
+                }
+            } else {
+                addResponse(data.error || message || 'Error processing your request');
+            }
+        } catch (error) {
+            removeLoading(loadingId);
+            addResponse('Connection error. Please try again.');
+            console.error(error);
+        }
+    }
+
+    function addResponse(text, action = null) {
+        const div = document.createElement('div');
+        div.className = 'response';
+        div.innerHTML = `<p class="response-text">${text}</p>`;
+        if (action) {
+            div.innerHTML += `<p class="response-action">${action}</p>`;
+        }
+        responseArea.appendChild(div);
+        responseArea.scrollTop = responseArea.scrollHeight;
+    }
+
+    function showLoading() {
+        const id = 'loading-' + Date.now();
+        const div = document.createElement('div');
+        div.id = id;
+        div.className = 'loading';
+        div.innerHTML = '<span></span><span></span><span></span>';
+        responseArea.appendChild(div);
+        responseArea.scrollTop = responseArea.scrollHeight;
+        return id;
+    }
+
+    function removeLoading(id) {
+        const el = document.getElementById(id);
+        if (el) el.remove();
+    }
+
+    function displayActivities(activities) {
+        const activitiesList = document.getElementById('activities-list');
+        activitiesList.innerHTML = '';
+        
+        activities.forEach(activity => {
+            const date = new Date(activity.startTime);
+            const timeStr = date.toLocaleDateString(currentLang, {
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+
+            const div = document.createElement('div');
+            div.className = 'activity-item';
+            div.innerHTML = `
+                <div class="activity-title">${activity.title}</div>
+                <div class="activity-meta">
+                    <span>📅 ${timeStr}</span>
+                    <span>📍 ${activity.location || 'TBD'}</span>
+                </div>
+            `;
+            activitiesList.appendChild(div);
+        });
+
+        if (activities.length > 0) {
+            activitiesList.style.display = 'block';
+        }
+    }
+
+    function playAudio(audioUrl, onComplete = null) {
+        try {
+            const audio = new Audio(audioUrl);
+            
+            // When audio finishes playing, call the callback
+            if (onComplete) {
+                audio.addEventListener('ended', onComplete, { once: true });
+            }
+            
+            audio.play().catch(e => console.warn('Audio playback failed', e));
+        } catch (e) {
+            console.warn('Audio error', e);
+            if (onComplete) onComplete();
+        }
+    }
+
+    // Event Listeners
+    voiceBtnMain.addEventListener('click', togglePanel);
+    closeBtn.addEventListener('click', closePanel);
+    startListeningBtn.addEventListener('click', startListening);
+
+    helpBtn.addEventListener('click', () => {
+        const msgs = {
+            en: 'Try asking:\n• "Show me available activities"\n• "Register for yoga"\n• "What activities am I in?"\n• "Cancel my Yoga class"',
+            fr: 'Essayez:\n• "Montre-moi les activités"\n• "Inscris-moi au yoga"\n• "Quelles activités ai-je?"\n• "Annule mon cours de yoga"',
+            ar: 'جرب:\n• "أظهر لي الأنشطة"\n• "سجلني في اليوجا"\n• "ما هي أنشطتي؟"\n• "ألغِ فصل اليوجا الخاص بي"'
+        };
+        alert(msgs[currentLang] || msgs['en']);
+    });
+
+    // Initialize
+    detectLanguage();
+
+    // Auto-start listening when panel opens
+    voiceBtnMain.addEventListener('click', () => {
+        setTimeout(() => {
+            if (assistantPanel.classList.contains('active')) {
+                startListening();
+            }
+        }, 500);
+    });
+}
+</script>

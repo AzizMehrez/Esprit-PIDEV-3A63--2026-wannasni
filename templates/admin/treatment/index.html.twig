@@ -1,0 +1,190 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Traitements - Admin WANNASNI{% endblock %}
+{% block page_title %}Gestion des Traitements{% endblock %}
+
+{% block header_actions %}
+<a href="{{ path('admin_treatment_new') }}" class="btn btn-primary">➕ Nouveau Traitement</a>
+{% endblock %}
+
+{% block content %}
+{# Statistics Cards #}
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon blue">💊</div>
+        <div class="stat-info">
+            <div class="stat-value">{{ stats.total }}</div>
+            <div class="stat-label">Total Traitements</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon green">👨‍⚕️</div>
+        <div class="stat-info">
+            <div class="stat-value">{{ stats.doctors }}</div>
+            <div class="stat-label">Médecins</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon purple">👤</div>
+        <div class="stat-info">
+            <div class="stat-value">{{ stats.patients }}</div>
+            <div class="stat-label">Patients</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon orange">📋</div>
+        <div class="stat-info">
+            <div class="stat-value">{{ stats.prescriptions }}</div>
+            <div class="stat-label">Prescriptions</div>
+        </div>
+    </div>
+</div>
+
+{# Toolbar #}
+<div class="admin-toolbar">
+    <form method="get" action="{{ path('admin_treatment') }}" style="display: flex; gap: 1rem; flex: 1;">
+        <input type="text" name="q" placeholder="Rechercher patient, médecin, médicament..." value="{{ q|default('') }}" style="flex: 1; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
+        
+        <select name="sort" style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
+            <option value="desc" {% if sort is not defined or sort == 'desc' %}selected{% endif %}>Plus récentes</option>
+            <option value="asc" {% if sort == 'asc' %}selected{% endif %}>Plus anciennes</option>
+        </select>
+
+        <button type="submit" class="btn btn-sm btn-primary">🔍 Rechercher</button>
+        {% if q %}
+            <a href="{{ path('admin_treatment') }}" class="btn btn-sm btn-secondary">Effacer</a>
+        {% endif %}
+    </form>
+
+    <div class="toolbar-actions">
+        <a href="{{ path('admin_treatment_export', {'q': q|default(''), 'sort': sort|default('desc')}) }}" class="export-btn pdf" target="_blank">
+            📄 PDF
+        </a>
+    </div>
+</div>
+
+{# Table #}
+<div class="admin-card">
+    <div class="card-header">
+        <h2 class="card-title">💊 Liste des Traitements</h2>
+        <span class="badge badge-success">{{ records|length }} traitements</span>
+    </div>
+    <table class="admin-table" id="dataTable">
+        <thead>
+            <tr>
+                <th class="sortable" onclick="sortTable(0)">Patient <span class="sort-icon">🔄</span></th>
+                <th class="sortable" onclick="sortTable(1)">Médecin <span class="sort-icon">🔄</span></th>
+                <th class="sortable" onclick="sortTable(2)">Médicaments <span class="sort-icon">🔄</span></th>
+                <th class="sortable" onclick="sortTable(3)">Date Prescription <span class="sort-icon">🔄</span></th>
+                <th class="sortable" onclick="sortTable(4)">Statut <span class="sort-icon">🔄</span></th>
+                <th style="width: 120px;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for record in records %}
+            <tr>
+                <td>
+                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                        <div style="width: 40px; height: 40px; border-radius: 10px; background: linear-gradient(135deg, #8b5cf6, #a78bfa); display: flex; align-items: center; justify-content: center; font-size: 1.1rem;">
+                            👤
+                        </div>
+                        <div>
+                            <div style="font-weight: 600;">{{ record.senior ? record.senior.getFullName() : '—' }}</div>
+                            <div style="font-size: 0.8rem; color: var(--admin-text-muted);">Patient</div>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <span style="font-weight: 600;">{{ record.docteur ? record.docteur.getFullName() : '—' }}</span>
+                    </div>
+                </td>
+                <td>
+                    <span style="font-size: 0.9rem;">{{ record.medicaments|slice(0,40) }}{% if record.medicaments|length > 40 %}…{% endif %}</span>
+                </td>
+                <td>
+                    {% if record.datePrescription %}
+                        {{ record.datePrescription|date('d/m/Y') }}
+                    {% else %}
+                        <span style="color: var(--admin-text-muted);">—</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if record.statut %}
+                        <span class="badge badge-info">{{ record.statut }}</span>
+                    {% else %}
+                        <span style="color: var(--admin-text-muted);">—</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{{ path('admin_treatment_show', {id: record.id}) }}" class="action-btn" title="Voir">👁️</a>
+                    <a href="{{ path('admin_treatment_edit', {id: record.id}) }}" class="action-btn" title="Éditer">✏️</a>
+                    <form method="post" action="{{ path('admin_treatment_delete', {id: record.id}) }}" style="display:inline;" onsubmit="return confirm('Êtes-vous sûr?');">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ record.id) }}">
+                        <button type="submit" class="action-btn danger" title="Supprimer">🗑️</button>
+                    </form>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="6" style="text-align: center; padding: 2rem; color: var(--admin-text-muted);">
+                    Aucun traitement trouvé.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+let sortDirection = {};
+
+function sortTable(columnIndex) {
+    const table = document.getElementById('dataTable');
+    const tbody = table.getElementsByTagName('tbody')[0];
+    const rows = Array.from(tbody.getElementsByTagName('tr'));
+    const headers = table.getElementsByTagName('th');
+    
+    sortDirection[columnIndex] = !sortDirection[columnIndex];
+    const ascending = sortDirection[columnIndex];
+    
+    // Reset all sort icons
+    for (let i = 0; i < headers.length; i++) {
+        const icon = headers[i].querySelector('.sort-icon');
+        if (icon) icon.textContent = '🔄';
+    }
+    
+    // Update current column icon
+    const currentHeader = headers[columnIndex];
+    const currentIcon = currentHeader.querySelector('.sort-icon');
+    if (currentIcon) {
+        currentIcon.textContent = ascending ? '⬆️' : '⬇️';
+    }
+    
+    rows.sort((a, b) => {
+        const aText = a.cells[columnIndex].textContent.trim().toLowerCase();
+        const bText = b.cells[columnIndex].textContent.trim().toLowerCase();
+        return ascending ? aText.localeCompare(bText) : bText.localeCompare(aText);
+    });
+    
+    rows.forEach(row => tbody.appendChild(row));
+}
+
+// Add hover effect for sortable headers
+document.addEventListener('DOMContentLoaded', function() {
+    const table = document.getElementById('dataTable');
+    const headers = table.querySelectorAll('th.sortable');
+    headers.forEach(header => {
+        header.style.cursor = 'pointer';
+        header.style.userSelect = 'none';
+        header.addEventListener('mouseover', function() {
+            this.style.backgroundColor = '#f0f0f0';
+        });
+        header.addEventListener('mouseout', function() {
+            this.style.backgroundColor = '';
+        });
+    });
+});
+</script>
+{% endblock %}
+

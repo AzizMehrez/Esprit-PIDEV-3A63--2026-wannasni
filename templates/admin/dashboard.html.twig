@@ -1,0 +1,393 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Dashboard Admin - WANNASNI{% endblock %}
+
+{% block page_title %}Tableau de Bord{% endblock %}
+
+{% block header_actions %}
+<a href="{{ path('app_dashboard', {'_locale': 'fr'}) }}" class="btn-user-dashboard">
+    <span>👤</span> Espace Utilisateur
+</a>
+{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .btn-user-dashboard {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        background: linear-gradient(135deg, #3b82f6, #60a5fa);
+        color: white;
+        text-decoration: none;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+    }
+
+    .btn-user-dashboard:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+        border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    .btn-user-dashboard span {
+        font-size: 1.2rem;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: var(--admin-card);
+        border-radius: var(--admin-radius);
+        border: 1px solid var(--admin-border);
+        padding: 1.5rem;
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+        transition: all 0.2s;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-4px);
+        border-color: var(--admin-primary);
+        box-shadow: 0 8px 24px rgba(59, 130, 246, 0.15);
+    }
+
+    .stat-icon {
+        width: 56px;
+        height: 56px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        flex-shrink: 0;
+    }
+
+    .stat-icon.users { background: linear-gradient(135deg, #3b82f6, #60a5fa); }
+    .stat-icon.activities { background: linear-gradient(135deg, #22c55e, #4ade80); }
+    .stat-icon.participations { background: linear-gradient(135deg, #8b5cf6, #a78bfa); }
+    .stat-icon.feedback { background: linear-gradient(135deg, #f59e0b, #fbbf24); }
+    .stat-icon.services { background: linear-gradient(135deg, #06b6d4, #22d3ee); }
+    .stat-icon.health { background: linear-gradient(135deg, #ef4444, #f87171); }
+
+    .stat-info {
+        flex: 1;
+    }
+
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        line-height: 1.2;
+        margin-bottom: 0.25rem;
+    }
+
+    .stat-label {
+        font-size: 0.875rem;
+        color: var(--admin-text-muted);
+    }
+
+    .stat-change {
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+        font-size: 0.8rem;
+        font-weight: 600;
+        margin-top: 0.5rem;
+    }
+
+    .stat-change.up { color: #4ade80; }
+    .stat-change.down { color: #f87171; }
+
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 1.5rem;
+    }
+
+    .activity-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem 0;
+        border-bottom: 1px solid var(--admin-border);
+    }
+
+    .activity-item:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+
+    .activity-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        background: rgba(59, 130, 246, 0.15);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+    }
+
+    .activity-content {
+        flex: 1;
+    }
+
+    .activity-text {
+        font-size: 0.9rem;
+        color: var(--admin-text);
+        margin-bottom: 0.25rem;
+    }
+
+    .activity-time {
+        font-size: 0.75rem;
+        color: var(--admin-text-muted);
+    }
+
+    .quick-action {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.85rem 1rem;
+        background: transparent;
+        border: 1px solid var(--admin-border);
+        border-radius: var(--admin-radius-sm);
+        color: var(--admin-text);
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 500;
+        margin-bottom: 0.75rem;
+        transition: all 0.2s;
+    }
+
+    .quick-action:hover {
+        background: var(--admin-card-hover);
+        border-color: var(--admin-primary);
+    }
+
+    @media (max-width: 1024px) {
+        .dashboard-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Stats Grid -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon users">👥</div>
+        <div class="stat-info">
+            <div class="stat-value">{{ stats.total_users }}</div>
+            <div class="stat-label">Utilisateurs Totaux</div>
+            <div class="stat-change up">↑ +12% ce mois</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon activities">🎯</div>
+        <div class="stat-info">
+            <div class="stat-value">{{ stats.activities_today }}</div>
+            <div class="stat-label">Activités Aujourd'hui</div>
+            <div class="stat-change up">↑ +5 cette semaine</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon participations">📝</div>
+        <div class="stat-info">
+            <div class="stat-value">{{ stats.total_participations }}</div>
+            <div class="stat-label">Total Participations</div>
+            <div class="stat-change up">↑ {{ stats.present_participations }} présents</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon feedback">⭐</div>
+        <div class="stat-info">
+            <div class="stat-value">{{ stats.participations_with_feedback }}</div>
+            <div class="stat-label">Avis Collectés</div>
+            <div class="stat-change up">↑ {{ stats.pending_participations }} en attente</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon services">🛎️</div>
+        <div class="stat-info">
+            <div class="stat-value">{{ stats.services_pending }}</div>
+            <div class="stat-label">Services en Attente</div>
+            <div class="stat-change down">↓ -3 depuis hier</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon health">❤️</div>
+        <div class="stat-info">
+            <div class="stat-value">{{ stats.health_records }}</div>
+            <div class="stat-label">Entrées Santé</div>
+            <div class="stat-change up">↑ +28 aujourd'hui</div>
+        </div>
+    </div>
+</div>
+
+<!-- Main Grid -->
+<div class="dashboard-grid" style="grid-template-columns: 1fr 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
+    <!-- Your Activities (Current User) -->
+    <div class="admin-card">
+        <div class="card-header">
+            <h2 class="card-title">👤 Mes Activités</h2>
+        </div>
+        <div class="card-body" style="padding: 1.25rem;">
+            {% if user_activities|length > 0 %}
+                {% for activity in user_activities %}
+                <div class="activity-item" style="padding: 0.75rem 0;">
+                    <div class="activity-icon">🎯</div>
+                    <div class="activity-content" style="flex: 1;">
+                        <div class="activity-text" style="font-weight: 600;">{{ activity.title }}</div>
+                        <div class="activity-time" style="font-size: 0.8rem;">📍 {{ activity.location }}</div>
+                        <div class="activity-time" style="font-size: 0.8rem;">📅 {{ activity.startTime }}</div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div style="text-align: center; padding: 1.5rem; color: var(--admin-text-muted);">
+                    <p style="font-size: 0.95rem;">Vous n'avez pas encore rejoint d'activité</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- All Activities with Counts -->
+    <div class="admin-card">
+        <div class="card-header">
+            <h2 class="card-title">📊 Toutes les Activités</h2>
+        </div>
+        <div class="card-body" style="padding: 1.25rem;">
+            {% if all_activities|length > 0 %}
+                {% for activity in all_activities|slice(0, 5) %}
+                <div class="activity-item" style="padding: 0.75rem 0;">
+                    <div class="activity-icon" style="font-size: 0.9rem;">
+                        {% if activity.type == 'physical' %}🏃
+                        {% elseif activity.type == 'cognitive' %}🧠
+                        {% elseif activity.type == 'creative' %}🎨
+                        {% elseif activity.type == 'social' %}👥
+                        {% else %}📋{% endif %}
+                    </div>
+                    <div class="activity-content" style="flex: 1;">
+                        <div class="activity-text" style="font-weight: 600;">{{ activity.title }}</div>
+                        <div class="activity-time" style="font-size: 0.8rem;">� {{ activity.location ?? 'Non spécifié' }}</div>
+                        <div class="activity-time" style="font-size: 0.8rem;">�👥 {{ activity.participants }}/{{ activity.maxParticipants ?? '∞' }} participants</div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div style="text-align: center; padding: 1.5rem; color: var(--admin-text-muted);">
+                    <p style="font-size: 0.95rem;">Aucune activité disponible</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="admin-card">
+        <div class="card-header">
+            <h2 class="card-title">📋 Activité Récente</h2>
+        </div>
+        <div class="card-body" style="padding: 1.25rem;">
+            {% if recent_activities|length > 0 %}
+                {% for activity in recent_activities|slice(0, 5) %}
+                <div class="activity-item" style="padding: 0.75rem 0;">
+                    <div class="activity-icon">
+                        {% if activity.type == 'activity' %}✅
+                        {% elseif activity.type == 'activity-cancel' %}❌
+                        {% else %}📋{% endif %}
+                    </div>
+                    <div class="activity-content" style="flex: 1;">
+                        <div class="activity-text" style="font-size: 0.85rem;"><strong>{{ activity.user }}</strong></div>
+                        <div class="activity-time" style="font-size: 0.75rem;">{{ activity.action }}</div>
+                        <div class="activity-time" style="font-size: 0.75rem; color: #999;">{{ activity.time }}</div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div style="text-align: center; padding: 1.5rem; color: var(--admin-text-muted);">
+                    <p style="font-size: 0.95rem;">Aucune activité récente</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions Section -->
+<div class="dashboard-grid" style="grid-template-columns: 1fr;">
+    <!-- Quick Actions -->
+    <div class="admin-card">
+        <div class="card-header">
+            <h2 class="card-title">⚡ Actions Rapides</h2>
+        </div>
+        <div class="card-body">
+            <a href="{{ path('admin_users_new') }}" class="quick-action">
+                ➕ Nouvel Utilisateur
+            </a>
+            <a href="{{ path('admin_activities_new') }}" class="quick-action">
+                ➕ Nouvelle Activité
+            </a>
+            <a href="{{ path('admin_participations') }}" class="quick-action">
+                📝 Gérer les Participations
+            </a>
+            <a href="{{ path('admin_services') }}" class="quick-action">
+                📋 Gérer les Services
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const activityContainer = document.querySelector('.admin-card:first-child .card-body');
+    
+    // Fetch recent activities every 5 seconds
+    function refreshRecentActivities() {
+        fetch('/api/admin/recent-activities')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.activities && data.activities.length > 0) {
+                    updateActivityList(data.activities);
+                }
+            })
+            .catch(error => console.warn('Failed to refresh activities:', error));
+    }
+    
+    function updateActivityList(activities) {
+        if (!activityContainer) return;
+        
+        // Build HTML for activity items
+        let html = '';
+        for (const activity of activities) {
+            const icon = activity.icon || '📋';
+            html += `
+                <div class="activity-item">
+                    <div class="activity-icon">${icon}</div>
+                    <div class="activity-content">
+                        <div class="activity-text"><strong>${activity.user}</strong> - ${activity.action} "${activity.activity}"</div>
+                        <div class="activity-time">${activity.time}</div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        activityContainer.innerHTML = html;
+    }
+    
+    // Initial refresh and then every 5 seconds
+    refreshRecentActivities();
+    setInterval(refreshRecentActivities, 5000);
+});
+</script>
+{% endblock %}

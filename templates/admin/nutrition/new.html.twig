@@ -1,0 +1,58 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}New Nutrition Plan - Admin WANNASNI{% endblock %}
+{% block page_title %}Create Nutrition Plan{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 1rem;">
+    <a href="{{ path('admin_nutrition_list') }}" class="btn btn-secondary">← Back to Nutrition Plans</a>
+</div>
+
+<div class="card" style="max-width: 600px;">
+    <div class="card-header">
+        <h2 class="card-title">Create New Nutrition Plan</h2>
+    </div>
+    
+    <form method="post">
+        <div class="form-group">
+            <label class="form-label">Select User *</label>
+            <select class="form-input" name="user_id" required>
+                <option value="">-- Select User --</option>
+                <option value="1">Marie Dupont</option>
+                <option value="2">Jean Martin</option>
+                <option value="3">Sophie Bernard</option>
+                <option value="4">Pierre Durand</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">Plan Name *</label>
+            <input type="text" class="form-input" name="name" placeholder="e.g., Heart Healthy Diet" required>
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">Type</label>
+            <select class="form-input" name="type">
+                <option value="general">General</option>
+                <option value="therapeutic">Therapeutic</option>
+                <option value="weight_loss">Weight Loss</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">Daily Calories (kcal)</label>
+            <input type="number" class="form-input" name="calories" value="1800" min="1000" max="4000">
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">Notes</label>
+            <textarea class="form-input" name="notes" rows="3" placeholder="Special dietary requirements or notes..."></textarea>
+        </div>
+        
+        <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+            <button type="submit" class="btn btn-primary">Create Plan</button>
+            <a href="{{ path('admin_nutrition_list') }}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

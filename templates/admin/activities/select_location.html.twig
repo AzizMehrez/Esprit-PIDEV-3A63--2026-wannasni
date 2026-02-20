@@ -1,0 +1,709 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Sélectionner la Localisation - {{ activity.title }}{% endblock %}
+{% block page_title %}Choisir le Lieu d'Activité{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .location-selector-container {
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        gap: 2rem;
+        padding: 0;
+    }
+
+    .location-left-panel {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .activity-details-card {
+        background: var(--admin-card);
+        border-radius: 12px;
+        border: 2px solid var(--admin-primary);
+        padding: 1.3rem;
+        box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
+    }
+
+    .activity-details-card h3 {
+        margin: 0 0 1rem 0;
+        color: var(--admin-primary);
+        font-size: 0.95rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .detail-item {
+        display: grid;
+        grid-template-columns: 0.35fr 0.65fr;
+        gap: 0.8rem;
+        padding: 0.6rem 0;
+        border-bottom: 1px solid var(--admin-border);
+        font-size: 0.85rem;
+    }
+
+    .detail-item:last-child {
+        border-bottom: none;
+    }
+
+    .detail-label {
+        font-weight: 600;
+        color: var(--admin-text-muted);
+    }
+
+    .detail-value {
+        color: var(--admin-text);
+        font-weight: 600;
+    }
+
+    .location-type-filter {
+        background: var(--admin-card);
+        border-radius: 12px;
+        border: 2px solid var(--admin-primary);
+        padding: 1.3rem;
+        box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
+    }
+
+    .location-type-filter h3 {
+        margin: 0 0 1rem 0;
+        color: var(--admin-primary);
+        font-size: 0.95rem;
+        font-weight: 700;
+    }
+
+    .location-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 0.8rem;
+        max-height: 450px;
+        overflow-y: auto;
+        padding-right: 0.5rem;
+    }
+
+    .location-grid::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .location-grid::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .location-grid::-webkit-scrollbar-thumb {
+        background: var(--admin-border);
+        border-radius: 3px;
+    }
+
+    .location-grid::-webkit-scrollbar-thumb:hover {
+        background: var(--admin-primary);
+    }
+
+    .location-card {
+        background: var(--admin-card);
+        border: 2px solid var(--admin-border);
+        border-radius: 10px;
+        padding: 1rem;
+        cursor: pointer;
+        transition: all 0.25s ease;
+        user-select: none;
+    }
+
+    .location-card:hover:not(.unavailable) {
+        border-color: var(--admin-primary);
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.08), rgba(96, 165, 250, 0.05));
+        transform: translateX(4px);
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+    }
+
+    .location-card.selected {
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(96, 165, 250, 0.1));
+        border: 2px solid var(--admin-primary);
+        box-shadow: 0 6px 16px rgba(59, 130, 246, 0.3);
+    }
+
+    .location-card.unavailable {
+        opacity: 0.6;
+        cursor: not-allowed;
+        background: linear-gradient(135deg, rgba(239, 68, 68, 0.08), rgba(239, 68, 68, 0.04));
+    }
+
+    .location-card.unavailable:hover {
+        transform: none;
+        background: linear-gradient(135deg, rgba(239, 68, 68, 0.08), rgba(239, 68, 68, 0.04));
+    }
+
+    .availability-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        font-size: 0.7rem;
+        padding: 0.2rem 0.5rem;
+        border-radius: 4px;
+        font-weight: 600;
+        margin-top: 0.4rem;
+    }
+
+    .availability-badge.available {
+        background: rgba(34, 197, 94, 0.2);
+        color: #22c55e;
+    }
+
+    .availability-badge.unavailable {
+        background: rgba(239, 68, 68, 0.2);
+        color: #ef4444;
+    }
+
+    .conflict-info {
+        font-size: 0.75rem;
+        color: #ef4444;
+        margin-top: 0.3rem;
+        padding: 0.4rem;
+        background: rgba(239, 68, 68, 0.1);
+        border-radius: 4px;
+        line-height: 1.3;
+    }
+
+    .location-card-header {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        margin-bottom: 0.6rem;
+    }
+
+    .location-icon {
+        font-size: 1.4rem;
+        min-width: 30px;
+    }
+
+    .location-name {
+        font-weight: 700;
+        color: var(--admin-text);
+        font-size: 0.9rem;
+    }
+
+    .location-type-badge {
+        display: inline-block;
+        font-size: 0.65rem;
+        padding: 0.25rem 0.55rem;
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.3), rgba(96, 165, 250, 0.2));
+        color: var(--admin-primary);
+        border-radius: 4px;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .location-meta {
+        font-size: 0.8rem;
+        color: var(--admin-text-muted);
+        line-height: 1.4;
+        margin-bottom: 0.4rem;
+    }
+
+    .location-amenities {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.4rem;
+        margin-top: 0.5rem;
+    }
+
+    .amenity-tag {
+        display: inline-block;
+        font-size: 0.7rem;
+        padding: 0.2rem 0.45rem;
+        background: rgba(34, 197, 94, 0.15);
+        color: #22c55e;
+        border-radius: 4px;
+        font-weight: 500;
+    }
+
+    .location-right-panel {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .selected-location-info {
+        background: linear-gradient(135deg, rgba(34, 197, 94, 0.12), rgba(34, 197, 94, 0.06));
+        border: 2px solid #22c55e;
+        border-radius: 12px;
+        padding: 1.5rem;
+        animation: slideDown 0.3s ease-out;
+    }
+
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-15px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .selected-location-info h3 {
+        margin: 0 0 1rem 0;
+        color: #22c55e;
+        font-size: 0.95rem;
+        font-weight: 700;
+    }
+
+    .info-section {
+        margin-bottom: 0.8rem;
+    }
+
+    .info-section:last-child {
+        margin-bottom: 0;
+    }
+
+    .section-title {
+        font-size: 0.8rem;
+        color: var(--admin-text-muted);
+        font-weight: 700;
+        text-transform: uppercase;
+        margin-bottom: 0.4rem;
+        letter-spacing: 0.5px;
+    }
+
+    .section-content {
+        color: var(--admin-text);
+        font-size: 0.85rem;
+        line-height: 1.5;
+    }
+
+    .amenities-display {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+    }
+
+    .amenity-badge {
+        display: inline-block;
+        background: linear-gradient(135deg, rgba(34, 197, 94, 0.25), rgba(34, 197, 94, 0.15));
+        color: #22c55e;
+        padding: 0.3rem 0.6rem;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        font-weight: 500;
+        border: 1px solid rgba(34, 197, 94, 0.3);
+    }
+
+    .empty-state {
+        background: var(--admin-card);
+        border: 2px dashed var(--admin-border);
+        border-radius: 10px;
+        padding: 2rem 1.5rem;
+        text-align: center;
+        color: var(--admin-text-muted);
+        font-size: 0.85rem;
+        line-height: 1.6;
+    }
+
+    .action-buttons-container {
+        display: flex;
+        gap: 0.8rem;
+    }
+
+    .btn-primary-confirm {
+        flex: 1;
+        padding: 0.75rem 1.2rem;
+        background: linear-gradient(135deg, #22c55e, #16a34a);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .btn-primary-confirm:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(34, 197, 94, 0.3);
+    }
+
+    .btn-primary-confirm:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .btn-secondary-skip {
+        padding: 0.75rem 1.2rem;
+        background: transparent;
+        color: var(--admin-text-muted);
+        border: 1.5px solid var(--admin-border);
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-size: 0.9rem;
+    }
+
+    .btn-secondary-skip:hover {
+        border-color: var(--admin-primary);
+        color: var(--admin-primary);
+        background: rgba(59, 130, 246, 0.05);
+    }
+
+    @media (max-width: 1024px) {
+        .location-selector-container {
+            grid-template-columns: 1fr;
+        }
+
+        .location-grid {
+            max-height: 350px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .location-selector-container {
+            gap: 1.2rem;
+        }
+
+        .location-grid {
+            max-height: 300px;
+        }
+
+        .action-buttons-container {
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-card">
+    <div class="card-header">
+        <h2 class="card-title">📍 Sélectionner le Lieu d'Activité</h2>
+        <p style="margin: 0.5rem 0 0 0; color: var(--admin-text-muted); font-size: 0.9rem;">
+            Cliquez sur un lieu pour voir les détails et confirmer
+        </p>
+    </div>
+
+    <div class="location-selector-container">
+        <!-- Left Panel: Details + Location List -->
+        <div class="location-left-panel">
+            <!-- Activity Info -->
+            <div class="activity-details-card">
+                <h3>📋 Détails de l'Activité</h3>
+                <div class="detail-item">
+                    <span class="detail-label">Titre</span>
+                    <span class="detail-value">{{ activity.title }}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Type</span>
+                    <span class="detail-value">{{ activity.type|capitalize }}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Début</span>
+                    <span class="detail-value">{{ startTime }}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Capacité</span>
+                    <span class="detail-value">{{ activity.maxParticipants ?? '∞' }} personnes</span>
+                </div>
+            </div>
+
+            <!-- Location List -->
+            <div class="location-type-filter">
+                <h3>🎯 Lieux Disponibles</h3>
+                <div class="location-grid" id="locationList">
+                    <div class="empty-state">Chargement des lieux...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Panel: Selection Form -->
+        <div class="location-right-panel">
+            <form method="POST" id="locationForm">
+                <input type="hidden" id="selectedLocation" name="location" value="">
+                
+                <!-- Selected Location Info -->
+                <div id="selectionPanel" style="display: none;">
+                    <div class="selected-location-info">
+                        <h3 id="selectedName">📌 Lieu Sélectionné</h3>
+                        
+                        <div class="info-section">
+                            <div class="section-title">Adresse</div>
+                            <div class="section-content" id="selectedAddress">-</div>
+                        </div>
+
+                        <div class="info-section">
+                            <div class="section-title">Description</div>
+                            <div class="section-content" id="selectedDescription">-</div>
+                        </div>
+
+                        <div class="info-section">
+                            <div class="section-title">Capacité</div>
+                            <div class="section-content" id="selectedCapacity">-</div>
+                        </div>
+
+                        <div class="info-section">
+                            <div class="section-title">Horaires</div>
+                            <div class="section-content" id="selectedHours">-</div>
+                        </div>
+
+                        <div class="info-section">
+                            <div class="section-title">Équipements</div>
+                            <div class="amenities-display" id="selectedAmenities"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Empty State -->
+                <div id="emptyPanel">
+                    <div class="empty-state">
+                        👈 Sélectionnez un lieu dans la liste <br> pour voir les détails
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="action-buttons-container">
+                    <button type="submit" class="btn-primary-confirm" id="confirmBtn" disabled>
+                        ✓ Confirmer ce Lieu
+                    </button>
+                    <button type="button" class="btn-secondary-skip" onclick="skipLocation()">
+                        ⏭️ Passer
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+    const activityType = '{{ activityType }}';
+    const activityStartTime = '{{ startTime }}';
+    const activityEndTime = '{{ endTime }}';
+    let locations = [];
+    let availabilityMap = {};
+
+    console.log('Template vars:', { activityType, activityStartTime, activityEndTime });
+
+    // Simple initialization
+    document.addEventListener('DOMContentLoaded', () => {
+        console.log('DOM loaded, initializing...');
+        loadLocations();
+    });
+
+    async function loadLocations() {
+        try {
+            console.log('Fetching locations.json...');
+            const response = await fetch('/data/locations.json');
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            
+            const data = await response.json();
+            locations = data.locations || [];
+            console.log(`Loaded ${locations.length} locations`);
+            
+            // Only check availability if times are set
+            if (activityStartTime && activityEndTime) {
+                await checkAvailability();
+            } else {
+                console.log('No times set, skipping availability check');
+            }
+            
+            populateLocationList();
+        } catch (error) {
+            console.error('Error loading locations:', error);
+            const listEl = document.getElementById('locationList');
+            if (listEl) {
+                listEl.innerHTML = '<div class="empty-state">⚠️ Erreur lors du chargement</div>';
+            }
+        }
+    }
+
+    async function checkAvailability() {
+        try {
+            console.log('Checking availability...');
+            const response = await fetch('/api/locations/check-date-availability', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    start_time: activityStartTime,
+                    end_time: activityEndTime
+                })
+            });
+
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            const data = await response.json();
+            if (data.success && data.availability) {
+                availabilityMap = data.availability;
+                console.log('Availability checked:', Object.keys(availabilityMap).length, 'locations');
+            }
+        } catch (error) {
+            console.error('Error checking availability:', error);
+            availabilityMap = {};
+        }
+    }
+
+    function populateLocationList() {
+        const listEl = document.getElementById('locationList');
+        if (!listEl) {
+            console.error('locationList element not found');
+            return;
+        }
+
+        console.log(`Filtering ${locations.length} locations for type: ${activityType}`);
+        const filtered = locations.filter(l => {
+            return l.activityTypes && Array.isArray(l.activityTypes) && l.activityTypes.includes(activityType);
+        });
+        
+        console.log(`Found ${filtered.length} matching locations`);
+        
+        if (filtered.length === 0) {
+            listEl.innerHTML = '<div class="empty-state">Aucun lieu pour ce type d\'activité</div>';
+            return;
+        }
+
+        let html = '';
+        filtered.forEach((loc) => {
+            const availability = availabilityMap[String(loc.id)] || { available: true, conflicts: [] };
+            const isAvailable = availability.available !== false;
+            const hasConflicts = availability.conflicts && availability.conflicts.length > 0;
+            const icon = getIconForType(loc.type);
+            
+            let conflictHtml = '';
+            if (hasConflicts) {
+                conflictHtml = '<div class="conflict-info">⚠️ Occupé: ' + 
+                    availability.conflicts.map(c => c.title).join(', ') + '</div>';
+            }
+
+            const cardClass = isAvailable ? '' : ' unavailable';
+            const cursorStyle = isAvailable ? 'pointer' : 'not-allowed';
+
+            html += `
+                <div class="location-card${cardClass}" 
+                     id="loccard-${loc.id}"
+                     data-location-id="${loc.id}"
+                     data-location-name="${loc.name.replace(/"/g, '&quot;')}"
+                     data-available="${isAvailable}"
+                     onclick="if(${isAvailable}) selectLocationCard('${loc.id}')"
+                     style="cursor: ${cursorStyle};">
+                    <div class="location-card-header">
+                        <span class="location-icon">${icon}</span>
+                        <div style="flex: 1;">
+                            <div class="location-name">${loc.name}</div>
+                            <span class="location-type-badge">${loc.type}</span>
+                        </div>
+                    </div>
+                    <div class="location-meta">
+                        📍 ${loc.address}<br>
+                        👥 ${loc.capacity} pers. | ⏰ ${loc.availability}
+                    </div>
+                    <div class="location-amenities">
+                        ${loc.amenities.slice(0, 3).map(a => `<span class="amenity-tag">✓ ${a}</span>`).join('')}
+                    </div>
+                    <span class="availability-badge${isAvailable ? ' available' : ' unavailable'}">
+                        ${isAvailable ? '✓ Disponible' : '✗ Non disponible'}
+                    </span>
+                    ${conflictHtml}
+                </div>
+            `;
+        });
+
+        listEl.innerHTML = html;
+        console.log('Location cards rendered');
+    }
+
+    function selectLocationCard(locationId) {
+        console.log('selectLocationCard called with:', locationId);
+        
+        // Find the location object
+        const loc = locations.find(l => String(l.id) === String(locationId));
+        if (!loc) {
+            console.error('Location not found:', locationId);
+            return;
+        }
+
+        console.log('Selecting location:', loc.name);
+
+        // Update hidden form field
+        const inputField = document.getElementById('selectedLocation');
+        if (!inputField) {
+            console.error('selectedLocation input not found');
+            return;
+        }
+        inputField.value = loc.name;
+        console.log('Set form value to:', loc.name);
+
+        // Update card selection UI
+        document.querySelectorAll('.location-card').forEach(card => {
+            card.classList.remove('selected');
+        });
+        const cardEl = document.getElementById('loccard-' + locationId);
+        if (cardEl) {
+            cardEl.classList.add('selected');
+        }
+
+        // Update info panel on the right
+        const updates = {
+            'selectedName': `📌 ${loc.name}`,
+            'selectedAddress': loc.address,
+            'selectedDescription': loc.description,
+            'selectedCapacity': `${loc.capacity} personnes`,
+            'selectedHours': loc.availability
+        };
+
+        Object.entries(updates).forEach(([id, value]) => {
+            const el = document.getElementById(id);
+            if (el) {
+                if (id === 'selectedName') {
+                    el.textContent = value;
+                } else {
+                    el.textContent = value;
+                }
+            }
+        });
+        
+        const amenEl = document.getElementById('selectedAmenities');
+        if (amenEl) {
+            amenEl.innerHTML = loc.amenities.map(a => `<span class="amenity-badge">✓ ${a}</span>`).join('');
+        }
+
+        // Show selection panel
+        const selPanel = document.getElementById('selectionPanel');
+        const emptyPanel = document.getElementById('emptyPanel');
+        const confirmBtn = document.getElementById('confirmBtn');
+        
+        if (selPanel) selPanel.style.display = 'block';
+        if (emptyPanel) emptyPanel.style.display = 'none';
+        if (confirmBtn) {
+            confirmBtn.disabled = false;
+            console.log('Confirm button enabled');
+        }
+
+        console.log('Location selection complete');
+    }
+
+    function getIconForType(type) {
+        const icons = {
+            'yoga': '🧘',
+            'dance': '💃',
+            'gym': '🏋️',
+            'library': '📚',
+            'tech_hub': '💻',
+            'school': '🎓',
+            'park': '🌳',
+            'community_center': '🏢',
+            'auditorium': '🎭',
+            'pool': '🏊',
+            'art_studio': '🎨'
+        };
+        return icons[type] || '📍';
+    }
+
+    function skipLocation() {
+        console.log('Skipping location selection');
+        document.getElementById('selectedLocation').value = '';
+        document.getElementById('locationForm').submit();
+    }
+</script>
+{% endblock %}

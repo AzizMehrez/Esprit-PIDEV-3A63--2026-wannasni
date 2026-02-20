@@ -1,0 +1,422 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ activity.name }} - WANNASNI{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    <div class="row">
+        <!-- Main Content -->
+        <div class="col-lg-8">
+            <!-- Header -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div style="display: flex; justify-content: space-between; align-items: start;">
+                        <div style="flex: 1;">
+                            <h1 style="margin: 0 0 0.5rem 0; color: var(--admin-primary);">{{ activity.name }}</h1>
+                            <p style="color: var(--text-muted); margin: 0;">{{ activity.description }}</p>
+                        </div>
+                        <span class="badge" style="background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; padding: 0.5rem 1rem; border-radius: 6px; font-size: 0.85rem;">
+                            {{ activity.type|capitalize }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Activity Details -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3 class="card-title">📋 Détails de l'Activité</h3>
+                </div>
+                <div class="card-body">
+                    <div style="display: grid; gap: 1rem;">
+                        <!-- Schedule -->
+                        <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 1rem; padding: 1rem; background: rgba(59, 130, 246, 0.05); border-radius: 8px;">
+                            <div>
+                                <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; margin-bottom: 0.3rem;">📅 Date & Heure</div>
+                                <div style="font-weight: 600; font-size: 1.1rem;">{{ activity.schedule }}</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; margin-bottom: 0.3rem;">👥 Participants</div>
+                                <div style="font-weight: 600; font-size: 1.1rem;">
+                                    {{ activity.participants }}
+                                    {% if activity.maxParticipants %}
+                                        / {{ activity.maxParticipants }}
+                                    {% else %}
+                                        personnes inscrites
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Location Section -->
+                        {% if activity.location %}
+                            <div style="padding: 1rem; background: rgba(34, 197, 94, 0.05); border-radius: 8px; border-left: 4px solid #22c55e;">
+                                <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; margin-bottom: 0.5rem;">📍 Lieu</div>
+                                <div style="font-weight: 600; font-size: 1.05rem; margin-bottom: 0.5rem;">{{ activity.location }}</div>
+                                
+                                {% if activity.locationData %}
+                                    <div style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.8rem;">
+                                        {{ activity.locationData.address }}
+                                    </div>
+
+                                    <div style="display: flex; gap: 0.8rem; flex-wrap: wrap;">
+                                        <!-- Smart Directions Guide Button -->
+                                        <button type="button" 
+                                                onclick="showDirectionsGuide({{ activity.locationData.latitude }}, {{ activity.locationData.longitude }}, '{{ activity.location }}')"
+                                                class="btn btn-sm" 
+                                                style="background: linear-gradient(135deg, #f59e0b, #f97316); color: white; padding: 0.5rem 1rem; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; gap: 0.4rem; font-weight: 500; transition: all 0.2s ease; border: none; cursor: pointer; flex: 1; justify-content: center;">
+                                            📍 Guide & Itinéraire
+                                        </button>
+
+                                        <!-- Fallback Maps Links (hidden on mobile) -->
+                                        <a href="https://www.google.com/maps/dir/?api=1&destination={{ activity.locationData.latitude }},{{ activity.locationData.longitude }}" 
+                                           target="_blank" 
+                                           rel="noopener noreferrer"
+                                           class="btn btn-sm" 
+                                           style="background: #3b82f6; color: white; padding: 0.5rem 1rem; border-radius: 6px; text-decoration: none; display: none; align-items: center; gap: 0.4rem; font-weight: 500; transition: all 0.2s ease;">
+                                            🗺️ Google Maps
+                                        </a>
+
+                                        <a href="maps://maps.apple.com/?daddr={{ activity.locationData.latitude }},{{ activity.locationData.longitude }}" 
+                                           class="btn btn-sm" 
+                                           style="background: #10b981; color: white; padding: 0.5rem 1rem; border-radius: 6px; text-decoration: none; display: none; align-items: center; gap: 0.4rem; font-weight: 500; transition: all 0.2s ease;">
+                                            🗺️ Apple Maps
+                                        </a>
+                                    </div>
+
+                                    <!-- Location Features -->
+                                    {% if activity.locationData.amenities %}
+                                        <div style="margin-top: 1rem;">
+                                            <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; margin-bottom: 0.5rem;">✨ Équipements</div>
+                                            <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                                                {% for amenity in activity.locationData.amenities %}
+                                                    <span style="background: linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(34, 197, 94, 0.1)); color: #22c55e; padding: 0.3rem 0.7rem; border-radius: 6px; font-size: 0.85rem; font-weight: 500;">
+                                                        ✓ {{ amenity }}
+                                                    </span>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    {% endif %}
+
+                                    <!-- Capacity -->
+                                    <div style="margin-top: 1rem;">
+                                        <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; margin-bottom: 0.3rem;">🏢 Capacité</div>
+                                        <div style="font-weight: 500;">{{ activity.locationData.capacity }} personnes maximum</div>
+                                    </div>
+
+                                    <!-- Hours -->
+                                    <div style="margin-top: 0.8rem;">
+                                        <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; margin-bottom: 0.3rem;">⏰ Horaires</div>
+                                        <div style="font-weight: 500;">{{ activity.locationData.availability }}</div>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Description -->
+            {% if activity.description %}
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h3 class="card-title">📝 Description Complète</h3>
+                    </div>
+                    <div class="card-body">
+                        <p style="line-height: 1.6; color: var(--text-muted);">{{ activity.description }}</p>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Status Card -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    {% if activity.isFull %}
+                        <div style="background: rgba(239, 68, 68, 0.1); color: #ef4444; padding: 1rem; border-radius: 8px; text-align: center; border: 1px solid rgba(239, 68, 68, 0.3);">
+                            <div style="font-weight: 600; font-size: 1.1rem;">🔴 Activité Complète</div>
+                            <div style="font-size: 0.9rem; margin-top: 0.3rem;">Cette activité a atteint son quota de participants</div>
+                        </div>
+                    {% elseif isEnrolled %}
+                        <div style="background: rgba(34, 197, 94, 0.1); color: #22c55e; padding: 1rem; border-radius: 8px; text-align: center; border: 1px solid rgba(34, 197, 94, 0.3);">
+                            <div style="font-weight: 600; font-size: 1.1rem;">✓ Vous êtes inscrit</div>
+                            <div style="font-size: 0.9rem; margin-top: 0.3rem;">Vous participez à cette activité</div>
+                        </div>
+                    {% else %}
+                        <form method="POST" action="{{ path('app_my_activities_enroll', {'_locale': app.request.locale, 'id': activity.id}) }}">
+                            <input type="hidden" name="_token" value="{{ csrf_token('enroll_activity_' ~ activity.id) }}">
+                            <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.75rem; font-weight: 600;">
+                                ✓ S'inscrire à l'Activité
+                            </button>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Quick Info -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">ℹ️ Informations Rapides</h3>
+                </div>
+                <div class="card-body">
+                    <div style="display: grid; gap: 0.8rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 0.8rem; border-bottom: 1px solid var(--border-color);">
+                            <span style="color: var(--text-muted);">Type</span>
+                            <strong>{{ activity.type|capitalize }}</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 0.8rem; border-bottom: 1px solid var(--border-color);">
+                            <span style="color: var(--text-muted);">Inscrits</span>
+                            <strong>{{ activity.participants }}{% if activity.maxParticipants %}/{{ activity.maxParticipants }}{% endif %}</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="color: var(--text-muted);">Status</span>
+                            <span style="background: linear-gradient(135deg, #22c55e, #16a34a); color: white; padding: 0.25rem 0.75rem; border-radius: 4px; font-size: 0.85rem; font-weight: 600;">Actif</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <div style="margin-top: 2rem; text-align: center;">
+        <a href="{{ path('app_my_activities') }}" class="btn btn-secondary">← Retour aux Activités</a>
+    </div>
+</div>
+
+<!-- Directions Modal -->
+<div id="directionsModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; padding: 1rem;">
+    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; border-radius: 20px; max-width: 500px; width: 100%; max-height: 90vh; overflow: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+        <div style="position: sticky; top: 0; background: linear-gradient(135deg, #f59e0b, #f97316); color: white; padding: 1.5rem; display: flex; justify-content: space-between; align-items: center; border-radius: 20px 20px 0 0;">
+            <h2 style="margin: 0; font-size: 1.25rem;">📍 Guide de Localisation</h2>
+            <button onclick="closeDirectionsGuide()" style="background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer;">✕</button>
+        </div>
+        
+        <div style="padding: 1.5rem;">
+            <!-- Location Info -->
+            <div style="background: rgba(34, 197, 94, 0.1); padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem; border-left: 4px solid #22c55e;">
+                <div style="font-weight: 600; font-size: 1rem; margin-bottom: 0.5rem;" id="destName">Destination</div>
+                <div style="font-size: 0.9rem; color: #666;" id="destCoords">Coordonnées</div>
+            </div>
+
+            <!-- User Location -->
+            <div style="margin-bottom: 1.5rem;">
+                <div style="font-weight: 600; margin-bottom: 0.5rem; color: #333;">📍 Votre Position</div>
+                <div style="background: #f3f4f6; padding: 1rem; border-radius: 10px;">
+                    <div id="userLocation" style="color: #666; font-size: 0.9rem;">Détermination de votre position...</div>
+                    <button onclick="getUserLocation()" style="background: #3b82f6; color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; margin-top: 0.5rem; cursor: pointer; font-weight: 500;">
+                        🔄 Actualiser la Position
+                    </button>
+                </div>
+            </div>
+
+            <!-- Distance & Duration -->
+            <div id="distanceInfo" style="display: none; background: #e0f2fe; padding: 1rem; border-radius: 10px; margin-bottom: 1.5rem; border-left: 4px solid #0284c7;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div>
+                        <div style="font-size: 0.8rem; color: #666; text-transform: uppercase; font-weight: 700; margin-bottom: 0.3rem;">Distance</div>
+                        <div style="font-weight: 600; font-size: 1.1rem;" id="distance">-</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 0.8rem; color: #666; text-transform: uppercase; font-weight: 700; margin-bottom: 0.3rem;">Durée Estimée</div>
+                        <div style="font-weight: 600; font-size: 1.1rem;" id="duration">-</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Open in Google Maps Button -->
+            <button id="openGoogleMapsBtn" onclick="openGoogleMapsDirections()" style="width: 100%; background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; border: none; padding: 1rem; border-radius: 10px; font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.2s ease; margin-bottom: 0.75rem;">
+                🗺️ Ouvrir dans Google Maps
+            </button>
+
+            <button onclick="closeDirectionsGuide()" style="width: 100%; background: #e5e7eb; color: #333; border: none; padding: 1rem; border-radius: 10px; font-weight: 600; cursor: pointer;">
+                Fermer
+            </button>
+        </div>
+    </div>
+</div>
+
+<style>
+    .btn {
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #3b82f6, #2563eb);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(59, 130, 246, 0.3);
+    }
+
+    .btn-secondary {
+        background: transparent;
+        color: var(--admin-primary);
+        border: 2px solid var(--admin-primary);
+    }
+
+    .btn-secondary:hover {
+        background: rgba(59, 130, 246, 0.05);
+    }
+
+    .btn-sm {
+        padding: 0.5rem 1rem;
+        font-size: 0.85rem;
+    }
+
+    .card {
+        background: var(--admin-card);
+        border: 2px solid var(--admin-border);
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .card-header {
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.08), rgba(96, 165, 250, 0.05));
+        padding: 1.25rem;
+        border-bottom: 1px solid var(--admin-border);
+    }
+
+    .card-title {
+        margin: 0;
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--admin-primary);
+    }
+
+    .card-body {
+        padding: 1.5rem;
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 0.4rem 0.8rem;
+        border-radius: 6px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 1rem;
+    }
+
+    .row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+    }
+
+    .col-lg-8 { grid-column: span 1; }
+    .col-lg-4 { grid-column: span 1; }
+
+    @media (max-width: 768px) {
+        .row {
+            grid-template-columns: 1fr;
+        }
+        
+        .col-lg-8, .col-lg-4 {
+            grid-column: span 1;
+        }
+    }
+</style>
+
+<script>
+let userLat, userLng;
+let destLat, destLng, destName;
+
+function showDirectionsGuide(lat, lng, name) {
+    destLat = lat;
+    destLng = lng;
+    destName = name;
+    
+    document.getElementById('destName').textContent = name;
+    document.getElementById('destCoords').textContent = `${lat.toFixed(4)}°, ${lng.toFixed(4)}°`;
+    document.getElementById('directionsModal').style.display = 'block';
+    
+    getUserLocation();
+}
+
+function closeDirectionsGuide() {
+    document.getElementById('directionsModal').style.display = 'none';
+}
+
+function getUserLocation() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(position => {
+            userLat = position.coords.latitude;
+            userLng = position.coords.longitude;
+            
+            document.getElementById('userLocation').innerHTML = `
+                <div>📍 Latitude: ${userLat.toFixed(4)}°</div>
+                <div>📍 Longitude: ${userLng.toFixed(4)}°</div>
+            `;
+            
+            calculateDistance(userLat, userLng, destLat, destLng);
+        }, error => {
+            document.getElementById('userLocation').innerHTML = `
+                <div style="color: #ef4444; margin-bottom: 0.5rem;">❌ Position non disponible</div>
+                <div style="font-size: 0.85rem; margin-bottom: 0.5rem;">Veuillez autoriser l'accès à votre position pour obtenir les directions.</div>
+            `;
+        });
+    } else {
+        document.getElementById('userLocation').innerHTML = `
+            <div style="color: #ef4444;">❌ Géolocalisation non supportée</div>
+        `;
+    }
+}
+
+function calculateDistance(lat1, lng1, lat2, lng2) {
+    const R = 6371; // Rayon de la Terre en km
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLng = (lng2 - lng1) * Math.PI / 180;
+    
+    const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+              Math.sin(dLng/2) * Math.sin(dLng/2);
+    
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    const distance = R * c;
+    
+    // Estimation: vitesse moyenne ~40 km/h à pied/transport
+    const estimatedTime = Math.ceil(distance / 5 * 60); // 5 km/h en minutes
+    
+    document.getElementById('distance').textContent = distance.toFixed(1) + ' km';
+    document.getElementById('duration').textContent = estimatedTime + ' min';
+    document.getElementById('distanceInfo').style.display = 'block';
+}
+
+function openGoogleMapsDirections() {
+    if (userLat && userLng) {
+        window.open(`https://www.google.com/maps/dir/${userLat},${userLng}/${destLat},${destLng}`, '_blank');
+    } else {
+        alert('Veuillez d\'abord actualiser votre position');
+    }
+}
+
+// Close modal on outside click
+document.addEventListener('click', function(event) {
+    const modal = document.getElementById('directionsModal');
+    if (event.target === modal) {
+        closeDirectionsGuide();
+    }
+});
+</script>
+{% endblock %}

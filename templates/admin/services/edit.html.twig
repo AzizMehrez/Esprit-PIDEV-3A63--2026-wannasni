@@ -1,0 +1,62 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Edit Service Request - Admin WANNASNI{% endblock %}
+{% block page_title %}Process Service Request{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 1rem;">
+    <a href="{{ path('admin_services') }}" class="btn btn-secondary">← Back to Services</a>
+</div>
+
+<div class="card" style="max-width: 600px;">
+    <div class="card-header">
+        <h2 class="card-title">Process Request #{{ service.id }}</h2>
+    </div>
+    
+    <div style="padding: 1rem; background: var(--bg-tertiary); border-radius: var(--radius-md); margin-bottom: 1.5rem;">
+        <div style="font-weight: 600;">{{ service.requester }}</div>
+        <div style="color: var(--text-secondary); font-size: 0.875rem;">{{ service.type }} - {{ service.description }}</div>
+    </div>
+    
+    <form method="post">
+        <div class="form-group">
+            <label class="form-label">Status</label>
+            <select class="form-input" name="status">
+                <option value="pending" {{ service.status == 'pending' ? 'selected' : '' }}>Pending</option>
+                <option value="in_progress" {{ service.status == 'in_progress' ? 'selected' : '' }}>In Progress</option>
+                <option value="completed" {{ service.status == 'completed' ? 'selected' : '' }}>Completed</option>
+                <option value="cancelled" {{ service.status == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">Priority</label>
+            <select class="form-input" name="priority">
+                <option value="low" {{ service.priority == 'low' ? 'selected' : '' }}>Low</option>
+                <option value="medium" {{ service.priority == 'medium' ? 'selected' : '' }}>Medium</option>
+                <option value="high" {{ service.priority == 'high' ? 'selected' : '' }}>High</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">Assigned To</label>
+            <select class="form-input" name="assigned_to">
+                <option value="">-- Select Staff --</option>
+                <option value="1">Marie L. (Caregiver)</option>
+                <option value="2">Jacques M. (Driver)</option>
+                <option value="3">Sophie T. (Nurse)</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">Internal Notes</label>
+            <textarea class="form-input" name="notes" rows="3" placeholder="Add internal notes about this request..."></textarea>
+        </div>
+        
+        <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+            <button type="submit" class="btn btn-primary">Update Request</button>
+            <a href="{{ path('admin_services_show', {id: service.id}) }}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

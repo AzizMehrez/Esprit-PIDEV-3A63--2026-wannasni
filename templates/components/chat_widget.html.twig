@@ -1,0 +1,520 @@
+<style>
+/* Modern Chat Widget Styles */
+#activity-assistant-widget {
+    position: fixed;
+    bottom: 1.5rem;
+    left: 1.5rem;
+    z-index: 9998;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+#chat-toggle-btn {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4), 0 0 0 0 rgba(102, 126, 234, 0.7);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    animation: pulse-ring 2s infinite;
+}
+
+#chat-toggle-btn:hover {
+    transform: scale(1.1) rotate(5deg);
+    box-shadow: 0 12px 32px rgba(102, 126, 234, 0.5);
+}
+
+#chat-toggle-btn svg {
+    width: 36px;
+    height: 36px;
+    color: white;
+}
+
+@keyframes pulse-ring {
+    0%, 100% {
+        box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4), 0 0 0 0 rgba(102, 126, 234, 0.7);
+    }
+    50% {
+        box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4), 0 0 0 12px rgba(102, 126, 234, 0);
+    }
+}
+
+#chat-window {
+    position: absolute;
+    bottom: 90px;
+    left: 0;
+    width: 420px;
+    max-width: calc(100vw - 3rem);
+    background: white;
+    border-radius: 24px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-origin: bottom left;
+}
+
+#chat-window.hidden {
+    opacity: 0;
+    visibility: hidden;
+    transform: scale(0.95) translateY(10px);
+}
+
+/* Header */
+.chat-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.chat-header h3 {
+    color: white;
+    font-size: 1.125rem;
+    font-weight: 700;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.chat-header-icon {
+    font-size: 1.5rem;
+    animation: wave 1s ease-in-out infinite;
+}
+
+@keyframes wave {
+    0%, 100% { transform: rotate(0deg); }
+    25% { transform: rotate(20deg); }
+    75% { transform: rotate(-20deg); }
+}
+
+#close-chat-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+#close-chat-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: rotate(90deg);
+}
+
+#close-chat-btn svg {
+    width: 20px;
+    height: 20px;
+    color: white;
+}
+
+/* Messages */
+#chat-messages {
+    flex: 1;
+    padding: 1.5rem;
+    overflow-y: auto;
+    height: 400px;
+    background: linear-gradient(to bottom, #f9fafb 0%, #ffffff 100%);
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+#chat-messages::-webkit-scrollbar {
+    width: 6px;
+}
+
+#chat-messages::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 3px;
+}
+
+.message-bubble {
+    max-width: 85%;
+    padding: 0.875rem 1.125rem;
+    border-radius: 18px;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    word-wrap: break-word;
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.user-message {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    margin-left: auto;
+    border-bottom-right-radius: 4px;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.bot-message {
+    background: #f3f4f6;
+    color: #1f2937;
+    margin-right: auto;
+    border-bottom-left-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* Loading Animation */
+.loading-dots {
+    background: #f3f4f6;
+    padding: 0.875rem 1.125rem;
+    border-radius: 18px;
+    border-bottom-left-radius: 4px;
+    display: inline-flex;
+    gap: 4px;
+    max-width: fit-content;
+}
+
+.loading-dots span {
+    width: 8px;
+    height: 8px;
+    background: #9ca3af;
+    border-radius: 50%;
+    animation: bounce 1.4s infinite ease-in-out both;
+}
+
+.loading-dots span:nth-child(1) { animation-delay: -0.32s; }
+.loading-dots span:nth-child(2) { animation-delay: -0.16s; }
+
+@keyframes bounce {
+    0%, 80%, 100% { transform: scale(0); }
+    40% { transform: scale(1); }
+}
+
+/* Input Area */
+.chat-input-area {
+    padding: 1.25rem;
+    background: white;
+    border-top: 1px solid #e5e7eb;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.input-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+#mic-btn {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: none;
+    background: linear-gradient(135deg, #f87171 0%, #ef4444 100%);
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+#mic-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 16px rgba(239, 68, 68, 0.4);
+}
+
+#mic-btn.recording {
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    animation: pulse-mic 1.5s infinite;
+}
+
+@keyframes pulse-mic {
+    0%, 100% { box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4); }
+    50% { box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4), 0 0 0 12px rgba(220, 38, 38, 0.2); }
+}
+
+#mic-btn svg {
+    width: 24px;
+    height: 24px;
+}
+
+#chat-input {
+    flex: 1;
+    border: 2px solid #e5e7eb;
+    border-radius: 24px;
+    padding: 0.75rem 1.25rem;
+    font-size: 0.95rem;
+    outline: none;
+    transition: all 0.2s;
+    background: #f9fafb;
+}
+
+#chat-input:focus {
+    border-color: #667eea;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+#send-btn {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: none;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+#send-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+}
+
+#send-btn svg {
+    width: 20px;
+    height: 20px;
+}
+
+#status-text {
+    color: #6b7280;
+    font-size: 0.8125rem;
+    min-height: 1.2rem;
+    text-align: center;
+    font-style: italic;
+}
+
+@media (max-width: 640px) {
+    #activity-assistant-widget {
+        left: 1rem;
+        right: 1rem;
+        bottom: 1rem;
+    }
+    
+    #chat-window {
+        width: calc(100vw - 2rem);
+        left: 0;
+    }
+    
+    #chat-toggle-btn {
+        width: 60px;
+        height: 60px;
+    }
+}
+</style>
+
+<div id="activity-assistant-widget">
+    <!-- Toggle Button -->
+    <button id="chat-toggle-btn" aria-label="Open Activity Assistant">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+        </svg>
+    </button>
+
+    <!-- Chat Window -->
+    <div id="chat-window" class="hidden">
+        <!-- Header -->
+        <div class="chat-header">
+            <h3>
+                <span class="chat-header-icon">🤖</span>
+                Assistant Activités
+            </h3>
+            <button id="close-chat-btn" aria-label="Close chat">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+
+        <!-- Messages -->
+        <div id="chat-messages">
+            <div class="bot-message message-bubble">
+                👋 Bonjour ! Je peux vous aider à trouver des activités, vous inscrire, ou répondre à vos questions. Essayez "Montre-moi les activités sociales" ou "Inscris-moi au yoga".
+            </div>
+        </div>
+
+        <!-- Input Area -->
+        <div class="chat-input-area">
+            <div class="input-row">
+                <button id="mic-btn" aria-label="Voice input" title="Cliquer pour parler">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 013-3 3 3 0 013 3v6a3 3 0 01-3 3z" />
+                    </svg>
+                </button>
+                <input type="text" id="chat-input" placeholder="Tapez votre message ou cliquez sur le micro...">
+                <button id="send-btn" aria-label="Send message">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                    </svg>
+                </button>
+            </div>
+            <div id="status-text"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const toggleBtn = document.getElementById('chat-toggle-btn');
+    const closeBtn = document.getElementById('close-chat-btn');
+    const chatWindow = document.getElementById('chat-window');
+    const messagesContainer = document.getElementById('chat-messages');
+    const input = document.getElementById('chat-input');
+    const sendBtn = document.getElementById('send-btn');
+    const micBtn = document.getElementById('mic-btn');
+    const statusText = document.getElementById('status-text');
+
+    let isRecording = false;
+    let recognition = null;
+    
+    const toggleChat = () => {
+        chatWindow.classList.toggle('hidden');
+        if (!chatWindow.classList.contains('hidden')) {
+            input.focus();
+            scrollToBottom();
+        }
+    };
+
+    toggleBtn.addEventListener('click', toggleChat);
+    closeBtn.addEventListener('click', toggleChat);
+
+    const scrollToBottom = () => {
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    };
+
+    const addMessage = (text, isUser = false) => {
+        const div = document.createElement('div');
+        div.className = `message-bubble ${isUser ? 'user-message' : 'bot-message'}`;
+        div.textContent = text;
+        messagesContainer.appendChild(div);
+        scrollToBottom();
+    };
+
+    const showLoading = () => {
+        const div = document.createElement('div');
+        div.id = 'loading-indicator';
+        div.className = 'loading-dots';
+        div.innerHTML = '<span></span><span></span><span></span>';
+        messagesContainer.appendChild(div);
+        scrollToBottom();
+        return 'loading-indicator';
+    };
+
+    const removeLoading = () => {
+        const el = document.getElementById('loading-indicator');
+        if (el) el.remove();
+    };
+
+    const sendMessage = async (text) => {
+        if (!text.trim()) return;
+
+        addMessage(text, true);
+        input.value = '';
+        showLoading();
+
+        try {
+            const response = await fetch('/api/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ message: text })
+            });
+
+            const data = await response.json();
+            removeLoading();
+
+            if (data.error) {
+                addMessage("⚠️ " + (data.error || "Erreur de connexion"));
+            } else {
+                addMessage(data.text);
+                
+                if (data.audio) {
+                    const audio = new Audio(data.audio);
+                    audio.play().catch(e => console.warn("Audio playback failed", e));
+                }
+            }
+        } catch (error) {
+            removeLoading();
+            addMessage("❌ Impossible de se connecter à l'assistant.");
+            console.error(error);
+        }
+    };
+
+    sendBtn.addEventListener('click', () => sendMessage(input.value));
+    input.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') sendMessage(input.value);
+    });
+
+    // Speech Recognition
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        recognition = new SpeechRecognition();
+        recognition.continuous = false;
+        recognition.interimResults = false;
+        recognition.lang = document.documentElement.lang || 'fr-FR';
+
+        recognition.onstart = () => {
+            isRecording = true;
+            micBtn.classList.add('recording');
+            statusText.textContent = "🎤 À l'écoute...";
+        };
+
+        recognition.onend = () => {
+            isRecording = false;
+            micBtn.classList.remove('recording');
+            statusText.textContent = "";
+        };
+
+        recognition.onresult = (event) => {
+            const transcript = event.results[0][0].transcript;
+            input.value = transcript;
+            statusText.textContent = "✓ Message capturé";
+            setTimeout(() => {
+                sendMessage(transcript);
+                statusText.textContent = "";
+            }, 500);
+        };
+
+        recognition.onerror = (event) => {
+            console.error('Speech recognition error:', event.error);
+            statusText.textContent = "⚠️ Erreur: " + event.error;
+            isRecording = false;
+            micBtn.classList.remove('recording');
+        };
+
+        micBtn.addEventListener('click', () => {
+            if (isRecording) {
+                recognition.stop();
+            } else {
+                recognition.start();
+            }
+        });
+    } else {
+        micBtn.style.display = 'none';
+        statusText.textContent = "⚠️ Micro non supporté";
+    }
+});
+</script>
