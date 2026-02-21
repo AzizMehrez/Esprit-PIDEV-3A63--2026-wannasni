@@ -12,6 +12,7 @@
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600&family=Noto+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
         {% block stylesheets %}
         <style>
             /* Dashboard Navigation Styles */
@@ -158,6 +159,80 @@
                     font-size: 0.8rem;
                 }
             }
+
+            /* Sidebar Layout Support */
+            .dash-main-container {
+                display: grid;
+                grid-template-columns: 1fr;
+                gap: 2rem;
+                max-width: 1280px;
+                margin: 0 auto;
+                padding: 2rem 1.5rem;
+            }
+
+            @media (min-width: 1024px) {
+                .dash-main-container.has-sidebar {
+                    grid-template-columns: 280px 1fr;
+                }
+            }
+
+            .dash-sidebar {
+                display: none;
+            }
+
+            .dash-main-container.has-sidebar .dash-sidebar {
+                display: block;
+            }
+
+            .sidebar-nav-group {
+                background: white;
+                border-radius: 20px;
+                padding: 1.5rem;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+                border: 1px solid #eef2f6;
+                position: sticky;
+                top: 100px;
+            }
+
+            .sidebar-nav-title {
+                font-size: 0.8rem;
+                font-weight: 700;
+                color: #94a3b8;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+                margin-bottom: 1.5rem;
+                display: block;
+            }
+
+            .sidebar-link {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+                padding: 0.85rem 1rem;
+                color: #64748b;
+                text-decoration: none;
+                font-weight: 600;
+                border-radius: 12px;
+                transition: all 0.2s;
+                margin-bottom: 0.5rem;
+            }
+
+            .sidebar-link i {
+                font-size: 1.1rem;
+                width: 20px;
+                text-align: center;
+            }
+
+            .sidebar-link:hover {
+                background: #f0fdf4;
+                color: #2E7D32;
+            }
+
+            .sidebar-link.active {
+                background: #2E7D32;
+                color: white;
+                box-shadow: 0 4px 12px rgba(46, 125, 50, 0.2);
+            }
         </style>
         {% endblock %}
 
@@ -210,7 +285,19 @@
 
         {# Main Content #}
         <main role="main" id="main-content">
-            {% block body %}{% endblock %}
+            {% set has_sidebar = block('sidebar') is defined and block('sidebar') is not empty %}
+            <div class="dash-main-container {{ has_sidebar ? 'has-sidebar' : '' }}">
+                {% if has_sidebar %}
+                    <aside class="dash-sidebar">
+                        <div class="sidebar-nav-group">
+                            {% block sidebar %}{% endblock %}
+                        </div>
+                    </aside>
+                {% endif %}
+                <div class="dash-content-area">
+                    {% block body %}{% endblock %}
+                </div>
+            </div>
         </main>
 
         {# Floating Help Button #}

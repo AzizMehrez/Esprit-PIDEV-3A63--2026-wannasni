@@ -2,10 +2,28 @@
 
 {% block title %}Modifier Demande #{{ demande_regime.id }}{% endblock %}
 
+{% block sidebar %}
+    <span class="sidebar-nav-title">Navigation Nutrition</span>
+    <nav>
+        <a href="{{ path('app_my_nutrition') }}" class="sidebar-link">
+            <i class="fas fa-utensils"></i> Tableau de bord
+        </a>
+        <a href="{{ path('app_nutrition_request') }}" class="sidebar-link">
+            <i class="fas fa-plus"></i> Nouvelle demande
+        </a>
+        <a href="{{ path('app_nutrition_scan') }}" class="sidebar-link">
+            <i class="fas fa-barcode"></i> Scanner produit
+        </a>
+        <a href="{{ path('app_nutrition_track') }}" class="sidebar-link">
+            <i class="fas fa-camera"></i> Analyse Photo IA
+        </a>
+    </nav>
+{% endblock %}
+
 {% block body %}
 <div class="dashboard-container">
     <div class="dashboard-header">
-        <h1>📝 Modifier Demande #{{ demande_regime.id }}</h1>
+        <h1><i class="fas fa-edit me-2"></i>Modifier Demande #{{ demande_regime.id }}</h1>
         <p>Modifiez les informations de la demande de régime</p>
     </div>
 

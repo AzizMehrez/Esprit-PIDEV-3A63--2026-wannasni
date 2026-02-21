@@ -234,6 +234,47 @@
     </div>
     {% endif %}
 
+    {% if regime.poidsActuel or regime.taille %}
+    <div class="section-title">Données Biométriques</div>
+    <div class="grid-2">
+        <div class="col">
+            {% if regime.poidsActuel %}
+            <div class="stat-box">
+                <div class="stat-label">Poids</div>
+                <div class="stat-value">{{ regime.poidsActuel }} kg</div>
+            </div>
+            {% endif %}
+            {% if regime.taille %}
+            <div class="stat-box">
+                <div class="stat-label">Taille</div>
+                <div class="stat-value">{{ regime.taille }} cm</div>
+            </div>
+            {% endif %}
+        </div>
+        <div class="col">
+            {% if regime.poidsActuel and regime.taille %}
+            {% set imc = regime.imc %}
+            <div class="stat-box" style="border-color: {% if imc < 18.5 %}#3498db{% elseif imc < 25 %}#27ae60{% elseif imc < 30 %}#f39c12{% else %}#e74c3c{% endif %};">
+                <div class="stat-label">IMC</div>
+                <div class="stat-value" style="color: {% if imc < 18.5 %}#3498db{% elseif imc < 25 %}#27ae60{% elseif imc < 30 %}#f39c12{% else %}#e74c3c{% endif %};">
+                    {{ imc|number_format(1) }}
+                    <span style="font-size: 9pt; font-weight: normal;">
+                        {% if imc < 18.5 %}(Maigreur){% elseif imc < 25 %}(Normal){% elseif imc < 30 %}(Surpoids){% else %}(Obésité){% endif %}
+                    </span>
+                </div>
+            </div>
+            {% endif %}
+            {% if regime.niveauActivite %}
+            <div class="stat-box">
+                <div class="stat-label">Niveau d'activité</div>
+                <div class="stat-value" style="font-size: 12pt;">{{ regime.niveauActivite|replace({'_': ' '})|title }}</div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    {% endif %}
+
     <div class="signature-area">
         <div class="signature-line">
             Signature du Nutritionniste

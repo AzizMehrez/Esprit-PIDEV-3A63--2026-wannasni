@@ -5,8 +5,8 @@ namespace App\Form;
 use App\Entity\DemandeRegime;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
+use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -84,6 +84,36 @@ class DemandeRegimeType extends AbstractType
                     'class' => 'form-control',
                     'placeholder' => 'Ex: 1500'
                 ]
+            ])
+            ->add('poids', NumberType::class, [
+                'label' => 'Poids actuel (kg)',
+                'required' => false,
+                'scale' => 1,
+                'attr' => ['class' => 'form-control', 'placeholder' => 'Ex: 72.5', 'step' => '0.1']
+            ])
+            ->add('taille', NumberType::class, [
+                'label' => 'Taille (cm)',
+                'required' => false,
+                'scale' => 1,
+                'attr' => ['class' => 'form-control', 'placeholder' => 'Ex: 170']
+            ])
+            ->add('age', IntegerType::class, [
+                'label' => 'Âge',
+                'required' => false,
+                'attr' => ['class' => 'form-control', 'placeholder' => 'Ex: 68']
+            ])
+            ->add('niveauActivite', ChoiceType::class, [
+                'label' => 'Niveau d\'activité physique',
+                'required' => false,
+                'choices' => [
+                    'Sédentaire' => 'sedentaire',
+                    'Légèrement actif' => 'leger',
+                    'Modérément actif' => 'modere',
+                    'Actif' => 'actif',
+                    'Très actif' => 'tres_actif',
+                ],
+                'attr' => ['class' => 'form-select'],
+                'placeholder' => 'Sélectionnez...'
             ]);
             
         // NE PAS AJOUTER les champs cachés ici

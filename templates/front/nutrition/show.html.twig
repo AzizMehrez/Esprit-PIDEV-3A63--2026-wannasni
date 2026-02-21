@@ -235,6 +235,24 @@
 </style>
 {% endblock %}
 
+{% block sidebar %}
+    <span class="sidebar-nav-title">Navigation Nutrition</span>
+    <nav>
+        <a href="{{ path('app_my_nutrition') }}" class="sidebar-link">
+            <i class="fas fa-utensils"></i> Tableau de bord
+        </a>
+        <a href="{{ path('app_nutrition_request') }}" class="sidebar-link">
+            <i class="fas fa-plus"></i> Nouvelle demande
+        </a>
+        <a href="{{ path('app_nutrition_scan') }}" class="sidebar-link">
+            <i class="fas fa-barcode"></i> Scanner produit
+        </a>
+        <a href="{{ path('app_nutrition_track') }}" class="sidebar-link">
+            <i class="fas fa-camera"></i> Analyse Photo IA
+        </a>
+    </nav>
+{% endblock %}
+
 {% block body %}
 <div class="nutrition-wrapper">
     <div class="nutrition-container">
@@ -245,7 +263,9 @@
 
         <!-- Premium Header -->
         <div class="premium-header">
-            <div class="header-icon-main">🥗</div>
+            <div class="header-icon-main">
+                <i class="fas fa-file-medical"></i>
+            </div>
             <h1 class="premium-title">Détails de ma demande</h1>
             <p class="premium-subtitle">Suivi personnalisé par votre nutritionniste</p>
         </div>
@@ -254,7 +274,7 @@
             <!-- Left Card: Original Request -->
             <div class="card-glass">
                 <div class="card-title-nutri">
-                    <span>📝 Ma Demande</span>
+                    <span><i class="fas fa-clipboard-list me-2"></i>Ma Demande</span>
                     {% if demande_regime.statut == 'traité' %}
                         <span class="badge-premium badge-traite">Traitée</span>
                     {% else %}
@@ -264,28 +284,28 @@
 
                 <div class="info-list">
                     <div class="info-row">
-                        <div class="icon-box">🥗</div>
+                        <div class="icon-box"><i class="fas fa-utensils"></i></div>
                         <div class="info-content">
                             <label>Type souhaité</label>
                             <span>{{ demande_regime.typeRegimeSouhaite }}</span>
                         </div>
                     </div>
                     <div class="info-row">
-                        <div class="icon-box">🎯</div>
+                        <div class="icon-box"><i class="fas fa-bullseye"></i></div>
                         <div class="info-content">
                             <label>Objectif</label>
                             <span>{{ demande_regime.objectifPrincipal }}</span>
                         </div>
                     </div>
                     <div class="info-row">
-                        <div class="icon-box">💰</div>
+                        <div class="icon-box"><i class="fas fa-wallet"></i></div>
                         <div class="info-content">
                             <label>Budget</label>
                             <span>{{ demande_regime.budgetMensuel ? demande_regime.budgetMensuel ~ ' DH' : 'Non spécifié' }}</span>
                         </div>
                     </div>
                     <div class="info-row">
-                        <div class="icon-box">⚠️</div>
+                        <div class="icon-box"><i class="fas fa-exclamation-triangle"></i></div>
                         <div class="info-content">
                             <label>Allergies</label>
                             <span>{{ demande_regime.allergies ?: 'Aucune signalée' }}</span>
@@ -303,7 +323,7 @@
             <!-- Right Card: Prescribed Diet (If available) -->
             <div class="card-glass">
                 <div class="card-title-nutri">
-                    <span>🔬 Régime Personnalisé</span>
+                    <span><i class="fas fa-microscope me-2"></i>Régime Personnalisé</span>
                 </div>
 
                 {% if demande_regime.statut == 'traité' %}
@@ -312,17 +332,17 @@
                         <!-- Visual Stats -->
                         <div class="stats-container">
                             <div class="stat-mini-card">
-                                <span class="emoji">🔥</span>
+                                <span class="emoji"><i class="fas fa-fire"></i></span>
                                 <span class="val">{{ regime.caloriesJournalieres }}</span>
                                 <span class="lab">kcal / jour</span>
                             </div>
                             <div class="stat-mini-card">
-                                <span class="emoji">🍴</span>
+                                <span class="emoji"><i class="fas fa-utensils"></i></span>
                                 <span class="val">{{ regime.repasParJour }}</span>
                                 <span class="lab">Repas / jour</span>
                             </div>
                             <div class="stat-mini-card">
-                                <span class="emoji">💧</span>
+                                <span class="emoji"><i class="fas fa-tint"></i></span>
                                 <span class="val">{{ (regime.hydratationQuotidienne / 1000)|number_format(1) }}L</span>
                                 <span class="lab">Eau / jour</span>
                             </div>
@@ -330,14 +350,14 @@
 
                         <!-- Recommendations Card -->
                         <div style="background: var(--nutri-bg); padding: 1.5rem; border-radius: 20px; border-left: 5px solid var(--nutri-primary);">
-                            <h4 style="margin: 0 0 0.5rem 0; color: var(--nutri-primary-dark);">👨‍⚕️ Conseil du nutritionniste :</h4>
+                            <h4 style="margin: 0 0 0.5rem 0; color: var(--nutri-primary-dark);"><i class="fas fa-user-md me-2"></i>Conseil du nutritionniste :</h4>
                             <p style="margin: 0; font-style: italic; color: var(--nutri-text);">"{{ regime.recommandationsSpeciales ?: 'Pas de recommandations spécifiques pour le moment.' }}"</p>
                         </div>
 
                         <!-- Foods split -->
                         <div class="food-split">
                             <div class="food-card allowed">
-                                <h4>✅ Recommandés</h4>
+                                <h4><i class="fas fa-check-circle me-2"></i>Recommandés</h4>
                                 <ul>
                                     {% if regime.alimentsRecommandes %}
                                         {% for a in regime.alimentsRecommandes %}<li>{{ a }}</li>{% endfor %}
@@ -347,7 +367,7 @@
                                 </ul>
                             </div>
                             <div class="food-card forbidden">
-                                <h4>🚫 À éviter</h4>
+                                <h4><i class="fas fa-times-circle me-2"></i>À éviter</h4>
                                 <ul>
                                     {% if regime.alimentsInterdits %}
                                         {% for a in regime.alimentsInterdits %}<li>{{ a }}</li>{% endfor %}

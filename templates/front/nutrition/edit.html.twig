@@ -2,14 +2,29 @@
 
 {% block title %}Modifier Demande #{{ demande_regime.id }}{% endblock %}
 
+{% block sidebar %}
+    <span class="sidebar-nav-title">Navigation Nutrition</span>
+    <nav>
+        <a href="{{ path('app_my_nutrition') }}" class="sidebar-link">
+            <i class="fas fa-utensils"></i> Tableau de bord
+        </a>
+        <a href="{{ path('app_nutrition_request') }}" class="sidebar-link">
+            <i class="fas fa-plus"></i> Nouvelle demande
+        </a>
+        <a href="{{ path('app_nutrition_scan') }}" class="sidebar-link">
+            <i class="fas fa-barcode"></i> Scanner produit
+        </a>
+        <a href="{{ path('app_nutrition_track') }}" class="sidebar-link">
+            <i class="fas fa-camera"></i> Analyse Photo IA
+        </a>
+    </nav>
+{% endblock %}
+
 {% block body %}
 <div class="dashboard-container">
     <div class="dashboard-header">
         <h1>
-            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 0.5rem;">
-                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-            </svg>
+            <i class="fas fa-edit me-2"></i>
             Modifier Demande #{{ demande_regime.id }}
         </h1>
         <p>Modifiez les informations de votre demande de régime</p>
@@ -20,9 +35,7 @@
         
         <div class="form-section">
             <h3>
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 0.4rem;">
-                    <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
-                </svg>
+                <i class="fas fa-heartbeat me-2"></i>
                 Informations médicales
             </h3>
             
@@ -61,11 +74,7 @@
 
         <div class="form-section">
             <h3>
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 0.4rem;">
-                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-                    <line x1="12" y1="9" x2="12" y2="13"/>
-                    <line x1="12" y1="17" x2="12.01" y2="17"/>
-                </svg>
+                <i class="fas fa-exclamation-triangle me-2"></i>
                 Allergies & Intolérances
             </h3>
             
@@ -96,11 +105,7 @@
 
         <div class="form-section">
             <h3>
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 0.4rem;">
-                    <circle cx="12" cy="12" r="10"/>
-                    <path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/>
-                    <path d="M12 18V6"/>
-                </svg>
+                <i class="fas fa-utensils me-2"></i>
                 Habitudes alimentaires
             </h3>
             
@@ -119,14 +124,14 @@
 
         {# Informations read-only (non modifiables) #}
         <div class="info-readonly-section">
-            <h3>📌 Informations de la demande</h3>
+            <h3><i class="fas fa-info-circle me-2"></i>Informations de la demande</h3>
             <div class="info-readonly">
                 <div class="info-item">
                     <strong>📋 Numéro de demande:</strong>
                     <span>#{{ demande_regime.id }}</span>
                 </div>
                 <div class="info-item">
-                    <strong>👤 Senior ID:</strong>
+                    <strong><i class="fas fa-user-circle me-2"></i>Senior ID:</strong>
                     <span>{{ demande_regime.seniorId }}</span>
                 </div>
                 <div class="info-item">
@@ -152,9 +157,7 @@
                 {% if demande_regime.dateTraitement %}
                 <div class="info-item">
                     <strong>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 0.3rem;">
-                            <polyline points="20 6 9 17 4 12"/>
-                        </svg>
+                        <i class="fas fa-check-double me-2"></i>
                         Date de traitement:
                     </strong>
                     <span>{{ demande_regime.dateTraitement|date('d/m/Y à H:i') }}</span>
@@ -183,11 +186,7 @@
         {# Formulaire de suppression séparé #}
         <div class="delete-section">
             <h4>
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 0.3rem;">
-                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-                    <line x1="12" y1="9" x2="12" y2="13"/>
-                    <line x1="12" y1="17" x2="12.01" y2="17"/>
-                </svg>
+                <i class="fas fa-radiation-alt me-2"></i>
                 Zone de danger
             </h4>
             <p>La suppression de cette demande est irréversible.</p>

@@ -110,6 +110,25 @@ class RegimePrescrit
     )]
     private ?string $recommandationsSpeciales = null;
 
+    #[ORM\Column(type: 'float', nullable: true)]
+    private ?float $poidsActuel = null;
+
+    #[ORM\Column(type: 'float', nullable: true)]
+    private ?float $taille = null;
+
+    #[ORM\Column(length: 30, nullable: true)]
+    private ?string $niveauActivite = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $pathologies = null;
+
+    #[ORM\Column(type: 'boolean', nullable: true)]
+    private ?bool $difficulteDeglutition = false;
+
+    #[ORM\Column(length: 30, nullable: true)]
+    #[Assert\Choice(choices: ['normale', 'molle', 'hachee', 'mixee', 'liquide'], message: 'Texture invalide.')]
+    private ?string $textureAlimentaire = null;
+
     #[ORM\Column(length: 20)]
     /* 
      * CONTRÔLE : Le type de suivi doit être valide (aucun, quotidien, hebdomadaire).
@@ -265,6 +284,33 @@ class RegimePrescrit
     {
         $this->recommandationsSpeciales = $recommandationsSpeciales;
         return $this;
+    }
+
+    public function getPoidsActuel(): ?float { return $this->poidsActuel; }
+    public function setPoidsActuel(?float $poidsActuel): static { $this->poidsActuel = $poidsActuel; return $this; }
+
+    public function getTaille(): ?float { return $this->taille; }
+    public function setTaille(?float $taille): static { $this->taille = $taille; return $this; }
+
+    public function getNiveauActivite(): ?string { return $this->niveauActivite; }
+    public function setNiveauActivite(?string $niveauActivite): static { $this->niveauActivite = $niveauActivite; return $this; }
+
+    public function getPathologies(): ?string { return $this->pathologies; }
+    public function setPathologies(?string $pathologies): static { $this->pathologies = $pathologies; return $this; }
+
+    public function isDifficulteDeglutition(): ?bool { return $this->difficulteDeglutition; }
+    public function setDifficulteDeglutition(?bool $difficulteDeglutition): static { $this->difficulteDeglutition = $difficulteDeglutition; return $this; }
+
+    public function getTextureAlimentaire(): ?string { return $this->textureAlimentaire; }
+    public function setTextureAlimentaire(?string $textureAlimentaire): static { $this->textureAlimentaire = $textureAlimentaire; return $this; }
+
+    public function getImc(): ?float
+    {
+        if ($this->poidsActuel && $this->taille && $this->taille > 0) {
+            $tailleM = $this->taille / 100;
+            return round($this->poidsActuel / ($tailleM * $tailleM), 1);
+        }
+        return null;
     }
 
     public function getSuiviRequis(): ?string

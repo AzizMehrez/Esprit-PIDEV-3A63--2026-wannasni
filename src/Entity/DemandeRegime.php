@@ -123,6 +123,31 @@ class DemandeRegime
     #[Assert\GreaterThan(value: 30, message: 'Le budget mensuel doit être supérieur à 30 DT.')]
     private ?int $budgetMensuel = null;
 
+    #[ORM\Column(type: 'float', nullable: true)]
+    #[Assert\Positive(message: 'Le poids doit être positif.')]
+    #[Assert\Range(min: 20, max: 300, notInRangeMessage: 'Le poids doit être entre 20 et 300 kg.')]
+    private ?float $poids = null;
+
+    #[ORM\Column(type: 'float', nullable: true)]
+    #[Assert\Positive(message: 'La taille doit être positive.')]
+    #[Assert\Range(min: 50, max: 250, notInRangeMessage: 'La taille doit être entre 50 et 250 cm.')]
+    private ?float $taille = null;
+
+    #[ORM\Column(type: 'integer', nullable: true)]
+    #[Assert\Positive(message: "L'âge doit être positif.")]
+    #[Assert\Range(min: 18, max: 120, notInRangeMessage: "L'âge doit être entre 18 et 120 ans.")]
+    private ?int $age = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $pathologies = null;
+
+    #[ORM\Column(type: 'boolean', nullable: true)]
+    private ?bool $difficulteDeglutition = false;
+
+    #[ORM\Column(length: 30, nullable: true)]
+    #[Assert\Choice(choices: ['sedentaire', 'leger', 'modere', 'actif', 'tres_actif'], message: 'Niveau d\'activité invalide.')]
+    private ?string $niveauActivite = null;
+
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $dateTraitement = null;
 
@@ -294,6 +319,33 @@ class DemandeRegime
     {
         $this->budgetMensuel = $budgetMensuel;
         return $this;
+    }
+
+    public function getPoids(): ?float { return $this->poids; }
+    public function setPoids(?float $poids): static { $this->poids = $poids; return $this; }
+
+    public function getTaille(): ?float { return $this->taille; }
+    public function setTaille(?float $taille): static { $this->taille = $taille; return $this; }
+
+    public function getAge(): ?int { return $this->age; }
+    public function setAge(?int $age): static { $this->age = $age; return $this; }
+
+    public function getPathologies(): ?string { return $this->pathologies; }
+    public function setPathologies(?string $pathologies): static { $this->pathologies = $pathologies; return $this; }
+
+    public function isDifficulteDeglutition(): ?bool { return $this->difficulteDeglutition; }
+    public function setDifficulteDeglutition(?bool $difficulteDeglutition): static { $this->difficulteDeglutition = $difficulteDeglutition; return $this; }
+
+    public function getNiveauActivite(): ?string { return $this->niveauActivite; }
+    public function setNiveauActivite(?string $niveauActivite): static { $this->niveauActivite = $niveauActivite; return $this; }
+
+    public function getImc(): ?float
+    {
+        if ($this->poids && $this->taille && $this->taille > 0) {
+            $tailleM = $this->taille / 100;
+            return round($this->poids / ($tailleM * $tailleM), 1);
+        }
+        return null;
     }
 
     public function getDateTraitement(): ?\DateTimeInterface

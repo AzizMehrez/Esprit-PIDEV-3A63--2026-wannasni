@@ -2,14 +2,29 @@
 
 {% block title %}Nouvelle Demande de Régime{% endblock %}
 
+{% block sidebar %}
+    <span class="sidebar-nav-title">Navigation Nutrition</span>
+    <nav>
+        <a href="{{ path('app_my_nutrition') }}" class="sidebar-link">
+            <i class="fas fa-utensils"></i> Tableau de bord
+        </a>
+        <a href="{{ path('app_nutrition_request') }}" class="sidebar-link active">
+            <i class="fas fa-plus"></i> Nouvelle demande
+        </a>
+        <a href="{{ path('app_nutrition_scan') }}" class="sidebar-link">
+            <i class="fas fa-barcode"></i> Scanner produit
+        </a>
+        <a href="{{ path('app_nutrition_track') }}" class="sidebar-link">
+            <i class="fas fa-camera"></i> Analyse Photo IA
+        </a>
+    </nav>
+{% endblock %}
+
 {% block body %}
 <div class="dashboard-container">
     <div class="dashboard-header">
         <h1>
-            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 0.5rem;">
-                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-            </svg>
+            <i class="fas fa-plus-circle me-2"></i>
             Nouvelle Demande de Régime
         </h1>
         <p>Remplissez ce formulaire pour créer une demande de régime personnalisé</p>
@@ -20,9 +35,7 @@
         
         <div class="form-section">
             <h3>
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 0.4rem;">
-                    <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
-                </svg>
+                <i class="fas fa-heartbeat me-2"></i>
                 Informations médicales
             </h3>
             
@@ -51,11 +64,7 @@
 
         <div class="form-section">
             <h3>
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 0.4rem;">
-                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-                    <line x1="12" y1="9" x2="12" y2="13"/>
-                    <line x1="12" y1="17" x2="12.01" y2="17"/>
-                </svg>
+                <i class="fas fa-exclamation-triangle me-2"></i>
                 Allergies & Intolérances
             </h3>
             
@@ -88,11 +97,7 @@
 
         <div class="form-section">
             <h3>
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 0.4rem;">
-                    <circle cx="12" cy="12" r="10"/>
-                    <path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/>
-                    <path d="M12 18V6"/>
-                </svg>
+                <i class="fas fa-utensils me-2"></i>
                 Habitudes alimentaires
             </h3>
             
@@ -112,10 +117,7 @@
 
         <div class="form-section">
             <h3>
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 0.4rem;">
-                    <line x1="12" y1="1" x2="12" y2="23"/>
-                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-                </svg>
+                <i class="fas fa-coins me-2"></i>
                 Budget
             </h3>
             
@@ -129,6 +131,69 @@
                     }
                 }) }}
                 <small class="form-help">Budget approximatif que vous pouvez consacrer à l\'alimentation par mois</small>
+            </div>
+        </div>
+        {# ── Section Données biométriques ── #}
+        <div class="form-section">
+            <h3>
+                <i class="fas fa-weight me-2"></i>
+                Données biométriques
+            </h3>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
+                <div class="form-group">
+                    {{ form_label(form.poids, 'Poids (kg)') }}
+                    <div style="color: #dc2626; font-size: 0.85rem; margin-bottom: 0.25rem;">{{ form_errors(form.poids) }}</div>
+                    {{ form_widget(form.poids, {
+                        'attr': {
+                            'class': 'form-input',
+                            'placeholder': 'Ex: 72',
+                            'step': '0.1',
+                            'min': '20',
+                            'max': '300'
+                        }
+                    }) }}
+                </div>
+
+                <div class="form-group">
+                    {{ form_label(form.taille, 'Taille (cm)') }}
+                    <div style="color: #dc2626; font-size: 0.85rem; margin-bottom: 0.25rem;">{{ form_errors(form.taille) }}</div>
+                    {{ form_widget(form.taille, {
+                        'attr': {
+                            'class': 'form-input',
+                            'placeholder': 'Ex: 168',
+                            'step': '0.1',
+                            'min': '50',
+                            'max': '250'
+                        }
+                    }) }}
+                </div>
+
+                <div class="form-group">
+                    {{ form_label(form.age, 'Âge') }}
+                    <div style="color: #dc2626; font-size: 0.85rem; margin-bottom: 0.25rem;">{{ form_errors(form.age) }}</div>
+                    {{ form_widget(form.age, {
+                        'attr': {
+                            'class': 'form-input',
+                            'placeholder': 'Ex: 68',
+                            'min': '18',
+                            'max': '120'
+                        }
+                    }) }}
+                </div>
+            </div>
+
+            <div id="imc-display" style="display:none; margin-bottom: 1rem; padding: 0.75rem 1rem; border-radius: 8px; font-weight: 600; text-align: center;"></div>
+
+            <div class="form-group">
+                {{ form_label(form.niveauActivite, 'Niveau d\'activité physique') }}
+                <div style="color: #dc2626; font-size: 0.85rem; margin-bottom: 0.25rem;">{{ form_errors(form.niveauActivite) }}</div>
+                {{ form_widget(form.niveauActivite, {
+                    'attr': {
+                        'class': 'form-select'
+                    }
+                }) }}
+                <small class="form-help">Votre niveau d'activité influence les besoins caloriques</small>
             </div>
         </div>
 
@@ -284,5 +349,32 @@
         }
     }
 </style>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const poidsInput = document.querySelector('[name$="[poids]"]');
+    const tailleInput = document.querySelector('[name$="[taille]"]');
+    const imcDisplay = document.getElementById('imc-display');
+    function calcIMC() {
+        const p = parseFloat(poidsInput?.value);
+        const t = parseFloat(tailleInput?.value);
+        if (p > 0 && t > 0) {
+            const tM = t / 100;
+            const imc = (p / (tM * tM)).toFixed(1);
+            let label, bg;
+            if (imc < 18.5) { label = 'Sous-poids'; bg = '#fef3c7'; }
+            else if (imc < 25) { label = 'Normal'; bg = '#d1fae5'; }
+            else if (imc < 30) { label = 'Surpoids'; bg = '#fed7aa'; }
+            else { label = 'Obésité'; bg = '#fecaca'; }
+            imcDisplay.style.display = 'block';
+            imcDisplay.style.background = bg;
+            imcDisplay.innerHTML = `<i class="fas fa-calculator"></i> IMC : <strong>${imc}</strong> — ${label}`;
+        } else {
+            imcDisplay.style.display = 'none';
+        }
+    }
+    poidsInput?.addEventListener('input', calcIMC);
+    tailleInput?.addEventListener('input', calcIMC);
+});
+</script>
 {% endblock %}
 

@@ -73,10 +73,30 @@
 </style>
 {% endblock %}
 
+{% block sidebar %}
+    <span class="sidebar-nav-title">Navigation Nutrition</span>
+    <nav>
+        <a href="{{ path('app_my_nutrition') }}" class="sidebar-link">
+            <i class="fas fa-utensils"></i> Tableau de bord
+        </a>
+        <a href="{{ path('app_nutrition_request') }}" class="sidebar-link">
+            <i class="fas fa-plus"></i> Nouvelle demande
+        </a>
+        <a href="{{ path('app_nutrition_scan') }}" class="sidebar-link active">
+            <i class="fas fa-barcode"></i> Scanner produit
+        </a>
+        <a href="{{ path('app_nutrition_track') }}" class="sidebar-link">
+            <i class="fas fa-camera"></i> Analyse Photo IA
+        </a>
+    </nav>
+{% endblock %}
+
 {% block body %}
 <div class="nutrition-container">
     <div class="nutri-header">
-        <span class="header-icon">🔍</span>
+        <div class="header-icon-fa mb-3">
+            <i class="fas fa-barcode fa-3x"></i>
+        </div>
         <h1 class="nutri-title">Scanner de Produits</h1>
         <p class="nutri-subtitle">Vérifiez la compatibilité avec votre régime prescrit</p>
     </div>
@@ -144,6 +164,12 @@
                         </div>
                     </div>
 
+                    <!-- New: Global Analysis Badges -->
+                    <div id="global-analysis-section" class="mb-5">
+                         <h5 class="fw-bold mb-3" style="color: #475569;">Compatibilité globale</h5>
+                         <div id="global-analysis-badges" class="d-flex flex-wrap gap-2"></div>
+                    </div>
+
                     <div class="row" id="nutriments-grid"></div>
 
                     <div id="allergy-section" class="mt-5" style="display: none;">
@@ -160,45 +186,90 @@
     </div>
 </div>
 
-<script src="https://unpkg.com/html5-qrcode"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    console.log("Scanner initialized");
+/**
+ * Turbo-compatible initialization.
+ * DOMContentLoaded only fires once; Turbo replaces body content on navigation.
+ * We use an IIFE that loads the CDN lib then initializes.
+ */
+(function() {
+    function loadScript(src) {
+        return new Promise(function(resolve, reject) {
+            if (typeof Html5Qrcode !== 'undefined') { resolve(); return; }
+            var s = document.createElement('script');
+            s.src = src;
+            s.onload = resolve;
+            s.onerror = reject;
+            document.head.appendChild(s);
+        });
+    }
 
-    const config = { 
-        fps: 20, 
-        qrbox: { width: 280, height: 200 },
-        formatsToSupport: [ 
-            Html5QrcodeSupportedFormats.EAN_13, 
-            Html5QrcodeSupportedFormats.EAN_8, 
-            Html5QrcodeSupportedFormats.CODE_128 
-        ]
-    };
+    function initScanPage() {
+        console.log("Scanner initialized (Turbo-compatible)");
 
-    const reader = new Html5QrcodeScanner("reader", config);
-    reader.render(decodedText => {
-        reader.clear();
-        processBarcode(decodedText);
-    });
-
+    // Manual barcode check - always works regardless of camera
     document.getElementById('btn-check-manual').addEventListener('click', () => {
         const bc = document.getElementById('manual-barcode').value.trim();
         if (bc) processBarcode(bc);
     });
 
+    // Allow Enter key to trigger manual barcode check
+    document.getElementById('manual-barcode').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            const bc = e.target.value.trim();
+            if (bc) processBarcode(bc);
+        }
+    });
+
+    // File upload barcode scanning
     const fileInput = document.getElementById('barcode-file');
     document.getElementById('btn-upload-image').addEventListener('click', () => fileInput.click());
     fileInput.addEventListener('change', e => {
         if (e.target.files.length === 0) return;
         document.getElementById('loading').style.display = 'block';
-        const html5QrCode = new Html5Qrcode("reader");
-        html5QrCode.scanFile(e.target.files[0], true)
-            .then(processBarcode)
-            .catch(err => {
-                document.getElementById('loading').style.display = 'none';
-                displayError("Code-barres illisible sur cette photo.");
-            });
+        try {
+            const html5QrCode = new Html5Qrcode("reader");
+            html5QrCode.scanFile(e.target.files[0], true)
+                .then(processBarcode)
+                .catch(err => {
+                    document.getElementById('loading').style.display = 'none';
+                    displayError("Code-barres illisible sur cette photo.");
+                });
+        } catch (err) {
+            document.getElementById('loading').style.display = 'none';
+            displayError("Erreur lors de la lecture du fichier.");
+        }
     });
+
+    // Camera scanner initialization with error handling
+    try {
+        if (typeof Html5QrcodeScanner !== 'undefined') {
+            const config = { 
+                fps: 10, 
+                qrbox: { width: 280, height: 200 },
+                formatsToSupport: [ 
+                    Html5QrcodeSupportedFormats.EAN_13, 
+                    Html5QrcodeSupportedFormats.EAN_8, 
+                    Html5QrcodeSupportedFormats.CODE_128,
+                    Html5QrcodeSupportedFormats.UPC_A,
+                    Html5QrcodeSupportedFormats.UPC_E
+                ]
+            };
+
+            const reader = new Html5QrcodeScanner("reader", config);
+            reader.render(decodedText => {
+                reader.clear();
+                processBarcode(decodedText);
+            });
+        } else {
+            console.warn("Html5QrcodeScanner library not loaded");
+            document.getElementById('reader').innerHTML = '<div class="alert alert-warning text-center p-4"><i class="fas fa-exclamation-triangle me-2"></i> Scanner caméra indisponible. Utilisez la saisie manuelle ou le chargement de photo.</div>';
+        }
+    } catch (err) {
+        console.error("Camera scanner init error:", err);
+        document.getElementById('reader').innerHTML = '<div class="alert alert-warning text-center p-4"><i class="fas fa-exclamation-triangle me-2"></i> Scanner caméra indisponible. Utilisez la saisie manuelle ou le chargement de photo.</div>';
+    }
 
     function processBarcode(barcode) {
         if (!barcode || barcode.trim() === '') {
@@ -211,49 +282,55 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('error-msg').style.display = 'none';
         document.getElementById('loading').style.display = 'block';
         
-        // Use OpenFoodFacts API directly
-        const apiUrl = `https://world.openfoodfacts.org/api/v0/product/${barcode}.json`;
+        // Use our Backend API for analysis and storage
+        const apiUrl = "{{ path('app_nutrition_scan_analyze') }}";
         
-        fetch(apiUrl)
+        fetch(apiUrl, {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({ barcode: barcode })
+        })
             .then(response => {
-                if (response.status === 404) {
-                    throw new Error("Produit introuvable sur OpenFoodFacts (404)");
+                const contentType = response.headers.get('content-type') || '';
+                
+                // Session expired - redirect to login
+                if (response.status === 401) {
+                    if (contentType.includes('application/json')) {
+                        return response.json().then(data => {
+                            window.location.href = data.login_url || '/fr/login';
+                            throw new Error("stop");
+                        });
+                    }
+                    window.location.href = '/fr/login';
+                    throw new Error("stop");
                 }
-                if (!response.ok) {
-                    throw new Error("Erreur HTTP " + response.status);
+
+                // Non-JSON response = server error or unexpected redirect
+                if (!contentType.includes('application/json')) {
+                    throw new Error("Erreur serveur inattendue. Rechargez la page et réessayez.");
                 }
-                return response.json();
+
+                return response.json().then(data => {
+                    if (!response.ok) {
+                        throw new Error(data.error || "Erreur serveur");
+                    }
+                    return data;
+                });
             })
             .then(data => {
                 document.getElementById('loading').style.display = 'none';
-                if (data.status === 1 && data.product) {
-                    // Transform OpenFoodFacts data to our format
-                    const transformedData = {
-                        success: true,
-                        produit: {
-                            nom: data.product.product_name || 'Produit inconnu',
-                            marque: data.product.brands || 'Marque inconnue',
-                            image: data.product.image_url || '',
-                            nutriscore: data.product.nutriscore_grade || 'unknown',
-                            nutriments: {
-                                calories: data.product.nutriments?.['energy-kcal_100g'] || null,
-                                sucres: data.product.nutriments?.sugars_100g || null,
-                                sel: data.product.nutriments?.salt_100g || null,
-                                proteines: data.product.nutriments?.proteins_100g || null
-                            }
-                        },
-                        regime: {
-                            compatible: true,
-                            raison: 'Analyse automatique basée sur les données nutritionnelles'
-                        },
-                        analyse_complete: []
-                    };
-                    displayResult(transformedData);
+                if (data.success) {
+                    displayResult(data);
                 } else {
-                    displayError("Produit non trouvé dans la base de données (Status: " + data.status_verbose + ")");
+                    displayError(data.error || "Produit non trouvé");
                 }
             })
             .catch(err => {
+                if (err.message === 'stop') return; // Redirect in progress
                 document.getElementById('loading').style.display = 'none';
                 console.error("Erreur API:", err);
                 displayError("Erreur : " + err.message);
@@ -267,11 +344,11 @@ document.addEventListener('DOMContentLoaded', function() {
         const r = data.regime;
         const complete = data.analyse_complete || [];
         
-        document.getElementById('product-image').src = p.image || '';
-        document.getElementById('product-name').textContent = p.nom;
-        document.getElementById('product-brand').textContent = p.marque;
+        document.getElementById('product-image').src = p.image_url || '';
+        document.getElementById('product-name').textContent = p.product_name || 'Nom inconnu';
+        document.getElementById('product-brand').textContent = p.brands || 'Marque inconnue';
         
-        const score = (p.nutriscore || 'default').toLowerCase();
+        const score = (p.nutriscore_grade || 'default').toLowerCase();
         const badge = document.getElementById('nutriscore-badge');
         badge.textContent = "Nutri-Score " + score.toUpperCase();
         badge.className = "badge rounded-pill px-4 py-2 fs-5 mt-2 badge-nutri-" + score;
@@ -301,20 +378,36 @@ document.addEventListener('DOMContentLoaded', function() {
             analysisGrid.innerHTML += cardHtml;
         });
 
+        // Inject Global Analysis Badges
+        const globalBadges = document.getElementById('global-analysis-badges');
+        globalBadges.innerHTML = '';
+        const globalData = data.analyse_globale || {};
+        
+        Object.values(globalData).forEach(d => {
+            // Skip redundant display if it's the main diet, or display all? Let's display all for clarity.
+            const badge = `
+                <span class="badge ${d.compatible ? 'bg-success' : 'bg-danger'}" 
+                      style="padding: 0.6rem 1rem; border-radius: 8px; font-weight: 600; font-size: 0.9rem;">
+                    ${d.compatible ? '✓' : '✕'} ${d.nom}
+                </span>
+            `;
+            globalBadges.innerHTML += badge;
+        });
+
         const grid = document.getElementById('nutriments-grid');
         grid.innerHTML = '';
         const nuts = [
-            { id: 'calories', label: 'Calories', unit: 'kcal' },
-            { id: 'sucres', label: 'Sucres', unit: 'g' },
-            { id: 'sel', label: 'Sel', unit: 'g' },
-            { id: 'proteines', label: 'Proteines', unit: 'g' }
+            { id: 'energy_kcal_100g', label: 'Calories', unit: 'kcal' },
+            { id: 'sugars_100g', label: 'Sucres', unit: 'g' },
+            { id: 'salt_100g', label: 'Sel', unit: 'g' },
+            { id: 'proteins_100g', label: 'Proteines', unit: 'g' }
         ];
         nuts.forEach(n => {
-            const val = p.nutriments[n.id];
+            const val = (p.nutriments && p.nutriments[n.id] !== null) ? p.nutriments[n.id] : '?';
             grid.innerHTML += `
                 <div class="col-6 col-md-3">
                     <div class="nutriment-pill mb-3">
-                        <span class="value">${val !== null ? val + n.unit : '-'}</span>
+                        <span class="value">${val !== '?' ? val + n.unit : '-'}</span>
                         <span class="label">${n.label}</span>
                     </div>
                 </div>
@@ -326,7 +419,28 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('error-msg').style.display = 'block';
         document.getElementById('error-text').textContent = msg;
     }
-});
+    } // end initScanPage
+
+    // Load CDN library then initialize
+    var cdnPrimary = 'https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js';
+    var cdnFallback = 'https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js';
+
+    loadScript(cdnPrimary)
+        .then(initScanPage)
+        .catch(function() {
+            console.warn("Primary CDN failed, trying fallback...");
+            return loadScript(cdnFallback).then(initScanPage);
+        })
+        .catch(function(err) {
+            console.error("All CDN sources failed:", err);
+            var reader = document.getElementById('reader');
+            if (reader) {
+                reader.innerHTML = '<div class="alert alert-warning text-center p-4"><i class="fas fa-exclamation-triangle me-2"></i> Impossible de charger le scanner. Utilisez la saisie manuelle.</div>';
+            }
+            // Still init manual features even without scanner lib
+            initScanPage();
+        });
+})();
 </script>
 {% endblock %}
 

@@ -289,6 +289,58 @@
                 {% endif %}
             </div>
             {% endif %}
+
+            {# Analyse de Compatibilité #}
+            {% if demande.produitAnalyse.analysis is defined %}
+                {% set analysis = demande.produitAnalyse.analysis %}
+                {% if analysis.compatible %}
+                <div style="background: #ecfdf5; border: 1px solid #10b981; color: #064e3b; padding: 0.75rem; border-radius: 8px; margin-bottom: 0.75rem; display: flex; align-items: start; gap: 0.5rem;">
+                    <span style="font-size: 1.2rem;">✅</span>
+                    <div>
+                        <div style="font-weight: 700; font-size: 0.95rem;">Compatible avec le régime {{ demande.typeRegimeSouhaite|capitalize }}</div>
+                        <div style="font-size: 0.85rem; margin-top: 0.2rem;">{{ analysis.raison }}</div>
+                    </div>
+                </div>
+                {% else %}
+                <div style="background: #fef2f2; border: 1px solid #ef4444; color: #991b1b; padding: 0.75rem; border-radius: 8px; margin-bottom: 0.75rem; display: flex; align-items: start; gap: 0.5rem;">
+                    <span style="font-size: 1.2rem;">⚠️</span>
+                    <div>
+                        <div style="font-weight: 700; font-size: 0.95rem;">Incompatible avec le régime {{ demande.typeRegimeSouhaite|capitalize }}</div>
+                        <div style="font-size: 0.85rem; margin-top: 0.2rem;">{{ analysis.raison }}</div>
+                    </div>
+                </div>
+                {% endif %}
+            {% endif %}
+
+            {# Détails de l'analyse #}
+            {% if demande.produitAnalyse.analysis.details is defined %}
+                <div style="margin-bottom: 1rem;">
+                    {% for detail in demande.produitAnalyse.analysis.details %}
+                        <div style="background: {{ detail.compatible ? '#f0fdf4' : '#fef2f2' }}; border-left: 3px solid {{ detail.compatible ? '#16a34a' : '#dc2626' }}; padding: 0.5rem 0.75rem; margin-bottom: 0.5rem; border-radius: 4px; font-size: 0.85rem;">
+                            <div style="font-weight: 700; color: {{ detail.compatible ? '#166534' : '#991b1b' }};">
+                                {{ detail.compatible ? '✅' : '❌' }} {{ detail.nom }}
+                            </div>
+                            <div style="color: {{ detail.compatible ? '#14532d' : '#7f1d1d' }}; margin-top: 0.1rem;">
+                                {{ detail.raison }}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            {# Analyse Globale #}
+            {% if demande.produitAnalyse.analysis.all_diets is defined %}
+                <div style="margin-bottom: 1rem; border-top: 1px solid #f1f5f9; padding-top: 1rem;">
+                    <div style="font-size: 0.8rem; color: #64748b; font-weight: 600; margin-bottom: 0.5rem; text-transform: uppercase;">Compatibilité Globale</div>
+                    <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                        {% for diet in demande.produitAnalyse.analysis.all_diets %}
+                            <span style="background: {{ diet.compatible ? '#ecfdf5' : '#fef2f2' }}; color: {{ diet.compatible ? '#065f46' : '#991b1b' }}; padding: 0.3rem 0.6rem; border-radius: 6px; font-size: 0.75rem; font-weight: 600; border: 1px solid {{ diet.compatible ? '#a7f3d0' : '#fca5a5' }};">
+                                {{ diet.compatible ? '✅' : '❌' }} {{ diet.nom }}
+                            </span>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
             
             {# Informations nutritionnelles #}
             {% if demande.produitAnalyse.nutriments %}
@@ -467,6 +519,33 @@
                 </label>
                 <div style="color: #dc2626; font-size: 0.85rem; margin-bottom: 0.25rem;">{{ form_errors(form.recommandationsSpeciales) }}</div>
                 {{ form_widget(form.recommandationsSpeciales, {'attr': {'class': 'form-control', 'style': 'border-left: 4px solid #3b82f6;'}}) }}
+            </div>
+        </div>
+
+        {# ── Section Biométrique & Médical ── #}
+        <div class="form-section" style="--section-color: #6366f1;">
+            <h3 class="section-title" style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1.5rem; font-size: 1.1rem; font-weight: 700; color: #6366f1;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                Données biométriques & Conditions médicales
+            </h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                <div>
+                    <label style="font-weight: 600; font-size: 0.9rem; margin-bottom: 0.3rem; display: block;">Poids actuel (kg)</label>
+                    <div style="color: #dc2626; font-size: 0.85rem; margin-bottom: 0.25rem;">{{ form_errors(form.poidsActuel) }}</div>
+                    {{ form_widget(form.poidsActuel, {'attr': {'class': 'form-control', 'placeholder': 'Ex: 72', 'step': '0.1'}}) }}
+                </div>
+                <div>
+                    <label style="font-weight: 600; font-size: 0.9rem; margin-bottom: 0.3rem; display: block;">Taille (cm)</label>
+                    <div style="color: #dc2626; font-size: 0.85rem; margin-bottom: 0.25rem;">{{ form_errors(form.taille) }}</div>
+                    {{ form_widget(form.taille, {'attr': {'class': 'form-control', 'placeholder': 'Ex: 168', 'step': '0.1'}}) }}
+                </div>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                <div>
+                    <label style="font-weight: 600; font-size: 0.9rem; margin-bottom: 0.3rem; display: block;">Niveau d'activité</label>
+                    <div style="color: #dc2626; font-size: 0.85rem; margin-bottom: 0.25rem;">{{ form_errors(form.niveauActivite) }}</div>
+                    {{ form_widget(form.niveauActivite, {'attr': {'class': 'form-control'}}) }}
+                </div>
             </div>
         </div>
 

@@ -357,6 +357,35 @@
             </div>
         </div>
 
+        {# ── Données biométriques & médicales ── #}
+        <div style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border-radius: 16px; padding: 1.5rem; margin-top: 2rem; border: 1px solid #bbf7d0;">
+            <h4 style="margin: 0 0 1.25rem 0; color: #166534; font-size: 1.1rem; display: flex; align-items: center; gap: 0.5rem;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                Données biométriques & médicales
+            </h4>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                <div>
+                    <label style="font-size: 0.85rem; font-weight: 600; color: #475569; margin-bottom: 0.3rem; display: block;">Poids actuel (kg)</label>
+                    <div style="color: #dc2626; font-size: 0.85rem;">{{ form_errors(form.poidsActuel) }}</div>
+                    {{ form_widget(form.poidsActuel, {'attr': {'class': 'form-control', 'style': 'border-left: 4px solid #16a34a;', 'placeholder': 'Ex: 72.5', 'step': '0.1'}}) }}
+                </div>
+                <div>
+                    <label style="font-size: 0.85rem; font-weight: 600; color: #475569; margin-bottom: 0.3rem; display: block;">Taille (cm)</label>
+                    <div style="color: #dc2626; font-size: 0.85rem;">{{ form_errors(form.taille) }}</div>
+                    {{ form_widget(form.taille, {'attr': {'class': 'form-control', 'style': 'border-left: 4px solid #16a34a;', 'placeholder': 'Ex: 165', 'step': '0.1'}}) }}
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                <div>
+                    <label style="font-size: 0.85rem; font-weight: 600; color: #475569; margin-bottom: 0.3rem; display: block;">Niveau d'activité</label>
+                    <div style="color: #dc2626; font-size: 0.85rem;">{{ form_errors(form.niveauActivite) }}</div>
+                    {{ form_widget(form.niveauActivite, {'attr': {'class': 'form-control', 'style': 'border-left: 4px solid #16a34a;'}}) }}
+                </div>
+            </div>
+        </div>
+
         <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 2rem;">
             <a href="{{ path('admin_nutrition') }}" class="btn btn-outline" style="padding: 1rem 2rem; border-radius: 12px; font-weight: 600;">
                 Annuler

@@ -11,6 +11,38 @@
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600&display=swap');
 
 /* --------------------------------------------------------------------------
+   Text-to-Speech (TTS) Buttons
+   -------------------------------------------------------------------------- */
+.tts-btn {
+    transition: all 0.3s ease;
+    border-color: var(--color-primary) !important;
+    color: var(--color-primary) !important;
+}
+.tts-btn:hover {
+    background-color: var(--color-primary) !important;
+    color: white !important;
+    transform: scale(1.1);
+}
+.tts-btn.tts-speaking {
+    background-color: #dc3545 !important;
+    border-color: #dc3545 !important;
+    color: white !important;
+    animation: tts-pulse 1.2s ease-in-out infinite;
+}
+.tts-listen-all.tts-speaking {
+    background-color: #dc3545 !important;
+    border-color: #dc3545 !important;
+    animation: tts-pulse 1.2s ease-in-out infinite;
+}
+@keyframes tts-pulse {
+    0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.4); }
+    50% { transform: scale(1.05); box-shadow: 0 0 0 8px rgba(220, 53, 69, 0); }
+}
+.tts-stop-btn {
+    transition: all 0.2s ease;
+}
+
+/* --------------------------------------------------------------------------
    CSS Custom Properties (Design Tokens)
    -------------------------------------------------------------------------- */
 :root {

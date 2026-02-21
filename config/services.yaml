@@ -6,6 +6,7 @@
 parameters:
     python_path: '%env(default:python_default:PYTHON_PATH)%'
     python_default: 'python'
+    meal_photos_directory: '%kernel.project_dir%/public/uploads/meals'
 
 services:
     # default configuration for services in *this* file
@@ -28,5 +29,6 @@ services:
             $projectDir: '%kernel.project_dir%'
             $pythonPath: '%python_path%'
 
-    # add more service definitions when explicit configuration is needed
-    # please note that last definitions always *replace* previous ones
+    App\Service\PhotoUploadService:
+        arguments:
+            $targetDirectory: '%meal_photos_directory%'

@@ -8,6 +8,7 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
+use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -125,6 +126,31 @@ class RegimePrescritType extends AbstractType
                     'Suivi hebdomadaire' => RegimePrescrit::SUIVI_HEBDOMADAIRE,
                 ],
                 'attr' => ['class' => 'form-select']
+            ])
+            ->add('poidsActuel', NumberType::class, [
+                'label' => 'Poids actuel du patient (kg)',
+                'required' => false,
+                'scale' => 1,
+                'attr' => ['class' => 'form-control', 'placeholder' => 'Ex: 72.5', 'step' => '0.1']
+            ])
+            ->add('taille', NumberType::class, [
+                'label' => 'Taille (cm)',
+                'required' => false,
+                'scale' => 1,
+                'attr' => ['class' => 'form-control', 'placeholder' => 'Ex: 170']
+            ])
+            ->add('niveauActivite', ChoiceType::class, [
+                'label' => 'Niveau d\'activité physique',
+                'required' => false,
+                'choices' => [
+                    'Sédentaire' => 'sedentaire',
+                    'Légèrement actif' => 'leger',
+                    'Modérément actif' => 'modere',
+                    'Actif' => 'actif',
+                    'Très actif' => 'tres_actif',
+                ],
+                'attr' => ['class' => 'form-select'],
+                'placeholder' => 'Sélectionnez...'
             ]);
             
             // NOTE: Les champs suivants sont gérés automatiquement par Symfony
