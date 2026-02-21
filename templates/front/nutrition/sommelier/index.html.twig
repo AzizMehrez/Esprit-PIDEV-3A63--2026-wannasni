@@ -1,0 +1,2678 @@
+{% extends 'base_dashboard.html.twig' %}
+
+{% block title %}Sommelier & Expert Boissons - WANNASNI{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    :root {
+        --som-primary: #6366f1;
+        --som-primary-dark: #4f46e5;
+        --som-secondary: #0ea5e9;
+        --som-accent: #f59e0b;
+        --som-bg: #f8fafc;
+        --som-card: #ffffff;
+        --som-text: #1f2937;
+        --som-border: #e2e8f0;
+        --som-water: #3b82f6;
+    }
+
+    .sommelier-container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 2rem 1rem 4rem;
+    }
+
+    /* ── Hero Header ── */
+    .som-header {
+        background: linear-gradient(135deg, #4f46e5, #7c3aed, #a855f7);
+        border-radius: 24px;
+        padding: 3rem 2rem;
+        margin-bottom: 2.5rem;
+        color: white;
+        text-align: center;
+        box-shadow: 0 10px 40px rgba(99, 102, 241, 0.25);
+        position: relative;
+        overflow: hidden;
+    }
+    .som-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -20%;
+        width: 300px;
+        height: 300px;
+        background: rgba(255,255,255,0.05);
+        border-radius: 50%;
+    }
+    .som-header-emoji { font-size: 4rem; margin-bottom: 1rem; display: block; }
+    .som-title { font-size: 2.5rem; font-weight: 800; margin-bottom: 0.5rem; }
+    .som-subtitle { font-size: 1.1rem; opacity: 0.9; max-width: 600px; margin: 0 auto; }
+
+    /* ── Section Cards ── */
+    .som-section {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        border: 2px solid var(--som-border);
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.04);
+    }
+    .som-section h2 {
+        font-size: 1.4rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--som-text);
+    }
+    .som-section-subtitle {
+        font-size: 0.9rem;
+        color: #94a3b8;
+        margin-bottom: 1.5rem;
+        margin-top: -1rem;
+    }
+
+    /* ── Hydration Dashboard ── */
+    .hydration-dashboard {
+        display: grid;
+        grid-template-columns: 200px 1fr;
+        gap: 2rem;
+        align-items: center;
+    }
+    .hydration-circle {
+        position: relative;
+        width: 180px;
+        height: 180px;
+        margin: 0 auto;
+    }
+    .hydration-circle svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+    .hydration-circle .bg { fill: none; stroke: #e5e7eb; stroke-width: 10; }
+    .hydration-circle .progress { fill: none; stroke: var(--som-water); stroke-width: 10; stroke-linecap: round; transition: stroke-dashoffset 1s ease; }
+    .hydration-center {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+    }
+    .hydration-percent { font-size: 2.5rem; font-weight: 800; color: var(--som-water); line-height: 1; }
+    .hydration-label { font-size: 0.8rem; color: #94a3b8; font-weight: 600; }
+
+    .hydration-details { display: flex; flex-direction: column; gap: 1rem; }
+    .hydration-stat {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.75rem 1rem;
+        background: #f0f9ff;
+        border-radius: 12px;
+        border: 1px solid #bae6fd;
+    }
+    .hydration-stat-icon { font-size: 1.5rem; }
+    .hydration-stat-info { flex: 1; }
+    .hydration-stat-value { font-size: 1.2rem; font-weight: 800; color: var(--som-text); }
+    .hydration-stat-label { font-size: 0.75rem; color: #94a3b8; font-weight: 600; }
+
+    /* ── Hydration Schedule ── */
+    .hydration-schedule { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 1.5rem; }
+    .schedule-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.75rem 1rem;
+        border-radius: 12px;
+        border: 1px solid var(--som-border);
+        transition: all 0.2s;
+    }
+    .schedule-item:hover { background: #f8fafc; }
+    .schedule-item.past { opacity: 0.5; }
+    .schedule-item.now { background: #eff6ff; border-color: var(--som-water); }
+    .schedule-item.upcoming { background: white; }
+    .schedule-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+    .schedule-dot.past { background: #94a3b8; }
+    .schedule-dot.now { background: var(--som-water); animation: pulse-blue 1.5s infinite; }
+    .schedule-dot.upcoming { background: #e2e8f0; }
+    @keyframes pulse-blue { 0%,100% { box-shadow: 0 0 0 0 rgba(59,130,246,0.4); } 50% { box-shadow: 0 0 0 8px rgba(59,130,246,0); } }
+    .schedule-info { flex: 1; }
+    .schedule-time { font-weight: 700; font-size: 0.9rem; color: var(--som-text); }
+    .schedule-drink { font-size: 0.8rem; color: #64748b; }
+    .schedule-ml { font-weight: 700; color: var(--som-water); font-size: 0.85rem; }
+
+    /* ── Quick Log Buttons ── */
+    .quick-log-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    .quick-log-btn {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 1.25rem 1rem;
+        border: 2px solid var(--som-border);
+        border-radius: 16px;
+        cursor: pointer;
+        transition: all 0.3s;
+        background: white;
+        text-align: center;
+    }
+    .quick-log-btn:hover {
+        border-color: var(--som-primary);
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(99,102,241,0.15);
+    }
+    .quick-log-btn.active {
+        border-color: var(--som-primary);
+        background: #eef2ff;
+        box-shadow: 0 4px 15px rgba(99,102,241,0.2);
+    }
+    .quick-log-emoji { font-size: 2rem; margin-bottom: 0.5rem; }
+    .quick-log-name { font-weight: 700; font-size: 0.85rem; color: var(--som-text); }
+    .quick-log-ml { font-size: 0.75rem; color: #94a3b8; margin-top: 0.25rem; }
+
+    /* ── Meal Pairing Selector ── */
+    .meal-tabs {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 1.5rem;
+        flex-wrap: wrap;
+    }
+    .meal-tab {
+        padding: 0.6rem 1.25rem;
+        border-radius: 50px;
+        border: 2px solid var(--som-border);
+        font-weight: 700;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        background: white;
+        color: #64748b;
+    }
+    .meal-tab:hover { border-color: var(--som-primary); color: var(--som-primary); }
+    .meal-tab.active { background: var(--som-primary); color: white; border-color: var(--som-primary); }
+
+    /* ── Suggestion Cards ── */
+    .suggestions-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1.25rem;
+    }
+    .suggestion-card {
+        border-radius: 16px;
+        overflow: hidden;
+        border: 2px solid var(--som-border);
+        transition: all 0.3s;
+        background: white;
+    }
+    .suggestion-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+        border-color: var(--som-primary);
+    }
+    .suggestion-card-top {
+        padding: 1.5rem;
+        text-align: center;
+        background: linear-gradient(135deg, #eef2ff, #faf5ff);
+    }
+    .suggestion-card-emoji { font-size: 3rem; display: block; margin-bottom: 0.5rem; }
+    .suggestion-card-name { font-size: 1.1rem; font-weight: 800; color: var(--som-text); }
+    .suggestion-card-origin { font-size: 0.8rem; color: #94a3b8; }
+    .suggestion-card-body { padding: 1.25rem; }
+    .suggestion-card-body p { font-size: 0.85rem; color: #64748b; line-height: 1.5; margin-bottom: 0.75rem; }
+    .suggestion-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.75rem; }
+    .suggestion-tag {
+        padding: 0.2rem 0.6rem;
+        border-radius: 8px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .tag-hydration { background: #eff6ff; color: #2563eb; }
+    .tag-benefit { background: #f0fdf4; color: #059669; }
+    .tag-sugar-free { background: #fef3c7; color: #d97706; }
+    .tag-caffeine-free { background: #faf5ff; color: #7c3aed; }
+    .suggestion-card-actions {
+        display: flex;
+        gap: 0.5rem;
+        padding-top: 0.75rem;
+        border-top: 1px dashed var(--som-border);
+    }
+    .btn-log-drink {
+        flex: 1;
+        padding: 0.6rem;
+        background: var(--som-primary);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-weight: 700;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .btn-log-drink:hover { background: var(--som-primary-dark); }
+    .btn-detail-drink {
+        padding: 0.6rem 1rem;
+        background: #f1f5f9;
+        color: #64748b;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-weight: 600;
+    }
+    .btn-detail-drink:hover { background: #e2e8f0; }
+
+    /* ── Tasting Section ── */
+    .tasting-types {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+        flex-wrap: wrap;
+    }
+    .tasting-type-btn {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 1.25rem 1.5rem;
+        border: 2px solid var(--som-border);
+        border-radius: 16px;
+        cursor: pointer;
+        transition: all 0.3s;
+        background: white;
+        min-width: 120px;
+    }
+    .tasting-type-btn:hover { border-color: var(--som-accent); transform: translateY(-3px); }
+    .tasting-type-btn.active { border-color: var(--som-accent); background: #fffbeb; }
+    .tasting-type-emoji { font-size: 2.5rem; margin-bottom: 0.5rem; }
+    .tasting-type-name { font-weight: 700; font-size: 0.9rem; }
+
+    .tasting-content { min-height: 200px; }
+    .tasting-step {
+        display: flex;
+        gap: 1.5rem;
+        padding: 1.25rem;
+        border-radius: 14px;
+        background: #fafafa;
+        margin-bottom: 0.75rem;
+        border: 1px solid var(--som-border);
+    }
+    .tasting-step-num {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: var(--som-accent);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        flex-shrink: 0;
+    }
+    .tasting-step-content { flex: 1; }
+    .tasting-step-title { font-weight: 700; font-size: 1rem; margin-bottom: 0.25rem; }
+    .tasting-step-desc { font-size: 0.85rem; color: #64748b; margin-bottom: 0.25rem; }
+    .tasting-step-tip { font-size: 0.8rem; color: var(--som-accent); font-weight: 600; font-style: italic; }
+    .tasting-step-duration { font-size: 0.75rem; color: #94a3b8; margin-top: 0.25rem; }
+
+    .tasting-recs {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 1rem;
+        margin-top: 1.5rem;
+    }
+    .tasting-rec-card {
+        padding: 1.25rem;
+        border-radius: 14px;
+        border: 2px solid var(--som-border);
+        background: white;
+        transition: all 0.2s;
+    }
+    .tasting-rec-card:hover { border-color: var(--som-accent); transform: translateY(-2px); }
+    .tasting-rec-name { font-weight: 700; font-size: 1rem; margin-bottom: 0.25rem; }
+    .tasting-rec-origin { font-size: 0.8rem; color: #94a3b8; margin-bottom: 0.5rem; }
+    .tasting-rec-notes { font-size: 0.85rem; color: #64748b; font-style: italic; margin-bottom: 0.5rem; }
+    .tasting-rec-temp { font-size: 0.75rem; color: var(--som-water); font-weight: 600; }
+
+    /* ── Box Subscription ── */
+    .box-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1.25rem;
+    }
+    .box-card {
+        border-radius: 16px;
+        border: 2px solid var(--som-border);
+        overflow: hidden;
+        transition: all 0.3s;
+        background: white;
+    }
+    .box-card:hover { transform: translateY(-5px); box-shadow: 0 12px 30px rgba(0,0,0,0.08); border-color: var(--som-primary); }
+    .box-card-header {
+        padding: 1.5rem;
+        text-align: center;
+        background: linear-gradient(135deg, #eef2ff, #f5f3ff);
+    }
+    .box-card-emoji { font-size: 3rem; display: block; margin-bottom: 0.5rem; }
+    .box-card-name { font-size: 1rem; font-weight: 800; color: var(--som-text); }
+    .box-card-price { font-size: 1.4rem; font-weight: 800; color: var(--som-primary); margin-top: 0.5rem; }
+    .box-card-body { padding: 1.25rem; }
+    .box-card-body p { font-size: 0.85rem; color: #64748b; margin-bottom: 0.75rem; }
+    .box-includes { list-style: none; padding: 0; margin: 0; }
+    .box-includes li {
+        padding: 0.4rem 0;
+        font-size: 0.85rem;
+        color: #334155;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .box-includes li::before { content: '✅'; font-size: 0.8rem; }
+    .box-subscribe-btn {
+        display: block;
+        width: 100%;
+        padding: 0.85rem;
+        background: var(--som-primary);
+        color: white;
+        border: none;
+        text-align: center;
+        font-weight: 700;
+        cursor: pointer;
+        transition: background 0.2s;
+        text-decoration: none;
+        font-size: 0.9rem;
+    }
+    .box-subscribe-btn:hover { background: var(--som-primary-dark); color: white; }
+
+    /* ── Partners ── */
+    .partners-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1rem;
+    }
+    .partner-card {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1.25rem;
+        border-radius: 14px;
+        border: 2px solid var(--som-border);
+        transition: all 0.3s;
+        background: white;
+    }
+    .partner-card:hover { border-color: var(--som-primary); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
+    .partner-emoji { font-size: 2.5rem; flex-shrink: 0; }
+    .partner-info { flex: 1; }
+    .partner-name { font-weight: 700; font-size: 1rem; color: var(--som-text); }
+    .partner-type { font-size: 0.8rem; color: #94a3b8; }
+    .partner-specialty { font-size: 0.85rem; color: #64748b; margin-top: 0.25rem; }
+    .partner-offer { display: inline-block; padding: 0.2rem 0.6rem; background: #f0fdf4; color: #059669; border-radius: 8px; font-size: 0.75rem; font-weight: 700; margin-top: 0.5rem; }
+
+    /* ── Today Logs ── */
+    .today-logs { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 1rem; }
+    .today-log-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.75rem 1rem;
+        background: #f8fafc;
+        border-radius: 12px;
+        border: 1px solid var(--som-border);
+    }
+    .today-log-emoji { font-size: 1.5rem; }
+    .today-log-info { flex: 1; }
+    .today-log-name { font-weight: 700; font-size: 0.9rem; }
+    .today-log-time { font-size: 0.75rem; color: #94a3b8; }
+    .today-log-ml { font-weight: 700; color: var(--som-water); }
+
+    /* ── Catalog Tabs ── */
+    .catalog-tabs {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 1.5rem;
+        flex-wrap: wrap;
+    }
+    .catalog-tab {
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        border: 2px solid var(--som-border);
+        font-weight: 600;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        background: white;
+    }
+    .catalog-tab:hover, .catalog-tab.active {
+        border-color: var(--som-primary);
+        background: #eef2ff;
+        color: var(--som-primary-dark);
+    }
+    .catalog-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 1rem;
+    }
+    .catalog-item {
+        padding: 1.25rem;
+        border-radius: 14px;
+        border: 2px solid var(--som-border);
+        transition: all 0.3s;
+        background: white;
+    }
+    .catalog-item:hover { border-color: var(--som-primary); transform: translateY(-2px); }
+    .catalog-item-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem; }
+    .catalog-item-emoji { font-size: 2rem; }
+    .catalog-item-name { font-weight: 700; font-size: 1rem; }
+    .catalog-item-desc { font-size: 0.85rem; color: #64748b; line-height: 1.4; margin-bottom: 0.75rem; }
+    .catalog-item-meta { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .catalog-item-tag { padding: 0.15rem 0.5rem; border-radius: 6px; font-size: 0.7rem; font-weight: 600; }
+
+    .catalog-add-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.45rem 0.9rem;
+        background: linear-gradient(135deg, #6366f1, #7c3aed);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.2s;
+        white-space: nowrap;
+    }
+    .catalog-add-btn:hover { transform: scale(1.05); box-shadow: 0 4px 12px rgba(99,102,241,0.35); }
+    .catalog-add-btn:active { transform: scale(0.97); }
+    .catalog-add-btn.added { background: linear-gradient(135deg, #10b981, #059669); }
+
+    /* ── Reminders ── */
+    .reminder-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+        padding: 1rem 1.25rem;
+        border-radius: 14px;
+        margin-bottom: 0.75rem;
+    }
+    .reminder-item.type-warning { background: #fffbeb; border-left: 4px solid #f59e0b; }
+    .reminder-item.type-success { background: #f0fdf4; border-left: 4px solid #10b981; }
+    .reminder-item.type-danger { background: #fef2f2; border-left: 4px solid #ef4444; }
+    .reminder-item.type-info { background: #eff6ff; border-left: 4px solid #3b82f6; }
+    .reminder-icon { font-size: 1.5rem; flex-shrink: 0; }
+    .reminder-message { font-size: 0.9rem; color: #334155; }
+
+    /* ── Custom Drink Form ── */
+    .custom-drink-form {
+        display: none;
+        padding: 1.25rem;
+        border-radius: 14px;
+        border: 2px solid var(--som-border);
+        background: #fafafa;
+        margin-top: 1rem;
+    }
+    .custom-drink-form.open { display: block; }
+    .form-row { display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap; }
+    .form-group { flex: 1; min-width: 150px; }
+    .form-group label { display: block; font-size: 0.8rem; font-weight: 700; color: #64748b; margin-bottom: 0.3rem; }
+    .form-group input, .form-group select {
+        width: 100%;
+        padding: 0.6rem 0.85rem;
+        border: 2px solid var(--som-border);
+        border-radius: 10px;
+        font-size: 0.9rem;
+        transition: border-color 0.2s;
+    }
+    .form-group input:focus, .form-group select:focus { border-color: var(--som-primary); outline: none; }
+    .btn-submit-drink {
+        padding: 0.75rem 2rem;
+        background: var(--som-primary);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .btn-submit-drink:hover { background: var(--som-primary-dark); }
+
+    /* ── Loading ── */
+    .loading-spinner-sm { display: inline-block; width: 20px; height: 20px; border: 3px solid #e2e8f0; border-top-color: var(--som-primary); border-radius: 50%; animation: spin 1s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+        .hydration-dashboard { grid-template-columns: 1fr; }
+        .suggestions-grid { grid-template-columns: 1fr; }
+        .box-grid { grid-template-columns: 1fr; }
+        .partners-grid { grid-template-columns: 1fr; }
+        .quick-log-grid { grid-template-columns: repeat(3, 1fr); }
+        .tasting-types { justify-content: center; }
+        .tasting-step { flex-direction: column; gap: 0.75rem; }
+    }
+
+    /* ── Modal Overlay ── */
+    .detail-modal-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 10000;
+        justify-content: center;
+        align-items: center;
+        padding: 1rem;
+    }
+    .detail-modal-overlay.open { display: flex; }
+    .detail-modal {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        max-width: 500px;
+        width: 100%;
+        max-height: 80vh;
+        overflow-y: auto;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    .detail-modal-close {
+        float: right;
+        background: #f1f5f9;
+        border: none;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        font-size: 1.2rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .detail-modal-close:hover { background: #e2e8f0; }
+
+    /* ── Cart Floating Button ── */
+    .cart-floating-btn {
+        position: fixed;
+        top: 5rem;
+        right: 1.5rem;
+        z-index: 9998;
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--som-primary), #7c3aed);
+        color: white;
+        border: none;
+        font-size: 1.4rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 6px 20px rgba(99,102,241,0.45);
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    .cart-floating-btn:hover { transform: scale(1.1); background: linear-gradient(135deg, var(--som-primary-dark), #6d28d9); }
+    .cart-badge {
+        position: absolute;
+        top: -4px;
+        right: -4px;
+        background: #ef4444;
+        color: white;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        font-size: 0.75rem;
+        font-weight: 800;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* ── Cart Sidebar ── */
+    .cart-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 99999;
+    }
+    .cart-overlay.open { display: flex; justify-content: flex-end; }
+    .cart-panel {
+        position: relative;
+        width: 420px;
+        max-width: 100vw;
+        height: 100vh;
+        background: white;
+        z-index: 100000;
+        box-shadow: -10px 0 30px rgba(0,0,0,0.15);
+        display: flex;
+        flex-direction: column;
+        transform: translateX(100%);
+        transition: transform 0.3s ease;
+        overflow: hidden;
+    }
+    .cart-overlay.open .cart-panel { transform: translateX(0); }
+
+    .cart-header {
+        padding: 1.5rem;
+        border-bottom: 2px solid var(--som-border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .cart-header h3 { font-weight: 800; font-size: 1.2rem; }
+    .cart-close { background: #f1f5f9; border: none; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; font-size: 1.2rem; }
+
+    .cart-items {
+        flex: 1;
+        overflow-y: auto;
+        padding: 1rem 1.5rem;
+    }
+    .cart-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem 0;
+        border-bottom: 1px solid #f1f5f9;
+    }
+    .cart-item-emoji { font-size: 2rem; }
+    .cart-item-info { flex: 1; }
+    .cart-item-name { font-weight: 700; font-size: 0.9rem; }
+    .cart-item-details { font-size: 0.8rem; color: #94a3b8; }
+    .cart-item-qty {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .cart-qty-btn {
+        width: 28px; height: 28px;
+        border-radius: 8px; border: 1px solid var(--som-border);
+        background: white; cursor: pointer;
+        display: flex; align-items: center; justify-content: center;
+        font-weight: 700;
+    }
+    .cart-qty-btn:hover { background: #f1f5f9; }
+    .cart-item-total { font-weight: 800; color: var(--som-primary); min-width: 60px; text-align: right; }
+    .cart-item-remove { background: none; border: none; color: #ef4444; cursor: pointer; font-size: 0.8rem; }
+
+    .cart-footer {
+        padding: 1.5rem;
+        border-top: 2px solid var(--som-border);
+        background: #f8fafc;
+        max-height: 55vh;
+        overflow-y: auto;
+    }
+    .cart-summary-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+    }
+    .cart-summary-total {
+        display: flex;
+        justify-content: space-between;
+        font-weight: 800;
+        font-size: 1.2rem;
+        margin: 0.75rem 0;
+        padding-top: 0.75rem;
+        border-top: 2px solid var(--som-border);
+    }
+
+    .btn-checkout {
+        width: 100%;
+        padding: 1rem;
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: white;
+        border: none;
+        border-radius: 14px;
+        font-weight: 800;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .btn-checkout:hover { transform: translateY(-1px); box-shadow: 0 4px 15px rgba(16,185,129,0.3); }
+
+    /* ── Checkout Form ── */
+    .checkout-form { display: none; }
+    .checkout-form.open { display: block; }
+    .checkout-form .form-group { margin-bottom: 1rem; }
+    .checkout-form label { font-weight: 700; font-size: 0.85rem; display: block; margin-bottom: 0.3rem; color: var(--som-text); }
+    .checkout-form input,
+    .checkout-form select,
+    .checkout-form textarea {
+        width: 100%;
+        padding: 0.65rem 1rem;
+        border-radius: 10px;
+        border: 2px solid var(--som-border);
+        font-size: 0.9rem;
+        transition: border-color 0.2s;
+    }
+    .checkout-form input:focus,
+    .checkout-form select:focus,
+    .checkout-form textarea:focus {
+        border-color: var(--som-primary);
+        outline: none;
+    }
+    .free-shipping-banner {
+        background: #f0fdf4;
+        border: 1px solid #bbf7d0;
+        border-radius: 10px;
+        padding: 0.6rem 1rem;
+        text-align: center;
+        font-size: 0.85rem;
+        color: #059669;
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+    }
+    .shipping-progress-bar {
+        height: 6px;
+        background: #e2e8f0;
+        border-radius: 3px;
+        overflow: hidden;
+        margin-top: 0.4rem;
+    }
+    .shipping-progress-fill {
+        height: 100%;
+        background: #10b981;
+        border-radius: 3px;
+        transition: width 0.5s;
+    }
+</style>
+{% endblock %}
+
+{% block sidebar %}
+    <span class="sidebar-nav-title">Navigation Nutrition</span>
+    <nav>
+        <a href="{{ path('app_my_nutrition') }}" class="sidebar-link">
+            <i class="fas fa-utensils"></i> Tableau de bord
+        </a>
+        <a href="{{ path('app_nutrition_sommelier') }}" class="sidebar-link active" data-turbo="false">
+            <i class="fas fa-wine-glass-alt"></i> Sommelier
+        </a>
+        <a href="{{ path('app_nutrition_sommelier_marketplace') }}" class="sidebar-link" data-turbo="false">
+            <i class="fas fa-store"></i> Boutique
+        </a>
+        <a href="{{ path('app_nutrition_sommelier_orders') }}" class="sidebar-link" data-turbo="false">
+            <i class="fas fa-box"></i> Mes commandes
+        </a>
+        <a href="{{ path('app_nutrition_sommelier_history') }}" class="sidebar-link" data-turbo="false">
+            <i class="fas fa-history"></i> Historique boissons
+        </a>
+        <a href="{{ path('app_nutrition_request') }}" class="sidebar-link">
+            <i class="fas fa-plus"></i> Nouvelle demande
+        </a>
+        <a href="{{ path('app_nutrition_track') }}" class="sidebar-link">
+            <i class="fas fa-camera"></i> Analyse Photo IA
+        </a>
+    </nav>
+{% endblock %}
+
+{% block body %}
+<div class="sommelier-container">
+
+    {# ══════════════════════════════════════════ #}
+    {# ──────── HERO HEADER ──────── #}
+    {# ══════════════════════════════════════════ #}
+    <div class="som-header">
+        <span class="som-header-emoji">🍷</span>
+        <h1 class="som-title">Sommelier & Expert Boissons</h1>
+        <p class="som-subtitle">Votre conseiller personnel en boissons adaptées — hydratation, accords mets-boissons sans alcool, infusions & dégustations virtuelles</p>
+    </div>
+
+    {# ══════════════════════════════════════════ #}
+    {# ──────── HYDRATION DASHBOARD ──────── #}
+    {# ══════════════════════════════════════════ #}
+    <div class="som-section">
+        <h2><i class="fas fa-tint"></i> Suivi d'hydratation personnalisé</h2>
+        <p class="som-section-subtitle">Objectif : {{ hydration.target_ml }} ml/jour {% if regime %} (Régime {{ regime.typeRegime|capitalize }}){% endif %}</p>
+
+        <div class="hydration-dashboard">
+            <div class="hydration-circle">
+                {% set circumference = 2 * 3.14159 * 70 %}
+                {% set offset = circumference - (hydration.progress / 100) * circumference %}
+                <svg viewBox="0 0 160 160">
+                    <circle class="bg" cx="80" cy="80" r="70"></circle>
+                    <circle class="progress" cx="80" cy="80" r="70"
+                            stroke-dasharray="{{ circumference }}"
+                            stroke-dashoffset="{{ offset }}">
+                    </circle>
+                </svg>
+                <div class="hydration-center">
+                    <div class="hydration-percent" id="hydrationPercent">{{ hydration.progress }}%</div>
+                    <div class="hydration-label">HYDRATATION</div>
+                </div>
+            </div>
+            <div class="hydration-details">
+                <div class="hydration-stat">
+                    <div class="hydration-stat-icon">💧</div>
+                    <div class="hydration-stat-info">
+                        <div class="hydration-stat-value" id="todayMl">{{ hydration.today_ml }} ml</div>
+                        <div class="hydration-stat-label">Consommé aujourd'hui</div>
+                    </div>
+                </div>
+                <div class="hydration-stat">
+                    <div class="hydration-stat-icon">🎯</div>
+                    <div class="hydration-stat-info">
+                        <div class="hydration-stat-value">{{ hydration.remaining_ml }} ml</div>
+                        <div class="hydration-stat-label">Restant à boire</div>
+                    </div>
+                </div>
+                <div class="hydration-stat">
+                    <div class="hydration-stat-icon">⏰</div>
+                    <div class="hydration-stat-info">
+                        <div class="hydration-stat-value">{{ hydration.ml_per_hour }} ml/h</div>
+                        <div class="hydration-stat-label">Rythme recommandé</div>
+                    </div>
+                </div>
+                <div class="hydration-stat">
+                    <div class="hydration-stat-icon">🥤</div>
+                    <div class="hydration-stat-info">
+                        <div class="hydration-stat-value">{{ hydration.drinks_count }}</div>
+                        <div class="hydration-stat-label">Boissons prises</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# Reminders #}
+        {% if hydration.reminders is not empty %}
+        <div style="margin-top: 1.5rem;">
+            {% for reminder in hydration.reminders %}
+            <div class="reminder-item type-{{ reminder.type }}">
+                <div class="reminder-icon"><i class="fas fa-{{ reminder.icon }}"></i></div>
+                <div class="reminder-message">{{ reminder.message }}</div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {# Hydration Schedule #}
+        <div class="hydration-schedule">
+            <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 0.75rem;"><i class="fas fa-clock me-1"></i> Planning hydratation du jour</h3>
+            {% for item in hydration.schedule %}
+            <div class="schedule-item {{ item.status }}">
+                <div class="schedule-dot {{ item.status }}"></div>
+                <div class="schedule-info">
+                    <div class="schedule-time">{{ item.hour }}h — {{ item.label }}</div>
+                    <div class="schedule-drink">{{ item.drink }}</div>
+                </div>
+                <div class="schedule-ml">{{ item.ml }} ml</div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    {# ══════════════════════════════════════════ #}
+    {# ──────── QUICK LOG SECTION ──────── #}
+    {# ══════════════════════════════════════════ #}
+    <div class="som-section">
+        <h2><i class="fas fa-plus-circle"></i> Enregistrer une boisson</h2>
+        <p class="som-section-subtitle">Cliquez pour enregistrer rapidement ce que vous buvez</p>
+
+        <div class="quick-log-grid">
+            <div class="quick-log-btn" onclick="quickLog('eau', 'Verre d\'eau', 250)" title="Enregistrer un verre d'eau">
+                <span class="quick-log-emoji">💧</span>
+                <span class="quick-log-name">Eau</span>
+                <span class="quick-log-ml">250 ml</span>
+            </div>
+            <div class="quick-log-btn" onclick="quickLog('thé', 'Tasse de thé', 200)" title="Enregistrer un thé">
+                <span class="quick-log-emoji">🍵</span>
+                <span class="quick-log-name">Thé</span>
+                <span class="quick-log-ml">200 ml</span>
+            </div>
+            <div class="quick-log-btn" onclick="quickLog('café', 'Tasse de café', 150)" title="Enregistrer un café">
+                <span class="quick-log-emoji">☕</span>
+                <span class="quick-log-name">Café</span>
+                <span class="quick-log-ml">150 ml</span>
+            </div>
+            <div class="quick-log-btn" onclick="quickLog('infusion', 'Infusion', 250)" title="Enregistrer une infusion">
+                <span class="quick-log-emoji">🌿</span>
+                <span class="quick-log-name">Infusion</span>
+                <span class="quick-log-ml">250 ml</span>
+            </div>
+            <div class="quick-log-btn" onclick="quickLog('jus', 'Jus de fruits', 200)" title="Enregistrer un jus">
+                <span class="quick-log-emoji">🧃</span>
+                <span class="quick-log-name">Jus</span>
+                <span class="quick-log-ml">200 ml</span>
+            </div>
+            <div class="quick-log-btn" onclick="toggleCustomForm()" title="Ajouter une autre boisson">
+                <span class="quick-log-emoji">➕</span>
+                <span class="quick-log-name">Autre</span>
+                <span class="quick-log-ml">Personnalisé</span>
+            </div>
+        </div>
+
+        {# Custom drink form #}
+        <div class="custom-drink-form" id="customDrinkForm">
+            <h3 style="font-size: 1rem; font-weight: 700; margin-bottom: 1rem;"><i class="fas fa-edit me-1"></i> Boisson personnalisée</h3>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Nom de la boisson</label>
+                    <input type="text" id="customName" placeholder="Ex: Tisane de romarin">
+                </div>
+                <div class="form-group">
+                    <label>Catégorie</label>
+                    <select id="customCategory">
+                        <option value="eau">💧 Eau</option>
+                        <option value="thé">🍵 Thé</option>
+                        <option value="café">☕ Café</option>
+                        <option value="infusion" selected>🌿 Infusion</option>
+                        <option value="jus">🧃 Jus</option>
+                        <option value="smoothie">🥤 Smoothie</option>
+                        <option value="sirop_sans_sucre">🍯 Sirop sans sucre</option>
+                        <option value="mocktail">🍹 Mocktail</option>
+                        <option value="autre">🥂 Autre</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Quantité (ml)</label>
+                    <input type="number" id="customMl" value="250" min="50" max="2000" step="50">
+                </div>
+                <div class="form-group">
+                    <label>Moment</label>
+                    <select id="customMoment">
+                        <option value="matin">🌅 Matin</option>
+                        <option value="déjeuner">☀️ Déjeuner</option>
+                        <option value="après-midi">🌤️ Après-midi</option>
+                        <option value="dîner">🌆 Dîner</option>
+                        <option value="soirée">🌙 Soirée</option>
+                    </select>
+                </div>
+            </div>
+            <button class="btn-submit-drink" onclick="submitCustomDrink()">
+                <i class="fas fa-check me-1"></i> Enregistrer
+            </button>
+        </div>
+
+        {# Today's logged drinks #}
+        {% if today_logs is not empty %}
+        <div class="today-logs">
+            <h3 style="font-size: 1rem; font-weight: 700; margin-top: 1rem;"><i class="fas fa-list me-1"></i> Boissons du jour</h3>
+            {% for log in today_logs %}
+            <div class="today-log-item">
+                <div class="today-log-emoji">{{ log.beverageEmoji }}</div>
+                <div class="today-log-info">
+                    <div class="today-log-name">{{ log.beverageName }}</div>
+                    <div class="today-log-time">{{ log.consumedAt|date('H:i') }}</div>
+                </div>
+                <div class="today-log-ml">{{ log.quantityMl }} ml</div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+
+    {# ══════════════════════════════════════════ #}
+    {# ──────── ANALYSE BOISSON PAR PHOTO ── #}
+    {# ══════════════════════════════════════════ #}
+    <div class="som-section">
+        <h2><i class="fas fa-camera"></i> Enregistrer par photo</h2>
+        <p class="som-section-subtitle">Photographiez votre boisson et l'IA identifiera automatiquement ce que vous buvez</p>
+
+        <div id="photoUploadArea" style="border:3px dashed #c7d2fe;border-radius:16px;padding:2.5rem;text-align:center;cursor:pointer;transition:all 0.3s;background:#fafafe;" onclick="document.getElementById('beveragePhotoInput').click()">
+            <div id="photoPreview" style="display:none;margin-bottom:1rem;">
+                <img id="photoPreviewImg" style="max-width:300px;max-height:250px;border-radius:12px;box-shadow:0 4px 15px rgba(0,0,0,0.1);" />
+            </div>
+            <div id="photoPlaceholder">
+                <span style="font-size:3rem;display:block;margin-bottom:0.75rem;">📸</span>
+                <p style="font-weight:700;color:#6366f1;font-size:1rem;">Cliquez pour prendre ou choisir une photo</p>
+                <p style="color:#94a3b8;font-size:0.85rem;">JPG, PNG — L'IA analysera votre boisson</p>
+            </div>
+            <input type="file" id="beveragePhotoInput" accept="image/*" capture="environment" style="display:none;" onchange="handleBeveragePhoto(this)">
+        </div>
+
+        <div id="photoAnalyzeBtn" style="display:none;text-align:center;margin-top:1rem;">
+            <button onclick="analyzeBeveragePhoto()" class="btn-submit-drink" style="background:linear-gradient(135deg,#6366f1,#7c3aed);">
+                <i class="fas fa-magic me-1"></i> Analyser avec l'IA
+            </button>
+        </div>
+
+        <div id="photoAnalysisLoading" style="display:none;text-align:center;padding:2rem;">
+            <div class="loading-spinner-sm"></div>
+            <p style="color:#64748b;margin-top:1rem;">🧠 L'IA analyse votre boisson...</p>
+        </div>
+
+        <div id="photoAnalysisResult" style="display:none;margin-top:1.5rem;">
+            <div style="background:linear-gradient(135deg,#f0fdf4,#ecfdf5);border:2px solid #bbf7d0;border-radius:16px;padding:1.5rem;">
+                <h3 style="font-weight:800;margin-bottom:1rem;"><i class="fas fa-check-circle" style="color:#10b981;"></i> Boisson identifiée</h3>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
+                    <div>
+                        <span style="font-size:0.8rem;color:#94a3b8;">Nom</span>
+                        <p style="font-weight:700;font-size:1.1rem;" id="photoResultName"></p>
+                    </div>
+                    <div>
+                        <span style="font-size:0.8rem;color:#94a3b8;">Catégorie</span>
+                        <p style="font-weight:700;" id="photoResultCategory"></p>
+                    </div>
+                    <div>
+                        <span style="font-size:0.8rem;color:#94a3b8;">Volume estimé</span>
+                        <p style="font-weight:700;" id="photoResultVolume"></p>
+                    </div>
+                    <div>
+                        <span style="font-size:0.8rem;color:#94a3b8;">Calories</span>
+                        <p style="font-weight:700;" id="photoResultCalories"></p>
+                    </div>
+                    <div>
+                        <span style="font-size:0.8rem;color:#94a3b8;">Hydratation</span>
+                        <p style="font-weight:700;" id="photoResultHydration"></p>
+                    </div>
+                    <div>
+                        <span style="font-size:0.8rem;color:#94a3b8;">Santé</span>
+                        <p style="font-weight:700;" id="photoResultHealthy"></p>
+                    </div>
+                </div>
+                <div id="photoResultDescription" style="font-size:0.9rem;color:#334155;line-height:1.6;margin-bottom:1rem;"></div>
+                <div id="photoResultBenefits" style="margin-bottom:1rem;"></div>
+                <div id="photoResultWarnings" style="margin-bottom:1rem;"></div>
+                <div id="photoResultAlternatives" style="margin-bottom:1rem;"></div>
+                <div style="text-align:center;">
+                    <button onclick="savePhotoAnalysis()" class="btn-submit-drink" style="background:linear-gradient(135deg,#10b981,#059669);">
+                        <i class="fas fa-save me-1"></i> Enregistrer cette boisson
+                    </button>
+                    <button id="voiceReadBtn" onclick="readAnalysisAloud()" class="btn-submit-drink" style="background:linear-gradient(135deg,#6366f1,#7c3aed);margin-left:0.5rem;">
+                        <i class="fas fa-volume-up me-1"></i> <span id="voiceReadLabel">Écouter</span>
+                    </button>
+                    <button onclick="resetPhotoUpload()" class="btn-submit-drink" style="background:#94a3b8;margin-left:0.5rem;">
+                        <i class="fas fa-redo me-1"></i> Nouvelle photo
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# ══════════════════════════════════════════ #}
+    {# ──────── ACCORDS METS-BOISSONS ──────── #}
+    {# ══════════════════════════════════════════ #}
+    <div class="som-section">
+        <h2><i class="fas fa-utensils"></i> Accords mets-boissons (sans alcool)</h2>
+        <p class="som-section-subtitle">Sélectionnez un repas et découvrez les boissons adaptées à votre régime</p>
+
+        <div class="meal-tabs">
+            <button class="meal-tab active" onclick="loadSuggestions('petit-déjeuner', this)">🌅 Petit-déjeuner</button>
+            <button class="meal-tab" onclick="loadSuggestions('déjeuner', this)">☀️ Déjeuner</button>
+            <button class="meal-tab" onclick="loadSuggestions('goûter', this)">🍰 Goûter</button>
+            <button class="meal-tab" onclick="loadSuggestions('dîner', this)">🌙 Dîner</button>
+            <button class="meal-tab" onclick="loadSuggestions('soirée', this)">✨ Soirée</button>
+        </div>
+
+        <div class="suggestions-grid" id="suggestionsGrid">
+            <div class="text-center py-3" style="grid-column: 1 / -1;">
+                <div class="loading-spinner-sm"></div>
+                <p class="text-muted mt-2 small">Recherche des meilleures boissons pour votre repas...</p>
+            </div>
+        </div>
+        <div id="suggestionsVoiceBar" style="display:none;text-align:center;margin-top:1rem;">
+            <button id="suggestionsVoiceBtn" onclick="readSuggestionsAloud()" class="btn-submit-drink" style="background:linear-gradient(135deg,#6366f1,#7c3aed);padding:0.6rem 1.5rem;font-size:0.9rem;">
+                <i class="fas fa-volume-up me-1"></i> <span id="suggestionsVoiceLabel">🔊 Écouter les suggestions</span>
+            </button>
+        </div>
+    </div>
+
+    {# ══════════════════════════════════════════ #}
+    {# ──────── DÉGUSTATIONS VIRTUELLES ──────── #}
+    {# ══════════════════════════════════════════ #}
+    <div class="som-section">
+        <h2><i class="fas fa-glass-cheers"></i> Dégustations virtuelles</h2>
+        <p class="som-section-subtitle">Explorez les saveurs du monde depuis chez vous — thés, cafés, infusions</p>
+
+        <div class="tasting-types">
+            <div class="tasting-type-btn active" onclick="loadTasting('thé', this)">
+                <span class="tasting-type-emoji">🍵</span>
+                <span class="tasting-type-name">Thés</span>
+            </div>
+            <div class="tasting-type-btn" onclick="loadTasting('café', this)">
+                <span class="tasting-type-emoji">☕</span>
+                <span class="tasting-type-name">Cafés</span>
+            </div>
+            <div class="tasting-type-btn" onclick="loadTasting('infusion', this)">
+                <span class="tasting-type-emoji">🌿</span>
+                <span class="tasting-type-name">Infusions</span>
+            </div>
+        </div>
+
+        <div class="tasting-content" id="tastingContent">
+            <div class="text-center py-3">
+                <div class="loading-spinner-sm"></div>
+                <p class="text-muted mt-2 small">Préparation de la dégustation...</p>
+            </div>
+        </div>
+        <div id="tastingVoiceBar" style="display:none;text-align:center;margin-top:1rem;">
+            <button id="tastingVoiceBtn" onclick="readTastingAloud()" class="btn-submit-drink" style="background:linear-gradient(135deg,#6366f1,#7c3aed);padding:0.6rem 1.5rem;font-size:0.9rem;">
+                <i class="fas fa-volume-up me-1"></i> <span id="tastingVoiceLabel">🔊 Écouter la dégustation</span>
+            </button>
+        </div>
+    </div>
+
+    {# ══════════════════════════════════════════ #}
+    {# ──────── STATISTIQUES HYDRATATION ──────── #}
+    {# ══════════════════════════════════════════ #}
+    <div class="som-section">
+        <h2><i class="fas fa-chart-bar"></i> Mes statistiques boissons</h2>
+        <p class="som-section-subtitle">Analyse de vos habitudes de consommation sur 7 jours</p>
+        <div id="statsContent">
+            <div class="text-center py-3">
+                <button class="btn-submit-drink" onclick="loadStats()"><i class="fas fa-chart-bar me-1"></i> Charger les statistiques</button>
+            </div>
+        </div>
+    </div>
+
+    {# ══════════════════════════════════════════ #}
+    {# ──────── BOUTIQUE & MARKETPLACE ──────── #}
+    {# ══════════════════════════════════════════ #}
+    <div class="som-section" style="background:linear-gradient(135deg,#eef2ff,#faf5ff);border-color:#c7d2fe;">
+        <div style="display:flex;flex-wrap:wrap;align-items:center;gap:2rem;">
+            <div style="flex:1;min-width:250px;">
+                <h2 style="margin-bottom:0.75rem;"><i class="fas fa-store"></i> Boutique Boissons & Nutriments Santé</h2>
+                <p style="color:#64748b;font-size:0.95rem;line-height:1.6;margin-bottom:1.25rem;">Parcourez notre marketplace de boissons healthy, thés, infusions, superaliments et compléments alimentaires. Achetez directement les produits adaptés à votre régime{% if regime %} {{ regime.typeRegime|capitalize }}{% endif %}.</p>
+                <div style="display:flex;gap:0.75rem;flex-wrap:wrap;margin-bottom:1rem;">
+                    <span style="padding:0.3rem 0.8rem;background:white;border-radius:8px;font-size:0.8rem;font-weight:600;color:#6366f1;">🍵 Thés</span>
+                    <span style="padding:0.3rem 0.8rem;background:white;border-radius:8px;font-size:0.8rem;font-weight:600;color:#6366f1;">☕ Cafés</span>
+                    <span style="padding:0.3rem 0.8rem;background:white;border-radius:8px;font-size:0.8rem;font-weight:600;color:#6366f1;">🌿 Infusions</span>
+                    <span style="padding:0.3rem 0.8rem;background:white;border-radius:8px;font-size:0.8rem;font-weight:600;color:#6366f1;">💊 Compléments</span>
+                    <span style="padding:0.3rem 0.8rem;background:white;border-radius:8px;font-size:0.8rem;font-weight:600;color:#6366f1;">🌱 Superaliments</span>
+                </div>
+                <a href="{{ path('app_nutrition_sommelier_marketplace') }}" style="display:inline-flex;align-items:center;gap:0.5rem;padding:0.85rem 2rem;background:linear-gradient(135deg,#6366f1,#7c3aed);color:white;border-radius:14px;font-weight:700;text-decoration:none;font-size:0.95rem;transition:all 0.2s;box-shadow:0 4px 15px rgba(99,102,241,0.3);">
+                    <i class="fas fa-shopping-cart"></i> Découvrir la boutique
+                </a>
+                {% if cart_count > 0 %}
+                <a href="{{ path('app_nutrition_sommelier_marketplace') }}" style="display:inline-flex;align-items:center;gap:0.5rem;padding:0.85rem 1.5rem;background:#10b981;color:white;border-radius:14px;font-weight:700;text-decoration:none;font-size:0.95rem;margin-left:0.5rem;">
+                    <i class="fas fa-shopping-bag"></i> Mon panier ({{ cart_count }})
+                </a>
+                {% endif %}
+            </div>
+            <div style="font-size:6rem;text-align:center;flex-shrink:0;">🛒</div>
+        </div>
+    </div>
+
+    {# ══════════════════════════════════════════ #}
+    {# ──────── CATALOGUE BOISSONS ──────── #}
+    {# ══════════════════════════════════════════ #}
+    <div class="som-section">
+        <h2><i class="fas fa-book-open"></i> Cave & Catalogue</h2>
+        <p class="som-section-subtitle">Explorez notre sélection complète de boissons santé — ajoutez directement au panier</p>
+
+        {% set categoryEmojis = {'thé': '🍵', 'café': '☕', 'infusion': '🌿', 'eau': '💧', 'jus': '🧃', 'smoothie': '🥤', 'sirop_sans_sucre': '🍯', 'mocktail': '🍹', 'complément': '💊', 'superaliment': '🌱'} %}
+
+        <div class="catalog-tabs" id="catalogTabs">
+            <button class="catalog-tab active" onclick="filterCatalog('all', this)">Tout</button>
+            {% for category, items in products_by_category %}
+            <button class="catalog-tab" onclick="filterCatalog('{{ category }}', this)">
+                {{ categoryEmojis[category]|default('🥂') }} {{ category|capitalize }}
+            </button>
+            {% endfor %}
+        </div>
+
+        <div class="catalog-grid" id="catalogGrid">
+            {% for category, products in products_by_category %}
+                {% for product in products %}
+                <div class="catalog-item" data-category="{{ category }}" style="display:flex;flex-direction:column;">
+                    <div class="catalog-item-header">
+                        <span class="catalog-item-emoji">{{ categoryEmojis[category]|default('🥂') }}</span>
+                        <div>
+                            <div class="catalog-item-name">{{ product.name }}</div>
+                            {% if product.brand %}
+                            <div style="font-size:0.75rem;color:#94a3b8;">{{ product.brand }}{% if product.origin %} — 📍{{ product.origin }}{% endif %}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="catalog-item-desc">
+                        {{ product.shortDescription|default(product.description|default(''))|slice(0, 120) }}{% if product.description|default('')|length > 120 %}…{% endif %}
+                    </div>
+                    <div class="catalog-item-meta" style="margin-bottom:0.75rem;">
+                        {% if product.hydrationScore %}
+                        <span class="catalog-item-tag tag-hydration">💧 {{ product.hydrationScore }}%</span>
+                        {% endif %}
+                        {% if product.isSugarFree %}
+                        <span class="catalog-item-tag tag-sugar-free">0 sucre</span>
+                        {% endif %}
+                        {% if product.isCaffeineFree %}
+                        <span class="catalog-item-tag tag-caffeine-free">Sans caféine</span>
+                        {% endif %}
+                        {% if product.isBio %}
+                        <span class="catalog-item-tag" style="background:#f0fdf4;color:#059669;">🌱 Bio</span>
+                        {% endif %}
+                        {% if product.volume %}
+                        <span class="catalog-item-tag" style="background:#f1f5f9;color:#475569;">{{ product.volume }}</span>
+                        {% endif %}
+                    </div>
+                    <div style="margin-top:auto;display:flex;align-items:center;justify-content:space-between;gap:0.5rem;padding-top:0.75rem;border-top:1px solid #f1f5f9;">
+                        <div>
+                            {% if product.salePrice %}
+                                <span style="font-weight:800;font-size:1.1rem;color:#dc2626;">{{ product.salePrice }} DH</span>
+                                <span style="font-size:0.8rem;color:#94a3b8;text-decoration:line-through;margin-left:0.25rem;">{{ product.price }} DH</span>
+                            {% else %}
+                                <span style="font-weight:800;font-size:1.1rem;color:#1f2937;">{{ product.price }} DH</span>
+                            {% endif %}
+                        </div>
+                        <button onclick="addCatalogToCart({{ product.id }}, this)" class="catalog-add-btn" title="Ajouter au panier" {% if product.stockQuantity <= 0 %}disabled style="opacity:0.4;cursor:not-allowed;"{% endif %}>
+                            <i class="fas fa-cart-plus"></i> {% if product.stockQuantity > 0 %}Ajouter{% else %}Rupture{% endif %}
+                        </button>
+                    </div>
+                </div>
+                {% endfor %}
+            {% endfor %}
+        </div>
+
+        {# Cart shortcut bar #}
+        <div id="catalogCartBar" style="display:none;margin-top:1.25rem;padding:1rem 1.5rem;background:linear-gradient(135deg,#eef2ff,#faf5ff);border:2px solid #c7d2fe;border-radius:14px;text-align:center;">
+            <span style="font-weight:700;color:#4f46e5;">🛒 <span id="catalogCartCount">0</span> article(s) dans votre panier</span>
+            <button onclick="openCart()" style="display:inline-block;margin-left:1rem;padding:0.5rem 1.25rem;background:linear-gradient(135deg,#6366f1,#7c3aed);color:white;border-radius:10px;font-weight:700;border:none;font-size:0.85rem;cursor:pointer;">
+                <i class="fas fa-shopping-cart me-1"></i> Voir le panier
+            </button>
+        </div>
+    </div>
+
+    {# ══════════════════════════════════════════ #}
+    {# ──────── PARTENAIRES ──────── #}
+    {# ══════════════════════════════════════════ #}
+    <div class="som-section">
+        <h2><i class="fas fa-handshake"></i> Nos partenaires</h2>
+        <p class="som-section-subtitle">Producteurs de thés, torréfacteurs, caves, eaux minérales, sirops sans sucre</p>
+
+        <div class="partners-grid">
+            {% for partner in partners %}
+            <div class="partner-card">
+                <div class="partner-emoji">{{ partner.emoji }}</div>
+                <div class="partner-info">
+                    <div class="partner-name">{{ partner.name }}</div>
+                    <div class="partner-type">{{ partner.type }}</div>
+                    <div class="partner-specialty">{{ partner.specialty }}</div>
+                    <span class="partner-offer">{{ partner.offer }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+</div>
+
+{# ── Detail Modal ── #}
+<div class="detail-modal-overlay" id="detailModal">
+    <div class="detail-modal">
+        <button class="detail-modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+        <div id="detailModalContent"></div>
+    </div>
+</div>
+
+{# ── Floating Cart Button ── #}
+<button class="cart-floating-btn" onclick="openCart()">
+    <i class="fas fa-shopping-cart"></i>
+    <span class="cart-badge" id="cartBadge" style="{{ cart_count > 0 ? '' : 'display:none;' }}">{{ cart_count }}</span>
+</button>
+
+{# ── Cart Sidebar ── #}
+<div class="cart-overlay" id="cartOverlay" onclick="closeCart(event)">
+    <div class="cart-panel" onclick="event.stopPropagation()">
+        <div class="cart-header">
+            <h3>🛒 Mon Panier</h3>
+            <button class="cart-close" onclick="closeCart()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="cart-items" id="cartItems">
+            <div class="empty-cart" id="cartEmpty">
+                <div style="text-align:center;padding:3rem 1rem;">
+                    <div style="font-size:4rem;margin-bottom:1rem;">🛒</div>
+                    <p style="color:#94a3b8;">Votre panier est vide</p>
+                </div>
+            </div>
+        </div>
+        <div class="cart-footer" id="cartFooter" style="display:none;">
+            <div id="shippingBannerArea"></div>
+            <div class="cart-summary-row">
+                <span>Sous-total</span>
+                <span id="cartSubtotal">0.00 DH</span>
+            </div>
+            <div class="cart-summary-row">
+                <span>Livraison</span>
+                <span id="cartShipping">25.00 DH</span>
+            </div>
+            <div class="cart-summary-total">
+                <span>Total</span>
+                <span id="cartGrandTotal">0.00 DH</span>
+            </div>
+
+            <div id="checkoutBtnArea">
+                <button class="btn-checkout" onclick="showCheckoutForm()">
+                    <i class="fas fa-lock me-1"></i> Passer la commande
+                </button>
+            </div>
+
+            <div class="checkout-form" id="checkoutForm">
+                <h4 style="font-weight:700;margin-bottom:1rem;">📦 Informations de livraison</h4>
+                <div class="form-group">
+                    <label>Adresse *</label>
+                    <input type="text" id="ckAddress" placeholder="123 Rue Mohammed V">
+                </div>
+                <div class="form-group">
+                    <label>Ville *</label>
+                    <input type="text" id="ckCity" placeholder="Casablanca">
+                </div>
+                <div class="form-group">
+                    <label>Code postal</label>
+                    <input type="text" id="ckPostalCode" placeholder="20000">
+                </div>
+                <div class="form-group">
+                    <label>Téléphone *</label>
+                    <input type="text" id="ckPhone" placeholder="06 12 34 56 78">
+                </div>
+                <div class="form-group">
+                    <label>Mode de paiement</label>
+                    <select id="ckPaymentMethod">
+                        <option value="cash_on_delivery">💵 Paiement à la livraison</option>
+                        <option value="bank_transfer">🏦 Virement bancaire</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Notes (optionnel)</label>
+                    <textarea id="ckNotes" rows="2" placeholder="Instructions spéciales..."></textarea>
+                </div>
+                <button class="btn-checkout" onclick="submitCheckout()">
+                    <i class="fas fa-check me-1"></i> Confirmer la commande
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+// Create namespace to avoid global conflicts and allow Turbo.js compatibility
+window.sommelier = window.sommelier || {
+    csrfToken: '{{ csrf_token("app") }}',
+    currentPhotoFile: null,
+    currentPhotoAnalysis: null,
+    isSpeaking: false,
+    catalogCartTotal: {{ cart_count }}
+};
+
+// Update with fresh values on each page load
+Object.assign(window.sommelier, {
+    csrfToken: '{{ csrf_token("app") }}'
+});
+
+// Helper function to make authenticated AJAX requests with CSRF protection
+function apiRequest(url, options = {}) {
+    const defaultOptions = {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+            'X-CSRF-Token': window.sommelier.csrfToken,
+            'X-Requested-With': 'XMLHttpRequest',
+            ...options.headers
+        }
+    };
+    return fetch(url, { ...defaultOptions, ...options });
+}
+
+// Handle beverage photo upload
+function handleBeveragePhoto(input) {
+    if (input.files && input.files[0]) {
+        window.sommelier.currentPhotoFile = input.files[0];
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const photoPreviewImg = document.getElementById('photoPreviewImg');
+            if (photoPreviewImg) photoPreviewImg.src = e.target.result;
+            const photoPreview = document.getElementById('photoPreview');
+            if (photoPreview) photoPreview.style.display = 'block';
+            const photoPlaceholder = document.getElementById('photoPlaceholder');
+            if (photoPlaceholder) photoPlaceholder.style.display = 'none';
+            const photoAnalyzeBtn = document.getElementById('photoAnalyzeBtn');
+            if (photoAnalyzeBtn) photoAnalyzeBtn.style.display = 'block';
+            const photoAnalysisResult = document.getElementById('photoAnalysisResult');
+            if (photoAnalysisResult) photoAnalysisResult.style.display = 'none';
+            const photoUploadArea = document.getElementById('photoUploadArea');
+            if (photoUploadArea) {
+                photoUploadArea.style.borderColor = '#10b981';
+                photoUploadArea.style.background = '#f0fdf4';
+            }
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+    
+// Defer initialization until DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+    loadSuggestions('petit-déjeuner', document.querySelector('.meal-tab.active'));
+    loadTasting('thé', document.querySelector('.tasting-type-btn.active'));
+
+    // ── Auto-select moment based on hour ──
+    const hour = new Date().getHours();
+    const momentSelect = document.getElementById('customMoment');
+    if (momentSelect) {
+        if (hour < 10) momentSelect.value = 'matin';
+        else if (hour < 14) momentSelect.value = 'déjeuner';
+        else if (hour < 17) momentSelect.value = 'après-midi';
+        else if (hour < 21) momentSelect.value = 'dîner';
+        else momentSelect.value = 'soirée';
+    }
+});
+
+// ══════════════════════════════
+// QUICK LOG
+// ══════════════════════════════
+function quickLog(category, name, ml) {
+    const formData = new FormData();
+    formData.append('custom_name', name);
+    formData.append('category', category);
+    formData.append('quantity_ml', ml);
+
+    const hour = new Date().getHours();
+    let moment = 'après-midi';
+    if (hour < 10) moment = 'matin';
+    else if (hour < 14) moment = 'déjeuner';
+    else if (hour < 17) moment = 'après-midi';
+    else if (hour < 21) moment = 'dîner';
+    else moment = 'soirée';
+    formData.append('moment', moment);
+
+    apiRequest('{{ path("app_nutrition_sommelier_log") }}', {
+        body: formData
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.status === 'success') {
+            showSuccessToast(`✅ ${name} (${ml}ml) enregistré !`);
+            refreshHydration();
+        }
+    })
+    .catch(err => {
+        console.error('Log error:', err);
+        showSuccessToast('❌ Erreur lors de l\'enregistrement');
+    });
+}
+
+function toggleCustomForm() {
+    const form = document.getElementById('customDrinkForm');
+    form.classList.toggle('open');
+}
+
+function submitCustomDrink() {
+    const name = document.getElementById('customName').value;
+    const category = document.getElementById('customCategory').value;
+    const ml = document.getElementById('customMl').value;
+    const moment = document.getElementById('customMoment').value;
+
+    if (!name) { alert('Veuillez entrer le nom de la boisson'); return; }
+
+    const formData = new FormData();
+    formData.append('custom_name', name);
+    formData.append('category', category);
+    formData.append('quantity_ml', ml);
+    formData.append('moment', moment);
+
+    apiRequest('{{ path("app_nutrition_sommelier_log") }}', {
+        body: formData
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.status === 'success') {
+            showSuccessToast(`✅ ${name} (${ml}ml) enregistré !`);
+            document.getElementById('customName').value = '';
+            document.getElementById('customDrinkForm').classList.remove('open');
+            refreshHydration();
+        }
+    });
+}
+
+// ══════════════════════════════
+// REFRESH HYDRATION
+// ══════════════════════════════
+function refreshHydration() {
+    apiRequest('{{ path("app_nutrition_sommelier_hydration") }}')
+    .then(r => r.json())
+    .then(data => {
+        if (data.status === 'success') {
+            document.getElementById('hydrationPercent').textContent = data.progress + '%';
+            document.getElementById('todayMl').textContent = data.today_ml + ' ml';
+
+            // Update circle
+            const circle = document.querySelector('.hydration-circle .progress');
+            if (circle) {
+                const circumference = 2 * Math.PI * 70;
+                const offset = circumference - (data.progress / 100) * circumference;
+                circle.setAttribute('stroke-dashoffset', offset);
+            }
+        }
+    });
+}
+
+// ══════════════════════════════
+// MEAL PAIRING SUGGESTIONS
+// ══════════════════════════════
+function loadSuggestions(mealType, btn) {
+    // Update active tab
+    document.querySelectorAll('.meal-tab').forEach(t => t.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+
+    const grid = document.getElementById('suggestionsGrid');
+    if (!grid) return; // Element not on this page, silently skip
+    
+    grid.innerHTML = '<div class="text-center py-3" style="grid-column:1/-1"><div class="loading-spinner-sm"></div><p class="text-muted mt-2 small">Recherche des boissons adaptées...</p></div>';
+
+    const formData = new FormData();
+    formData.append('meal_type', mealType);
+
+    apiRequest('{{ path("app_nutrition_sommelier_suggest") }}', {
+        body: formData
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.status === 'success' && data.suggestions.length > 0) {
+            lastSuggestionsData = data.suggestions;
+            grid.innerHTML = data.suggestions.map(s => `
+                <div class="suggestion-card">
+                    <div class="suggestion-card-top">
+                        <span class="suggestion-card-emoji">${s.emoji || '🥤'}</span>
+                        <div class="suggestion-card-name">${s.name}</div>
+                        ${s.origin ? `<div class="suggestion-card-origin">📍 ${s.origin}</div>` : ''}
+                    </div>
+                    <div class="suggestion-card-body">
+                        ${s.description ? `<p>${s.description.substring(0, 150)}</p>` : ''}
+                        <div class="suggestion-tags">
+                            ${s.hydration_score ? `<span class="suggestion-tag tag-hydration">💧 ${s.hydration_score}%</span>` : ''}
+                            ${s.calories !== undefined ? `<span class="suggestion-tag tag-benefit">🔥 ${s.calories} kcal/100ml</span>` : ''}
+                            ${s.sugar_free ? '<span class="suggestion-tag tag-sugar-free">0 sucre</span>' : ''}
+                            ${s.caffeine_free ? '<span class="suggestion-tag tag-caffeine-free">Sans caféine</span>' : ''}
+                        </div>
+                        ${s.benefits && s.benefits.length ? `<div style="margin-bottom:0.5rem;">${s.benefits.slice(0, 3).map(b => `<span style="font-size:0.8rem;color:#059669;">✓ ${b}</span>`).join(' &nbsp; ')}</div>` : ''}
+                        <div class="suggestion-card-actions">
+                            <button class="btn-log-drink" onclick="logSuggested('${s.id || ''}', '${s.name.replace(/'/g, "\\'")}', '${s.category || 'autre'}', 250)">
+                                <i class="fas fa-plus me-1"></i> Boire
+                            </button>
+                            <button class="btn-detail-drink" onclick="showDetail(${JSON.stringify(s).replace(/"/g, '&quot;')})">
+                                <i class="fas fa-info-circle"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            document.getElementById('suggestionsVoiceBar').style.display = 'block';
+            resetVoiceBtn('suggestions');
+        } else {
+            lastSuggestionsData = null;
+            document.getElementById('suggestionsVoiceBar').style.display = 'none';
+            grid.innerHTML = '<div class="text-center py-3 text-muted" style="grid-column:1/-1">Aucune suggestion trouvée pour ce repas.</div>';
+        }
+    })
+    .catch(err => {
+        grid.innerHTML = '<div class="text-center py-3 text-muted" style="grid-column:1/-1">Erreur lors du chargement des suggestions.</div>';
+    });
+}
+
+function logSuggested(id, name, category, ml) {
+    const formData = new FormData();
+    if (id) formData.append('beverage_id', id);
+    formData.append('custom_name', name);
+    formData.append('category', category);
+    formData.append('quantity_ml', ml);
+
+    apiRequest('{{ path("app_nutrition_sommelier_log") }}', {
+        body: formData
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.status === 'success') {
+            showSuccessToast(`✅ ${name} enregistré !`);
+            refreshHydration();
+        }
+    });
+}
+
+// ══════════════════════════════
+// VIRTUAL TASTING
+// ══════════════════════════════
+function loadTasting(type, btn) {
+    document.querySelectorAll('.tasting-type-btn').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+
+    const content = document.getElementById('tastingContent');
+    if (!content) return; // Element not on this page, silently skip
+    
+    content.innerHTML = '<div class="text-center py-3"><div class="loading-spinner-sm"></div><p class="text-muted mt-2 small">Préparation de la dégustation...</p></div>';
+
+    const formData = new FormData();
+    formData.append('type', type);
+
+    apiRequest('{{ path("app_nutrition_sommelier_tasting") }}', {
+        body: formData
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.status === 'success' && data.tasting) {
+            lastTastingData = data.tasting;
+            const t = data.tasting;
+            let html = '';
+
+            // ── Introduction with voice ──
+            const introText = (t.titre || 'Dégustation') + '. ' + (t.introduction || '');
+            html += `<div style="position:relative;">
+                <h3 style="font-size:1.3rem;font-weight:800;margin-bottom:0.5rem;display:inline;">${t.titre || 'Dégustation'}</h3>
+                <button onclick="speakSection(this, \`${introText.replace(/`/g,'\\`').replace(/"/g,'&quot;')}\`)" class="tasting-voice-btn" title="Écouter l'introduction">
+                    <i class="fas fa-volume-up"></i>
+                </button>
+                <p style="color:#64748b;margin-bottom:1.5rem;">${t.introduction || ''}</p>
+            </div>`;
+
+            // ── Steps with individual voice buttons ──
+            if (t.etapes && t.etapes.length) {
+                html += '<h4 style="font-size:1rem;font-weight:700;margin-bottom:0.75rem;"><i class="fas fa-list-ol me-1"></i> Étapes de la dégustation</h4>';
+                t.etapes.forEach(step => {
+                    let stepText = `Étape ${step.numero}, ${step.nom || ''}. ${step.description || ''}`;
+                    if (step.conseil) stepText += ` Conseil : ${step.conseil}.`;
+                    if (step.duree_minutes) stepText += ` Durée : ${step.duree_minutes} minutes.`;
+                    html += `<div class="tasting-step" style="position:relative;">
+                        <div class="tasting-step-num">${step.numero || step.numero}</div>
+                        <div class="tasting-step-content">
+                            <div class="tasting-step-title">${step.nom || ''}
+                                <button onclick="speakSection(this, \`${stepText.replace(/`/g,'\\`').replace(/"/g,'&quot;')}\`)" class="tasting-voice-btn" title="Écouter cette étape">
+                                    <i class="fas fa-volume-up"></i>
+                                </button>
+                            </div>
+                            <div class="tasting-step-desc">${step.description || ''}</div>
+                            ${step.conseil ? `<div class="tasting-step-tip">💡 ${step.conseil}</div>` : ''}
+                            ${step.duree_minutes ? `<div class="tasting-step-duration">⏱️ ${step.duree_minutes} min</div>` : ''}
+                        </div>
+                    </div>`;
+                });
+            }
+
+            // ── Recommended drinks with individual voice buttons ──
+            if (t.boissons_recommandees && t.boissons_recommandees.length) {
+                html += '<h4 style="font-size:1rem;font-weight:700;margin:1.5rem 0 0.75rem;"><i class="fas fa-star me-1"></i> Boissons recommandées</h4>';
+                html += '<div class="tasting-recs">';
+                t.boissons_recommandees.forEach(b => {
+                    let bText = `${b.nom || 'Boisson'}, origine ${b.origine || 'inconnue'}. Notes de dégustation : ${b.notes_degustation || ''}. Température idéale : ${b.temperature_ideale || ''}.`;
+                    if (b.bienfaits && b.bienfaits.length) bText += ` Bienfaits : ${b.bienfaits.join(', ')}.`;
+                    html += `<div class="tasting-rec-card" style="position:relative;">
+                        <button onclick="speakSection(this, \`${bText.replace(/`/g,'\\`').replace(/"/g,'&quot;')}\`)" class="tasting-voice-btn" style="position:absolute;top:0.5rem;right:0.5rem;" title="Écouter cette boisson">
+                            <i class="fas fa-volume-up"></i>
+                        </button>
+                        <div class="tasting-rec-name">${b.nom || ''}</div>
+                        <div class="tasting-rec-origin">📍 ${b.origine || ''}</div>
+                        <div class="tasting-rec-notes">"${b.notes_degustation || ''}"</div>
+                        <div class="tasting-rec-temp">🌡️ ${b.temperature_ideale || ''}</div>
+                        ${b.bienfaits ? `<div style="margin-top:0.5rem;">${b.bienfaits.map(bf => `<span style="font-size:0.75rem;background:#f0fdf4;color:#059669;padding:0.15rem 0.5rem;border-radius:6px;margin-right:0.25rem;">✓ ${bf}</span>`).join('')}</div>` : ''}
+                    </div>`;
+                });
+                html += '</div>';
+            }
+
+            // ── Food pairings with voice ──
+            if (t.accords_mets && t.accords_mets.length) {
+                const accordsText = `Accords mets : ${t.accords_mets.join(', ')}.`;
+                html += `<div style="margin-top:1.5rem;padding:1rem;background:#fffbeb;border-radius:12px;border:1px solid #fde68a;position:relative;">
+                    <button onclick="speakSection(this, \`${accordsText.replace(/`/g,'\\`').replace(/"/g,'&quot;')}\`)" class="tasting-voice-btn" style="position:absolute;top:0.5rem;right:0.5rem;" title="Écouter les accords">
+                        <i class="fas fa-volume-up"></i>
+                    </button>
+                    <strong>🍽️ Accords mets :</strong> ${t.accords_mets.join(' • ')}
+                </div>`;
+            }
+
+            // ── Final advice with voice ──
+            if (t.conseil_final) {
+                const conseilText = `Conseil du sommelier : ${t.conseil_final}`;
+                html += `<div style="margin-top:1rem;padding:1rem;background:#eef2ff;border-radius:12px;border:1px solid #c7d2fe;position:relative;">
+                    <button onclick="speakSection(this, \`${conseilText.replace(/`/g,'\\`').replace(/"/g,'&quot;')}\`)" class="tasting-voice-btn" style="position:absolute;top:0.5rem;right:0.5rem;" title="Écouter le conseil">
+                        <i class="fas fa-volume-up"></i>
+                    </button>
+                    <strong>🎓 Conseil du sommelier :</strong> ${t.conseil_final}
+                </div>`;
+            }
+
+            // ── "Écouter tout" global button ──
+            html += `<div style="text-align:center;margin-top:1.5rem;">
+                <button id="tastingReadAllBtn" onclick="readTastingAloud()" class="btn-submit-drink" style="background:linear-gradient(135deg,#6366f1,#7c3aed);padding:0.6rem 1.5rem;font-size:0.9rem;">
+                    <i class="fas fa-headphones me-1"></i> <span id="tastingReadAllLabel">🔊 Écouter tout</span>
+                </button>
+            </div>`;
+
+            content.innerHTML = html;
+            document.getElementById('tastingVoiceBar').style.display = 'none';
+            resetVoiceBtn('tasting');
+        } else {
+            lastTastingData = null;
+            document.getElementById('tastingVoiceBar').style.display = 'none';
+            content.innerHTML = '<p class="text-muted text-center">Impossible de charger la dégustation.</p>';
+        }
+    })
+    .catch(err => {
+        content.innerHTML = '<p class="text-muted text-center">Erreur lors du chargement de la dégustation.</p>';
+    });
+}
+
+// ══════════════════════════════
+// STATS
+// ══════════════════════════════
+function loadStats() {
+    const cont = document.getElementById('statsContent');
+    cont.innerHTML = '<div class="text-center py-3"><div class="loading-spinner-sm"></div><p class="text-muted mt-2 small">Chargement desstatistiques...</p></div>';
+
+    apiRequest('{{ path("app_nutrition_sommelier_stats") }}')
+    .then(r => r.json())
+    .then(data => {
+        if (data.status === 'success') {
+            let html = '';
+
+            // Daily stats bars
+            if (data.daily_stats && data.daily_stats.length) {
+                html += '<h4 style="font-size:1rem;font-weight:700;margin-bottom:0.75rem;"><i class="fas fa-chart-bar me-1"></i> Hydratation quotidienne (7 jours)</h4>';
+                html += '<div style="display:flex;align-items:flex-end;gap:0.75rem;height:200px;padding:1rem;background:#f8fafc;border-radius:14px;border:1px solid #e2e8f0;margin-bottom:1.5rem;">';
+                const maxMl = Math.max(...data.daily_stats.map(d => d.totalMl), 1);
+                data.daily_stats.forEach(day => {
+                    const height = Math.max(10, (day.totalMl / maxMl) * 160);
+                    const date = new Date(day.date);
+                    const dayName = date.toLocaleDateString('fr-FR', { weekday: 'short' });
+                    const color = day.totalMl >= {{ hydration.target_ml }} ? '#10b981' : '#3b82f6';
+                    html += `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:0.25rem;">
+                        <span style="font-size:0.75rem;font-weight:700;">${day.totalMl}ml</span>
+                        <div style="width:100%;height:${height}px;background:${color};border-radius:8px;transition:height 0.5s;"></div>
+                        <span style="font-size:0.7rem;color:#94a3b8;">${dayName}</span>
+                        <span style="font-size:0.65rem;color:#94a3b8;">${day.count} 🥤</span>
+                    </div>`;
+                });
+                html += '</div>';
+            } else {
+                html += '<p class="text-muted text-center">Aucune donnée disponible. Commencez à enregistrer vos boissons !</p>';
+            }
+
+            // Favorites
+            if (data.favorites && data.favorites.length) {
+                html += '<h4 style="font-size:1rem;font-weight:700;margin-bottom:0.5rem;"><i class="fas fa-heart me-1"></i> Boissons favorites</h4>';
+                html += '<div class="list-group">';
+                data.favorites.forEach((f, i) => {
+                    const emoji = {'thé':'🍵','café':'☕','infusion':'🌿','eau':'💧','jus':'🧃','smoothie':'🥤','sirop_sans_sucre':'🍯','mocktail':'🍹'}[f.category] || '🥤';
+                    html += `<div class="list-group-item d-flex justify-content-between align-items-center" style="border:none;border-bottom:1px solid #f1f5f9;">
+                        <span>${emoji} <strong>${f.customBeverageName || 'Inconnu'}</strong></span>
+                        <span><span class="badge bg-primary rounded-pill">${f.consumeCount}x</span> <span class="badge bg-info rounded-pill">${f.totalMl}ml</span></span>
+                    </div>`;
+                });
+                html += '</div>';
+            }
+
+            cont.innerHTML = html || '<p class="text-muted text-center">Pas encore de données.</p>';
+        }
+    })
+    .catch(err => {
+        cont.innerHTML = '<div class="alert alert-warning" style="border-radius:12px;">Impossible de charger les statistiques.</div>';
+    });
+}
+
+// ══════════════════════════════
+// DETAIL MODAL
+// ══════════════════════════════
+function showDetail(item) {
+    const modal = document.getElementById('detailModal');
+    const content = document.getElementById('detailModalContent');
+
+    let html = `<div style="text-align:center;margin-bottom:1.5rem;">
+        <span style="font-size:4rem;">${item.emoji || '🥤'}</span>
+        <h3 style="font-size:1.4rem;font-weight:800;margin-top:0.5rem;">${item.name || ''}</h3>
+        ${item.origin ? `<p style="color:#94a3b8;">📍 ${item.origin}</p>` : ''}
+    </div>`;
+
+    if (item.description) {
+        html += `<p style="color:#64748b;line-height:1.6;margin-bottom:1rem;">${item.description}</p>`;
+    }
+
+    // Tags
+    html += '<div style="display:flex;flex-wrap:wrap;gap:0.4rem;margin-bottom:1rem;">';
+    if (item.hydration_score) html += `<span class="suggestion-tag tag-hydration">💧 Hydratation ${item.hydration_score}%</span>`;
+    if (item.calories !== undefined) html += `<span class="suggestion-tag tag-benefit">🔥 ${item.calories} kcal/100ml</span>`;
+    if (item.sugar_free) html += `<span class="suggestion-tag tag-sugar-free">Sans sucre</span>`;
+    if (item.caffeine_free) html += `<span class="suggestion-tag tag-caffeine-free">Sans caféine</span>`;
+    html += '</div>';
+
+    // Benefits
+    if (item.benefits && item.benefits.length) {
+        html += '<h4 style="font-size:0.9rem;font-weight:700;margin-bottom:0.5rem;">🌿 Bienfaits</h4>';
+        html += '<ul style="padding-left:1.2rem;margin-bottom:1rem;">';
+        item.benefits.forEach(b => html += `<li style="font-size:0.85rem;color:#334155;margin-bottom:0.25rem;">${b}</li>`);
+        html += '</ul>';
+    }
+
+    // Preparation
+    if (item.preparation) {
+        html += `<div style="padding:1rem;background:#faf5ff;border-radius:12px;margin-bottom:1rem;">
+            <strong>📝 Préparation :</strong><br>
+            <span style="font-size:0.85rem;color:#64748b;">${item.preparation}</span>
+        </div>`;
+    }
+
+    // Temperature
+    if (item.temp_min && item.temp_max) {
+        html += `<div style="padding:0.75rem 1rem;background:#eff6ff;border-radius:12px;margin-bottom:1rem;">
+            <strong>🌡️ Température :</strong> ${item.temp_min}°C - ${item.temp_max}°C
+        </div>`;
+    }
+
+    // Pairing
+    if (item.pairing && item.pairing.length) {
+        html += `<div style="padding:0.75rem 1rem;background:#fffbeb;border-radius:12px;margin-bottom:1rem;">
+            <strong>🍽️ Accords :</strong> ${item.pairing.join(', ')}
+        </div>`;
+    }
+
+    // Log button
+    html += `<button class="btn-submit-drink" style="width:100%;margin-top:1rem;" onclick="logSuggested('${item.id || ''}', '${(item.name || '').replace(/'/g, "\\'")}', '${item.category || 'autre'}', 250); closeModal();">
+        <i class="fas fa-plus me-1"></i> Enregistrer cette boisson (250ml)
+    </button>`;
+
+    content.innerHTML = html;
+    modal.classList.add('open');
+}
+
+function closeModal() {
+    document.getElementById('detailModal').classList.remove('open');
+}
+
+// ══════════════════════════════
+// CATALOG FILTER
+// ══════════════════════════════
+function filterCatalog(category, btn) {
+    document.querySelectorAll('.catalog-tab').forEach(t => t.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+
+    document.querySelectorAll('.catalog-item').forEach(item => {
+        if (category === 'all' || item.dataset.category === category) {
+            item.style.display = '';
+        } else {
+            item.style.display = 'none';
+        }
+    });
+}
+
+// Expose to window for HTML onclick handlers
+window.filterCatalog = filterCatalog;
+
+// ══════════════════════════════
+// ADD TO CART FROM CATALOG
+// ══════════════════════════════
+// catalogCartTotal now stored in window.sommelier.catalogCartTotal
+
+function addCatalogToCart(productId, btn) {
+    if (btn.disabled) return;
+
+    const originalHTML = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+    const formData = new FormData();
+    formData.append('product_id', productId);
+    formData.append('quantity', 1);
+
+    apiRequest('{{ path("app_nutrition_sommelier_add_to_cart") }}', {
+        body: formData
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.status === 'success') {
+            window.sommelier.catalogCartTotal++;
+            btn.innerHTML = '<i class="fas fa-check"></i> Ajouté !';
+            btn.classList.add('added');
+            showSuccessToast('✅ ' + (data.message || 'Produit ajouté au panier !'));
+
+            // Update cart bar + badge
+            updateCartBadge(data.cart_count || window.sommelier.catalogCartTotal);
+
+            setTimeout(() => {
+                btn.innerHTML = originalHTML;
+                btn.classList.remove('added');
+                btn.disabled = false;
+            }, 2000);
+        } else {
+            btn.innerHTML = originalHTML;
+            btn.disabled = false;
+            showSuccessToast('❌ ' + (data.message || 'Erreur lors de l\'ajout'));
+        }
+    })
+    .catch(err => {
+        btn.innerHTML = originalHTML;
+        btn.disabled = false;
+        showSuccessToast('❌ Erreur de connexion');
+    });
+}
+
+// Expose addCatalogToCart to window for HTML onclick handlers
+window.addCatalogToCart = addCatalogToCart;
+
+// Show cart bar on load if items exist
+(function() {
+    if (window.sommelier.catalogCartTotal > 0) {
+        const bar = document.getElementById('catalogCartBar');
+        const count = document.getElementById('catalogCartCount');
+        if (bar) bar.style.display = 'block';
+        if (count) count.textContent = window.sommelier.catalogCartTotal;
+    }
+})();
+
+// ══════════════════════════════
+// TOAST
+// ══════════════════════════════
+function showSuccessToast(message) {
+    const toast = document.createElement('div');
+    toast.style.cssText = 'position:fixed;top:20px;right:20px;z-index:20000;background:#f0fdf4;color:#065f46;padding:1rem 1.5rem;border-radius:14px;font-weight:600;box-shadow:0 8px 30px rgba(0,0,0,0.15);border:1px solid #bbf7d0;animation:slideIn 0.3s ease;max-width:400px;';
+    if (message.includes('❌')) {
+        toast.style.background = '#fef2f2';
+        toast.style.color = '#991b1b';
+        toast.style.borderColor = '#fecaca';
+    }
+    toast.innerHTML = message;
+    document.body.appendChild(toast);
+    setTimeout(() => { toast.style.animation = 'toastOut 0.3s forwards'; setTimeout(() => toast.remove(), 300); }, 3000);
+}
+
+// ══════════════════════════════
+// CART SIDEBAR FUNCTIONS
+// ══════════════════════════════
+function openCart() {
+    const overlay = document.getElementById('cartOverlay');
+    if (!overlay) return;
+    overlay.classList.add('open');
+    loadCartData();
+}
+
+function closeCart(event) {
+    if (event && event.target !== document.getElementById('cartOverlay')) return;
+    const overlay = document.getElementById('cartOverlay');
+    if (overlay) overlay.classList.remove('open');
+    const checkoutForm = document.getElementById('checkoutForm');
+    if (checkoutForm) checkoutForm.classList.remove('open');
+}
+
+function updateCartBadge(count) {
+    window.sommelier.catalogCartTotal = count;
+    const badge = document.getElementById('cartBadge');
+    if (badge) {
+        badge.textContent = count;
+        badge.style.display = count > 0 ? 'flex' : 'none';
+    }
+    const countEl = document.getElementById('catalogCartCount');
+    if (countEl) countEl.textContent = count;
+    const bar = document.getElementById('catalogCartBar');
+    if (bar) bar.style.display = count > 0 ? 'block' : 'none';
+}
+
+function loadCartData() {
+    fetch('{{ path("app_nutrition_sommelier_cart_data") }}', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+            'X-CSRF-Token': window.sommelier.csrfToken,
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.status === 'success') {
+            renderCart(data);
+        }
+    })
+    .catch(err => {
+        console.error('Load cart error:', err);
+        showSuccessToast('❌ Erreur lors du chargement du panier');
+    });
+}
+
+function renderCart(data) {
+    const container = document.getElementById('cartItems');
+    const footer = document.getElementById('cartFooter');
+
+    if (!container || !footer) return;
+
+    if (!data.items || data.items.length === 0) {
+        container.innerHTML = '<div style="text-align:center;padding:3rem 1rem;"><div style="font-size:4rem;margin-bottom:1rem;">🛒</div><p style="color:#94a3b8;">Votre panier est vide</p></div>';
+        footer.style.display = 'none';
+        return;
+    }
+
+    let html = '';
+    data.items.forEach(item => {
+        html += `<div class="cart-item">
+            <span class="cart-item-emoji">${item.emoji}</span>
+            <div class="cart-item-info">
+                <div class="cart-item-name">${item.name}</div>
+                <div class="cart-item-details">${item.brand || ''} · ${item.volume || ''}</div>
+                <div class="cart-item-details">${item.unit_price} DH/unité</div>
+                <div class="cart-item-qty">
+                    <button class="cart-qty-btn" onclick="updateCartQty(${item.item_id}, ${item.quantity - 1})">−</button>
+                    <span style="font-weight:700;">${item.quantity}</span>
+                    <button class="cart-qty-btn" onclick="updateCartQty(${item.item_id}, ${item.quantity + 1})">+</button>
+                </div>
+                <button class="cart-item-remove" onclick="removeCartItem(${item.item_id})"><i class="fas fa-trash-alt me-1"></i> Supprimer</button>
+            </div>
+            <div class="cart-item-total">${item.line_total} DH</div>
+        </div>`;
+    });
+    container.innerHTML = html;
+    footer.style.display = 'block';
+
+    const subtotalEl = document.getElementById('cartSubtotal');
+    if (subtotalEl) subtotalEl.textContent = data.total + ' DH';
+    const shippingEl = document.getElementById('cartShipping');
+    if (shippingEl) shippingEl.textContent = data.shipping_cost === '0.00' ? 'Gratuit 🎉' : data.shipping_cost + ' DH';
+    const totalEl = document.getElementById('cartGrandTotal');
+    if (totalEl) totalEl.textContent = data.grand_total + ' DH';
+    updateCartBadge(data.cart_count);
+
+    // Shipping progress
+    const total = parseFloat(data.total);
+    const threshold = data.free_shipping_at;
+    let bannerHTML = '';
+    if (total >= threshold) {
+        bannerHTML = '<div class="free-shipping-banner">🚚 Livraison gratuite !</div>';
+    } else {
+        const remaining = (threshold - total).toFixed(2);
+        const pct = Math.min(100, (total / threshold) * 100);
+        bannerHTML = `<div class="free-shipping-banner">
+            🚚 Plus que ${remaining} DH pour la livraison gratuite !
+            <div class="shipping-progress-bar"><div class="shipping-progress-fill" style="width:${pct}%"></div></div>
+        </div>`;
+    }
+    const bannerArea = document.getElementById('shippingBannerArea');
+    if (bannerArea) bannerArea.innerHTML = bannerHTML;
+}
+
+function updateCartQty(itemId, qty) {
+    const formData = new FormData();
+    formData.append('item_id', itemId);
+    formData.append('quantity', qty);
+
+    fetch('{{ path("app_nutrition_sommelier_update_cart") }}', {
+        method: 'POST',
+        body: formData,
+        credentials: 'include',
+        headers: {
+            'X-CSRF-Token': window.sommelier.csrfToken,
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.status === 'success') {
+            loadCartData();
+        } else {
+            showSuccessToast('❌ ' + data.message);
+        }
+    })
+    .catch(err => {
+        console.error('Update cart error:', err);
+        showSuccessToast('❌ Erreur lors de la mise à jour du panier');
+    });
+}
+
+function removeCartItem(itemId) {
+    const formData = new FormData();
+    formData.append('item_id', itemId);
+
+    fetch('{{ path("app_nutrition_sommelier_remove_from_cart") }}', {
+        method: 'POST',
+        body: formData,
+        credentials: 'include',
+        headers: {
+            'X-CSRF-Token': window.sommelier.csrfToken,
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.status === 'success') {
+            loadCartData();
+            updateCartBadge(data.cart_count);
+        }
+    })
+    .catch(err => {
+        console.error('Remove error:', err);
+        showSuccessToast('❌ Erreur lors de la suppression');
+    });
+}
+
+// ══════════════════════════════
+// CHECKOUT
+// ══════════════════════════════
+function showCheckoutForm() {
+    const btnArea = document.getElementById('checkoutBtnArea');
+    if (btnArea) btnArea.style.display = 'none';
+    const form = document.getElementById('checkoutForm');
+    if (form) form.classList.add('open');
+}
+
+function submitCheckout() {
+    const address = document.getElementById('ckAddress').value;
+    const city = document.getElementById('ckCity').value;
+    const phone = document.getElementById('ckPhone').value;
+
+    if (!address || !city || !phone) {
+        showSuccessToast('❌ Veuillez remplir adresse, ville et téléphone.');
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('address', address);
+    formData.append('city', city);
+    formData.append('postal_code', document.getElementById('ckPostalCode').value);
+    formData.append('phone', phone);
+    formData.append('payment_method', document.getElementById('ckPaymentMethod').value);
+    formData.append('notes', document.getElementById('ckNotes').value);
+
+    fetch('{{ path("app_nutrition_sommelier_checkout") }}', {
+        method: 'POST',
+        body: formData,
+        credentials: 'include',
+        headers: {
+            'X-CSRF-Token': window.sommelier.csrfToken,
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(r => {
+        if (!r.ok) throw new Error('Erreur serveur: ' + r.status);
+        return r.json();
+    })
+    .then(data => {
+        if (data.status === 'success') {
+            const cartItems = document.getElementById('cartItems');
+            if (cartItems) {
+                cartItems.innerHTML = `
+                    <div style="text-align:center;padding:3rem 1rem;">
+                        <div style="font-size:4rem;margin-bottom:1rem;">🎉</div>
+                        <h3 style="font-weight:800;margin-bottom:0.5rem;">Commande confirmée !</h3>
+                        <p style="color:#64748b;">N° ${data.order_number}</p>
+                        <p style="font-weight:700;font-size:1.3rem;color:#10b981;margin:1rem 0;">Total : ${data.grand_total} DH</p>
+                        ${data.shipping_cost == 0 ? '<p style="color:#059669;font-weight:600;">🚚 Livraison gratuite !</p>' : ''}
+                        <a href="{{ path('app_nutrition_sommelier_orders') }}" data-turbo="false" style="display:inline-block;margin-top:1.5rem;padding:0.75rem 2rem;background:#6366f1;color:white;border-radius:12px;text-decoration:none;font-weight:700;">
+                            <i class="fas fa-box me-1"></i> Voir mes commandes
+                        </a>
+                    </div>`;
+            }
+            const cartFooter = document.getElementById('cartFooter');
+            if (cartFooter) cartFooter.style.display = 'none';
+            updateCartBadge(0);
+            showSuccessToast('✅ Commande confirmée !');
+        } else {
+            showSuccessToast('❌ ' + (data.message || 'Erreur lors de la commande'));
+        }
+    })
+    .catch(err => {
+        console.error('Checkout error:', err);
+        showSuccessToast('❌ Erreur réseau lors du checkout. Vérifiez votre connexion et réessayez.');
+    });
+}
+
+// ══════════════════════════════
+// BEVERAGE PHOTO ANALYSIS
+// ══════════════════════════════
+let lastSuggestionsData = null;
+let lastTastingData = null;
+let voiceSpeakingSection = null;
+
+// ── Generic TTS helper ──
+let currentSpeakingBtn = null;
+
+function speakSection(btn, text) {
+    if (!window.speechSynthesis) return;
+
+    // If this button is already speaking, stop
+    if (currentSpeakingBtn === btn) {
+        window.speechSynthesis.cancel();
+        currentSpeakingBtn = null;
+        btn.innerHTML = '<i class="fas fa-volume-up"></i>';
+        btn.classList.remove('tasting-voice-btn-active');
+        return;
+    }
+
+    // Stop any ongoing speech
+    window.speechSynthesis.cancel();
+    if (currentSpeakingBtn) {
+        currentSpeakingBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
+        currentSpeakingBtn.classList.remove('tasting-voice-btn-active');
+    }
+    currentSpeakingBtn = btn;
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'fr-FR';
+    utterance.rate = 0.95;
+    utterance.pitch = 1;
+
+    const voices = window.speechSynthesis.getVoices();
+    const frVoice = voices.find(v => v.lang.startsWith('fr'));
+    if (frVoice) utterance.voice = frVoice;
+
+    utterance.onstart = function() {
+        btn.innerHTML = '<i class="fas fa-stop"></i>';
+        btn.classList.add('tasting-voice-btn-active');
+    };
+    utterance.onend = function() {
+        currentSpeakingBtn = null;
+        btn.innerHTML = '<i class="fas fa-volume-up"></i>';
+        btn.classList.remove('tasting-voice-btn-active');
+    };
+    utterance.onerror = function() {
+        currentSpeakingBtn = null;
+        btn.innerHTML = '<i class="fas fa-volume-up"></i>';
+        btn.classList.remove('tasting-voice-btn-active');
+    };
+
+    window.speechSynthesis.speak(utterance);
+}
+
+function speakFrench(text, sectionKey) {
+    if (!window.speechSynthesis) return;
+
+    // If same section is already speaking, stop
+    if (voiceSpeakingSection === sectionKey) {
+        window.speechSynthesis.cancel();
+        voiceSpeakingSection = null;
+        resetVoiceBtn(sectionKey);
+        return;
+    }
+
+    // Stop any ongoing speech first
+    window.speechSynthesis.cancel();
+    voiceSpeakingSection = sectionKey;
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'fr-FR';
+    utterance.rate = 0.95;
+    utterance.pitch = 1;
+
+    const voices = window.speechSynthesis.getVoices();
+    const frVoice = voices.find(v => v.lang.startsWith('fr'));
+    if (frVoice) utterance.voice = frVoice;
+
+    const btnLabel = document.getElementById(sectionKey + 'VoiceLabel');
+    const btnIcon = document.getElementById(sectionKey + 'VoiceBtn');
+
+    utterance.onstart = function() {
+        if (btnLabel) btnLabel.textContent = '⏹️ Arrêter la lecture';
+        if (btnIcon) btnIcon.querySelector('i').className = 'fas fa-stop me-1';
+    };
+    utterance.onend = function() {
+        voiceSpeakingSection = null;
+        resetVoiceBtn(sectionKey);
+    };
+    utterance.onerror = function() {
+        voiceSpeakingSection = null;
+        resetVoiceBtn(sectionKey);
+    };
+
+    window.speechSynthesis.speak(utterance);
+}
+
+function resetVoiceBtn(sectionKey) {
+    const labels = {
+        'suggestions': '🔊 Écouter les suggestions',
+        'tasting': '🔊 Écouter la dégustation'
+    };
+    const btnLabel = document.getElementById(sectionKey + 'VoiceLabel');
+    const btnIcon = document.getElementById(sectionKey + 'VoiceBtn');
+    if (btnLabel) btnLabel.textContent = labels[sectionKey] || '🔊 Écouter';
+    if (btnIcon) btnIcon.querySelector('i').className = 'fas fa-volume-up me-1';
+}
+
+// ── Read Suggestions Aloud ──
+function readSuggestionsAloud() {
+    if (!lastSuggestionsData || !lastSuggestionsData.length) return;
+    let text = 'Voici les boissons suggérées pour ce repas. ';
+    lastSuggestionsData.forEach((s, i) => {
+        text += `Suggestion ${i + 1} : ${s.name || 'Boisson'}. `;
+        if (s.origin) text += `Origine : ${s.origin}. `;
+        if (s.description) text += s.description.substring(0, 200) + '. ';
+        if (s.hydration_score) text += `Score d'hydratation : ${s.hydration_score} pourcent. `;
+        if (s.calories !== undefined) text += `${s.calories} kilocalories pour 100 millilitres. `;
+        if (s.benefits && s.benefits.length) text += 'Bienfaits : ' + s.benefits.slice(0, 3).join(', ') + '. ';
+    });
+    speakFrench(text, 'suggestions');
+}
+
+// ── Read Tasting Aloud (all at once) ──
+function readTastingAloud() {
+    if (!lastTastingData) return;
+
+    const allBtn = document.getElementById('tastingReadAllBtn');
+    const allLabel = document.getElementById('tastingReadAllLabel');
+
+    // Toggle off if already speaking
+    if (voiceSpeakingSection === 'tastingAll') {
+        window.speechSynthesis.cancel();
+        voiceSpeakingSection = null;
+        if (allLabel) allLabel.textContent = '🔊 Écouter tout';
+        if (allBtn) allBtn.querySelector('i').className = 'fas fa-headphones me-1';
+        return;
+    }
+
+    // Stop any ongoing speech
+    window.speechSynthesis.cancel();
+    if (currentSpeakingBtn) {
+        currentSpeakingBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
+        currentSpeakingBtn.classList.remove('tasting-voice-btn-active');
+        currentSpeakingBtn = null;
+    }
+    voiceSpeakingSection = 'tastingAll';
+
+    const t = lastTastingData;
+    let text = '';
+    text += (t.titre || 'Dégustation') + '. ';
+    if (t.introduction) text += t.introduction + ' ';
+
+    if (t.etapes && t.etapes.length) {
+        text += 'Étapes de la dégustation. ';
+        t.etapes.forEach(step => {
+            text += `Étape ${step.numero} : ${step.nom || ''}. `;
+            if (step.description) text += step.description + ' ';
+            if (step.conseil) text += 'Conseil : ' + step.conseil + '. ';
+            if (step.duree_minutes) text += `Durée : ${step.duree_minutes} minutes. `;
+        });
+    }
+
+    if (t.boissons_recommandees && t.boissons_recommandees.length) {
+        text += 'Boissons recommandées. ';
+        t.boissons_recommandees.forEach(b => {
+            text += `${b.nom || ''}, origine ${b.origine || 'inconnue'}. `;
+            if (b.notes_degustation) text += `Notes de dégustation : ${b.notes_degustation}. `;
+            if (b.temperature_ideale) text += `Température idéale : ${b.temperature_ideale}. `;
+            if (b.bienfaits && b.bienfaits.length) text += 'Bienfaits : ' + b.bienfaits.join(', ') + '. ';
+        });
+    }
+
+    if (t.accords_mets && t.accords_mets.length) {
+        text += 'Accords mets : ' + t.accords_mets.join(', ') + '. ';
+    }
+
+    if (t.conseil_final) {
+        text += 'Conseil du sommelier : ' + t.conseil_final;
+    }
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'fr-FR';
+    utterance.rate = 0.95;
+    utterance.pitch = 1;
+    const voices = window.speechSynthesis.getVoices();
+    const frVoice = voices.find(v => v.lang.startsWith('fr'));
+    if (frVoice) utterance.voice = frVoice;
+
+    utterance.onstart = function() {
+        if (allLabel) allLabel.textContent = '⏹️ Arrêter la lecture';
+        if (allBtn) allBtn.querySelector('i').className = 'fas fa-stop me-1';
+    };
+    utterance.onend = function() {
+        voiceSpeakingSection = null;
+        if (allLabel) allLabel.textContent = '🔊 Écouter tout';
+        if (allBtn) allBtn.querySelector('i').className = 'fas fa-headphones me-1';
+    };
+    utterance.onerror = function() {
+        voiceSpeakingSection = null;
+        if (allLabel) allLabel.textContent = '🔊 Écouter tout';
+        if (allBtn) allBtn.querySelector('i').className = 'fas fa-headphones me-1';
+    };
+
+    window.speechSynthesis.speak(utterance);
+}
+
+function analyzeBeveragePhoto() {
+    if (!window.sommelier.currentPhotoFile) return;
+
+    document.getElementById('photoAnalyzeBtn').style.display = 'none';
+    document.getElementById('photoAnalysisLoading').style.display = 'block';
+    document.getElementById('photoAnalysisResult').style.display = 'none';
+
+    const formData = new FormData();
+    formData.append('photo', window.sommelier.currentPhotoFile);
+
+    apiRequest('{{ path("app_nutrition_sommelier_photo_analyze") }}', {
+        body: formData
+    })
+    .then(r => {
+        if (!r.ok) {
+            throw new Error('Erreur HTTP: ' + r.status);
+        }
+        return r.json();
+    })
+    .then(data => {
+        document.getElementById('photoAnalysisLoading').style.display = 'none';
+        if (data.status === 'success') {
+            window.sommelier.currentPhotoAnalysis = data.analysis;
+            displayPhotoAnalysis(data.analysis);
+        } else {
+            showSuccessToast('❌ ' + (data.message || 'Erreur lors de l\'analyse'));
+            document.getElementById('photoAnalyzeBtn').style.display = 'block';
+        }
+    })
+    .catch(err => {
+        document.getElementById('photoAnalysisLoading').style.display = 'none';
+        document.getElementById('photoAnalyzeBtn').style.display = 'block';
+        console.error('Analysis error:', err);
+        showSuccessToast('❌ Erreur de connexion lors de l\'analyse. Vérifiez votre connexion Internet.');
+    });
+}
+
+function displayPhotoAnalysis(analysis) {
+    const catEmojis = {'thé':'🍵','café':'☕','infusion':'🌿','eau':'💧','jus':'🧃','smoothie':'🥤','sirop_sans_sucre':'🍯','mocktail':'🍹'};
+    document.getElementById('photoResultName').textContent = (analysis.name || 'Boisson inconnue');
+    document.getElementById('photoResultCategory').textContent = (catEmojis[analysis.category] || '🥤') + ' ' + (analysis.category || '');
+    document.getElementById('photoResultVolume').textContent = (analysis.estimated_volume_ml || '?') + ' ml';
+    document.getElementById('photoResultCalories').textContent = (analysis.calories_estimated || '?') + ' kcal';
+    document.getElementById('photoResultHydration').textContent = (analysis.hydration_score || '?') + '/10';
+    document.getElementById('photoResultHealthy').textContent = analysis.is_healthy ? '✅ Sain' : '⚠️ Attention';
+
+    document.getElementById('photoResultDescription').textContent = analysis.description || '';
+
+    // Benefits
+    let benefitsHTML = '';
+    if (analysis.health_benefits && analysis.health_benefits.length) {
+        benefitsHTML = '<div style="margin-bottom:0.5rem;font-weight:700;font-size:0.85rem;">✅ Bienfaits :</div>';
+        analysis.health_benefits.forEach(b => { benefitsHTML += '<span style="display:inline-block;padding:0.2rem 0.6rem;background:#ecfdf5;color:#059669;border-radius:8px;font-size:0.8rem;font-weight:600;margin:0.15rem;">' + b + '</span>'; });
+    }
+    document.getElementById('photoResultBenefits').innerHTML = benefitsHTML;
+
+    // Warnings
+    let warningsHTML = '';
+    if (analysis.health_warnings && analysis.health_warnings.length) {
+        warningsHTML = '<div style="margin-bottom:0.5rem;font-weight:700;font-size:0.85rem;">⚠️ Avertissements :</div>';
+        analysis.health_warnings.forEach(w => { warningsHTML += '<span style="display:inline-block;padding:0.2rem 0.6rem;background:#fef2f2;color:#dc2626;border-radius:8px;font-size:0.8rem;font-weight:600;margin:0.15rem;">' + w + '</span>'; });
+    }
+    document.getElementById('photoResultWarnings').innerHTML = warningsHTML;
+
+    // Alternatives
+    let altHTML = '';
+    if (analysis.alternatives_healthier && analysis.alternatives_healthier.length) {
+        altHTML = '<div style="margin-bottom:0.5rem;font-weight:700;font-size:0.85rem;">💡 Alternatives plus saines :</div>';
+        analysis.alternatives_healthier.forEach(a => { altHTML += '<span style="display:inline-block;padding:0.2rem 0.6rem;background:#eff6ff;color:#2563eb;border-radius:8px;font-size:0.8rem;font-weight:600;margin:0.15rem;">' + a + '</span>'; });
+    }
+    document.getElementById('photoResultAlternatives').innerHTML = altHTML;
+
+    document.getElementById('photoAnalysisResult').style.display = 'block';
+}
+
+function savePhotoAnalysis() {
+    if (!window.sommelier.currentPhotoAnalysis) return;
+
+    const moment = prompt('À quel moment consommez-vous cette boisson? (petit-déjeuner, déjeuner, goûter, dîner, autre)', 'autre');
+    if (!moment) return;
+
+    const formData = new FormData();
+    formData.append('name', window.sommelier.currentPhotoAnalysis.name || 'Boisson analysée');
+    formData.append('category', window.sommelier.currentPhotoAnalysis.category || 'autre');
+    formData.append('quantity_ml', window.sommelier.currentPhotoAnalysis.estimated_volume_ml || 250);
+    formData.append('calories', window.sommelier.currentPhotoAnalysis.calories_estimated || 0);
+    formData.append('moment', moment);
+
+    apiRequest('{{ path("app_nutrition_sommelier_photo_log") }}', {
+        body: formData
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.status === 'success') {
+            showSuccessToast('✅ Boisson enregistrée avec succès !');
+            resetPhotoUpload();
+            // Refresh after short delay
+            setTimeout(() => location.reload(), 1500);
+        } else {
+            showSuccessToast('❌ ' + data.message);
+        }
+    })
+    .catch(err => {
+        console.error('Save error:', err);
+        showSuccessToast('❌ Erreur de connexion lors de l\'enregistrement');
+    });
+}
+
+// ── Text-to-Speech: read analysis results aloud ──
+function readAnalysisAloud() {
+    if (!window.sommelier.currentPhotoAnalysis) return;
+
+    // If already speaking, stop
+    if (window.sommelier.isSpeaking) {
+        window.speechSynthesis.cancel();
+        window.sommelier.isSpeaking = false;
+        document.getElementById('voiceReadLabel').textContent = 'Écouter';
+        document.getElementById('voiceReadBtn').querySelector('i').className = 'fas fa-volume-up me-1';
+        return;
+    }
+
+    const a = window.sommelier.currentPhotoAnalysis;
+    let text = '';
+    text += 'Boisson identifiée : ' + (a.name || 'Inconnue') + '. ';
+    text += 'Catégorie : ' + (a.category || 'non définie') + '. ';
+    text += 'Volume estimé : ' + (a.estimated_volume_ml || 'inconnu') + ' millilitres. ';
+    text += 'Calories estimées : ' + (a.calories_estimated || 0) + ' kilocalories. ';
+    text += 'Score d\'hydratation : ' + (a.hydration_score || 'inconnu') + ' sur 10. ';
+    text += a.is_healthy ? 'Cette boisson est considérée comme saine. ' : 'Attention, cette boisson nécessite de la prudence. ';
+
+    if (a.description) {
+        text += a.description + ' ';
+    }
+
+    if (a.health_benefits && a.health_benefits.length) {
+        text += 'Bienfaits : ' + a.health_benefits.join(', ') + '. ';
+    }
+
+    if (a.health_warnings && a.health_warnings.length) {
+        text += 'Avertissements : ' + a.health_warnings.join(', ') + '. ';
+    }
+
+    if (a.alternatives_healthier && a.alternatives_healthier.length) {
+        text += 'Alternatives plus saines : ' + a.alternatives_healthier.join(', ') + '. ';
+    }
+
+    if (a.recommendation) {
+        text += 'Conseil : ' + a.recommendation;
+    }
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'fr-FR';
+    utterance.rate = 0.95;
+    utterance.pitch = 1;
+
+    // Try to pick a French voice
+    const voices = window.speechSynthesis.getVoices();
+    const frVoice = voices.find(v => v.lang.startsWith('fr'));
+    if (frVoice) utterance.voice = frVoice;
+
+    utterance.onstart = function() {
+        window.sommelier.isSpeaking = true;
+        document.getElementById('voiceReadLabel').textContent = 'Arrêter';
+        document.getElementById('voiceReadBtn').querySelector('i').className = 'fas fa-stop me-1';
+    };
+    utterance.onend = function() {
+        window.sommelier.isSpeaking = false;
+        document.getElementById('voiceReadLabel').textContent = 'Écouter';
+        document.getElementById('voiceReadBtn').querySelector('i').className = 'fas fa-volume-up me-1';
+    };
+    utterance.onerror = function() {
+        window.sommelier.isSpeaking = false;
+        document.getElementById('voiceReadLabel').textContent = 'Écouter';
+        document.getElementById('voiceReadBtn').querySelector('i').className = 'fas fa-volume-up me-1';
+    };
+
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(utterance);
+}
+
+// Pre-load voices (some browsers need this)
+if (window.speechSynthesis) {
+    window.speechSynthesis.onvoiceschanged = function() { window.speechSynthesis.getVoices(); };
+}
+
+function resetPhotoUpload() {
+    // Stop any ongoing speech
+    if (window.speechSynthesis) window.speechSynthesis.cancel();
+    window.sommelier.isSpeaking = false;
+    window.sommelier.currentPhotoFile = null;
+    window.sommelier.currentPhotoAnalysis = null;
+    document.getElementById('photoPreview').style.display = 'none';
+    document.getElementById('photoPlaceholder').style.display = 'block';
+    document.getElementById('photoAnalyzeBtn').style.display = 'none';
+    document.getElementById('photoAnalysisLoading').style.display = 'none';
+    document.getElementById('photoAnalysisResult').style.display = 'none';
+    document.getElementById('photoUploadArea').style.borderColor = '#c7d2fe';
+    document.getElementById('photoUploadArea').style.background = '#fafafe';
+    document.getElementById('beveragePhotoInput').value = '';
+}
+
+// ═══════════════════════════════════════════════════════════════
+// EXPOSE ALL FUNCTIONS TO WINDOW GLOBAL SCOPE FOR HTML ONCLICK HANDLERS
+// ═══════════════════════════════════════════════════════════════
+window.handleBeveragePhoto = handleBeveragePhoto;
+window.analyzeBeveragePhoto = analyzeBeveragePhoto;
+window.quickLog = quickLog;
+window.toggleCustomForm = toggleCustomForm;
+window.submitCustomDrink = submitCustomDrink;
+window.loadSuggestions = loadSuggestions;
+window.loadTasting = loadTasting;
+window.readSuggestionsAloud = readSuggestionsAloud;
+window.readAnalysisAloud = readAnalysisAloud;
+window.resetPhotoUpload = resetPhotoUpload;
+window.filterCatalog = filterCatalog;
+window.addCatalogToCart = addCatalogToCart;
+window.openCart = openCart;
+window.closeCart = closeCart;
+window.updateCartBadge = updateCartBadge;
+window.loadCartData = loadCartData;
+window.renderCart = renderCart;
+window.updateCartQty = updateCartQty;
+window.removeCartItem = removeCartItem;
+window.showCheckoutForm = showCheckoutForm;
+window.submitCheckout = submitCheckout;
+window.showSuccessToast = showSuccessToast;
+</script>
+
+<style>
+@keyframes slideIn { from { opacity:0; transform:translateX(30px); } to { opacity:1; transform:translateX(0); } }
+@keyframes toastOut { from { opacity:1; } to { opacity:0; transform:translateX(30px); } }
+
+/* Mini voice buttons for tasting sections */
+.tasting-voice-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #6366f1, #7c3aed);
+    color: white;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-left: 0.5rem;
+    vertical-align: middle;
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+}
+.tasting-voice-btn:hover {
+    transform: scale(1.15);
+    box-shadow: 0 4px 14px rgba(99, 102, 241, 0.45);
+}
+.tasting-voice-btn-active {
+    background: linear-gradient(135deg, #ef4444, #dc2626) !important;
+    animation: voicePulse 1.2s infinite;
+    box-shadow: 0 2px 12px rgba(239, 68, 68, 0.4);
+}
+@keyframes voicePulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+</style>
+{% endblock %}

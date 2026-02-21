@@ -1,0 +1,43 @@
+╔════════════════════════════════════════════════════════════════╗
+║         DIAGNOSTIC DES ERREURS - Instructions Pour Vous         ║
+╚════════════════════════════════════════════════════════════════╝
+
+📋 ÉTAPES POUR TESTER ET DIAGNOSTIQUER:
+
+1️⃣  Ouvrez DevTools (F12) dans le navigateur
+   
+2️⃣  Tapez dans la Console (onglet Console):
+   
+   console.log('csrfToken =', csrfToken);
+   
+   ✅ Vous devriez voir un long token, PAS une chaîne vide
+   ❌ Si vide: le csrf_token() Twig ne fonctionne pas
+   
+3️⃣  Allez en onglet Network et filtrez "fetch"
+
+4️⃣  Cliquez sur "Ajouter au panier" sur un produit
+
+5️⃣  Regardez la requête POST dans Network:
+   - Headers Section:
+     ✅ Cookie: PHPSESSID=xxxxx (doit être présent!)
+     ✅ X-Csrf-Token: (long token)
+   - Response:
+     ✅ JSON avec {"status":"success",...}
+     ❌ HTML (login page) = session non envoyée
+     ❌ JSON avec {"status":"error",...} = erreur serveur
+
+═══════════════════════════════════════════════════════════════
+
+📺 ÉTAPES POUR LA PHOTO:
+
+1. Allez au onglet Console
+2. Chargez une photo dans "Enregistrer par photo"
+3. Vérifiez la requête photo-analyze dans Network comme ci-dessus
+
+═══════════════════════════════════════════════════════════════
+
+❓ SI TOUJOURS DES ERREURS:
+
+Ayez-vous vidé le cache du navigateur? (Ctrl+Shift+Del)
+Avez-vous recharger la page? (F5 ou Ctrl+R)
+Êtes-vous connecté correctement?

@@ -1,0 +1,96 @@
+{% extends 'base_dashboard.html.twig' %}
+
+{% block title %}Recettes & Inspiration{% endblock %}
+
+{% block sidebar %}
+    <span class="sidebar-nav-title">Navigation Nutrition</span>
+    <nav>
+        <a href="{{ path('app_my_nutrition') }}" class="sidebar-link">
+            <i class="fas fa-utensils"></i> Tableau de bord
+        </a>
+        <a href="{{ path('app_nutrition_request') }}" class="sidebar-link">
+            <i class="fas fa-plus"></i> Nouvelle demande
+        </a>
+        <a href="{{ path('app_nutrition_scan') }}" class="sidebar-link">
+            <i class="fas fa-barcode"></i> Scanner produit
+        </a>
+        <a href="{{ path('app_nutrition_track') }}" class="sidebar-link">
+            <i class="fas fa-camera"></i> Analyse Photo IA
+        </a>
+    </nav>
+{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    <div class="row mb-5 align-items-center">
+        <div class="col-md-8">
+            <h2 class="fw-bold display-5 text-success mb-3">Recettes & Inspiration</h2>
+            <p class="lead text-muted">Découvrez des milliers de recettes adaptées à vos envies.</p>
+        </div>
+        <div class="col-md-4">
+            <form action="{{ path('app_nutrition_meals') }}" method="get" class="d-flex">
+                <input class="form-control form-control-lg me-2" type="search" name="q" placeholder="Chercher un plat..." value="{{ current_query }}" aria-label="Search">
+                <button class="btn btn-success btn-lg" type="submit"><i class="fas fa-search"></i></button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Random Meal Feature -->
+    {% if random_meal and not current_query and not current_category %}
+    <div class="card mb-5 border-0 shadow-lg overflow-hidden bg-dark text-white rounded-4 position-relative">
+        <div class="position-absolute top-0 start-0 w-100 h-100" style="background: url('{{ random_meal.strMealThumb }}') center/cover; opacity: 0.6;"></div>
+        <div class="card-body p-5 position-relative">
+            <span class="badge bg-warning text-dark mb-2">Recette du jour</span>
+            <h1 class="card-title display-4 fw-bold">{{ random_meal.strMeal }}</h1>
+            <p class="card-text mb-4">{{ random_meal.strArea }} • {{ random_meal.strCategory }}</p>
+            <a href="{{ path('app_nutrition_meal_show', {'id': random_meal.idMeal}) }}" class="btn btn-light btn-lg rounded-pill px-5">Voir la recette</a>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Categories -->
+    {% if not current_query and not current_category %}
+    <h4 class="fw-bold mb-4">Catégories Populaires</h4>
+    <div class="d-flex overflow-auto pb-4 mb-5" style="gap: 1rem;">
+        {% for cat in categories %}
+            <a href="{{ path('app_nutrition_meals', {'category': cat.strCategory}) }}" class="text-decoration-none text-dark text-center" style="min-width: 120px;">
+                <img src="{{ cat.strCategoryThumb }}" alt="{{ cat.strCategory }}" class="rounded-circle shadow-sm mb-2 hover-scale transition" style="width: 100px; height: 100px; object-fit: cover;">
+                <div class="fw-bold">{{ cat.strCategory }}</div>
+            </a>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Results -->
+    {% if meals %}
+        <h4 class="fw-bold mb-4">
+            {% if current_query %}
+                Résultats pour "{{ current_query }}"
+            {% elseif current_category %}
+                Catégorie : {{ current_category }}
+            {% else %}
+                Suggestions
+            {% endif %}
+        </h4>
+        <div class="row g-4">
+            {% for meal in meals %}
+                <div class="col-md-6 col-lg-3">
+                    <div class="card h-100 border-0 shadow-sm hover-shadow transition rounded-3">
+                        <img src="{{ meal.strMealThumb }}" class="card-img-top" alt="{{ meal.strMeal }}" style="height: 200px; object-fit: cover;">
+                        <div class="card-body">
+                            <h5 class="card-title fw-bold text-truncate">{{ meal.strMeal }}</h5>
+                            <a href="{{ path('app_nutrition_meal_show', {'id': meal.idMeal}) }}" class="stretched-link btn btn-outline-success btn-sm mt-2 rounded-pill">Voir détails</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-search fa-3x text-muted mb-3"></i>
+            <p class="lead">Aucune recette trouvée.</p>
+            <a href="{{ path('app_nutrition_meals') }}" class="btn btn-outline-primary">Retour aux suggestions</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
