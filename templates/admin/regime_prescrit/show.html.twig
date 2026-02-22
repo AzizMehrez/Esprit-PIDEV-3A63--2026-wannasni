@@ -13,6 +13,15 @@
     <a href="{{ path('admin_nutrition') }}" class="btn btn-outline">
         ← Retour
     </a>
+    <form method="post" action="{{ path('admin_nutrition_send_sms', {id: regime_prescrit.id}) }}" onsubmit="return confirm('Envoyer un SMS d\'alerte manuel au proche ?');" style="display: inline-block; margin-left: 0.5rem;">
+        <button type="submit" class="btn btn-outline" style="color: #6366f1; border-color: #6366f1;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 0.3rem;">
+                <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/>
+                <line x1="12" y1="18" x2="12.01" y2="18"/>
+            </svg>
+            Alerte SMS
+        </button>
+    </form>
     <form method="post" action="{{ path('admin_nutrition_regime_delete', {id: regime_prescrit.id}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce régime ?');" style="display: inline-block; margin-left: 0.5rem;">
         <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ regime_prescrit.id) }}">
         <button type="submit" class="btn btn-outline" style="color: var(--admin-danger); border-color: var(--admin-danger);">
@@ -73,10 +82,20 @@
                             {{ regime_prescrit.caloriesJournalieres }} kcal
                         </td>
                     </tr>
-                    <tr>
+                    <tr style="border-bottom: 1px solid var(--admin-border);">
                         <td style="padding: 0.75rem 0; color: var(--admin-text-muted); font-size: 0.9rem;">Repas par jour:</td>
                         <td style="padding: 0.75rem 0; text-align: right;">
                             <span class="badge-success">{{ regime_prescrit.repasParJour }}</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.75rem 0; color: var(--admin-text-muted); font-size: 0.9rem;">Consommé aujourd'hui:</td>
+                        <td style="padding: 0.75rem 0; font-weight: 800; text-align: right; font-size: 1.1rem;">
+                            {% set isOver = consumed_today > regime_prescrit.caloriesJournalieres %}
+                            {% set isCritical = consumed_today > regime_prescrit.caloriesJournalieres * 3 %}
+                            <span style="color: {{ isCritical ? '#dc2626' : (isOver ? '#d97706' : '#10b981') }};">
+                                {{ consumed_today }} kcal
+                            </span>
                         </td>
                     </tr>
                 </table>

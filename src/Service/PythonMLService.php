@@ -13,8 +13,7 @@ class PythonMLService
     public function __construct(HttpClientInterface $httpClient)
     {
         $this->httpClient = $httpClient;
-        // Adjust the URL if the Python service is running elsewhere
-        // Back to port 8001 as it started successfully earlier
+        // Port ML remis à 8001 (serveur ML)
         $this->pythonApiUrl = 'http://127.0.0.1:8001';
     }
 

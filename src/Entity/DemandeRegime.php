@@ -86,7 +86,22 @@ class DemandeRegime
     #[Assert\Choice(callback: 'getObjectifPrincipalChoices', message: 'Cet objectif n\'est pas valide.')]
     private ?string $objectifPrincipal = null;
 
-    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[ORM\Column(length: 20, nullable: true)]
+    /**
+     * Numéro de téléphone du proche à prévenir en cas d'alerte.
+     */
+    private ?string $numeroProche = null;
+
+    public function getNumeroProche(): ?string
+    {
+        return $this->numeroProche;
+    }
+
+    public function setNumeroProche(?string $numeroProche): static
+    {
+        $this->numeroProche = $numeroProche;
+        return $this;
+    }
     /* 
      * CONTRÔLE : Autorise uniquement les lettres (incluant accents), chiffres, espaces et ponctuation de base.
      * Cela protège contre l'insertion de scripts ou de caractères spéciaux non désirés.

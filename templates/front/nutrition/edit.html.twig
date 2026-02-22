@@ -122,6 +122,41 @@
             </div>
         </div>
 
+        {# ── Section: Personne à prévenir ── #}
+        <div class="form-section proche-section">
+            <h3>
+                <i class="fas fa-phone-alt me-2" style="color: #10b981;"></i>
+                Personne à prévenir en cas d'alerte
+            </h3>
+            <div class="proche-alert-box">
+                <i class="fas fa-bell" style="color:#f59e0b; font-size:1.2rem;"></i>
+                <div>
+                    <strong>Pourquoi ce numéro ?</strong><br>
+                    <span>En cas d'absence de repas ou de dépassement calorique, un <strong>SMS d'alerte automatique</strong> est envoyé à ce contact.</span>
+                </div>
+            </div>
+            <div class="form-group" style="margin-top:1.25rem;">
+                {{ form_label(form.numeroProche, 'Numéro du proche à prévenir') }}
+                <div style="color: #dc2626; font-size: 0.85rem; margin-bottom: 0.25rem;">{{ form_errors(form.numeroProche) }}</div>
+                <div class="phone-input-wrapper">
+                    <span class="phone-flag">📞</span>
+                    {{ form_widget(form.numeroProche, {
+                        'attr': {
+                            'class': 'form-input phone-input',
+                            'placeholder': '+33 6 XX XX XX XX ou +216 XX XXX XXX',
+                            'type': 'tel',
+                            'pattern': '\\+[0-9]{8,15}',
+                            'autocomplete': 'tel'
+                        }
+                    }) }}
+                </div>
+                <small class="form-help">
+                    <i class="fas fa-info-circle me-1"></i>
+                    Format international : <code>+33</code> (France), <code>+216</code> (Tunisie), <code>+32</code> (Belgique)… — Ce champ est facultatif.
+                </small>
+            </div>
+        </div>
+
         {# Informations read-only (non modifiables) #}
         <div class="info-readonly-section">
             <h3><i class="fas fa-info-circle me-2"></i>Informations de la demande</h3>
@@ -470,6 +505,61 @@
         background: linear-gradient(135deg, #b91c1c, #dc2626);
         transform: translateY(-2px);
         box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+    }
+
+    /* ── Proche / numéro d'alerte section ── */
+    .proche-section {
+        background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+        border-radius: 16px;
+        padding: 1.75rem;
+        border: 2px solid #bbf7d0;
+    }
+    .proche-alert-box {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.9rem;
+        background: #fffbeb;
+        border: 1.5px solid #fde68a;
+        border-radius: 12px;
+        padding: 1rem 1.25rem;
+        font-size: 0.92rem;
+        color: #78350f;
+        line-height: 1.55;
+    }
+    .phone-input-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+    .phone-flag {
+        position: absolute;
+        left: 1rem;
+        font-size: 1.15rem;
+        pointer-events: none;
+        z-index: 1;
+    }
+    .phone-input {
+        padding-left: 2.8rem !important;
+        letter-spacing: 0.03em;
+        font-size: 1.05rem !important;
+    }
+    .phone-input:focus {
+        border-color: #10b981 !important;
+        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15) !important;
+    }
+    .form-help {
+        display: block;
+        margin-top: 0.5rem;
+        color: #64748b;
+        font-size: 0.85rem;
+    }
+    .form-help code {
+        background: #f1f5f9;
+        padding: 0.1rem 0.35rem;
+        border-radius: 4px;
+        font-size: 0.82rem;
+        color: #059669;
+        font-weight: 600;
     }
 
     @media (max-width: 768px) {

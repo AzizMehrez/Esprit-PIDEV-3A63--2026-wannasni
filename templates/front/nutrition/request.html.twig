@@ -197,7 +197,29 @@
             </div>
         </div>
 
-        {# Les champs cachés seront automatiquement rendus par form_end() #}
+        {# ── Section Contact d'urgence SMS ── #}
+        <div class="form-section">
+            <h3>
+                <i class="fas fa-mobile-alt me-2"></i>
+                Contact à prévenir (SMS)
+            </h3>
+
+            <div class="form-group">
+                {{ form_label(form.numeroProche, 'Numéro du proche à prévenir') }}
+                <div style="color: #dc2626; font-size: 0.85rem; margin-bottom: 0.25rem;">{{ form_errors(form.numeroProche) }}</div>
+                {{ form_widget(form.numeroProche, {
+                    'attr': {
+                        'class': 'form-input',
+                        'placeholder': '+33XXXXXXXXX',
+                        'type': 'tel'
+                    }
+                }) }}
+                <small class="form-help">
+                    <i class="fas fa-info-circle me-1" style="color: #6366f1;"></i>
+                    Un SMS sera envoyé automatiquement à ce numéro si vous dépassez votre limite calorique ou si aucun repas n'est enregistré.
+                </small>
+            </div>
+        </div>
 
         <div class="form-actions">
             <button type="submit" class="btn-primary">

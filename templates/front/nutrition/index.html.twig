@@ -571,9 +571,8 @@
         <p class="text-muted mb-3">Analyse de vos habitudes sur les 30 derniers jours</p>
         <div id="trendsContent">
             <div class="text-center py-3">
-                <button class="btn btn-outline-success rounded-pill px-4" id="loadTrendsBtn" onclick="loadTrends()">
-                    <i class="fas fa-chart-line me-2"></i> Charger l'analyse
-                </button>
+                <div class="loading-spinner-sm"></div>
+                <p class="text-muted mt-2 small">Analyse en cours...</p>
             </div>
         </div>
     </div>
@@ -713,12 +712,14 @@ document.addEventListener('DOMContentLoaded', function() {
     if (checkedRegime) {
         loadMealReminders(checkedRegime.value);
         loadRecipeSuggestions(checkedRegime.value);
+        loadTrends();
     }
 
     regimeInputs.forEach(input => {
         input.addEventListener('change', function() {
             loadMealReminders(this.value);
             loadRecipeSuggestions(this.value);
+            loadTrends();
             const cals = parseInt(this.dataset.calories) || 2000;
             const repas = parseInt(this.dataset.repas) || 3;
             const consumed = {{ calories_consumed_today|default(0) }};
@@ -730,15 +731,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // ── Meal Reminders + Toast Alerts ──
     let remindersRetryCount = 0;
-    function loadMealReminders(regimeId) {
-        notificationsList.innerHTML = '<div class="text-center py-3"><div class="loading-spinner-sm"></div><p class="text-muted mt-2 small">Chargement des rappels...</p></div>';
+    function loadMealReminders(regimeId, useML = false) {
+        notificationsList.innerHTML = '<div class="text-center py-3"><div class="loading-spinner-sm"></div><p class="text-muted mt-2 small">' + (useML ? '✨ Amélioration IA en cours...' : 'Chargement des rappels...') + '</p></div>';
         timelineContainer.innerHTML = '<div class="text-center py-3"><div class="loading-spinner-sm"></div></div>';
 
         const formData = new FormData();
         formData.append('regime_id', regimeId);
+        if (useML) formData.append('use_ml', '1');
 
         const ctrl = new AbortController();
-        const timer = setTimeout(() => ctrl.abort(), 20000);
+        const timer = setTimeout(() => ctrl.abort(), useML ? 20000 : 8000);
 
         fetch('{{ path("app_nutrition_meal_reminders") }}', {
             method: 'POST',
@@ -770,6 +772,14 @@ document.addEventListener('DOMContentLoaded', function() {
                         showToast(`⚠️ Vous avez raté votre ${meal.type_repas} !`, 'danger', 'exclamation-circle', 12000);
                     }
                 });
+
+                // Bouton IA optionnel
+                if (!data.ml_source) {
+                    const aiBtn = document.createElement('div');
+                    aiBtn.className = 'text-end mt-2';
+                    aiBtn.innerHTML = `<button onclick="loadMealReminders('${regimeId}', true)" class="btn btn-sm btn-outline-success rounded-pill"><i class="fas fa-magic me-1"></i>Améliorer avec l'IA</button>`;
+                    notificationsList.appendChild(aiBtn);
+                }
             } else {
                 notificationsList.innerHTML = '<div class="notification-item type-danger"><div class="notification-icon"><i class="fas fa-times-circle"></i></div><div class="notification-content"><h4>Erreur</h4><p>' + (data.message || data.error || 'Erreur inconnue') + '</p></div></div>';
             }
@@ -918,7 +928,7 @@ document.addEventListener('DOMContentLoaded', function() {
         timelineContainer.innerHTML = html;
     }
 
-    // Auto-refresh every 5 minutes
+    // Auto-refresh every 5 minutes (rappels seulement, pas les tendances)
     setInterval(() => {
         const checked = document.querySelector('input[name="selected_regime"]:checked');
         if (checked) {
@@ -928,15 +938,19 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 5 * 60 * 1000);
 
     // ── Trends Analysis ──
-    window.loadTrends = function() {
+    window.loadTrends = function(useML = false) {
         const cont = document.getElementById('trendsContent');
-        cont.innerHTML = '<div class="text-center py-3"><div class="loading-spinner-sm"></div><p class="text-muted mt-2 small">Analyse des tendances alimentaires...</p></div>';
+        cont.innerHTML = '<div class="text-center py-3"><div class="loading-spinner-sm"></div><p class="text-muted mt-2 small">' + (useML ? '✨ Analyse IA approfondie...' : 'Analyse des tendances...') + '</p></div>';
 
         const ctrl = new AbortController();
-        const timer = setTimeout(() => ctrl.abort(), 25000);
+        const timer = setTimeout(() => ctrl.abort(), useML ? 25000 : 8000);
+
+        const formData = new FormData();
+        if (useML) formData.append('use_ml', '1');
 
         fetch('{{ path("app_nutrition_trends") }}', { method: 'POST', signal: ctrl.signal,
-            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            body: formData
         })
         .then(r => { clearTimeout(timer); if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
         .then(data => {
@@ -975,6 +989,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             }
             cont.innerHTML = html || '<p class="text-muted text-center">Pas assez de données pour l\'analyse.</p>';
+            // Bouton IA optionnel
+            if (!useML) {
+                const aiDiv = document.createElement('div');
+                aiDiv.className = 'text-end mt-3';
+                aiDiv.innerHTML = '<button onclick="loadTrends(true)" class="btn btn-sm btn-outline-success rounded-pill"><i class="fas fa-magic me-1"></i>Analyse IA approfondie</button>';
+                cont.appendChild(aiDiv);
+            }
         })
         .catch(err => {
             console.error('Trends error:', err);

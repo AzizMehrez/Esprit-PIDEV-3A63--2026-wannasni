@@ -17,20 +17,44 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Dompdf\Dompdf;
 use Dompdf\Options;
+use App\Entity\SuiviRepas;
+use App\Entity\Notification;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class NutritionAdminController extends AbstractController
 {
     #[Route('/admin/nutrition', name: 'admin_nutrition')]
-    public function index(Request $request, RegimePrescritRepository $repository): Response
+    public function index(Request $request, RegimePrescritRepository $repository, EntityManagerInterface $em): Response
     {
         $sort = $request->query->get('sort', 'desc');
         $regimePrescrits = $repository->findBy([], ['dateDebut' => $sort === 'asc' ? 'ASC' : 'DESC']);
 
+        // Calculate consumed calories today for each regime
+        $consumedToday = [];
+        $today = new \DateTime('today');
+        
+        foreach ($regimePrescrits as $regime) {
+            if ($regime->getUser()) {
+                $calories = (int) $em->getRepository(SuiviRepas::class)->createQueryBuilder('s')
+                    ->select('COALESCE(SUM(s.caloriesCalculees), 0)')
+                    ->where('s.senior = :senior')
+                    ->andWhere('s.dateRepas >= :today')
+                    ->setParameter('senior', $regime->getUser())
+                    ->setParameter('today', $today)
+                    ->getQuery()
+                    ->getSingleScalarResult();
+                
+                $consumedToday[$regime->getId()] = $calories;
+            } else {
+                $consumedToday[$regime->getId()] = 0;
+            }
+        }
+
         return $this->render('admin/regime_prescrit/index.html.twig', [
             'regime_prescrits' => $regimePrescrits,
-            'current_sort' => $sort
+            'current_sort' => $sort,
+            'consumed_today' => $consumedToday,
         ]);
     }
 
@@ -157,7 +181,7 @@ class NutritionAdminController extends AbstractController
     }
 
     #[Route('/admin/nutrition/{id}', name: 'admin_nutrition_show', requirements: ['id' => '\d+'])]
-    public function show(int $id, RegimePrescritRepository $repository): Response
+    public function show(int $id, RegimePrescritRepository $repository, EntityManagerInterface $em): Response
     {
         $regime = $repository->find($id);
 
@@ -165,8 +189,22 @@ class NutritionAdminController extends AbstractController
             throw $this->createNotFoundException('Régime prescrit non trouvé');
         }
 
+        $today = new \DateTime('today');
+        $consumedToday = 0;
+        if ($regime->getUser()) {
+            $consumedToday = (int) $em->getRepository(SuiviRepas::class)->createQueryBuilder('s')
+                ->select('COALESCE(SUM(s.caloriesCalculees), 0)')
+                ->where('s.senior = :senior')
+                ->andWhere('s.dateRepas >= :today')
+                ->setParameter('senior', $regime->getUser())
+                ->setParameter('today', $today)
+                ->getQuery()
+                ->getSingleScalarResult();
+        }
+
         return $this->render('admin/regime_prescrit/show.html.twig', [
             'regime_prescrit' => $regime,
+            'consumed_today' => $consumedToday,
         ]);
     }
 
@@ -459,5 +497,89 @@ class NutritionAdminController extends AbstractController
         }
 
         return $this->redirectToRoute('admin_nutrition_marketplace_order_show', ['id' => $id]);
+    }
+    #[Route('/admin/nutrition/send-sms/{id}', name: 'admin_nutrition_send_sms', methods: ['POST'])]
+    public function sendSmsManually(
+        int $id, 
+        RegimePrescritRepository $repository, 
+        HttpClientInterface $httpClient, 
+        EntityManagerInterface $em
+    ): Response {
+        $regime = $repository->find($id);
+        if (!$regime) {
+            $this->addFlash('error', 'Régime non trouvé.');
+            return $this->redirectToRoute('admin_nutrition');
+        }
+
+        $numeroProche = $regime->getDemande() ? $regime->getDemande()->getNumeroProche() : null;
+        if (!$numeroProche) {
+            $this->addFlash('error', 'Aucun numéro de proche associé à ce régime.');
+            return $this->redirectToRoute('admin_nutrition');
+        }
+
+        $user = $regime->getUser();
+        $today = new \DateTime('today');
+        $caloriesConsommees = (int) $em->getRepository(SuiviRepas::class)->createQueryBuilder('s')
+            ->select('COALESCE(SUM(s.caloriesCalculees), 0)')
+            ->where('s.senior = :senior')
+            ->andWhere('s.dateRepas >= :today')
+            ->setParameter('senior', $user)
+            ->setParameter('today', $today)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        $msg = "Alerte : Votre proche a un dépassement calorique aujourd'hui ({$caloriesConsommees} kcal). Ce message vous est envoyé manuellement par l'administrateur pour vous alerter.";
+        
+        $response = $this->sendTwilioAlert($httpClient, $numeroProche, $msg);
+
+        if ($response['success']) {
+            // Record notification
+            $notif = new Notification();
+            $notif->setType('sms_alert_manual');
+            $notif->setMessage("SMS manuel envoyé au proche : Dépassement calorique.");
+            $notif->setRelatedId($user ? $user->getId() : null);
+            $em->persist($notif);
+            $em->flush();
+
+            $this->addFlash('success', 'SMS d\'alerte envoyé avec succès au ' . $numeroProche);
+        } else {
+            $this->addFlash('error', 'Échec de l\'envoi Twilio : ' . $response['error']);
+        }
+
+        return $this->redirectToRoute('admin_nutrition');
+    }
+
+    private function sendTwilioAlert(HttpClientInterface $httpClient, string $to, string $message): array
+    {
+        $sid = $_ENV['TWILIO_ACCOUNT_SID'] ?? null;
+        $token = $_ENV['TWILIO_AUTH_TOKEN'] ?? null;
+        $from = $_ENV['TWILIO_FROM_NUMBER'] ?? null;
+
+        if (!$sid || !$token || !$from) {
+            return ['success' => false, 'error' => 'Identifiants Twilio manquants dans le .env'];
+        }
+
+        try {
+            $url = "https://api.twilio.com/2010-04-01/Accounts/{$sid}/Messages.json";
+            $response = $httpClient->request('POST', $url, [
+                'auth_basic' => [$sid, $token],
+                'body' => [
+                    'To' => $to,
+                    'From' => $from,
+                    'Body' => $message,
+                ],
+            ]);
+
+            $statusCode = $response->getStatusCode();
+            if ($statusCode >= 200 && $statusCode < 300) {
+                return ['success' => true];
+            }
+            
+            $content = $response->toArray(false);
+            return ['success' => false, 'error' => $content['message'] ?? 'Erreur API Twilio inconnue'];
+
+        } catch (\Exception $e) {
+            return ['success' => false, 'error' => $e->getMessage()];
+        }
     }
 }

@@ -121,11 +121,12 @@
                 <th class="sortable" data-column="0">ID <span class="sort-icon">⇅</span></th>
                 <th class="sortable" data-column="1">Senior <span class="sort-icon">⇅</span></th>
                 <th class="sortable" data-column="2">Type Régime <span class="sort-icon">⇅</span></th>
-                <th class="sortable" data-column="3">Calories <span class="sort-icon">⇅</span></th>
-                <th class="sortable" data-column="4">Début <span class="sort-icon">⇅</span></th>
-                <th class="sortable" data-column="5">Fin <span class="sort-icon">⇅</span></th>
-                <th class="sortable" data-column="6">Suivi <span class="sort-icon">⇅</span></th>
-                <th style="width: 150px;">Actions</th>
+                <th class="sortable" data-column="3">Limit <span class="sort-icon">⇅</span></th>
+                <th class="sortable" data-column="4">Consommé <span class="sort-icon">⇅</span></th>
+                <th class="sortable" data-column="5">Début <span class="sort-icon">⇅</span></th>
+                <th class="sortable" data-column="6">Fin <span class="sort-icon">⇅</span></th>
+                <th class="sortable" data-column="7">Suivi <span class="sort-icon">⇅</span></th>
+                <th style="width: 180px;">Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -161,6 +162,21 @@
                     <span class="badge {{ type_colors[regime.typeRegime] ?? 'badge-secondary' }}">{{ regime.typeRegime|capitalize }}</span>
                 </td>
                 <td><strong>{{ regime.caloriesJournalieres }}</strong> kcal</td>
+                <td>
+                    {% set consumed = consumed_today[regime.id]|default(0) %}
+                    {% set isCritical = consumed > regime.caloriesJournalieres * 3 %}
+                    {% set isOver = consumed > regime.caloriesJournalieres %}
+                    
+                    <span class="badge {{ isCritical ? 'badge-danger' : (isOver ? 'badge-warning' : 'badge-success') }}" style="font-size: 0.9rem; padding: 0.4rem 0.8rem;">
+                        <strong>{{ consumed }}</strong> kcal
+                    </span>
+                    
+                    {% if isOver %}
+                        <div style="font-size: 0.7rem; color: {{ isCritical ? '#dc2626' : '#d97706' }}; font-weight: 700; margin-top: 0.2rem;">
+                            {{ isCritical ? '⚠️ DÉPASSEMENT CRITIQUE' : '⚠️ LIMITE DÉPASSÉE' }}
+                        </div>
+                    {% endif %}
+                </td>
                 <td>{{ regime.dateDebut|date('d/m/Y') }}</td>
                 <td>{{ regime.dateFin|date('d/m/Y') }}</td>
                 <td>
@@ -173,10 +189,15 @@
                     {% endif %}
                 </td>
                 <td>
-                    <div style="display: flex; gap: 0.25rem;">
+                    <div style="display: flex; gap: 0.25rem; flex-wrap: wrap;">
                         <a href="{{ path('admin_nutrition_show', {id: regime.id}) }}" class="action-btn" title="Voir">👁️</a>
                         <a href="{{ path('admin_nutrition_edit', {id: regime.id}) }}" class="action-btn" title="Modifier">✏️</a>
                         <a href="{{ path('admin_nutrition_export_pdf', {id: regime.demande.id}) }}" class="action-btn" title="PDF" target="_blank">📄</a>
+                        
+                        <form method="post" action="{{ path('admin_nutrition_send_sms', {id: regime.id}) }}" style="display: inline;" onsubmit="return confirm('Envoyer un SMS d\'alerte manuel au proche ?')">
+                            <button type="submit" class="action-btn" style="background: #6366f1; color: white; border-color: #6366f1;" title="Envoyer SMS Manuel">📱</button>
+                        </form>
+
                         <form method="post" action="{{ path('admin_nutrition_regime_delete', {id: regime.id}) }}" style="display: inline;" onsubmit="return confirm('Supprimer ce régime ?')">
                             <button type="submit" class="action-btn action-btn-delete" title="Supprimer">🗑️</button>
                         </form>

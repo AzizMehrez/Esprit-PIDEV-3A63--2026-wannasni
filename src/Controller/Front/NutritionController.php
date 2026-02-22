@@ -142,8 +142,10 @@ class NutritionController extends AbstractController
         Request $request,
         RegimePrescritRepository $regimePrescritRepository,
         EntityManagerInterface $em,
-        PythonMLService $pythonMLService
+        PythonMLService $pythonMLService,
+        HttpClientInterface $httpClient
     ): JsonResponse {
+        $user = $this->getUser();
         $regimeId = $request->request->get('regime_id');
         $regime = $regimePrescritRepository->find($regimeId);
 
@@ -156,25 +158,29 @@ class NutritionController extends AbstractController
         $caloriesLimite = $regime->getCaloriesJournalieres();
         $repasConsommes = $todayStats['meals'];
         $caloriesConsommees = $todayStats['calories'];
-        $repasRestants = max(0, $repasParJour - $repasConsommes);
+
+        // Calcul des variables dérivées (nécessaires avant le fallback)
+        $repasRestants    = max(0, $repasParJour - $repasConsommes);
         $caloriesRestantes = max(0, $caloriesLimite - $caloriesConsommees);
 
-        // Try Python ML, fall back to smart server-side logic
-        try {
-            $reminders = $pythonMLService->getMealReminders(
-                $regime->getTypeRegime(),
-                $repasParJour,
-                $repasConsommes,
-                $caloriesConsommees,
-                $caloriesLimite,
-                $regime->getAlimentsRecommandes() ?? [],
-                $regime->getAlimentsInterdits() ?? []
-            );
-            if (($reminders['status'] ?? '') === 'success') {
-                return new JsonResponse($reminders);
+        // ── Appel ML optionnel : uniquement si use_ml=1 (bouton IA côté JS) ──
+        if ($request->request->get('use_ml') === '1') {
+            try {
+                $mlResult = $pythonMLService->getMealReminders(
+                    $regime->getTypeRegime(),
+                    $repasParJour,
+                    $repasConsommes,
+                    $caloriesConsommees,
+                    $caloriesLimite,
+                    $regime->getAlimentsRecommandes() ?? [],
+                    $regime->getAlimentsInterdits() ?? []
+                );
+                if (($mlResult['status'] ?? '') === 'success') {
+                    return new JsonResponse($mlResult);
+                }
+            } catch (\Exception $e) {
+                // ML indisponible — continuer avec le fallback PHP
             }
-        } catch (\Exception $e) {
-            // ML service down — use fallback
         }
 
         // ── Fallback: Generate reminders server-side ──
@@ -243,6 +249,33 @@ class NutritionController extends AbstractController
                 'titre' => 'Aucun repas enregistré',
                 'message' => "Vous n'avez encore rien mangé aujourd'hui. Prenez un repas équilibré !",
             ];
+            // Envoi notification Twilio si aucun repas pris
+            $numeroProche = $regime->getDemande() ? $regime->getDemande()->getNumeroProche() : null;
+            if ($numeroProche) {
+                $today = new \DateTime('today');
+                $alreadySent = $em->getRepository(\App\Entity\Notification::class)->createQueryBuilder('n')
+                    ->select('COUNT(n.id)')
+                    ->where('n.type = :type')
+                    ->andWhere('n.relatedId = :seniorId')
+                    ->andWhere('n.createdAt >= :today')
+                    ->setParameter('type', 'sms_alert_no_meal')
+                    ->setParameter('seniorId', $user->getId())
+                    ->setParameter('today', $today)
+                    ->getQuery()
+                    ->getSingleScalarResult();
+
+                if ($alreadySent == 0) {
+                    $this->sendTwilioAlert($httpClient, $numeroProche, "Alerte : Aucun repas pris aujourd'hui par votre proche.");
+                    
+                    // Enregistrer l'envoi
+                    $notif = new \App\Entity\Notification();
+                    $notif->setType('sms_alert_no_meal');
+                    $notif->setMessage("SMS envoyé au proche : Aucun repas pris.");
+                    $notif->setRelatedId($user->getId());
+                    $em->persist($notif);
+                    $em->flush();
+                }
+            }
         }
 
         if ($caloriesConsommees > $caloriesLimite) {
@@ -253,6 +286,34 @@ class NutritionController extends AbstractController
                 'titre' => 'Limite calorique dépassée',
                 'message' => "Vous avez dépassé votre limite de {$depassement} kcal. Privilégiez des aliments légers.",
             ];
+            // Envoi notification Twilio si dépassement > triple
+            $numeroProche = $regime->getDemande() ? $regime->getDemande()->getNumeroProche() : null;
+            if ($numeroProche && $caloriesConsommees > $caloriesLimite * 3) {
+                $today = new \DateTime('today');
+                $alreadySent = $em->getRepository(\App\Entity\Notification::class)->createQueryBuilder('n')
+                    ->select('COUNT(n.id)')
+                    ->where('n.type = :type')
+                    ->andWhere('n.relatedId = :seniorId')
+                    ->andWhere('n.createdAt >= :today')
+                    ->setParameter('type', 'sms_alert_excess_calories')
+                    ->setParameter('seniorId', $user->getId())
+                    ->setParameter('today', $today)
+                    ->getQuery()
+                    ->getSingleScalarResult();
+
+                if ($alreadySent == 0) {
+                    $msg = "Alerte : Votre proche a un dépassement calorique aujourd'hui ({$caloriesConsommees} kcal). C'est dangereux, il a dépassé trois fois sa limite autorisée. Veuillez le contacter rapidement.";
+                    $this->sendTwilioAlert($httpClient, $numeroProche, $msg);
+                    
+                    // Enregistrer l'envoi
+                    $notif = new \App\Entity\Notification();
+                    $notif->setType('sms_alert_excess_calories');
+                    $notif->setMessage("SMS envoyé au proche : Dépassement calorique triple.");
+                    $notif->setRelatedId($user->getId());
+                    $em->persist($notif);
+                    $em->flush();
+                }
+            }
         } elseif ($caloriesConsommees > $caloriesLimite * 0.85 && $repasRestants > 0) {
             $notifications[] = [
                 'type' => 'warning',
@@ -261,6 +322,7 @@ class NutritionController extends AbstractController
                 'message' => "Il vous reste {$caloriesRestantes} kcal pour {$repasRestants} repas. Faites attention aux portions.",
             ];
         }
+
 
         // Current meal reminder
         foreach ($suggestionsRepas as $meal) {
@@ -740,14 +802,16 @@ class NutritionController extends AbstractController
             ];
         }
 
-        // Try Python ML
-        try {
-            $result = $pythonMLService->analyzeTrends($mealHistory);
-            if (($result['status'] ?? '') === 'success') {
-                return new JsonResponse($result);
+        // ── Appel ML optionnel : uniquement si use_ml=1 (bouton IA côté JS) ──
+        if ($request->request->get('use_ml') === '1') {
+            try {
+                $result = $pythonMLService->analyzeTrends($mealHistory);
+                if (($result['status'] ?? '') === 'success') {
+                    return new JsonResponse($result);
+                }
+            } catch (\Exception $e) {
+                // ML indisponible — continuer avec le fallback PHP
             }
-        } catch (\Exception $e) {
-            // Fallback below
         }
 
         // Fallback: comprehensive PHP trend analysis
@@ -1071,5 +1135,51 @@ class NutritionController extends AbstractController
             'suggestions_ajustement' => $suggestions,
             'variete_score' => $varieteScore,
         ]);
+    }
+    #[Route('/test-alert-triple-calories', name: 'app_nutrition_test_alert', methods: ['GET'])]
+    public function testAlert(EntityManagerInterface $em): Response
+    {
+        $user = $this->getUser();
+        
+        // Simuler un repas à 5000 calories pour aujourd'hui
+        $suivi = new SuiviRepas();
+        $suivi->setSenior($user);
+        $suivi->setDateRepas(new \DateTime());
+        $suivi->setAlimentsIdentifies(['Test Alert Aliments']);
+        $suivi->setCaloriesCalculees(5000); // Triple de la plupart des régimes (souvent 1500-2000)
+        $suivi->setEstConforme(false);
+        $suivi->setCommentairesIA("Simulation pour test Twilio");
+        
+        $em->persist($suivi);
+        $em->flush();
+        
+        return $this->render('front/nutrition/test_alert.html.twig', [
+            'message' => 'Repas de 5000 calories ajouté. Allez sur le tableau de bord pour déclencher l\'alerte.',
+        ]);
+    }
+
+    private function sendTwilioAlert(HttpClientInterface $httpClient, string $to, string $message): void
+    {
+        $sid = $_ENV['TWILIO_ACCOUNT_SID'] ?? null;
+        $token = $_ENV['TWILIO_AUTH_TOKEN'] ?? null;
+        $from = $_ENV['TWILIO_FROM_NUMBER'] ?? null;
+
+        if (!$sid || !$token || !$from) {
+            return;
+        }
+
+        try {
+            $url = "https://api.twilio.com/2010-04-01/Accounts/{$sid}/Messages.json";
+            $httpClient->request('POST', $url, [
+                'auth_basic' => [$sid, $token],
+                'body' => [
+                    'To' => $to,
+                    'From' => $from,
+                    'Body' => $message,
+                ],
+            ]);
+        } catch (\Exception $e) {
+            // Log error if needed, but don't crash the app
+        }
     }
 }

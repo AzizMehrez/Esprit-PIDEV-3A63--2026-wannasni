@@ -220,11 +220,41 @@ class MealTrackingController extends AbstractController
             $photo = $request->request->get('photo');
             $foods = json_decode($request->request->get('foods', '[]'), true) ?? [];
 
-            // Get ML report
-            $report = $pythonMLService->step4Alerts((float) $calories, $compliance, (int) $limit, (int) $consumed);
+            // Get ML report — avec fallback PHP si le service est indisponible
+            try {
+                $report = $pythonMLService->step4Alerts((float) $calories, $compliance, (int) $limit, (int) $consumed);
+            } catch (\Exception $e) {
+                $report = ['status' => 'error', 'message' => $e->getMessage()];
+            }
 
+            // PHP fallback si ML indisponible (cURL error, timeout, etc.)
             if (($report['status'] ?? '') === 'error') {
-                return $this->json($report);
+                $totalDay = (int) $consumed + (float) $calories;
+                $remaining = max(0, (int) $limit - $totalDay);
+                $over = max(0, $totalDay - (int) $limit);
+                $alerts = [];
+                if (!($compliance['conforme'] ?? true)) {
+                    $alerts[] = ['type' => 'warning', 'message' => 'Ce repas contient des aliments non conformes à votre régime.'];
+                }
+                if ($over > 0) {
+                    $alerts[] = ['type' => 'danger', 'message' => "Vous dépassez votre limite journalière de {$over} kcal."];
+                } elseif ($remaining < 200) {
+                    $alerts[] = ['type' => 'warning', 'message' => "Il ne vous reste que {$remaining} kcal pour aujourd'hui."];
+                } else {
+                    $alerts[] = ['type' => 'success', 'message' => "Bon repas ! Il vous reste {$remaining} kcal pour la journée."];
+                }
+                $report = [
+                    'status' => 'success',
+                    'total_day' => $totalDay,
+                    'alerts' => $alerts,
+                    'message' => $over > 0 ? 'Attention au dépassement calorique.' : 'Repas enregistré avec succès.',
+                    'source' => 'php_fallback',
+                ];
+            }
+
+            // Always ensure total_day is present in the response (Python ML may omit it)
+            if (!isset($report['total_day'])) {
+                $report['total_day'] = (int) $consumed + (float) $calories;
             }
 
             // Find user's regime for the DB record

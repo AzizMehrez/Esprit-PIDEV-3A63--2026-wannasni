@@ -53,6 +53,16 @@ class DemandeRegimeType extends AbstractType
                     'placeholder' => 'Ex: Arachides, crustacés, lactose...'
                 ]
             ])
+
+            // Numéro de proche (visible)
+            ->add('numeroProche', null, [
+                'label' => 'Numéro du proche à prévenir',
+                'required' => false,
+                'attr' => [
+                    'class' => 'form-control',
+                    'placeholder' => '+33XXXXXXXXX'
+                ]
+            ])
             
             // Intolérances (visible)
             ->add('intolerances', TextareaType::class, [

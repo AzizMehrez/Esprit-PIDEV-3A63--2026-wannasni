@@ -9,7 +9,7 @@ console.log("CHARGEMENT DU SCRIPT NUTRITION-UPLOAD V4.1 ACTIVÉ");
 // TEXT-TO-SPEECH (TTS) Module - Lecture vocale des infos nutritionnelles
 // Uses the Web Speech API (built into modern browsers)
 // ============================================================================
-window.NutritionTTS = (function() {
+window.NutritionTTS = (function () {
     let currentUtterance = null;
     let activeBtn = null;
 
@@ -17,8 +17,8 @@ window.NutritionTTS = (function() {
         const voices = window.speechSynthesis.getVoices();
         // Prefer French voices
         const frVoice = voices.find(v => v.lang.startsWith('fr') && v.localService)
-                      || voices.find(v => v.lang.startsWith('fr'))
-                      || voices.find(v => v.lang.startsWith('en'));
+            || voices.find(v => v.lang.startsWith('fr'))
+            || voices.find(v => v.lang.startsWith('en'));
         return frVoice || voices[0] || null;
     }
 
@@ -33,8 +33,8 @@ window.NutritionTTS = (function() {
         } else {
             btn.classList.remove('tts-speaking');
             if (icon) {
-                icon.className = btn.classList.contains('tts-listen-all') 
-                    ? 'fas fa-headphones me-2' 
+                icon.className = btn.classList.contains('tts-listen-all')
+                    ? 'fas fa-headphones me-2'
                     : 'fas fa-volume-up';
             }
             document.querySelectorAll('.tts-stop-btn').forEach(b => b.style.display = 'none');
@@ -69,12 +69,12 @@ window.NutritionTTS = (function() {
         currentUtterance = utterance;
         setButtonState(btn, true);
 
-        utterance.onend = function() {
+        utterance.onend = function () {
             setButtonState(activeBtn, false);
             currentUtterance = null;
             activeBtn = null;
         };
-        utterance.onerror = function() {
+        utterance.onerror = function () {
             setButtonState(activeBtn, false);
             currentUtterance = null;
             activeBtn = null;
@@ -97,7 +97,7 @@ window.NutritionTTS = (function() {
     // Preload voices (some browsers load them async)
     if (window.speechSynthesis) {
         window.speechSynthesis.getVoices();
-        window.speechSynthesis.onvoiceschanged = function() {
+        window.speechSynthesis.onvoiceschanged = function () {
             window.speechSynthesis.getVoices();
         };
     }
@@ -121,7 +121,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Update regime data when selector changes
     if (regimeSelect) {
-        regimeSelect.addEventListener('change', function() {
+        regimeSelect.addEventListener('change', function () {
             const selected = this.options[this.selectedIndex];
             if (uploadForm) {
                 uploadForm.dataset.regime = this.value;
@@ -314,9 +314,31 @@ document.addEventListener('DOMContentLoaded', function () {
 
         } catch (err) {
             console.error("V4.0 CRASH ANALYSE:", err);
-            alert("Erreur Critique V4.0 : " + err.message);
             loading.style.display = 'none';
             submitBtn.style.display = 'inline-block';
+
+            // Friendly error display — never show raw cURL/HTTP messages
+            const isServiceDown = err.message.includes('Failed to connect') ||
+                err.message.includes('cURL') ||
+                err.message.includes('500') ||
+                err.message.includes('unavailable');
+
+            const errMsg = isServiceDown
+                ? "Le service d'analyse IA est momentanément indisponible. Veuillez réessayer dans un instant."
+                : (err.message || "Une erreur est survenue lors de l'analyse.");
+
+            resultsContainer.innerHTML = `
+                <div class="alert alert-warning rounded-4 shadow-sm d-flex align-items-start gap-3 p-4">
+                    <div style="font-size:2rem;">⚠️</div>
+                    <div>
+                        <strong>Analyse interrompue</strong>
+                        <p class="mb-2 mt-1">${errMsg}</p>
+                        <button onclick="submitBtn.click()" class="btn btn-outline-warning btn-sm rounded-pill">
+                            <i class="fas fa-redo me-1"></i>Réessayer
+                        </button>
+                    </div>
+                </div>`;
+            resultsContainer.style.display = 'block';
         }
     });
 

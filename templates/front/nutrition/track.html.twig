@@ -145,6 +145,59 @@
 
         {% if analysis is not defined %}
             {% set consumed = consumedToday|default(0) %}
+            {% set dailyLimit = regime ? regime.caloriesJournalieres : 2000 %}
+            {% set pct = dailyLimit > 0 ? ((consumed / dailyLimit) * 100)|round : 0 %}
+            {% set pct = pct > 100 ? 100 : pct %}
+            {% set barColor = pct < 60 ? '#10b981' : (pct < 85 ? '#f59e0b' : '#ef4444') %}
+            {% set remaining = dailyLimit - consumed %}
+
+            <!-- Daily Calorie Progress Banner -->
+            <div style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-radius: 16px; padding: 1.5rem; margin-bottom: 1.5rem; color: white; text-align: left; box-shadow: 0 8px 24px rgba(0,0,0,0.15);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+                    <div style="font-size: 1rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem;">
+                        <span style="font-size: 1.4rem;">🔥</span>
+                        Calories de la journée
+                    </div>
+                    <div style="display: flex; gap: 1.5rem; flex-wrap: wrap;">
+                        <div style="text-align: center;">
+                            <div style="font-size: 1.6rem; font-weight: 800; color: {{ barColor }};">{{ consumed }}</div>
+                            <div style="font-size: 0.72rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em;">Consommées</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 1.6rem; font-weight: 800; color: #e2e8f0;">{{ dailyLimit }}</div>
+                            <div style="font-size: 0.72rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em;">Limite / jour</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 1.6rem; font-weight: 800; color: {{ remaining >= 0 ? '#34d399' : '#f87171' }};">
+                                {{ remaining >= 0 ? remaining : '-' ~ (remaining|abs) }}
+                            </div>
+                            <div style="font-size: 0.72rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em;">{{ remaining >= 0 ? 'Restantes' : 'Dépassées' }}</div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Progress bar -->
+                <div style="background: rgba(255,255,255,0.1); border-radius: 50px; height: 12px; overflow: hidden;">
+                    <div style="width: {{ pct }}%; height: 100%; background: {{ barColor }}; border-radius: 50px; transition: width 0.5s ease; position: relative;">
+                        {% if pct > 8 %}
+                        <div style="position: absolute; right: 6px; top: 50%; transform: translateY(-50%); font-size: 0.55rem; font-weight: 700; color: white;">{{ pct }}%</div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-top: 0.4rem; font-size: 0.75rem; color: #64748b;">
+                    <span>0 kcal</span>
+                    <span>{{ pct }}% utilisé</span>
+                    <span>{{ dailyLimit }} kcal</span>
+                </div>
+                {% if remaining < 0 %}
+                <div style="margin-top: 0.75rem; background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3); border-radius: 8px; padding: 0.5rem 0.75rem; font-size: 0.85rem; color: #fca5a5; display: flex; align-items: center; gap: 0.4rem;">
+                    ⚠️ Vous avez dépassé votre limite journalière de <strong>{{ remaining|abs }} kcal</strong>. Privilégiez les légumes et protéines légères.
+                </div>
+                {% elseif pct >= 85 %}
+                <div style="margin-top: 0.75rem; background: rgba(245,158,11,0.15); border: 1px solid rgba(245,158,11,0.3); border-radius: 8px; padding: 0.5rem 0.75rem; font-size: 0.85rem; color: #fcd34d; display: flex; align-items: center; gap: 0.4rem;">
+                    ⚡ Attention : il ne vous reste que <strong>{{ remaining }} kcal</strong> pour aujourd'hui.
+                </div>
+                {% endif %}
+            </div>
 
             <!-- Regime Selector -->
             {% if regime %}
