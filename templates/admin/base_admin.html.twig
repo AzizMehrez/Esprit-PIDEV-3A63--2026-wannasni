@@ -627,9 +627,17 @@
                 <span class="nav-icon">❤️</span>
                 Dossiers Santé
             </a>
-            <a href="{{ path('admin_nutrition') }}" class="nav-item {% if 'admin_nutrition' in app.request.get('_route') %}active{% endif %}">
+            <a href="{{ path('admin_nutrition') }}" class="nav-item {% if app.request.get('_route') in ['admin_nutrition', 'admin_nutrition_demandes', 'admin_nutrition_show', 'admin_nutrition_edit', 'admin_nutrition_new'] %}active{% endif %}">
                 <span class="nav-icon">🥗</span>
                 Plans Nutrition
+            </a>
+            <a href="{{ path('admin_nutrition_marketplace') }}" class="nav-item {% if app.request.get('_route') in ['admin_nutrition_marketplace', 'admin_nutrition_marketplace_new', 'admin_nutrition_marketplace_edit'] %}active{% endif %}">
+                <span class="nav-icon">🛍️</span>
+                Marketplace
+            </a>
+            <a href="{{ path('admin_nutrition_marketplace_orders') }}" class="nav-item {% if app.request.get('_route') in ['admin_nutrition_marketplace_orders', 'admin_nutrition_marketplace_order_show'] %}active{% endif %}">
+                <span class="nav-icon">📦</span>
+                Commandes
             </a>
         </nav>
 

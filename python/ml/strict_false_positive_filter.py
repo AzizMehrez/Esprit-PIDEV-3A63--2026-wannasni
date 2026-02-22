@@ -86,9 +86,9 @@ class StrictFalsePositiveFilter:
         Stratégie:
         - 1 seul aliment → accepter si confiance >= 0.50
         - 2-3 aliments avec GAP GRAND (>0.20) → retourner SEULEMENT le meilleur (single dominant)
-        - 2-3 aliments avec GAP PETIT (<0.15) ET catégories DIVERSES → retourner tous (plat complet)
-        - 2-3 aliments avec GAP PETIT ET catégories DOUBLONS → rejeter (bruit/fausse positive)
-        - 4 aliments → strict (très haute confiance + catégories diverses)
+        - 2-3 aliments avec GAP PETIT (<0.15) ET noms UNIQUES → retourner tous (plat complet)
+        - 2-3 aliments avec GAP PETIT ET noms DOUBLONS → rejeter (bruit/fausse positive)
+        - 4 aliments → strict (très haute confiance + noms uniques)
         - 5+ aliments → rejeter immédiatement
         
         Args:
@@ -153,9 +153,13 @@ class StrictFalsePositiveFilter:
                 
                 print(f"  → Catégories: {dict(cat_counts)}")
                 
-                # Vérifier si doublons de catégories = bruit
-                if max_cat_count >= 2:
-                    print(f"  ✗ DOUBLONS CATÉGORIES DÉTECTÉS ({max_cat_count}x même catégorie) = BRUIT!")
+                # Vérifier si doublons exacts de NOMS = bruit
+                # NOTE: On permet des aliments différents de la même catégorie
+                # (ex: burger + frites sont tous les deux "fast_food" mais c'est un plat valide)
+                name_counts = Counter(c['name'].lower() for c in candidates_sorted)
+                max_name_count = max(name_counts.values())
+                if max_name_count >= 2:
+                    print(f"  ✗ DOUBLONS DE NOMS DÉTECTÉS ({max_name_count}x même aliment) = BRUIT!")
                     print(f"  → REJET: Probablement {num_candidates} fausses positives")
                     return []
                 
@@ -190,15 +194,18 @@ class StrictFalsePositiveFilter:
             
             print(f"\n[ANALYSE 4-ITEMS] Catégories: {dict(cat_counts)}")
             
-            # 4 aliments valides que si catégories toutes différentes + confiance decent
-            # Seuils ajustés: best_confidence >= 0.70 (est déjà très bon), avg >= 0.60
-            if max_cat_count == 1 and best_confidence >= 0.70 and avg_confidence >= 0.60:
-                print(f"[+] 4 aliments PLAT COMPLET (catégories variées, confiances: {best_confidence:.2f}/{avg_confidence:.2f}) -> ACCEPTÉ")
+            # 4 aliments valides si noms tous différents + confiance decent
+            # NOTE: Catégories peuvent se répéter (ex: burger + frites = 2x fast_food est OK)
+            name_counts_4 = Counter(c['name'].lower() for c in candidates_sorted)
+            max_name_count_4 = max(name_counts_4.values())
+            
+            if max_name_count_4 == 1 and best_confidence >= 0.70 and avg_confidence >= 0.60:
+                print(f"[+] 4 aliments PLAT COMPLET (noms uniques, confiances: {best_confidence:.2f}/{avg_confidence:.2f}) -> ACCEPTÉ")
                 return candidates_sorted
             else:
                 reason = ""
-                if max_cat_count > 1:
-                    reason = f"Catégories dupliquées ({max_cat_count}x même)"
+                if max_name_count_4 > 1:
+                    reason = f"Noms dupliqués ({max_name_count_4}x même aliment)"
                 elif best_confidence < 0.70:
                     reason = f"Confiance max trop basse ({best_confidence:.2f} < 0.70)"
                 elif avg_confidence < 0.60:
@@ -206,8 +213,22 @@ class StrictFalsePositiveFilter:
                 print(f"[-] REJET: 4 aliments probablement faux - {reason}")
                 return []
         
-        # Cas 4: 5+ ALIMENTS → rejeter immédiatement
+        # Cas 4: 5+ ALIMENTS → trop de détections, mais garder le dominant si très confiant
         if num_candidates >= 5:
+            # Si le meilleur a une confiance très élevée et un gap large,
+            # c'est probablement le seul vrai aliment (les autres sont du bruit)
+            if best_confidence >= 0.70:
+                second_conf = candidates_sorted[1]['confidence'] if len(candidates_sorted) > 1 else 0
+                gap = best_confidence - second_conf
+                if gap >= 0.05:
+                    print(f"[+] {num_candidates} détections mais dominant clair: {candidates_sorted[0]['name']} ({best_confidence:.2f}), gap={gap:.2f} -> GARDER LE DOMINANT")
+                    return [candidates_sorted[0]]
+                else:
+                    # Pas de dominant clair, essayer de garder les 2-3 meilleurs avec confiance élevée
+                    top_3 = [c for c in candidates_sorted[:3] if c['confidence'] >= 0.65]
+                    if top_3:
+                        print(f"[+] {num_candidates} détections, pas de dominant clair mais {len(top_3)} aliments forts -> GARDER")
+                        return top_3
             print(f"[-] REJET: {num_candidates} aliments (>= 5) = CHAOS")
             return []
         

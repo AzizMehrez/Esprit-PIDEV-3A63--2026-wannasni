@@ -41,6 +41,7 @@ CATEGORY_FOOD_MAPPING = {
     "milkshake": "milkshake_fraise",
     "frites_maison": ["frites_moyenne", "frites_grande"],
     "frites": ["frites_moyenne", "frites_grande"],
+    "fries": ["frites_moyenne", "frites_grande"],
     "legumes_variés": ["salade_verte", "brocoli", "haricots_verts", "courgette", "aubergine", "poivron", "épinard"],
     "legumes_vari├®s": ["salade_verte", "brocoli", "haricots_verts", "courgette", "aubergine", "poivron", "épinard"],
     "legumes_varies": ["salade_verte", "brocoli", "haricots_verts", "courgette", "aubergine", "poivron", "épinard"],
@@ -142,7 +143,7 @@ REGION_VOTE_MIN_CONF = 0.35
 MIN_REGIONS_FOR_SECONDARY = 2
 
 # Nombre max d'aliments secondaires à retourner
-MAX_SECONDARY_RESULTS = 4
+MAX_SECONDARY_RESULTS = 6
 
 
 class ImageSimilarityMatcher:
@@ -156,6 +157,7 @@ class ImageSimilarityMatcher:
     1-3 reference images into 6-18 virtual samples per category.
 
     v2: Ajout de detect_multiple_foods() pour plats composés.
+    v3: Ajout de _is_single_food_image() pour classifier single vs multi AVANT l'analyse régions.
     """
 
     def __init__(self, raw_data_dir):
@@ -741,6 +743,163 @@ class ImageSimilarityMatcher:
         return None
 
     # ============================================================================
+    # ANALYSE SINGLE vs MULTI FOOD
+    # Détermine si l'image contient un seul aliment ou un plat composé
+    # ============================================================================
+
+    def _is_single_food_image(self, img):
+        """
+        Analyse visuelle pour déterminer si l'image contient UN SEUL aliment
+        ou PLUSIEURS aliments (plat composé).
+        
+        Méthode multi-critères :
+        1. Uniformité des couleurs (histogramme HSV)
+        2. Similarité inter-régions (les quadrants se ressemblent-ils ?)
+        3. Analyse de segmentation (zones de couleur distinctes)
+        4. Uniformité de texture
+        
+        Returns:
+            dict: {
+                'is_single': bool,
+                'confidence': float (0-1, certitude de la décision),
+                'reason': str,
+                'scores': dict (détails des scores)
+            }
+        """
+        h, w = img.shape[:2]
+        hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+        
+        scores = {}
+        
+        # ===== CRITÈRE 1 : Uniformité des couleurs globales =====
+        # Si l'histogramme de couleur est concentré, c'est probablement un seul aliment
+        hue_hist = cv2.calcHist([hsv], [0], None, [30], [0, 180])
+        hue_hist = hue_hist.flatten() / hue_hist.sum()
+        
+        # Entropie de Shannon sur la distribution des teintes
+        hue_entropy = -np.sum(hue_hist[hue_hist > 0] * np.log2(hue_hist[hue_hist > 0]))
+        max_entropy = np.log2(30)
+        color_uniformity = 1.0 - (hue_entropy / max_entropy)
+        scores['color_uniformity'] = round(color_uniformity, 3)
+        
+        # ===== CRITÈRE 2 : Similarité entre quadrants =====
+        quadrants = [
+            hsv[0:h//2, 0:w//2],
+            hsv[0:h//2, w//2:w],
+            hsv[h//2:h, 0:w//2],
+            hsv[h//2:h, w//2:w],
+        ]
+        
+        quad_hists = []
+        for q in quadrants:
+            qh = cv2.calcHist([q], [0, 1], None, [16, 16], [0, 180, 0, 256])
+            qh = cv2.normalize(qh, qh).flatten()
+            quad_hists.append(qh)
+        
+        correlations = []
+        for i in range(len(quad_hists)):
+            for j in range(i + 1, len(quad_hists)):
+                corr = cv2.compareHist(quad_hists[i], quad_hists[j], cv2.HISTCMP_CORREL)
+                correlations.append(corr)
+        
+        avg_quad_similarity = np.mean(correlations) if correlations else 0
+        scores['quadrant_similarity'] = round(avg_quad_similarity, 3)
+        
+        # ===== CRITÈRE 3 : Dominance des couleurs principales =====
+        # K-means pour trouver les couleurs dominantes
+        pixels = hsv.reshape(-1, 3).astype(np.float32)
+        if len(pixels) > 10000:
+            indices = np.random.choice(len(pixels), 10000, replace=False)
+            pixels = pixels[indices]
+        
+        criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
+        _, labels, _ = cv2.kmeans(pixels, 5, None, criteria, 3, cv2.KMEANS_PP_CENTERS)
+        
+        label_counts = np.bincount(labels.flatten(), minlength=5)
+        label_proportions = label_counts / label_counts.sum()
+        sorted_proportions = np.sort(label_proportions)[::-1]
+        top2_proportion = sorted_proportions[0] + sorted_proportions[1]
+        scores['top2_color_dominance'] = round(float(top2_proportion), 3)
+        
+        # ===== CRITÈRE 4 : Variance de texture entre régions =====
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        quad_grays = [
+            gray[0:h//2, 0:w//2],
+            gray[0:h//2, w//2:w],
+            gray[h//2:h, 0:w//2],
+            gray[h//2:h, w//2:w],
+        ]
+        
+        texture_variances = []
+        for qg in quad_grays:
+            laplacian = cv2.Laplacian(qg, cv2.CV_64F)
+            texture_variances.append(laplacian.var())
+        
+        if max(texture_variances) > 0 and np.mean(texture_variances) > 0:
+            texture_cv = np.std(texture_variances) / np.mean(texture_variances)
+        else:
+            texture_cv = 0
+        texture_uniformity = max(0, 1.0 - texture_cv)
+        scores['texture_uniformity'] = round(texture_uniformity, 3)
+        
+        # ===== SCORE COMPOSITE =====
+        composite = (
+            color_uniformity * 0.25 +
+            avg_quad_similarity * 0.30 +
+            top2_proportion * 0.25 +
+            texture_uniformity * 0.20
+        )
+        scores['composite'] = round(composite, 3)
+        
+        # Seuil de décision
+        SINGLE_FOOD_THRESHOLD = 0.55
+        
+        # Override: si la couleur est très non-uniforme, c'est forcément multi-food
+        # (un plat composé a des zones de couleurs très différentes)
+        force_multi = False
+        if color_uniformity < 0.30:
+            force_multi = True
+            logger.info(
+                f"[SingleVsMulti] OVERRIDE: color_uniformity={color_uniformity:.3f} < 0.30 "
+                f"→ forcer MULTI (plat composé évident)"
+            )
+        
+        if force_multi:
+            is_single = False
+            confidence = 0.70 + (0.30 - color_uniformity) * 2
+            reason = "Couleurs très variées → plat composé évident"
+        elif composite >= 0.70:
+            is_single = True
+            confidence = min(0.95, 0.70 + (composite - 0.70))
+            reason = "Image très uniforme (couleur + texture + structure)"
+        elif composite >= SINGLE_FOOD_THRESHOLD:
+            is_single = True
+            confidence = 0.55 + (composite - SINGLE_FOOD_THRESHOLD) * 2
+            reason = "Image globalement uniforme"
+        elif composite >= 0.50:
+            # Zone d'incertitude étroite : 0.50-0.55
+            is_single = True
+            confidence = 0.50
+            reason = "Zone d'incertitude - légère variété détectée"
+        else:
+            is_single = False
+            confidence = 0.55 + (0.50 - composite) * 2
+            reason = "Plusieurs zones distinctes détectées"
+        
+        logger.info(
+            f"[SingleVsMulti] composite={composite:.3f}, is_single={is_single}, "
+            f"color_unif={color_uniformity:.3f}, quad_sim={avg_quad_similarity:.3f}, "
+            f"top2_dom={top2_proportion:.3f}, texture_unif={texture_uniformity:.3f}"
+        )
+        
+        return {
+            'is_single': is_single,
+            'confidence': round(confidence, 3),
+            'reason': reason,
+            'scores': scores,
+        }
+
+    # ============================================================================
     # NOUVELLE MÉTHODE : detect_multiple_foods()
     # Retourne une LISTE d'aliments détectés dans l'image (pour les plats composés)
     # ============================================================================
@@ -778,6 +937,17 @@ class ImageSimilarityMatcher:
         results = []
         seen_categories = set()
 
+        # ===== ÉTAPE 0 : Classifier SINGLE vs MULTI food =====
+        # Analyse visuelle AVANT toute détection pour savoir si on doit
+        # chercher des aliments secondaires ou pas
+        food_type_analysis = self._is_single_food_image(img)
+        is_single_food = food_type_analysis['is_single']
+        single_confidence = food_type_analysis['confidence']
+        logger.info(
+            f"[multi] === Analyse image: {'SINGLE FOOD' if is_single_food else 'MULTI FOOD'} "
+            f"(confiance={single_confidence:.2f}, raison={food_type_analysis['reason']}) ==="
+        )
+
         # ===== ÉTAPE 1 : Image complète (aliment principal) =====
         full_match = self.find_match(image_path)
         if full_match and full_match['confidence'] >= PRIMARY_MATCH_THRESHOLD:
@@ -789,13 +959,17 @@ class ImageSimilarityMatcher:
             seen_categories.add(full_match['category'])
             logger.info(f"[multi] Principal: {full_match['category']} ({full_match['confidence']:.3f})")
             
-            # Si confiance TRÈS ÉLEVÉE (>0.90), c'est un seul aliment simple
-            # Ne pas chercher de secondaires pour éviter du bruit
-            if full_match['confidence'] >= 0.90:
-                logger.info(f"[multi] Confiance très élevée (>0.90) - aliment simple détecté, pas de secondaires")
+            # Si l'analyse visuelle dit SINGLE FOOD → pas de secondaires
+            if is_single_food:
+                logger.info(
+                    f"[multi] Image classifiée SINGLE FOOD → retourner uniquement "
+                    f"{full_match['category']} ({full_match['confidence']:.3f}), "
+                    f"pas d'analyse par régions"
+                )
                 return results
 
-        # ===== ÉTAPE 2 : Analyse par régions =====
+        # ===== ÉTAPE 2 : Analyse par régions (seulement si MULTI FOOD) =====
+        logger.info(f"[multi] Image classifiée MULTI FOOD → analyse par régions...")
         # Définir les régions : quadrants + centre + colonnes et bandes
         regions = self._get_image_regions(img)
 
@@ -912,6 +1086,66 @@ class ImageSimilarityMatcher:
 
         # Trier par confiance décroissante
         results.sort(key=lambda x: x['confidence'], reverse=True)
+
+        # === PRÉ-FILTRE: Éliminer catégories génériques (mapping=None) et doublons ===
+        # Les catégories comme 'divers', 'desserts', 'general' n'ont pas de mapping
+        # et gaspillent des slots dans le top-N, empêchant les vrais aliments d'apparaître.
+        pre_filtered = []
+        seen_food_keys = set()
+        for r in results:
+            cat = r['category']
+            mapping = CATEGORY_FOOD_MAPPING.get(cat)
+            # Rejeter les catégories sans mapping (None)
+            if mapping is None:
+                logger.info(f"[multi] Pré-filtre: rejeté '{cat}' (mapping=None, catégorie générique)")
+                continue
+            # Dédupliquer : si deux catégories mappent vers le même aliment,
+            # garder seulement celle avec la meilleure confiance
+            food_key = mapping if isinstance(mapping, str) else tuple(sorted(mapping))
+            if food_key in seen_food_keys:
+                logger.info(f"[multi] Pré-filtre: rejeté '{cat}' (doublon de mapping: {food_key})")
+                continue
+            seen_food_keys.add(food_key)
+            pre_filtered.append(r)
+        
+        if len(pre_filtered) < len(results):
+            logger.info(
+                f"[multi] Pré-filtre: {len(results)} -> {len(pre_filtered)} "
+                f"(génériques et doublons éliminés)"
+            )
+        results = pre_filtered
+
+        # === FILTRE INTELLIGENT: Éliminer les faux secondaires ===
+        # Si le match principal (source='full') a une confiance bien supérieure
+        # aux secondaires (source='region_*'), les secondaires sont du bruit.
+        if len(results) >= 2:
+            primary = results[0]
+            primary_conf = primary['confidence']
+            secondary_confs = [r['confidence'] for r in results[1:]]
+            avg_secondary = sum(secondary_confs) / len(secondary_confs)
+            gap = primary_conf - avg_secondary
+            
+            # Si le gap est grand (>0.10) ET le principal est très confiant (>0.75)
+            # c'est un aliment simple, les secondaires sont du bruit
+            if gap > 0.10 and primary_conf >= 0.75 and primary.get('source') == 'full':
+                logger.info(
+                    f"[multi] Aliment simple dominant: {primary['category']} ({primary_conf:.3f}), "
+                    f"gap={gap:.3f} vs avg_secondary={avg_secondary:.3f} → suppression des secondaires"
+                )
+                results = [primary]
+            else:
+                # Sinon, garder seulement les secondaires proches du principal
+                min_secondary_conf = max(primary_conf * 0.70, SECONDARY_MATCH_THRESHOLD)
+                filtered = [primary]
+                for r in results[1:]:
+                    if r['confidence'] >= min_secondary_conf:
+                        filtered.append(r)
+                if len(filtered) < len(results):
+                    logger.info(
+                        f"[multi] Filtrage secondaires: {len(results)} -> {len(filtered)} "
+                        f"(seuil relatif: {min_secondary_conf:.3f})"
+                    )
+                results = filtered
 
         # Limiter le total
         max_total = 1 + MAX_SECONDARY_RESULTS  # 1 principal + MAX_SECONDARY_RESULTS secondaires

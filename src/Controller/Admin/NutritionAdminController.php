@@ -2,9 +2,14 @@
 
 namespace App\Controller\Admin;
 
+use App\Entity\BeverageOrder;
+use App\Entity\BeverageProduct;
 use App\Entity\DemandeRegime;
 use App\Entity\RegimePrescrit;
+use App\Form\BeverageProductType;
 use App\Form\RegimePrescritType;
+use App\Repository\BeverageOrderRepository;
+use App\Repository\BeverageProductRepository;
 use App\Repository\DemandeRegimeRepository;
 use App\Repository\RegimePrescritRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -224,5 +229,235 @@ class NutritionAdminController extends AbstractController
             'demande' => $demande,
             'regime' => $regime,
         ]);
+    }
+
+    // ═══════════════════════════════════════════════
+    //  MARKETPLACE - GESTION DES PRODUITS (CRUD)
+    // ═══════════════════════════════════════════════
+
+    #[Route('/admin/nutrition/marketplace', name: 'admin_nutrition_marketplace')]
+    public function marketplace(Request $request, BeverageProductRepository $productRepo): Response
+    {
+        $category = $request->query->get('category', '');
+        $search = $request->query->get('q', '');
+
+        $qb = $productRepo->createQueryBuilder('p')
+            ->orderBy('p.category', 'ASC')
+            ->addOrderBy('p.name', 'ASC');
+
+        if ($category) {
+            $qb->andWhere('p.category = :cat')->setParameter('cat', $category);
+        }
+        if ($search) {
+            $qb->andWhere('p.name LIKE :q OR p.brand LIKE :q')
+               ->setParameter('q', '%' . $search . '%');
+        }
+
+        $products = $qb->getQuery()->getResult();
+
+        // Stats
+        $totalProducts = $productRepo->count([]);
+        $activeProducts = $productRepo->count(['isActive' => true]);
+        $featuredProducts = $productRepo->count(['isFeatured' => true]);
+        $outOfStock = $productRepo->createQueryBuilder('p')
+            ->select('COUNT(p.id)')
+            ->where('p.stockQuantity = 0')
+            ->getQuery()->getSingleScalarResult();
+
+        return $this->render('admin/marketplace/index.html.twig', [
+            'products' => $products,
+            'total_products' => $totalProducts,
+            'active_products' => $activeProducts,
+            'featured_products' => $featuredProducts,
+            'out_of_stock' => $outOfStock,
+            'current_category' => $category,
+            'current_search' => $search,
+        ]);
+    }
+
+    #[Route('/admin/nutrition/marketplace/new', name: 'admin_nutrition_marketplace_new')]
+    public function marketplaceNew(Request $request, EntityManagerInterface $em): Response
+    {
+        $product = new BeverageProduct();
+        $product->setIsActive(true);
+
+        $form = $this->createForm(BeverageProductType::class, $product);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $em->persist($product);
+            $em->flush();
+            $this->addFlash('success', 'Produit "' . $product->getName() . '" ajouté avec succès !');
+            return $this->redirectToRoute('admin_nutrition_marketplace');
+        }
+
+        return $this->render('admin/marketplace/form.html.twig', [
+            'form' => $form->createView(),
+            'product' => $product,
+            'is_edit' => false,
+        ]);
+    }
+
+    #[Route('/admin/nutrition/marketplace/{id}/edit', name: 'admin_nutrition_marketplace_edit', requirements: ['id' => '\d+'])]
+    public function marketplaceEdit(int $id, Request $request, BeverageProductRepository $repo, EntityManagerInterface $em): Response
+    {
+        $product = $repo->find($id);
+        if (!$product) {
+            throw $this->createNotFoundException('Produit non trouvé');
+        }
+
+        $form = $this->createForm(BeverageProductType::class, $product);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $em->flush();
+            $this->addFlash('success', 'Produit "' . $product->getName() . '" modifié avec succès !');
+            return $this->redirectToRoute('admin_nutrition_marketplace');
+        }
+
+        return $this->render('admin/marketplace/form.html.twig', [
+            'form' => $form->createView(),
+            'product' => $product,
+            'is_edit' => true,
+        ]);
+    }
+
+    #[Route('/admin/nutrition/marketplace/{id}/delete', name: 'admin_nutrition_marketplace_delete', methods: ['POST'], requirements: ['id' => '\d+'])]
+    public function marketplaceDelete(int $id, Request $request, BeverageProductRepository $repo, EntityManagerInterface $em): Response
+    {
+        $product = $repo->find($id);
+        if (!$product) {
+            throw $this->createNotFoundException('Produit non trouvé');
+        }
+
+        if ($this->isCsrfTokenValid('delete' . $product->getId(), $request->request->get('_token'))) {
+            $em->remove($product);
+            $em->flush();
+            $this->addFlash('success', 'Produit supprimé avec succès.');
+        }
+
+        return $this->redirectToRoute('admin_nutrition_marketplace');
+    }
+
+    #[Route('/admin/nutrition/marketplace/{id}/toggle', name: 'admin_nutrition_marketplace_toggle', methods: ['POST'], requirements: ['id' => '\d+'])]
+    public function marketplaceToggle(int $id, BeverageProductRepository $repo, EntityManagerInterface $em): Response
+    {
+        $product = $repo->find($id);
+        if (!$product) {
+            throw $this->createNotFoundException('Produit non trouvé');
+        }
+
+        $product->setIsActive(!$product->isActive());
+        $em->flush();
+
+        $status = $product->isActive() ? 'activé' : 'désactivé';
+        $this->addFlash('success', 'Produit "' . $product->getName() . '" ' . $status . '.');
+
+        return $this->redirectToRoute('admin_nutrition_marketplace');
+    }
+
+    // ═══════════════════════════════════════════════
+    //  MARKETPLACE - COMMANDES
+    // ═══════════════════════════════════════════════
+
+    #[Route('/admin/nutrition/marketplace/commandes', name: 'admin_nutrition_marketplace_orders')]
+    public function marketplaceOrders(Request $request, BeverageOrderRepository $orderRepo): Response
+    {
+        $status = $request->query->get('status', '');
+        $search = $request->query->get('q', '');
+
+        $qb = $orderRepo->createQueryBuilder('o')
+            ->leftJoin('o.user', 'u')
+            ->addSelect('u')
+            ->leftJoin('o.items', 'i')
+            ->addSelect('i')
+            ->andWhere('o.status != :cart')
+            ->setParameter('cart', BeverageOrder::STATUS_CART)
+            ->orderBy('o.createdAt', 'DESC');
+
+        if ($status) {
+            $qb->andWhere('o.status = :status')->setParameter('status', $status);
+        }
+        if ($search) {
+            $qb->andWhere('o.orderNumber LIKE :q OR u.firstName LIKE :q OR u.lastName LIKE :q OR u.email LIKE :q')
+               ->setParameter('q', '%' . $search . '%');
+        }
+
+        $orders = $qb->getQuery()->getResult();
+
+        // Stats
+        $totalOrders = $orderRepo->createQueryBuilder('o')
+            ->select('COUNT(o.id)')
+            ->where('o.status != :cart')->setParameter('cart', BeverageOrder::STATUS_CART)
+            ->getQuery()->getSingleScalarResult();
+
+        $pendingOrders = $orderRepo->count(['status' => BeverageOrder::STATUS_PENDING]);
+        $confirmedOrders = $orderRepo->count(['status' => BeverageOrder::STATUS_CONFIRMED]);
+        $deliveredOrders = $orderRepo->count(['status' => BeverageOrder::STATUS_DELIVERED]);
+
+        $totalRevenue = $orderRepo->createQueryBuilder('o')
+            ->select('SUM(o.totalAmount)')
+            ->where('o.status IN (:statuses)')
+            ->setParameter('statuses', [BeverageOrder::STATUS_CONFIRMED, BeverageOrder::STATUS_SHIPPED, BeverageOrder::STATUS_DELIVERED])
+            ->getQuery()->getSingleScalarResult() ?? 0;
+
+        return $this->render('admin/marketplace/orders.html.twig', [
+            'orders' => $orders,
+            'total_orders' => $totalOrders,
+            'pending_orders' => $pendingOrders,
+            'confirmed_orders' => $confirmedOrders,
+            'delivered_orders' => $deliveredOrders,
+            'total_revenue' => $totalRevenue,
+            'current_status' => $status,
+            'current_search' => $search,
+        ]);
+    }
+
+    #[Route('/admin/nutrition/marketplace/commandes/{id}', name: 'admin_nutrition_marketplace_order_show', requirements: ['id' => '\d+'])]
+    public function marketplaceOrderShow(int $id, BeverageOrderRepository $orderRepo): Response
+    {
+        $order = $orderRepo->find($id);
+        if (!$order) {
+            throw $this->createNotFoundException('Commande non trouvée');
+        }
+
+        return $this->render('admin/marketplace/order_show.html.twig', [
+            'order' => $order,
+        ]);
+    }
+
+    #[Route('/admin/nutrition/marketplace/commandes/{id}/status', name: 'admin_nutrition_marketplace_order_status', methods: ['POST'], requirements: ['id' => '\d+'])]
+    public function marketplaceOrderStatus(int $id, Request $request, BeverageOrderRepository $orderRepo, EntityManagerInterface $em): Response
+    {
+        $order = $orderRepo->find($id);
+        if (!$order) {
+            throw $this->createNotFoundException('Commande non trouvée');
+        }
+
+        $newStatus = $request->request->get('status');
+        $validStatuses = [
+            BeverageOrder::STATUS_PENDING,
+            BeverageOrder::STATUS_CONFIRMED,
+            BeverageOrder::STATUS_SHIPPED,
+            BeverageOrder::STATUS_DELIVERED,
+            BeverageOrder::STATUS_CANCELLED,
+        ];
+
+        if (in_array($newStatus, $validStatuses)) {
+            $order->setStatus($newStatus);
+
+            if ($newStatus === BeverageOrder::STATUS_CONFIRMED) {
+                $order->setConfirmedAt(new \DateTime());
+            } elseif ($newStatus === BeverageOrder::STATUS_SHIPPED) {
+                $order->setShippedAt(new \DateTime());
+            } elseif ($newStatus === BeverageOrder::STATUS_DELIVERED) {
+                $order->setDeliveredAt(new \DateTime());
+            }
+
+            $em->flush();
+            $this->addFlash('success', 'Statut de la commande ' . $order->getOrderNumber() . ' mis à jour.');
+        }
+
+        return $this->redirectToRoute('admin_nutrition_marketplace_order_show', ['id' => $id]);
     }
 }
