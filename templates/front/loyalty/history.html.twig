@@ -1,0 +1,158 @@
+{% extends 'base_dashboard.html.twig' %}
+
+{% block title %}Historique Points - WANNASNI{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    :root {
+        --dash-primary: #2E7D32;
+        --dash-primary-light: #4CAF50;
+        --dash-bg: #f8faf8;
+        --dash-card: #ffffff;
+        --dash-text: #1a1a2e;
+        --dash-text-muted: #64748b;
+        --dash-border: #e2e8f0;
+        --dash-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+        --dash-radius: 20px;
+        --dash-radius-sm: 12px;
+    }
+    body { background: var(--dash-bg); }
+
+    .history-wrapper {
+        min-height: 100vh;
+        padding: 2rem 1.5rem 4rem;
+        background: linear-gradient(180deg, #f0f7f0 0%, var(--dash-bg) 30%);
+    }
+    .history-container { max-width: 900px; margin: 0 auto; }
+
+    .history-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+    .history-header h1 {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.8rem;
+        color: var(--dash-text);
+    }
+    .history-header .total-badge {
+        background: linear-gradient(135deg, var(--dash-primary), var(--dash-primary-light));
+        color: white;
+        padding: 0.5rem 1.25rem;
+        border-radius: 50px;
+        font-weight: 700;
+        font-size: 1.1rem;
+    }
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--dash-primary);
+        text-decoration: none;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+    }
+    .back-link:hover { text-decoration: underline; }
+
+    .history-list {
+        background: white;
+        border-radius: var(--dash-radius);
+        box-shadow: var(--dash-shadow);
+        overflow: hidden;
+    }
+    .history-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid var(--dash-border);
+        transition: background 0.2s;
+    }
+    .history-item:last-child { border-bottom: none; }
+    .history-item:hover { background: #f8faf8; }
+    .history-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.4rem;
+        flex-shrink: 0;
+    }
+    .history-icon.earned { background: #DCFCE7; }
+    .history-icon.spent { background: #FEE2E2; }
+    .history-info { flex: 1; }
+    .history-desc { font-weight: 600; color: var(--dash-text); }
+    .history-source {
+        display: inline-block;
+        padding: 0.15rem 0.5rem;
+        border-radius: 50px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        margin-top: 0.25rem;
+    }
+    .history-source.intervention { background: #DBEAFE; color: #1D4ED8; }
+    .history-source.subscription { background: #F3E8FF; color: #7C3AED; }
+    .history-source.activity { background: #DCFCE7; color: #166534; }
+    .history-source.bonus { background: #FEF3C7; color: #92400E; }
+    .history-source.redemption { background: #FEE2E2; color: #991B1B; }
+    .history-date { font-size: 0.8rem; color: var(--dash-text-muted); margin-top: 0.15rem; }
+    .history-points { font-weight: 800; font-size: 1.2rem; min-width: 70px; text-align: right; }
+    .history-points.positive { color: #22C55E; }
+    .history-points.negative { color: #EF4444; }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="history-wrapper">
+    <div class="history-container">
+        <a href="{{ path('app_loyalty', {'_locale': app.request.locale}) }}" class="back-link">← Retour au Programme Fidélité</a>
+
+        <div class="history-header">
+            <h1>📜 Historique des Points</h1>
+            <span class="total-badge">⭐ {{ totalPoints|number_format(0, '.', ' ') }} pts</span>
+        </div>
+
+        {% if history|length > 0 %}
+        <div class="history-list">
+            {% for entry in history %}
+            <div class="history-item">
+                <div class="history-icon {{ entry.points > 0 ? 'earned' : 'spent' }}">
+                    {% if entry.source == 'intervention' %}🔧
+                    {% elseif entry.source == 'subscription' %}💎
+                    {% elseif entry.source == 'activity' %}🎯
+                    {% elseif entry.source == 'bonus' %}🎁
+                    {% elseif entry.source == 'redemption' %}🔄
+                    {% else %}⭐{% endif %}
+                </div>
+                <div class="history-info">
+                    <div class="history-desc">{{ entry.description|default('Points de fidélité') }}</div>
+                    <span class="history-source {{ entry.source }}">
+                        {% if entry.source == 'intervention' %}Intervention
+                        {% elseif entry.source == 'subscription' %}Abonnement
+                        {% elseif entry.source == 'activity' %}Activité
+                        {% elseif entry.source == 'bonus' %}Bonus
+                        {% elseif entry.source == 'redemption' %}Échange
+                        {% else %}{{ entry.source }}{% endif %}
+                    </span>
+                    <div class="history-date">{{ entry.earnedAt|date('d/m/Y à H:i') }}</div>
+                </div>
+                <div class="history-points {{ entry.points > 0 ? 'positive' : 'negative' }}">
+                    {{ entry.points > 0 ? '+' : '' }}{{ entry.points }}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div style="text-align: center; padding: 4rem 2rem; background: white; border-radius: var(--dash-radius); box-shadow: var(--dash-shadow);">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">📜</div>
+            <p style="font-size: 1.1rem; color: var(--dash-text-muted);">Aucun historique de points pour le moment.</p>
+            <p style="font-size: 0.9rem; color: var(--dash-text-muted); margin-top: 0.5rem;">Demandez un service pour commencer à gagner des points !</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

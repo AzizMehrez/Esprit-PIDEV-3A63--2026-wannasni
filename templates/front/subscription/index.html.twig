@@ -1,0 +1,545 @@
+{% extends 'base_dashboard.html.twig' %}
+
+{% block title %}Mon Abonnement - WANNASNI{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    :root {
+        --dash-primary: #2E7D32;
+        --dash-primary-light: #4CAF50;
+        --dash-primary-soft: rgba(46, 125, 50, 0.08);
+        --dash-accent: #FF6B35;
+        --dash-bg: #f8faf8;
+        --dash-card: #ffffff;
+        --dash-text: #1a1a2e;
+        --dash-text-muted: #64748b;
+        --dash-border: #e2e8f0;
+        --dash-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+        --dash-radius: 20px;
+        --dash-radius-sm: 12px;
+    }
+    body { background: var(--dash-bg); }
+
+    .sub-wrapper {
+        min-height: 100vh;
+        padding: 2rem 1.5rem 4rem;
+        background: linear-gradient(180deg, #f0f7f0 0%, var(--dash-bg) 30%);
+    }
+    .sub-container { max-width: 1100px; margin: 0 auto; }
+
+    /* Hero */
+    .sub-hero {
+        background: linear-gradient(135deg, var(--dash-primary) 0%, #1b5e20 100%);
+        border-radius: var(--dash-radius);
+        padding: 2.5rem;
+        margin-bottom: 2rem;
+        color: white;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 8px 40px rgba(46, 125, 50, 0.25);
+    }
+    .sub-hero::after {
+        content: '⭐';
+        position: absolute;
+        right: 2rem;
+        bottom: 0.5rem;
+        font-size: 5rem;
+        opacity: 0.12;
+    }
+    .sub-hero h1 { font-family: 'Playfair Display', serif; font-size: 2rem; margin-bottom: 0.5rem; }
+    .sub-hero p { opacity: 0.85; font-size: 1.1rem; }
+
+    /* Active Subscription Card */
+    .sub-active-card {
+        background: white;
+        border-radius: var(--dash-radius);
+        padding: 2rem;
+        box-shadow: var(--dash-shadow);
+        margin-bottom: 2rem;
+        border: 2px solid var(--dash-primary);
+        position: relative;
+    }
+    .sub-active-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1.5rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+    .sub-plan-name {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.8rem;
+        color: var(--dash-primary);
+    }
+    .sub-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.5rem 1.25rem;
+        border-radius: 50px;
+        font-weight: 700;
+        font-size: 0.9rem;
+    }
+    .badge-success { background: #dcfce7; color: #166534; }
+    .badge-warning { background: #fef9c3; color: #854d0e; }
+    .badge-danger { background: #fee2e2; color: #991b1b; }
+    .badge-info { background: #dbeafe; color: #1e40af; }
+
+    /* Stats Grid */
+    .sub-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.25rem;
+        margin-bottom: 1.5rem;
+    }
+    .sub-stat {
+        background: var(--dash-primary-soft);
+        border-radius: var(--dash-radius-sm);
+        padding: 1.25rem;
+        text-align: center;
+    }
+    .sub-stat-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+    .sub-stat-value { font-size: 1.6rem; font-weight: 700; color: var(--dash-primary); }
+    .sub-stat-label { font-size: 0.85rem; color: var(--dash-text-muted); margin-top: 0.25rem; }
+
+    /* Actions */
+    .sub-actions {
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+        padding-top: 1.25rem;
+        border-top: 1px solid var(--dash-border);
+    }
+    .btn-sub {
+        padding: 0.75rem 1.5rem;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        border: none;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.2s;
+    }
+    .btn-sub-primary {
+        background: linear-gradient(135deg, var(--dash-primary), var(--dash-primary-light));
+        color: white;
+    }
+    .btn-sub-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(46,125,50,0.3); }
+    .btn-sub-outline {
+        background: white;
+        color: var(--dash-text);
+        border: 2px solid var(--dash-border);
+    }
+    .btn-sub-outline:hover { border-color: var(--dash-primary); color: var(--dash-primary); }
+    .btn-sub-danger {
+        background: #fee2e2;
+        color: #dc2626;
+    }
+    .btn-sub-danger:hover { background: #fecaca; }
+    .btn-sub-warning {
+        background: #fef9c3;
+        color: #854d0e;
+    }
+
+    /* No Subscription */
+    .sub-empty {
+        background: white;
+        border-radius: var(--dash-radius);
+        padding: 3rem;
+        text-align: center;
+        box-shadow: var(--dash-shadow);
+        margin-bottom: 2rem;
+    }
+    .sub-empty-icon { font-size: 4rem; margin-bottom: 1rem; }
+    .sub-empty h2 { font-size: 1.5rem; margin-bottom: 0.75rem; color: var(--dash-text); }
+    .sub-empty p { color: var(--dash-text-muted); font-size: 1.05rem; margin-bottom: 1.5rem; }
+
+    /* Plans Mini Cards */
+    .plans-mini-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.25rem;
+        margin-bottom: 2rem;
+    }
+    .plan-mini-card {
+        background: white;
+        border-radius: var(--dash-radius-sm);
+        padding: 1.5rem;
+        box-shadow: var(--dash-shadow);
+        border: 2px solid transparent;
+        transition: all 0.3s;
+        position: relative;
+    }
+    .plan-mini-card:hover { border-color: var(--dash-primary); transform: translateY(-4px); box-shadow: 0 8px 32px rgba(46,125,50,0.15); }
+    .plan-mini-card.current { border-color: var(--dash-primary); background: #f0fdf4; }
+    .plan-mini-card.recommended { border-color: var(--dash-accent); }
+    .plan-mini-tag {
+        position: absolute;
+        top: -10px;
+        right: 1rem;
+        background: var(--dash-accent);
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 700;
+    }
+    .plan-mini-name { font-family: 'Playfair Display', serif; font-size: 1.35rem; color: var(--dash-primary); margin-bottom: 0.25rem; }
+    .plan-mini-price { font-size: 1.6rem; font-weight: 700; color: var(--dash-text); margin-bottom: 0.75rem; }
+    .plan-mini-price span { font-size: 0.85rem; font-weight: 400; color: var(--dash-text-muted); }
+    .plan-mini-features { list-style: none; padding: 0; margin: 0 0 1rem; }
+    .plan-mini-features li { padding: 0.3rem 0; font-size: 0.9rem; color: var(--dash-text-muted); }
+    .plan-mini-features li::before { content: '✓ '; color: var(--dash-primary); font-weight: 700; }
+
+    /* Family Section */
+    .family-section {
+        background: white;
+        border-radius: var(--dash-radius);
+        padding: 2rem;
+        box-shadow: var(--dash-shadow);
+        margin-bottom: 2rem;
+    }
+    .family-section h2 { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--dash-primary); margin-bottom: 1.25rem; }
+    .family-sub-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem;
+        border-radius: var(--dash-radius-sm);
+        background: #f8fafc;
+        margin-bottom: 0.75rem;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+    }
+    .family-sub-info { display: flex; align-items: center; gap: 1rem; }
+    .family-sub-avatar {
+        width: 48px; height: 48px; border-radius: 50%;
+        background: linear-gradient(135deg, var(--dash-primary), var(--dash-primary-light));
+        color: white; display: flex; align-items: center; justify-content: center;
+        font-weight: 700; font-size: 1.1rem;
+    }
+
+    /* Flash Messages */
+    .flash-msg {
+        padding: 1rem 1.5rem;
+        border-radius: var(--dash-radius-sm);
+        margin-bottom: 1.25rem;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    .flash-success { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+    .flash-error { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+    .flash-info { background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }
+
+    @media (max-width: 768px) {
+        .sub-wrapper { padding: 1rem 1rem 6rem; }
+        .sub-hero { padding: 1.5rem; }
+        .sub-hero h1 { font-size: 1.5rem; }
+        .sub-stats { grid-template-columns: repeat(2, 1fr); }
+        .plans-mini-grid { grid-template-columns: 1fr; }
+        .features-grid { grid-template-columns: 1fr !important; }
+    }
+
+    /* Features Status */
+    .features-section {
+        background: white;
+        border-radius: var(--dash-radius);
+        padding: 2rem;
+        box-shadow: var(--dash-shadow);
+        margin-bottom: 2rem;
+    }
+    .features-section h2 {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.4rem;
+        color: var(--dash-primary);
+        margin-bottom: 1.25rem;
+    }
+    .features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1rem;
+    }
+    .feature-card {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem 1.25rem;
+        border-radius: var(--dash-radius-sm);
+        border: 2px solid var(--dash-border);
+        transition: all 0.2s;
+    }
+    .feature-card.unlocked {
+        border-color: #dcfce7;
+        background: #f0fdf4;
+    }
+    .feature-card.locked {
+        border-color: #fee2e2;
+        background: #fef2f2;
+        opacity: 0.85;
+    }
+    .feature-icon { font-size: 1.8rem; flex-shrink: 0; }
+    .feature-body { flex: 1; min-width: 0; }
+    .feature-label { font-weight: 600; font-size: 0.95rem; color: var(--dash-text); }
+    .feature-status {
+        font-size: 0.8rem;
+        margin-top: 0.15rem;
+    }
+    .feature-status.ok { color: #166534; }
+    .feature-status.need { color: #991b1b; }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="sub-wrapper">
+    <div class="sub-container">
+
+        {# Flash Messages #}
+        {% for label, messages in app.flashes %}
+            {% for message in messages %}
+                <div class="flash-msg flash-{{ label }}">
+                    {% if label == 'success' %}✅{% elseif label == 'error' %}❌{% else %}ℹ️{% endif %}
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endfor %}
+
+        {# Hero #}
+        <div class="sub-hero">
+            <h1>💎 Mon Abonnement SilverAssist</h1>
+            <p>Gérez votre abonnement, suivez vos économies et profitez de vos avantages premium.</p>
+        </div>
+
+        {# ═══ SENIOR VIEW ═══ #}
+        {% if isSenior %}
+
+            {% if subscription and subscription.isActive %}
+                {# Active Subscription #}
+                <div class="sub-active-card">
+                    <div class="sub-active-header">
+                        <div>
+                            <div class="sub-plan-name">🏆 Plan {{ subscription.plan.name }}</div>
+                            <span class="sub-badge {{ subscription.statusBadgeClass }}">
+                                {{ subscription.statusLabel }}
+                            </span>
+                        </div>
+                    </div>
+
+                    {# ═══ Dates de l'abonnement ═══ #}
+                    <div style="background: linear-gradient(135deg, #f0fdf4, #dcfce7); border: 2px solid #4CAF50; border-radius: var(--dash-radius-sm); padding: 1.5rem; margin-bottom: 1.5rem;">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.25rem;">
+                            <div style="text-align: center;">
+                                <div style="font-size: 0.85rem; color: #15803d; font-weight: 600; margin-bottom: 0.3rem;">📅 Date de début</div>
+                                <div style="font-size: 1.3rem; font-weight: 700; color: #166534;">{{ subscription.startDate|date('d/m/Y') }}</div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="font-size: 0.85rem; color: #15803d; font-weight: 600; margin-bottom: 0.3rem;">📅 Date d'expiration</div>
+                                <div style="font-size: 1.3rem; font-weight: 700; color: #166534;">{% if subscription.endDate %}{{ subscription.endDate|date('d/m/Y') }}{% else %}—{% endif %}</div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="font-size: 0.85rem; color: #15803d; font-weight: 600; margin-bottom: 0.3rem;">💳 Prochain prélèvement</div>
+                                <div style="font-size: 1.3rem; font-weight: 700; color: #166534;">{% if subscription.nextBillingDate %}{{ subscription.nextBillingDate|date('d/m/Y') }}{% else %}—{% endif %}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="sub-stats">
+                        <div class="sub-stat">
+                            <div class="sub-stat-icon">💰</div>
+                            <div class="sub-stat-value">{{ summary.discountPercent }}%</div>
+                            <div class="sub-stat-label">Réduction sur interventions</div>
+                        </div>
+                        <div class="sub-stat">
+                            <div class="sub-stat-icon">🏦</div>
+                            <div class="sub-stat-value">{{ summary.totalSaved|number_format(2, ',', ' ') }}€</div>
+                            <div class="sub-stat-label">Économies cumulées</div>
+                        </div>
+                        <div class="sub-stat">
+                            <div class="sub-stat-icon">🔧</div>
+                            <div class="sub-stat-value">{{ summary.maintenancesRemaining }}/{{ summary.maintenancesTotal }}</div>
+                            <div class="sub-stat-label">Maintenances restantes</div>
+                        </div>
+                        <div class="sub-stat">
+                            <div class="sub-stat-icon">💎</div>
+                            <div class="sub-stat-value">{{ subscription.plan.formattedPrice }}</div>
+                            <div class="sub-stat-label">Montant mensuel</div>
+                        </div>
+                    </div>
+
+                    {# Avantages du plan #}
+                    <div style="background: var(--dash-primary-soft); border-radius: var(--dash-radius-sm); padding: 1.25rem; margin-bottom: 1.5rem;">
+                        <h3 style="color: var(--dash-primary); margin-bottom: 0.75rem; font-size: 1.1rem;">✨ Vos avantages</h3>
+                        <div style="display: flex; flex-wrap: wrap; gap: 0.75rem;">
+                            <span style="background: white; padding: 0.5rem 1rem; border-radius: 50px; font-size: 0.9rem;">✓ {{ subscription.plan.discountPercent }}% de réduction</span>
+                            <span style="background: white; padding: 0.5rem 1rem; border-radius: 50px; font-size: 0.9rem;">✓ {{ subscription.plan.maintenanceLabel }}</span>
+                            {% if subscription.plan.prioriteUrgences %}
+                                <span style="background: white; padding: 0.5rem 1rem; border-radius: 50px; font-size: 0.9rem;">✓ Priorité urgences</span>
+                            {% endif %}
+                            {% if subscription.plan.technicienDedie %}
+                                <span style="background: white; padding: 0.5rem 1rem; border-radius: 50px; font-size: 0.9rem;">✓ Technicien dédié</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    {# ═══ Actions — Annuler l'abonnement ═══ #}
+                    <div class="sub-actions" style="background: #fef2f2; border: 1px solid #fecaca; border-radius: var(--dash-radius-sm); padding: 1.25rem;">
+                        <div style="flex: 1;">
+                            <strong style="color: #991b1b;">🚫 Annuler l'abonnement</strong>
+                            <p style="color: #b91c1c; font-size: 0.85rem; margin: 0.25rem 0 0;">Vos réductions et avantages seront désactivés immédiatement.</p>
+                        </div>
+                        <form action="{{ path('app_subscription_cancel', {'_locale': app.request.locale}) }}" method="post" style="display:inline;" onsubmit="return confirm('⚠️ Êtes-vous sûr de vouloir annuler votre abonnement ?\n\nVos réductions ({{ subscription.plan.discountPercent }}%) ne seront plus appliquées sur vos interventions.');">
+                            <button type="submit" class="btn-sub btn-sub-danger" style="font-size: 1rem; padding: 0.85rem 1.75rem;">✖ Annuler mon abonnement</button>
+                        </form>
+                    </div>
+                </div>
+
+            {% elseif subscription and subscription.isSuspended %}
+                {# Suspended Subscription #}
+                <div class="sub-active-card" style="border-color: #f59e0b;">
+                    <div class="sub-active-header">
+                        <div>
+                            <div class="sub-plan-name" style="color: #b45309;">⏸️ Plan {{ subscription.plan.name }} — Suspendu</div>
+                            <p style="color: var(--dash-text-muted);">Votre abonnement est actuellement suspendu. Réactivez-le pour bénéficier de vos réductions.</p>
+                        </div>
+                        <span class="sub-badge badge-warning">Suspendu</span>
+                    </div>
+                    <div class="sub-actions">
+                        <form action="{{ path('app_subscription_reactivate', {'_locale': app.request.locale}) }}" method="post" style="display:inline;">
+                            <button type="submit" class="btn-sub btn-sub-primary">▶️ Réactiver mon abonnement</button>
+                        </form>
+                        <form action="{{ path('app_subscription_cancel', {'_locale': app.request.locale}) }}" method="post" style="display:inline;" onsubmit="return confirm('Annuler définitivement ?');">
+                            <button type="submit" class="btn-sub btn-sub-danger">✖ Annuler</button>
+                        </form>
+                    </div>
+                </div>
+            {% else %}
+                {# No Subscription #}
+                <div class="sub-empty">
+                    <div class="sub-empty-icon">🎁</div>
+                    <h2>Pas encore abonné ?</h2>
+                    <p>Souscrivez à un plan SilverAssist Premium pour bénéficier de réductions sur vos interventions et d'une maintenance préventive de votre logement.</p>
+                    <a href="{{ path('app_subscription_plans', {'_locale': app.request.locale}) }}" class="btn-sub btn-sub-primary" style="font-size: 1.1rem; padding: 1rem 2rem;">
+                        🚀 Découvrir les plans
+                    </a>
+                </div>
+            {% endif %}
+        {% endif %}
+
+        {# ═══ FAMILY VIEW ═══ #}
+        {% if isFamily %}
+            <div class="family-section">
+                <h2>👨‍👩‍👧 Abonnements souscrits pour vos proches</h2>
+
+                {% if familySubscriptions|length > 0 %}
+                    {% for sub in familySubscriptions %}
+                        <div class="family-sub-row">
+                            <div class="family-sub-info">
+                                <div class="family-sub-avatar">{{ sub.senior.firstName|first|upper }}</div>
+                                <div>
+                                    <strong>{{ sub.senior.fullName }}</strong><br>
+                                    <span style="color: var(--dash-text-muted); font-size: 0.9rem;">
+                                        Plan {{ sub.plan.name }} — {{ sub.plan.formattedPrice }}
+                                    </span>
+                                </div>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                <span class="sub-badge {{ sub.statusBadgeClass }}">{{ sub.statusLabel }}</span>
+                                {% if sub.isActive %}
+                                    <form action="{{ path('app_subscription_cancel', {'_locale': app.request.locale}) }}" method="post" onsubmit="return confirm('Annuler l\'abonnement de {{ sub.senior.firstName }} ?');">
+                                        <input type="hidden" name="senior_id" value="{{ sub.senior.id }}">
+                                        <button type="submit" class="btn-sub btn-sub-danger" style="padding: 0.5rem 1rem; font-size: 0.85rem;">Annuler</button>
+                                    </form>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p style="color: var(--dash-text-muted); text-align: center; padding: 2rem 0;">
+                        Vous n'avez pas encore souscrit d'abonnement pour un senior.
+                    </p>
+                {% endif %}
+
+                <div style="text-align: center; margin-top: 1.5rem;">
+                    <a href="{{ path('app_subscription_plans', {'_locale': app.request.locale}) }}" class="btn-sub btn-sub-primary">
+                        ➕ Souscrire pour un proche
+                    </a>
+                </div>
+            </div>
+        {% endif %}
+
+        {# ═══ FONCTIONNALITÉS STATUS ═══ #}
+        {% if isSenior and featuresStatus|length > 0 %}
+        <div class="features-section">
+            <h2>🔐 Fonctionnalités selon votre abonnement</h2>
+            <div class="features-grid">
+                {% for feature in featuresStatus %}
+                    <div class="feature-card {{ feature.unlocked ? 'unlocked' : 'locked' }}">
+                        <div class="feature-icon">
+                            {% if feature.unlocked %}
+                                ✅
+                            {% else %}
+                                🔒
+                            {% endif %}
+                        </div>
+                        <div class="feature-body">
+                            <div class="feature-label">{{ feature.icon }} {{ feature.label }}</div>
+                            {% if feature.unlocked %}
+                                <div class="feature-status ok">Débloqué</div>
+                            {% else %}
+                                <div class="feature-status need">Requiert l'abonnement {{ feature.requiredPlanName }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            {% if not subscription or not subscription.isActive %}
+                <div style="text-align: center; margin-top: 1.25rem;">
+                    <a href="{{ path('app_subscription_plans', {'_locale': app.request.locale}) }}" style="display: inline-flex; align-items: center; gap: 0.5rem; background: linear-gradient(135deg, #2E7D32, #4CAF50); color: white; padding: 0.75rem 2rem; border-radius: 50px; font-weight: 600; text-decoration: none; box-shadow: 0 4px 16px rgba(46,125,50,0.3);">
+                        💎 Souscrire pour tout débloquer
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        {# ═══ PLANS APERÇU ═══ #}
+        {% if plans|length > 0 %}
+            <h2 style="font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--dash-primary); margin-bottom: 1.25rem;">
+                📦 Nos plans
+            </h2>
+            <div class="plans-mini-grid">
+                {% for plan in plans %}
+                    <div class="plan-mini-card {% if subscription and subscription.plan.slug == plan.slug %}current{% endif %} {% if plan.slug == 'confort' %}recommended{% endif %}">
+                        {% if plan.slug == 'confort' %}
+                            <div class="plan-mini-tag">⭐ Populaire</div>
+                        {% endif %}
+                        {% if subscription and subscription.plan.slug == plan.slug %}
+                            <div class="plan-mini-tag" style="background: var(--dash-primary);">✓ Actuel</div>
+                        {% endif %}
+                        <div class="plan-mini-name">{{ plan.name }}</div>
+                        <div class="plan-mini-price">{{ plan.priceMonthly|number_format(2, ',', '') }}<span>€/mois</span></div>
+                        <ul class="plan-mini-features">
+                            <li>{{ plan.discountPercent }}% de réduction</li>
+                            <li>{{ plan.maintenanceLabel }}</li>
+                            {% if plan.prioriteUrgences %}<li>Priorité urgences</li>{% endif %}
+                            {% if plan.technicienDedie %}<li>Technicien dédié</li>{% endif %}
+                        </ul>
+                        {% if not subscription or subscription.plan.slug != plan.slug %}
+                            <a href="{{ path('app_subscription_checkout', {'planSlug': plan.slug, '_locale': app.request.locale}) }}" class="btn-sub btn-sub-primary" style="width: 100%; justify-content: center;">
+                                Choisir ce plan
+                            </a>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+    </div>
+</div>
+{% endblock %}

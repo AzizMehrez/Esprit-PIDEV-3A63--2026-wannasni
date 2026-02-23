@@ -1,0 +1,300 @@
+# WANNASNI - Traductions Français (FR)
+# Langue par défaut
+
+# Meta & Site
+site:
+    name: "WANNASNI"
+meta:
+    description: "WANNASNI - L'assistant numérique intelligent pour les seniors. Soins, sécurité et vie quotidienne, le tout dans une seule application."
+
+# Navigation
+nav:
+    features: "Fonctionnalités"
+    why: "Pourquoi nous"
+    contact: "Contact"
+    back_to_login: "Retour à la connexion"
+
+# Greetings (Time-based)
+greeting:
+    morning: "Bonjour"
+    afternoon: "Bon après-midi"
+    evening: "Bonsoir"
+
+# Story-Driven Narrative Sections
+narrative:
+    problem:
+        title: "L'inquiétude qui ne dort jamais"
+        text: "Chaque famille connaît ce sentiment. Les appels tardifs, l'inquiétude constante, la peur de ne pas être là quand ça compte vraiment. Vous méritez la tranquillité d'esprit."
+    solution:
+        title: "Le gardien quotidien de votre famille"
+        text: "WANNASNI apporte la sérénité à chaque instant. Une présence bienveillante qui veille sur vos proches avec attention et compassion."
+    trust:
+        title: "Des familles comme la vôtre nous font confiance"
+        text: "Rejoignez des milliers de familles qui ont trouvé la tranquillité d'esprit. De vrais soins, de vrais résultats, une vraie confiance."
+    action:
+        title: "Commencez votre tranquillité d'esprit"
+        cta: "Commencer aujourd'hui"
+
+# AI Companion
+ai:
+    label: "Assistant toujours présent"
+
+# Trust Counter
+trust:
+    counter:
+        label: "Familles nous font confiance"
+    badge:
+        data: "Données protégées"
+        family: "Famille d'abord"
+        senior: "Adapté aux seniors"
+        certified: "Certifié qualité"
+
+# Stats Section
+stats:
+    families: "Familles accompagnées"
+    support: "Support disponible"
+    satisfaction: "Taux de satisfaction"
+    experience: "Années d'expérience"
+
+# How It Works Section
+howitworks:
+    title: "Comment ça marche"
+    subtitle: "Un accompagnement simple en 3 étapes"
+    step1:
+        title: "Inscription"
+        description: "Créez votre profil familial en quelques minutes. C'est simple et sécurisé."
+    step2:
+        title: "Personnalisation"
+        description: "Configurez les alertes, les rappels et les préférences selon vos besoins."
+    step3:
+        title: "Sérénité"
+        description: "Profitez de la tranquillité d'esprit. Nous veillons sur vos proches."
+
+# Hero Section
+hero:
+    tagline: "Votre compagnon numérique"
+    title: "L'assistant intelligent qui prend soin de vos proches"
+    subtitle: "Soins, sécurité et vie quotidienne — tout en une seule application."
+    description: "Nous sommes là quand vous avez besoin de nous."
+
+# Call to Action
+cta:
+    contact_us: "Contactez-nous"
+    call_us: "Appelez-nous"
+    login: "Connexion"
+    signup: "S'inscrire"
+    title: "Prêt à améliorer la vie de vos proches ?"
+    subtitle: "Rejoignez les familles qui font confiance à WANNASNI pour accompagner leurs aînés au quotidien."
+
+# Features Section
+features:
+    title: "Ce que fait WANNASNI"
+    subtitle: "Une suite complète de fonctionnalités pensées pour le bien-être des seniors"
+    profiles:
+        title: "Profils & Sécurité"
+        description: "Seniors, familles, médecins, techniciens — chacun a son rôle et ses accès sécurisés dans l'application."
+    services:
+        title: "Services & Interventions"
+        description: "Réservez de l'aide (plomberie, réparations, courses) en indiquant l'urgence et le budget souhaité."
+    health:
+        title: "Santé & Bien-être"
+        description: "Journal de santé, suivi des constantes vitales, médicaments, ordonnances et rappels automatiques."
+    nutrition:
+        title: "Alimentation & Nutrition"
+        description: "Plans alimentaires personnalisés, journal des repas et suivi de l'hydratation quotidienne."
+    activities:
+        title: "Activités & Événements"
+        description: "Activités sociales et physiques pour lutter contre l'isolement et maintenir une vie active."
+    family:
+        title: "Connexion Familiale"
+        description: "Gardez le lien avec vos proches grâce aux notifications, partage de données et messagerie intégrée."
+
+# Testimonials Section
+testimonials:
+    title: "Témoignages de nos familles"
+    subtitle: "Des expériences réelles de proches qui ont trouvé la sérénité"
+    quote1: "Enfin, je peux dormir paisiblement en sachant que Maman est en sécurité. WANNASNI a changé la vie de notre famille."
+    author1: "Marie, fille de Fatima (78 ans)"
+    quote2: "Les soins que mon père reçoit sont exceptionnels. L'équipe comprend vraiment les besoins des seniors."
+    author2: "Ahmed, fils de Hassan (82 ans)"
+    quote3: "Ce que j'aime le plus, c'est la chaleur et le respect qu'ils montrent à ma grand-mère. C'est comme une famille."
+    author3: "Leila, petite-fille de Kheira (85 ans)"
+
+# Roles Section
+roles:
+    title: "Pour qui ?"
+    subtitle: "Une plateforme multi-rôles adaptée à chaque besoin"
+    seniors:
+        title: "Seniors"
+        description: "Une interface simple et accessible pour gérer leur quotidien en toute autonomie."
+    family:
+        title: "Familles"
+        description: "Restez informés et connectés, où que vous soyez, avec des notifications en temps réel."
+    doctors:
+        title: "Médecins"
+        description: "Accédez aux données de santé et suivez vos patients à distance en toute sécurité."
+    technicians:
+        title: "Techniciens & Aidants"
+        description: "Planifiez des interventions et accompagnez les seniors dans leur bien-être quotidien."
+
+# Why Section
+why:
+    title: "Pourquoi ça compte"
+    lead: "WANNASNI n'est pas qu'une simple application — c'est un compagnon numérique qui aide les seniors à rester indépendants tout en gardant les familles et professionnels informés."
+    point1: "Une expérience utilisateur simple et humaine, pensée pour tous les âges"
+    point2: "Une architecture modulaire qui s'adapte à chaque besoin"
+    point3: "Un impact réel sur la qualité de vie des seniors"
+    point4: "La tranquillité d'esprit pour toute la famille"
+    tagline: "Simple. Humain. Utile."
+
+# Comfort Message (Exit Intent)
+comfort:
+    message: "Vous faites du bon travail. Nous sommes là quand vous avez besoin de nous. 💚"
+
+# Footer
+footer:
+    tagline: "L'assistant numérique intelligent pour les seniors"
+    contact_title: "Nous contacter"
+    navigation: "Navigation"
+    rights: "Tous droits réservés."
+
+# Authentication
+auth:
+    or_continue_with: "Ou continuer avec"
+    continue_google: "Continuer avec Google"
+    continue_x: "Continuer avec X"
+    continue_facebook: "Continuer avec Facebook"
+    continue_github: "Continuer avec GitHub"
+    confirm_link_title: "Lier votre compte"
+    confirm_link_desc: "Un compte existe déjà avec l'email %email%. Voulez-vous lier votre compte %provider% ?"
+    confirm_link_info_title: "Que va-t-il se passer ?"
+    confirm_link_bullet1: "Votre compte %provider% sera lié à votre compte existant."
+    confirm_link_bullet2: "Vous pourrez vous connecter avec les deux méthodes."
+    confirm_link_bullet3: "Vos données actuelles seront conservées."
+    confirm_link_button: "Oui, lier mon compte %provider%"
+    confirm_link_cancel: "Non, annuler"
+    forgot_password_link: "Mot de passe oublié ?"
+    send_reset_link: "Envoyer le lien de réinitialisation"
+    remember_password: "Vous vous souvenez de votre mot de passe ?"
+    reset_password_title: "Réinitialiser le mot de passe"
+    reset_password_button: "Réinitialiser le mot de passe"
+    new_password: "Nouveau mot de passe"
+    password_requirements: "Minimum 6 caractères"
+    verification_code: "Code de vérification"
+    verify_button: "Vérifier le code"
+    code_expires: "Le code expire dans 15 minutes"
+    no_code: "Vous n'avez pas reçu le code ?"
+    resend_code: "Renvoyer"
+    # Face ID Login
+    face_login: "Se connecter avec Face ID"
+    face_login_title: "Connexion par Face ID"
+    face_instruction: "Positionnez votre visage dans le cadre et cliquez sur Capturer"
+    face_captured_login: "Visage capturé ! Vous pouvez maintenant vous connecter."
+    quote:
+        forgot: "Ne vous inquiétez pas, nous allons vous aider à récupérer votre compte."
+        reset: "Créez un nouveau mot de passe sécurisé pour votre compte."
+        verify: "Entrez le code que nous avons envoyé à votre email."
+    forgot_password:
+        title: "Mot de passe oublié ?"
+        subtitle: "Entrez votre adresse email et nous vous enverrons un lien pour réinitialiser votre mot de passe."
+    reset_password:
+        subtitle: "Entrez votre nouveau mot de passe ci-dessous."
+    verify_code:
+        title: "Vérifiez votre email"
+        subtitle: "Nous avons envoyé un code de vérification à"
+        instruction: "Entrez le code à 6 chiffres envoyé par email"
+    # Face ID Authentication
+    face_id: "Reconnaissance faciale"
+    face_id_desc: "Capturez votre visage pour une connexion sécurisée."
+    capture_face: "Capturer mon visage"
+    retake_face: "Reprendre la photo"
+    face_captured: "Visage capturé"
+    capture_face_title: "Capturez votre visage"
+    capture_face_instructions: "Positionnez votre visage dans le cadre et cliquez sur Capturer."
+    capture: "Capturer"
+    retake: "Reprendre"
+    confirm: "Confirmer"
+    cancel: "Annuler"
+    verifying_face: "Vérification du visage..."
+    face_verify_error: "Erreur de vérification"
+    face_already_registered: "Ce visage est déjà enregistré pour"
+    use_login: "Veuillez vous connecter."
+    face_verified: "Visage vérifié avec succès !"
+    no_face_detected: "Aucun visage détecté. Veuillez réessayer."
+    face_verify_network_error: "Erreur réseau. Veuillez réessayer."
+    face_consent: "J'autorise le traitement de mes données biométriques faciales pour l'authentification."
+    face_consent_required: "Vous devez accepter le traitement de vos données biométriques."
+    camera_error: "Impossible d'accéder à la caméra. Veuillez autoriser l'accès."
+
+# Captcha
+captcha:
+    label: "Captcha de sécurité"
+    hint: "Entrez les caractères affichés"
+    placeholder: "Entrez le code ci-dessus"
+    refresh: "Nouvelle image"
+    invalid: "Le captcha est incorrect. Veuillez réessayer."
+    required: "Veuillez résoudre le captcha pour continuer."
+
+# Success messages
+success:
+    face_login: "Connexion réussie par Face ID !"
+
+# Error messages
+error:
+    face_not_recognized: "Visage non reconnu. Veuillez réessayer ou utiliser votre mot de passe."
+    camera_access: "Impossible d'accéder à la caméra"
+    network: "Erreur de connexion"
+
+# Action labels
+action:
+    processing: "Traitement..."
+    login: "Se connecter"
+    capture_face: "Capturer le visage"
+    retake: "Reprendre"
+
+# Modération de contenu
+moderation:
+    rejected: "Votre message contient des mots inappropriés et a été rejeté."
+    affects_rate: "Cela affecte votre réputation sur le réseau."
+    warnings: "Avertissements : %count%"
+    banned_notice: "Votre accès networking est en lecture seule. Vous ne pouvez pas publier ni commenter."
+    inappropriate_content: "Contenu inapproprié détecté."
+    image_sensitive: "Cette photo contient du contenu sensible et ne sera pas publiée."
+    image_unavailable: "Impossible de vérifier cette image pour le moment. Par mesure de sécurité, elle ne sera pas publiée."
+    image_share_appropriate: "Veuillez partager uniquement du contenu approprié et respectueux."
+
+# Abonnement
+subscription:
+    title: "Mon Abonnement"
+    plans: "Nos Formules"
+    subscribe: "S'abonner"
+    cancel: "Annuler l'abonnement"
+    suspend: "Suspendre"
+    reactivate: "Réactiver"
+    checkout: "Commander"
+    status:
+        active: "Actif"
+        suspended: "Suspendu"
+        cancelled: "Annulé"
+        past_due: "Impayé"
+        pending: "En attente"
+    plan:
+        essentiel: "Essentiel"
+        confort: "Confort"
+        premium: "Premium"
+    no_subscription: "Vous n'avez pas encore d'abonnement"
+    choose_plan: "Choisir une formule"
+
+# Fidélité
+loyalty:
+    title: "Programme Fidélité"
+    points: "Points"
+    rewards: "Récompenses"
+    history: "Historique"
+    redeem: "Utiliser"
+    balance: "Solde de points"
+    earn_points: "Gagnez des points"
+    no_points: "Vous n'avez pas encore de points"
+    no_rewards: "Aucune récompense disponible"
+    reward_redeemed: "Récompense utilisée avec succès !"
+    points_earned: "%points% points gagnés"

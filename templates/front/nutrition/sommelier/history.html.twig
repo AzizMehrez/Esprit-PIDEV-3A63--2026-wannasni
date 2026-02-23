@@ -1,0 +1,221 @@
+{% extends 'base_dashboard.html.twig' %}
+
+{% block title %}Historique Boissons - WANNASNI{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    :root {
+        --som-primary: #6366f1;
+        --som-primary-dark: #4f46e5;
+        --som-water: #3b82f6;
+        --som-border: #e2e8f0;
+        --som-text: #1f2937;
+    }
+
+    .history-container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 2rem 1rem 4rem;
+    }
+
+    .history-header {
+        background: linear-gradient(135deg, #4f46e5, #7c3aed);
+        border-radius: 24px;
+        padding: 2.5rem 2rem;
+        margin-bottom: 2rem;
+        color: white;
+        text-align: center;
+        box-shadow: 0 10px 40px rgba(99,102,241,0.2);
+    }
+    .history-header h1 { font-size: 2rem; font-weight: 800; margin-bottom: 0.5rem; }
+    .history-header p { opacity: 0.9; }
+
+    .history-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+    .history-stat-card {
+        background: white;
+        border-radius: 16px;
+        padding: 1.5rem;
+        text-align: center;
+        border: 2px solid var(--som-border);
+    }
+    .history-stat-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+    .history-stat-value { font-size: 2rem; font-weight: 800; color: var(--som-text); }
+    .history-stat-label { font-size: 0.8rem; color: #94a3b8; font-weight: 600; text-transform: uppercase; }
+
+    .history-day-group {
+        margin-bottom: 1.5rem;
+    }
+    .history-day-label {
+        font-weight: 700;
+        font-size: 1rem;
+        color: #64748b;
+        padding: 0.5rem 0;
+        border-bottom: 2px solid var(--som-border);
+        margin-bottom: 0.75rem;
+    }
+    .history-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem 1.25rem;
+        background: white;
+        border-radius: 14px;
+        border: 1px solid var(--som-border);
+        margin-bottom: 0.5rem;
+        transition: all 0.2s;
+    }
+    .history-item:hover { border-color: var(--som-primary); transform: translateX(4px); }
+    .history-item-emoji { font-size: 1.75rem; flex-shrink: 0; }
+    .history-item-info { flex: 1; }
+    .history-item-name { font-weight: 700; font-size: 0.95rem; color: var(--som-text); }
+    .history-item-time { font-size: 0.8rem; color: #94a3b8; }
+    .history-item-ml { font-weight: 800; color: var(--som-water); font-size: 1rem; }
+    .history-item-rating { display: flex; gap: 0.15rem; }
+    .history-item-rating .star { color: #e2e8f0; font-size: 0.8rem; }
+    .history-item-rating .star.filled { color: #f59e0b; }
+
+    .empty-history {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: white;
+        border-radius: 20px;
+        border: 3px dashed var(--som-border);
+    }
+    .empty-history-emoji { font-size: 4rem; margin-bottom: 1rem; }
+
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--som-primary);
+        text-decoration: none;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        transition: all 0.2s;
+    }
+    .back-link:hover { color: var(--som-primary-dark); transform: translateX(-3px); }
+</style>
+{% endblock %}
+
+{% block sidebar %}
+    <span class="sidebar-nav-title">Navigation Nutrition</span>
+    <nav>
+        <a href="{{ path('app_my_nutrition') }}" class="sidebar-link">
+            <i class="fas fa-utensils"></i> Tableau de bord
+        </a>
+        <a href="{{ path('app_nutrition_sommelier') }}" class="sidebar-link" data-turbo="false">
+            <i class="fas fa-wine-glass-alt"></i> Sommelier
+        </a>
+        <a href="{{ path('app_nutrition_sommelier_history') }}" class="sidebar-link active" data-turbo="false">
+            <i class="fas fa-history"></i> Historique boissons
+        </a>
+        <a href="{{ path('app_nutrition_request') }}" class="sidebar-link">
+            <i class="fas fa-plus"></i> Nouvelle demande
+        </a>
+        <a href="{{ path('app_nutrition_scan') }}" class="sidebar-link">
+            <i class="fas fa-barcode"></i> Scanner produit
+        </a>
+    </nav>
+{% endblock %}
+
+{% block body %}
+<div class="history-container">
+
+    <a href="{{ path('app_nutrition_sommelier') }}" class="back-link">
+        <i class="fas fa-arrow-left"></i> Retour au Sommelier
+    </a>
+
+    <div class="history-header">
+        <h1>📊 Historique de mes boissons</h1>
+        <p>30 derniers jours de consommation</p>
+    </div>
+
+    {% if logs is not empty %}
+        {# Stats #}
+        {% set totalMl = 0 %}
+        {% set totalDrinks = logs|length %}
+        {% set categories = {} %}
+        {% for log in logs %}
+            {% set totalMl = totalMl + log.quantityMl %}
+            {% set cat = log.category|default('autre') %}
+            {% if categories[cat] is defined %}
+                {% set categories = categories|merge({(cat): categories[cat] + 1}) %}
+            {% else %}
+                {% set categories = categories|merge({(cat): 1}) %}
+            {% endif %}
+        {% endfor %}
+
+        <div class="history-stats">
+            <div class="history-stat-card">
+                <div class="history-stat-icon">🥤</div>
+                <div class="history-stat-value">{{ totalDrinks }}</div>
+                <div class="history-stat-label">Boissons enregistrées</div>
+            </div>
+            <div class="history-stat-card">
+                <div class="history-stat-icon">💧</div>
+                <div class="history-stat-value">{{ (totalMl / 1000)|number_format(1) }}L</div>
+                <div class="history-stat-label">Total consommé</div>
+            </div>
+            <div class="history-stat-card">
+                <div class="history-stat-icon">📊</div>
+                <div class="history-stat-value">{{ (totalMl / (totalDrinks > 0 ? totalDrinks : 1))|number_format(0) }}</div>
+                <div class="history-stat-label">ml / boisson moy.</div>
+            </div>
+            <div class="history-stat-card">
+                <div class="history-stat-icon">🏆</div>
+                <div class="history-stat-value">{{ categories|length }}</div>
+                <div class="history-stat-label">Catégories différentes</div>
+            </div>
+        </div>
+
+        {# Group by day #}
+        {% set currentDay = null %}
+        {% set emojiMap = {'thé': '🍵', 'café': '☕', 'infusion': '🌿', 'eau': '💧', 'jus': '🧃', 'smoothie': '🥤', 'sirop_sans_sucre': '🍯', 'mocktail': '🍹'} %}
+        {% for log in logs %}
+            {% set logDay = log.consumedAt|date('Y-m-d') %}
+            {% if logDay != currentDay %}
+                {% if currentDay is not null %}</div>{% endif %}
+                <div class="history-day-group">
+                    <div class="history-day-label">📅 {{ log.consumedAt|date('l d F Y') }}</div>
+                {% set currentDay = logDay %}
+            {% endif %}
+            <div class="history-item">
+                <div class="history-item-emoji">{{ log.beverageEmoji }}</div>
+                <div class="history-item-info">
+                    <div class="history-item-name">{{ log.beverageName }}</div>
+                    <div class="history-item-time">
+                        {{ log.consumedAt|date('H:i') }}
+                        {% if log.moment %} — {{ log.moment|capitalize }}{% endif %}
+                    </div>
+                    {% if log.satisfactionRating %}
+                    <div class="history-item-rating">
+                        {% for i in 1..5 %}
+                        <span class="star {{ i <= log.satisfactionRating ? 'filled' : '' }}">★</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="history-item-ml">{{ log.quantityMl }} ml</div>
+            </div>
+        {% endfor %}
+        </div> {# close last day group #}
+
+    {% else %}
+        <div class="empty-history">
+            <div class="empty-history-emoji">🍵</div>
+            <h3>Aucune boisson enregistrée</h3>
+            <p class="text-muted">Commencez à suivre votre hydratation depuis le Sommelier !</p>
+            <a href="{{ path('app_nutrition_sommelier') }}" class="btn btn-primary rounded-pill px-4 mt-3">
+                <i class="fas fa-wine-glass-alt me-2"></i> Aller au Sommelier
+            </a>
+        </div>
+    {% endif %}
+
+</div>
+{% endblock %}

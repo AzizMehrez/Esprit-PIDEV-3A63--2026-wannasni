@@ -1,0 +1,91 @@
+{% extends 'base_dashboard.html.twig' %}
+
+{% block title %}{{ meal.strMeal }}{% endblock %}
+
+{% block sidebar %}
+    <span class="sidebar-nav-title">Navigation Nutrition</span>
+    <nav>
+        <a href="{{ path('app_my_nutrition') }}" class="sidebar-link">
+            <i class="fas fa-utensils"></i> Tableau de bord
+        </a>
+        <a href="{{ path('app_nutrition_request') }}" class="sidebar-link">
+            <i class="fas fa-plus"></i> Nouvelle demande
+        </a>
+        <a href="{{ path('app_nutrition_scan') }}" class="sidebar-link">
+            <i class="fas fa-barcode"></i> Scanner produit
+        </a>
+        <a href="{{ path('app_nutrition_track') }}" class="sidebar-link">
+            <i class="fas fa-camera"></i> Analyse Photo IA
+        </a>
+    </nav>
+{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ path('app_nutrition_meals') }}">Recettes</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ meal.strMeal }}</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden mb-4">
+                <img src="{{ meal.strMealThumb }}" class="card-img-top" alt="{{ meal.strMeal }}" style="max-height: 500px; object-fit: cover;">
+                <div class="card-body p-5">
+                    <div class="d-flex justify-content-between align-items-start mb-4">
+                        <div>
+                            <h1 class="fw-bold display-6 mb-2 text-success">{{ meal.strMeal }}</h1>
+                            <div class="text-muted">
+                                <span class="badge bg-secondary me-2">{{ meal.strCategory }}</span>
+                                <span class="badge bg-info text-dark">{{ meal.strArea }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h4 class="fw-bold mb-3">Instructions</h4>
+                    <p class="card-text text-justify" style="white-space: pre-line; line-height: 1.8;">
+                        {{ meal.strInstructions }}
+                    </p>
+
+                    {% if meal.strYoutube %}
+                        <div class="mt-5">
+                            <h5 class="fw-bold mb-3"><i class="fab fa-youtube text-danger me-2"></i>Vidéo</h5>
+                            <div class="ratio ratio-16x9 rounded-3 overflow-hidden shadow">
+                                <iframe src="https://www.youtube.com/embed/{{ meal.strYoutube|split('v=')|last }}" title="YouTube video" allowfullscreen></iframe>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card border-0 shadow mb-4 sticky-top" style="top: 2rem; z-index: 1;">
+                <div class="card-header bg-success text-white py-3">
+                    <h5 class="fw-bold mb-0">Ingrédients</h5>
+                </div>
+                <ul class="list-group list-group-flush">
+                    {% for i in 1..20 %}
+                        {% set ingredient = attribute(meal, 'strIngredient' ~ i) %}
+                        {% set measure = attribute(meal, 'strMeasure' ~ i) %}
+                        
+                        {% if ingredient and ingredient|trim != '' %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span>{{ ingredient }}</span>
+                                <span class="text-muted small">{{ measure }}</span>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+                <div class="card-body bg-light">
+                    <button class="btn btn-outline-success w-100" onclick="window.print()">
+                        <i class="fas fa-print me-2"></i>Imprimer la recette
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

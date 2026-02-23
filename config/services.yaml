@@ -1,0 +1,82 @@
+# This file is the entry point to configure your own services.
+# Files in the packages/ subdirectory configure your dependencies.
+
+# Put parameters here that don't need to change on each machine where the app is deployed
+# https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
+parameters:
+    python_path: '%env(default:python_default:PYTHON_PATH)%'
+    python_default: 'python'
+    meal_photos_directory: '%kernel.project_dir%/public/uploads/meals'
+    beverage_photos_directory: '%kernel.project_dir%/public/uploads/beverages'
+    openai_api_key: '%env(default::OPENAI_API_KEY)%'
+    huggingface_api_key: '%env(default::HUGGINGFACE_API_KEY)%'
+    ai_local_service_url: '%env(default::AI_LOCAL_SERVICE_URL)%'
+
+services:
+    # default configuration for services in *this* file
+    _defaults:
+        autowire: true      # Automatically injects dependencies in your services.
+        autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+
+    # makes classes in src/ available to be used as services
+    # this creates a service per class whose id is the fully-qualified class name
+    App\:
+        resource: '../src/'
+        exclude:
+            - '../src/DependencyInjection/'
+            - '../src/Entity/'
+            - '../src/Kernel.php'
+
+    # Face Recognition Service using Python face_recognition library
+    App\Service\FaceService:
+        arguments:
+            $projectDir: '%kernel.project_dir%'
+            $pythonPath: '%python_path%'
+
+    App\Service\PhotoUploadService:
+        arguments:
+            $targetDirectory: '%meal_photos_directory%'
+
+    App\Service\BeveragePhotoUploadService:
+        arguments:
+            $beveragePhotosDirectory: '%beverage_photos_directory%'
+
+    # Image Content Moderation Service (NSFW, violence, weapons, political, drugs)
+    App\Service\ImageModerationService:
+        arguments:
+            $projectDir: '%kernel.project_dir%'
+            $pythonPath: '%python_path%'
+
+    # Verification Analyzer Service (AI profile analysis for verification requests)
+    App\Service\VerificationAnalyzerService:
+        arguments:
+            $projectDir: '%kernel.project_dir%'
+            $pythonPath: '%python_path%'
+
+    # Text Content Moderation Service (multilingual toxicity detection for networking)
+    App\Service\TextModerationService:
+        arguments:
+            $projectDir: '%kernel.project_dir%'
+            $pythonPath: '%python_path%'
+
+    # Captcha Service (Python-generated image captcha for login protection)
+    App\Service\CaptchaService:
+        arguments:
+            $projectDir: '%kernel.project_dir%'
+            $pythonPath: '%python_path%'
+
+    # AI Image Analysis Service for service requests
+    App\Service\ServiceImageAnalyzerService:
+        arguments:
+            $openaiApiKey: '%openai_api_key%'
+            $huggingfaceApiKey: '%huggingface_api_key%'
+            $localServiceUrl: '%ai_local_service_url%'
+            $projectDir: '%kernel.project_dir%'
+
+    # Loyalty Gamification Service with ML reward predictor
+    App\Service\LoyaltyService:
+        arguments:
+            $projectDir: '%kernel.project_dir%'
+
+    # add more service definitions when explicit configuration is needed
+    # please note that last definitions always *replace* previous ones

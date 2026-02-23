@@ -1,0 +1,268 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Vérification - {{ user.fullName }} - Admin WANNASNI{% endblock %}
+{% block page_title %}Demande de Vérification{% endblock %}
+
+{% block header_actions %}
+<a href="{{ path('admin_users') }}" class="btn btn-outline">← Retour</a>
+{% endblock %}
+
+{% block content %}
+<style>
+    .vr-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem; }
+    .vr-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); color: #1f2937; }
+    .vr-card h3 { margin-top: 0; font-size: 1rem; color: #374151; border-bottom: 2px solid #e5e7eb; padding-bottom: 0.5rem; }
+    .vr-card p, .vr-card span, .vr-card strong, .vr-card div { color: inherit; }
+    .vr-field { margin: 0.75rem 0; }
+    .vr-label { font-size: 0.8rem; color: #6b7280 !important; text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px; }
+    .vr-value { font-size: 0.95rem; color: #1f2937 !important; margin-top: 0.2rem; }
+    .vr-badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; }
+    .vr-badge.pending { background: #fef3c7; color: #92400e; }
+    .vr-badge.approved { background: #d1fae5; color: #065f46; }
+    .vr-badge.rejected { background: #fee2e2; color: #991b1b; }
+    .vr-badge.ai_rejected { background: #fce7f3; color: #9d174d; }
+    .vr-reason { background: #f9fafb; border-left: 3px solid #3b82f6; padding: 1rem; border-radius: 0 8px 8px 0; margin-top: 0.5rem; font-style: italic; color: #374151; }
+
+    .vr-actions { display: flex; gap: 1rem; margin-top: 1.5rem; flex-wrap: wrap; }
+    .vr-btn { padding: 0.75rem 1.5rem; border: none; border-radius: 8px; font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 0.5rem; }
+    .vr-btn-ai { background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: white; }
+    .vr-btn-ai:hover { background: linear-gradient(135deg, #7c3aed, #6d28d9); transform: translateY(-1px); }
+    .vr-btn-approve { background: linear-gradient(135deg, #22c55e, #16a34a); color: white; }
+    .vr-btn-approve:hover { background: linear-gradient(135deg, #16a34a, #15803d); transform: translateY(-1px); }
+    .vr-btn-reject { background: linear-gradient(135deg, #ef4444, #dc2626); color: white; }
+    .vr-btn-reject:hover { background: linear-gradient(135deg, #dc2626, #b91c1c); transform: translateY(-1px); }
+
+    .ai-report { display: none; margin-top: 1.5rem; color: #1f2937; }
+    .ai-report.show { display: block; }
+    .ai-score-bar { height: 20px; background: #e5e7eb; border-radius: 10px; overflow: hidden; margin: 0.5rem 0; }
+    .ai-score-fill { height: 100%; border-radius: 10px; transition: width 0.8s ease; }
+    .ai-score-fill.good { background: linear-gradient(90deg, #22c55e, #16a34a); }
+    .ai-score-fill.medium { background: linear-gradient(90deg, #f59e0b, #d97706); }
+    .ai-score-fill.bad { background: linear-gradient(90deg, #ef4444, #dc2626); }
+    .ai-factor { display: flex; align-items: center; gap: 0.75rem; padding: 0.5rem 0; border-bottom: 1px solid #e5e7eb; }
+    .ai-factor-name { flex: 1; font-weight: 500; color: #374151; }
+    .ai-factor-score { font-weight: 700; min-width: 50px; text-align: right; color: #1f2937; }
+    .ai-factor-bar { width: 100px; height: 6px; background: #e5e7eb; border-radius: 3px; overflow: hidden; }
+    .ai-factor-fill { height: 100%; border-radius: 3px; }
+
+    .vr-reject-form { margin-top: 1rem; display: none; }
+    .vr-reject-form.show { display: block; }
+    .vr-reject-note { width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 8px; resize: vertical; font-size: 0.9rem; }
+
+    .vr-avatar { width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #3b82f6, #8b5cf6); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.2rem; color: white; overflow: hidden; }
+    .vr-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .vr-user-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
+
+    @media (max-width: 768px) { .vr-grid { grid-template-columns: 1fr; } }
+</style>
+
+{# Flash Messages #}
+{% for label, messages in app.flashes %}
+    {% for message in messages %}
+        <div class="alert alert-{{ label }}">{{ message }}</div>
+    {% endfor %}
+{% endfor %}
+
+<div class="vr-grid">
+    {# ── User Info Card ── #}
+    <div class="vr-card">
+        <h3>👤 Informations utilisateur</h3>
+        <div class="vr-user-header">
+            <div class="vr-avatar">
+                {% if user.imageProfil %}
+                    <img src="{{ user.imageProfil }}" alt="{{ user.fullName }}">
+                {% else %}
+                    {{ user.firstName|default('U')|first|upper }}{{ user.lastName|default('')|first|upper }}
+                {% endif %}
+            </div>
+            <div>
+                <strong style="font-size: 1.1rem;">{{ user.fullName }}</strong>
+                {% if user.effectiveBadge == 'purple' %}
+                    <span style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:linear-gradient(135deg,#8b5cf6,#7c3aed);color:white;font-size:11px;font-weight:800;margin-left:4px;">✓</span>
+                {% elseif user.effectiveBadge == 'blue' %}
+                    <span style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:linear-gradient(135deg,#3b82f6,#2563eb);color:white;font-size:11px;font-weight:800;margin-left:4px;">✓</span>
+                {% endif %}
+                <br><span style="color:#6b7280;font-size:0.85rem;">{{ user.email }}</span>
+            </div>
+        </div>
+        <div class="vr-field"><div class="vr-label">Téléphone</div><div class="vr-value">{{ user.phone ?? 'N/A' }}</div></div>
+        <div class="vr-field"><div class="vr-label">Localisation</div><div class="vr-value">{{ user.ville ?? user.location ?? 'N/A' }}</div></div>
+        <div class="vr-field"><div class="vr-label">Bio</div><div class="vr-value">{{ user.bio ?? 'Aucune bio' }}</div></div>
+        <div class="vr-field"><div class="vr-label">Inscrit le</div><div class="vr-value">{{ user.createdAt|date('d/m/Y H:i') }}</div></div>
+        <div class="vr-field"><div class="vr-label">Statut</div><div class="vr-value">
+            {% if user.status == 'active' %}<span class="vr-badge approved">✓ Actif</span>
+            {% else %}<span class="vr-badge rejected">⏸ {{ user.status }}</span>{% endif %}
+        </div></div>
+        <div class="vr-field"><div class="vr-label">Profil complet</div><div class="vr-value">
+            {% if user.isProfileComplete() %}<span class="vr-badge approved">✓ Oui</span>
+            {% else %}<span class="vr-badge rejected">✗ Non</span>{% endif %}
+        </div></div>
+    </div>
+
+    {# ── Verification Request Card ── #}
+    <div class="vr-card">
+        <h3>📋 Demande de vérification</h3>
+        <div class="vr-field">
+            <div class="vr-label">Statut</div>
+            <div class="vr-value">
+                <span class="vr-badge {{ request.status }}">
+                    {% if request.status == 'pending' %}⏳ En attente
+                    {% elseif request.status == 'approved' %}✓ Approuvée
+                    {% elseif request.status == 'rejected' %}✗ Refusée
+                    {% elseif request.status == 'ai_rejected' %}🤖 Rejetée par l'IA
+                    {% endif %}
+                </span>
+            </div>
+        </div>
+        <div class="vr-field">
+            <div class="vr-label">Date de la demande</div>
+            <div class="vr-value">{{ request.createdAt|date('d/m/Y H:i') }}</div>
+        </div>
+        <div class="vr-field">
+            <div class="vr-label">Raison fournie</div>
+            <div class="vr-reason">{{ request.reason }}</div>
+        </div>
+
+        {% if request.reviewedAt %}
+        <div class="vr-field">
+            <div class="vr-label">Examinée le</div>
+            <div class="vr-value">{{ request.reviewedAt|date('d/m/Y H:i') }}</div>
+        </div>
+        {% endif %}
+
+        {% if request.reviewNote %}
+        <div class="vr-field">
+            <div class="vr-label">Note de l'examinateur</div>
+            <div class="vr-value">{{ request.reviewNote }}</div>
+        </div>
+        {% endif %}
+
+        {# ── Actions ── #}
+        {% if request.isPending() %}
+        <div class="vr-actions">
+            <button class="vr-btn vr-btn-ai" id="btnRunAi" onclick="runAiAnalysis()">🤖 Lancer l'analyse IA</button>
+            <form method="post" action="{{ path('admin_users_verification_approve', {id: request.id}) }}" style="display:inline;">
+                <button type="submit" class="vr-btn vr-btn-approve" onclick="return confirm('Approuver cette demande ? Un email sera envoyé.')">✓ Approuver</button>
+            </form>
+            <button class="vr-btn vr-btn-reject" onclick="toggleRejectForm()">✗ Refuser</button>
+        </div>
+
+        <div class="vr-reject-form" id="rejectForm">
+            <form method="post" action="{{ path('admin_users_verification_reject', {id: request.id}) }}">
+                <textarea name="note" class="vr-reject-note" rows="3" placeholder="Motif du refus (optionnel)..."></textarea>
+                <button type="submit" class="vr-btn vr-btn-reject" style="margin-top:0.5rem;" onclick="return confirm('Refuser cette demande ?')">Confirmer le refus</button>
+            </form>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{# ── AI Report Section ── #}
+<div class="vr-card ai-report" id="aiReport">
+    <h3>🤖 Rapport d'analyse IA</h3>
+    <div id="aiReportContent">
+        <p style="color:#6b7280;">Cliquez sur "Lancer l'analyse IA" pour générer le rapport.</p>
+    </div>
+</div>
+
+{# Show existing AI report if available #}
+{% if request.aiReport %}
+<script>
+    document.getElementById('aiReport').classList.add('show');
+    document.getElementById('aiReportContent').innerHTML = renderAiReport({{ request.aiReport|json_encode|raw }}, {{ request.aiScore }});
+</script>
+{% endif %}
+
+<script>
+function toggleRejectForm() {
+    document.getElementById('rejectForm').classList.toggle('show');
+}
+
+async function runAiAnalysis() {
+    const btn = document.getElementById('btnRunAi');
+    btn.disabled = true;
+    btn.innerHTML = '🔄 Analyse en cours...';
+
+    const reportDiv = document.getElementById('aiReport');
+    const contentDiv = document.getElementById('aiReportContent');
+    reportDiv.classList.add('show');
+    contentDiv.innerHTML = '<p style="color:#6b7280;">⏳ Analyse en cours, veuillez patienter...</p>';
+
+    try {
+        const res = await fetch('{{ path('admin_users_verification_analyze', {id: request.id}) }}', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+        });
+        const data = await res.json();
+
+        if (data.success) {
+            contentDiv.innerHTML = renderAiReport(data.report, data.score);
+
+            if (data.status === 'ai_rejected') {
+                contentDiv.innerHTML += '<div style="margin-top:1rem;padding:1rem;background:#fee2e2;border-radius:8px;border:2px solid #ef4444;color:#991b1b;"><strong>🤖 Décision IA : REJETÉE AUTOMATIQUEMENT</strong><p>' + (data.decision_reason || '') + '</p><p style="font-size:0.85rem;color:#6b7280;">Un email de refus a été envoyé à l\'utilisateur. La page va se recharger...</p></div>';
+                setTimeout(() => location.reload(), 3000);
+            } else {
+                contentDiv.innerHTML += '<div style="margin-top:1rem;padding:1rem;background:#f0fdf4;border-radius:8px;border:2px solid #22c55e;color:#065f46;"><strong>🤖 Décision IA : EN ATTENTE DE RÉVISION ADMIN</strong><p>' + (data.decision_reason || '') + '</p></div>';
+            }
+        } else {
+            contentDiv.innerHTML = '<p style="color:#dc2626;">❌ Erreur: ' + (data.error || 'Échec de l\'analyse') + '</p>';
+        }
+    } catch (err) {
+        contentDiv.innerHTML = '<p style="color:#dc2626;">❌ Erreur réseau. Réessayez.</p>';
+    }
+
+    btn.disabled = false;
+    btn.innerHTML = '🤖 Relancer l\'analyse IA';
+}
+
+function renderAiReport(factors, score) {
+    if (!factors) return '<p>Aucun rapport disponible.</p>';
+
+    const scorePercent = Math.round((score || 0) * 100);
+    let scoreClass = 'good';
+    if (scorePercent < 30) scoreClass = 'bad';
+    else if (scorePercent < 60) scoreClass = 'medium';
+
+    let html = '<div style="margin-bottom:1.5rem;">';
+    html += '<div style="display:flex;align-items:center;gap:1rem;margin-bottom:0.5rem;">';
+    html += '<span style="font-size:1.5rem;font-weight:700;color:#1f2937;">' + scorePercent + '%</span>';
+    html += '<span style="color:#6b7280;">Score global</span>';
+    html += '</div>';
+    html += '<div class="ai-score-bar"><div class="ai-score-fill ' + scoreClass + '" style="width:' + scorePercent + '%"></div></div>';
+    html += '</div>';
+
+    const labels = {
+        'profile_completeness': '📝 Complétude du profil',
+        'account_age': '📅 Ancienneté du compte',
+        'post_activity': '📰 Activité de publication',
+        'content_quality': '🛡️ Qualité du contenu',
+        'social_engagement': '👥 Engagement social',
+    };
+
+    for (const [key, label] of Object.entries(labels)) {
+        const factor = factors[key];
+        if (!factor) continue;
+        const pct = Math.round(factor.score * 100);
+        let cls = 'good';
+        if (pct < 30) cls = 'bad';
+        else if (pct < 60) cls = 'medium';
+
+        html += '<div class="ai-factor">';
+        html += '<span class="ai-factor-name">' + label + '</span>';
+        html += '<div class="ai-factor-bar"><div class="ai-factor-fill ' + cls + '" style="width:' + pct + '%;background:var(--c-' + cls + ',#22c55e)"></div></div>';
+        html += '<span class="ai-factor-score">' + pct + '%</span>';
+        html += '</div>';
+    }
+
+    // Detail notes
+    if (factors.content_quality && factors.content_quality.toxic_words && factors.content_quality.toxic_words.length > 0) {
+        html += '<div style="margin-top:1rem;padding:0.75rem;background:#fef2f2;border-radius:8px;color:#991b1b;"><strong>⚠️ Mots toxiques détectés:</strong> ' + factors.content_quality.toxic_words.join(', ') + '</div>';
+    }
+    if (factors.profile_completeness && factors.profile_completeness.missing && factors.profile_completeness.missing.length > 0) {
+        html += '<div style="margin-top:0.5rem;padding:0.75rem;background:#eff6ff;border-radius:8px;color:#1e40af;"><strong>📝 Champs manquants:</strong> ' + factors.profile_completeness.missing.join(', ') + '</div>';
+    }
+
+    return html;
+}
+</script>
+{% endblock %}

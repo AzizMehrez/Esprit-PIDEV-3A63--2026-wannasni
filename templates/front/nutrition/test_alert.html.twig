@@ -1,0 +1,49 @@
+{% extends 'base_dashboard.html.twig' %}
+
+{% block title %}Test Alerte Twilio{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg border-0 rounded-lg">
+                <div class="card-header bg-gradient-primary text-white py-3">
+                    <h3 class="card-title mb-0">
+                        <i class="fas fa-vial mr-2"></i> Simulation de test
+                    </h3>
+                </div>
+                <div class="card-body p-5 text-center">
+                    <div class="mb-4">
+                        <i class="fas fa-check-circle text-success fa-5x animate__animated animate__bounceIn"></i>
+                    </div>
+                    <h4 class="font-weight-bold text-dark mb-3">{{ message }}</h4>
+                    <p class="text-muted mb-4">
+                        Nous avons ajouté un repas de 5000 calories à votre compte pour aujourd'hui. 
+                        Cela dépasse largement votre limite triplée.
+                    </p>
+                    <div class="alert alert-info border-0 shadow-sm rounded-lg mb-4">
+                        <i class="fas fa-info-circle mr-2"></i>
+                        <strong>Comment déclencher l'SMS :</strong> Allez sur votre <a href="{{ path('app_my_nutrition') }}" class="alert-link">Tableau de Bord Nutrition</a>. 
+                        Le système vérifiera vos calories et enverra automatiquement l'alerte Twilio (une seule fois).
+                    </div>
+                    <a href="{{ path('app_my_nutrition') }}" class="btn btn-primary btn-lg px-5 shadow-sm rounded-pill">
+                        <i class="fas fa-arrow-left mr-2"></i> Retour au tableau de bord
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .bg-gradient-primary {
+        background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+    }
+    .rounded-lg {
+        border-radius: 1rem !important;
+    }
+    .rounded-pill {
+        border-radius: 50rem !important;
+    }
+</style>
+{% endblock %}

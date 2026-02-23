@@ -1,0 +1,201 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Modifier Intervention #{{ intervention.id }} - Admin WANNASNI{% endblock %}
+{% block page_title %}Modifier l'Intervention{% endblock %}
+
+{% block content %}
+
+{% for message in app.flashes('success') %}
+    <div class="alert alert-success">✅ {{ message }}</div>
+{% endfor %}
+{% for message in app.flashes('error') %}
+    <div class="alert alert-danger">❌ {{ message }}</div>
+{% endfor %}
+
+<div class="admin-toolbar" style="margin-bottom: 2rem;">
+    <a href="{{ path('admin_interventions') }}" class="btn btn-secondary">← Retour à la liste</a>
+    <div class="toolbar-actions">
+        <a href="{{ path('admin_interventions_show', {id: intervention.id}) }}" class="btn btn-info">👁️ Voir les détails</a>
+        <a href="{{ path('admin_interventions_pdf', {id: intervention.id}) }}" class="btn btn-warning" target="_blank" style="background: #f59e0b; color: white;">📄 PDF</a>
+    </div>
+</div>
+
+<form method="post" id="editForm" novalidate>
+    <div class="row">
+        <div class="col-md-8">
+            <div class="admin-card" style="margin-bottom: 1.5rem;">
+                <div class="card-header"><h2 class="card-title">📋 Informations</h2></div>
+                <div class="card-body">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="zone_intervention">Zone d'intervention *</label>
+                            <input type="text" id="zone_intervention" name="zone_intervention" class="form-control" value="{{ intervention.zoneIntervention }}" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="heures_travail">Heures de travail *</label>
+                            <input type="number" id="heures_travail" name="heures_travail" class="form-control" value="{{ intervention.heuresTravail }}" min="1" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="tarif_horaire">Tarif horaire (€) *</label>
+                            <input type="number" id="tarif_horaire" name="tarif_horaire" class="form-control" value="{{ intervention.tarifHoraire }}" step="0.01" min="0" required>
+                        </div>
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <label>Coût total estimé</label>
+                            <div style="font-size: 1.5rem; font-weight: 700; color: #f59e0b; padding: 1rem; background: #fef3c7; border-radius: 8px; text-align: center;">
+                                <span id="coutTotal">{{ (intervention.heuresTravail * intervention.tarifHoraire)|number_format(2, '.', '') }}</span>€
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="admin-card" style="margin-bottom: 1.5rem;">
+                <div class="card-header"><h2 class="card-title">👤 Technicien</h2></div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label for="technicien_id">Technicien</label>
+                        <select id="technicien_id" name="technicien_id" class="form-control">
+                            <option value="">-- Garder le technicien actuel --</option>
+                            {% for tech in techniciens %}
+                            <option value="{{ tech.id }}" 
+                                    {% if intervention.idEmploye == tech.id %}selected{% endif %} 
+                                    data-email="{{ tech.email }}" 
+                                    data-telephone="{{ tech.phone }}" 
+                                    data-tarif="{{ tech.tarifHoraire ?: '25.00' }}" 
+                                    data-specialite="{{ tech.specialite ?: 'Non spécifié' }}">
+                                {{ tech.fullName ?: tech.email }}
+                                {% if tech.specialite %} - {{ tech.specialite }}{% endif %}
+                                {% if tech.tarifHoraire %} ({{ tech.tarifHoraire }}€/h){% endif %}
+                                {% if not tech.disponible %} - ⚠️ Indisponible{% endif %}
+                            </option>
+                            {% else %}
+                            <option value="" disabled>Aucun technicien disponible (créez des utilisateurs avec @gmail.com)</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    {% if intervention.technicienNom %}
+                    <div style="margin-top: 1rem; padding: 1rem; background: #f3f4f6; border-radius: 8px;">
+                        <strong>Technicien actuel :</strong><br>
+                        {{ intervention.technicienNom }}<br>
+                        <small>{{ intervention.technicienEmail ?: 'Pas d\'email' }} | {{ intervention.technicienTelephone ?: 'Pas de téléphone' }}</small>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="admin-card">
+                <div class="card-header"><h2 class="card-title">📝 Notes</h2></div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label for="notes">Notes internes</label>
+                        <textarea id="notes" name="notes" class="form-control" rows="4">{{ intervention.notes }}</textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="admin-card" style="margin-bottom: 1.5rem;">
+                <div class="card-header"><h2 class="card-title">📊 Statut</h2></div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label for="statut">Statut</label>
+                        <select id="statut" name="statut" class="form-control" required>
+                            <option value="en_attente" {% if intervention.statutActuel == 'en_attente' %}selected{% endif %}>⏳ En attente</option>
+                            <option value="assignee" {% if intervention.statutActuel == 'assignee' %}selected{% endif %}>👤 Assignée</option>
+                            <option value="en_cours" {% if intervention.statutActuel == 'en_cours' %}selected{% endif %}>🔄 En cours</option>
+                            <option value="terminee" {% if intervention.statutActuel == 'terminee' %}selected{% endif %}>✅ Terminée</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="admin-card" style="margin-bottom: 1.5rem;">
+                <div class="card-header"><h2 class="card-title">📅 Dates</h2></div>
+                <div class="card-body">
+                    <div class="date-item">
+                        <div class="date-label">📝 Créée le</div>
+                        <div class="date-value">{{ intervention.dateCreation ? intervention.dateCreation|date('d/m/Y H:i') : 'Non défini' }}</div>
+                    </div>
+                    {% if intervention.dateDebut %}
+                    <div class="date-item">
+                        <div class="date-label">▶️ Débutée le</div>
+                        <div class="date-value">{{ intervention.dateDebut|date('d/m/Y H:i') }}</div>
+                    </div>
+                    {% endif %}
+                    {% if intervention.dateFin %}
+                    <div class="date-item">
+                        <div class="date-label">✅ Terminée le</div>
+                        <div class="date-value">{{ intervention.dateFin|date('d/m/Y H:i') }}</div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if intervention.serviceRequest %}
+            <div class="admin-card">
+                <div class="card-header"><h2 class="card-title">🛎️ Service Lié</h2></div>
+                <div class="card-body" style="text-align: center;">
+                    <div style="font-weight: 600; margin-bottom: 0.5rem;">{{ intervention.serviceRequest.typeService }}</div>
+                    <a href="{{ path('admin_services_show', {id: intervention.serviceRequest.id}) }}" class="btn btn-sm btn-info">Voir le service</a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="form-actions" style="margin-top: 2rem; display: flex; gap: 1rem; justify-content: space-between;">
+        <form method="post" action="{{ path('admin_interventions_delete', {id: intervention.id}) }}" style="display: inline;" onsubmit="return confirm('⚠️ Supprimer cette intervention ?');">
+            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ intervention.id) }}">
+            <button type="submit" class="btn btn-danger" style="background: #f44336; color: white;">🗑️ Supprimer</button>
+        </form>
+        <div style="display: flex; gap: 1rem;">
+            <a href="{{ path('admin_interventions') }}" class="btn btn-secondary">Annuler</a>
+            <button type="submit" class="btn btn-success">💾 Enregistrer</button>
+        </div>
+    </div>
+</form>
+
+<style>
+.alert { padding: 1rem 1.5rem; margin-bottom: 1.5rem; border-radius: 8px; border-left: 4px solid; }
+.alert-success { background-color: #d4edda; border-color: #28a745; color: #155724; }
+.alert-danger { background-color: #f8d7da; border-color: #dc3545; color: #721c24; }
+.row { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+.col-md-8 { flex: 0 0 calc(66.666% - 1rem); }
+.col-md-4 { flex: 0 0 calc(33.333% - 0.5rem); }
+@media (max-width: 768px) { .col-md-8, .col-md-4 { flex: 0 0 100%; } }
+.form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; }
+.form-group { display: flex; flex-direction: column; }
+.form-group label { font-weight: 600; margin-bottom: 0.5rem; color: var(--admin-text); }
+.form-control { padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 8px; font-size: 1rem; }
+.form-control:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
+.date-item { padding: 0.75rem; background: #f9fafb; border-radius: 8px; margin-bottom: 0.75rem; }
+.date-item:last-child { margin-bottom: 0; }
+.date-label { font-size: 0.85rem; color: var(--admin-text-muted); margin-bottom: 0.25rem; }
+.date-value { font-weight: 600; color: var(--admin-text); }
+.btn { padding: 0.75rem 1.5rem; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; transition: all 0.2s; text-decoration: none; display: inline-block; }
+.btn-secondary { background: #6b7280; color: white; }
+.btn-success { background: #10b981; color: white; }
+.btn-info { background: #3b82f6; color: white; }
+.btn-sm { padding: 0.5rem 1rem; font-size: 0.9rem; }
+</style>
+
+<script>
+function updateCoutTotal() {
+    const heures = parseFloat(document.getElementById('heures_travail').value) || 0;
+    const tarif = parseFloat(document.getElementById('tarif_horaire').value) || 0;
+    document.getElementById('coutTotal').textContent = (heures * tarif).toFixed(2);
+}
+document.getElementById('heures_travail').addEventListener('input', updateCoutTotal);
+document.getElementById('tarif_horaire').addEventListener('input', updateCoutTotal);
+
+document.getElementById('technicien_id').addEventListener('change', function() {
+    const opt = this.options[this.selectedIndex];
+    if (opt.value && opt.dataset.tarif) {
+        document.getElementById('tarif_horaire').value = opt.dataset.tarif;
+        updateCoutTotal();
+    }
+});
+</script>
+
+{% endblock %}

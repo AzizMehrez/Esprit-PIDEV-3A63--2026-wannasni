@@ -1,0 +1,51 @@
+{% extends 'base_dashboard.html.twig' %}
+
+{% block title %}Mes Stats - WANNASNI{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    <h1 class="h2 mb-5">📊 Mes Statistiques Nutritionnelles</h1>
+
+    <div class="row g-4 mb-5">
+        <!-- Card 1: Total Meals -->
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm rounded-4 text-center p-4 h-100">
+                <div class="display-4 text-primary mb-2"><i class="fas fa-utensils"></i></div>
+                <h3 class="h6 text-uppercase text-muted">Repas Analysés</h3>
+                <div class="display-5 font-weight-bold">{{ totalMeals }}</div>
+            </div>
+        </div>
+
+        <!-- Card 2: Compliance Rate -->
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm rounded-4 text-center p-4 h-100">
+                <div class="display-4 text-success mb-2"><i class="fas fa-check-circle"></i></div>
+                <h3 class="h6 text-uppercase text-muted">Taux de Conformité</h3>
+                <div class="display-5 font-weight-bold">{{ complianceRate|round(1) }}%</div>
+            </div>
+        </div>
+
+        <!-- Card 3: Avg Calories -->
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm rounded-4 text-center p-4 h-100">
+                <div class="display-4 text-warning mb-2"><i class="fas fa-fire-alt"></i></div>
+                <h3 class="h6 text-uppercase text-muted">Calories Moyennes</h3>
+                <div class="display-5 font-weight-bold">{{ avgCalories }} <small class="h6">kcal</small></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Info Section -->
+    <div class="card border-0 shadow-sm rounded-4 bg-light p-5">
+        <div class="row align-items-center">
+            <div class="col-md-2 text-center text-primary h1 mb-0">
+                <i class="fas fa-info-circle"></i>
+            </div>
+            <div class="col-md-10">
+                <h4 class="h5">Pourquoi ces statistiques ?</h4>
+                <p class="mb-0 text-muted">Ces données vous aident à mieux comprendre vos habitudes alimentaires et permettent à votre nutritionniste d'ajuster votre régime avec précision. Continuez à analyser vos repas régulièrement !</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

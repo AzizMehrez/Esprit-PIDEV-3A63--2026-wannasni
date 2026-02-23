@@ -1,0 +1,298 @@
+{% extends 'base_dashboard.html.twig' %}
+
+{% block title %}Modifier Demande #{{ demande_regime.id }}{% endblock %}
+
+{% block sidebar %}
+    <span class="sidebar-nav-title">Navigation Nutrition</span>
+    <nav>
+        <a href="{{ path('app_my_nutrition') }}" class="sidebar-link">
+            <i class="fas fa-utensils"></i> Tableau de bord
+        </a>
+        <a href="{{ path('app_nutrition_request') }}" class="sidebar-link">
+            <i class="fas fa-plus"></i> Nouvelle demande
+        </a>
+        <a href="{{ path('app_nutrition_scan') }}" class="sidebar-link">
+            <i class="fas fa-barcode"></i> Scanner produit
+        </a>
+        <a href="{{ path('app_nutrition_track') }}" class="sidebar-link">
+            <i class="fas fa-camera"></i> Analyse Photo IA
+        </a>
+    </nav>
+{% endblock %}
+
+{% block body %}
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <h1><i class="fas fa-edit me-2"></i>Modifier Demande #{{ demande_regime.id }}</h1>
+        <p>Modifiez les informations de la demande de régime</p>
+    </div>
+
+    <div class="form-card">
+        {{ form_start(form) }}
+        
+        <div class="form-grid">
+            <div class="form-group">
+                {{ form_label(form.seniorId, 'ID du Senior') }}
+                {{ form_widget(form.seniorId, {
+                    'attr': {
+                        'class': 'form-input'
+                    }
+                }) }}
+            </div>
+
+            <div class="form-group">
+                {{ form_label(form.nutritionnisteId, 'ID du Nutritionniste') }}
+                {{ form_widget(form.nutritionnisteId, {
+                    'attr': {
+                        'class': 'form-input'
+                    }
+                }) }}
+            </div>
+
+            <div class="form-group">
+                {{ form_label(form.typeRegimeSouhaite, 'Type de régime souhaité') }}
+                {{ form_widget(form.typeRegimeSouhaite, {
+                    'attr': {
+                        'class': 'form-select'
+                    }
+                }) }}
+            </div>
+
+            <div class="form-group">
+                {{ form_label(form.objectifPrincipal, 'Objectif principal') }}
+                {{ form_widget(form.objectifPrincipal, {
+                    'attr': {
+                        'class': 'form-select'
+                    }
+                }) }}
+            </div>
+
+            <div class="form-group">
+                {{ form_label(form.statut, 'Statut') }}
+                {{ form_widget(form.statut, {
+                    'attr': {
+                        'class': 'form-select'
+                    }
+                }) }}
+            </div>
+
+            <div class="form-group">
+                {{ form_label(form.budgetMensuel, 'Budget mensuel (DH)') }}
+                {{ form_widget(form.budgetMensuel, {
+                    'attr': {
+                        'class': 'form-input'
+                    }
+                }) }}
+            </div>
+        </div>
+
+        <div class="form-group">
+            {{ form_label(form.allergies, 'Allergies alimentaires') }}
+            {{ form_widget(form.allergies, {
+                'attr': {
+                    'class': 'form-textarea',
+                    'rows': 3,
+                    'placeholder': 'Ex: Arachides, crustacés, lactose...'
+                }
+            }) }}
+        </div>
+
+        <div class="form-group">
+            {{ form_label(form.intolerances, 'Intolérances alimentaires') }}
+            {{ form_widget(form.intolerances, {
+                'attr': {
+                    'class': 'form-textarea',
+                    'rows': 3,
+                    'placeholder': 'Ex: Gluten, lactose, fructose...'
+                }
+            }) }}
+        </div>
+
+        <div class="form-group">
+            {{ form_label(form.habitudesAlimentaires, 'Habitudes alimentaires') }}
+            {{ form_widget(form.habitudesAlimentaires, {
+                'attr': {
+                    'class': 'form-textarea',
+                    'rows': 4,
+                    'placeholder': 'Décrivez vos habitudes alimentaires...'
+                }
+            }) }}
+        </div>
+
+        <div class="form-group">
+            {{ form_label(form.dateTraitement, 'Date de traitement') }}
+            {{ form_widget(form.dateTraitement, {
+                'attr': {
+                    'class': 'form-input'
+                }
+            }) }}
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn-primary">
+                <i class="fas fa-save"></i> Enregistrer
+            </button>
+            
+            <div class="action-buttons">
+                <a href="{{ path('app_nutrition_show', {'id': demande_regime.id}) }}" class="btn-secondary">
+                    <i class="fas fa-eye"></i> Voir détails
+                </a>
+                <a href="{{ path('app_my_nutrition') }}" class="btn-cancel">
+                    <i class="fas fa-times"></i> Annuler
+                </a>
+            </div>
+        </div>
+        
+        {{ form_end(form) }}
+    </div>
+</div>
+
+<style>
+    .dashboard-container {
+        max-width: 800px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+    }
+
+    .dashboard-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .dashboard-header h1 {
+        font-size: 2rem;
+        color: #2E7D32;
+        margin-bottom: 0.5rem;
+    }
+
+    .form-card {
+        background: white;
+        border-radius: 16px;
+        padding: 2rem;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        color: #1a1a2e;
+    }
+
+    .form-input, .form-select, .form-textarea {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 2px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: all 0.2s;
+    }
+
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+        outline: none;
+        border-color: #2E7D32;
+        box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.1);
+    }
+
+    .form-textarea {
+        resize: vertical;
+        min-height: 100px;
+    }
+
+    .form-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 2rem;
+        padding-top: 1.5rem;
+        border-top: 2px solid #f1f5f9;
+    }
+
+    .btn-primary {
+        padding: 0.75rem 1.5rem;
+        background: linear-gradient(135deg, #2E7D32, #4CAF50);
+        color: white;
+        border: none;
+        border-radius: 50px;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.2s;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(46, 125, 50, 0.3);
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 0.75rem;
+    }
+
+    .btn-secondary, .btn-cancel {
+        padding: 0.75rem 1.5rem;
+        border-radius: 50px;
+        text-decoration: none;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.2s;
+    }
+
+    .btn-secondary {
+        background: #f1f5f9;
+        color: #64748b;
+        border: 2px solid #e2e8f0;
+    }
+
+    .btn-secondary:hover {
+        background: #e2e8f0;
+    }
+
+    .btn-cancel {
+        background: white;
+        color: #64748b;
+        border: 2px solid #e2e8f0;
+    }
+
+    .btn-cancel:hover {
+        background: #f1f5f9;
+    }
+
+    @media (max-width: 768px) {
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .form-actions {
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .action-buttons {
+            width: 100%;
+            justify-content: space-between;
+        }
+
+        .btn-secondary, .btn-cancel {
+            flex: 1;
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}

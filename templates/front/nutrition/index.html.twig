@@ -1,0 +1,1166 @@
+{% extends 'base_dashboard.html.twig' %}
+
+{% block title %}Mon Service Nutrition - WANNASNI{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    :root {
+        --nutri-primary: #10b981;
+        --nutri-primary-dark: #059669;
+        --nutri-bg: #f8fafc;
+        --nutri-card: #ffffff;
+        --nutri-text: #1f2937;
+        --nutri-border: #e2e8f0;
+    }
+
+    .nutrition-container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 2rem 1rem 4rem;
+    }
+
+    .nutri-header {
+        background: linear-gradient(135deg, var(--nutri-primary), var(--nutri-primary-dark));
+        border-radius: 24px;
+        padding: 3rem 2rem;
+        margin-bottom: 2.5rem;
+        color: white;
+        text-align: center;
+        box-shadow: 0 10px 40px rgba(16, 185, 129, 0.2);
+    }
+
+    .nutri-title {
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin-bottom: 0.5rem;
+    }
+
+    .nutri-subtitle {
+        font-size: 1.1rem;
+        opacity: 0.9;
+    }
+
+    .regime-select-card {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        border: 2px solid var(--nutri-border);
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.04);
+    }
+
+    .regime-select-card h2 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        color: var(--nutri-text);
+    }
+
+    .regime-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+
+    .regime-option { position: relative; cursor: pointer; }
+    .regime-option input[type="radio"] { display: none; }
+
+    .regime-option label {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 1.5rem 1rem;
+        border: 2px solid var(--nutri-border);
+        border-radius: 16px;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-align: center;
+        background: white;
+    }
+
+    .regime-option label:hover {
+        border-color: var(--nutri-primary);
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(16,185,129,0.15);
+    }
+
+    .regime-option input:checked + label {
+        border-color: var(--nutri-primary);
+        background: #f0fdf4;
+        box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2);
+    }
+
+    .regime-option input:checked + label .regime-icon { transform: scale(1.2); }
+
+    .regime-icon { font-size: 2.5rem; margin-bottom: 0.75rem; transition: transform 0.3s; }
+    .regime-name { font-weight: 700; font-size: 0.95rem; color: var(--nutri-text); }
+    .regime-detail { font-size: 0.75rem; color: #94a3b8; margin-top: 0.25rem; }
+
+    .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 1.25rem;
+        margin-bottom: 2rem;
+    }
+
+    .summary-card {
+        background: white;
+        border-radius: 16px;
+        padding: 1.5rem;
+        border: 2px solid var(--nutri-border);
+        text-align: center;
+        transition: all 0.3s;
+    }
+
+    .summary-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.06); }
+    .summary-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+    .summary-value { font-size: 2rem; font-weight: 800; color: var(--nutri-text); line-height: 1.2; }
+    .summary-label { font-size: 0.8rem; color: #94a3b8; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+
+    .notifications-panel {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        border: 2px solid var(--nutri-border);
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.04);
+    }
+
+    .notifications-panel h2 {
+        font-size: 1.4rem; font-weight: 700; margin-bottom: 1.5rem;
+        display: flex; align-items: center; gap: 0.5rem;
+    }
+
+    .notification-item {
+        display: flex; align-items: flex-start; gap: 1rem;
+        padding: 1rem 1.25rem; border-radius: 14px; margin-bottom: 0.75rem;
+        animation: slideIn 0.3s ease-out;
+    }
+
+    @keyframes slideIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
+
+    .notification-item.type-info { background: #eff6ff; border-left: 4px solid #3b82f6; }
+    .notification-item.type-success { background: #f0fdf4; border-left: 4px solid #10b981; }
+    .notification-item.type-warning { background: #fffbeb; border-left: 4px solid #f59e0b; }
+    .notification-item.type-danger { background: #fef2f2; border-left: 4px solid #ef4444; }
+
+    .notification-icon { font-size: 1.5rem; flex-shrink: 0; margin-top: 0.15rem; }
+    .type-info .notification-icon { color: #3b82f6; }
+    .type-success .notification-icon { color: #10b981; }
+    .type-warning .notification-icon { color: #f59e0b; }
+    .type-danger .notification-icon { color: #ef4444; }
+
+    .notification-content h4 { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .notification-content p { font-size: 0.85rem; color: #64748b; margin: 0; }
+
+    .meal-timeline {
+        background: white; border-radius: 20px; padding: 2rem;
+        border: 2px solid var(--nutri-border); margin-bottom: 2rem;
+    }
+
+    .meal-timeline h2 { font-size: 1.4rem; font-weight: 700; margin-bottom: 1.5rem; }
+
+    .timeline-item {
+        display: flex; align-items: center; gap: 1rem; padding: 1rem;
+        border-radius: 12px; margin-bottom: 0.5rem; border: 1px solid var(--nutri-border);
+        transition: all 0.2s;
+    }
+
+    .timeline-item:hover { background: #f8fafc; }
+
+    .timeline-dot { width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; }
+    .timeline-dot.done { background: #10b981; }
+    .timeline-dot.now { background: #f59e0b; animation: pulse 1.5s infinite; }
+    .timeline-dot.upcoming { background: #e2e8f0; }
+    .timeline-dot.late { background: #ef4444; }
+
+    @keyframes pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); } 50% { box-shadow: 0 0 0 8px rgba(245, 158, 11, 0); } }
+
+    .timeline-info { flex: 1; }
+    .timeline-meal-name { font-weight: 700; font-size: 0.9rem; }
+    .timeline-time { font-size: 0.8rem; color: #94a3b8; }
+    .timeline-cals { font-weight: 700; color: var(--nutri-primary); font-size: 0.9rem; }
+
+    .action-grid {
+        display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.25rem; margin-bottom: 2.5rem;
+    }
+
+    .action-card {
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        padding: 2rem 1.5rem; border-radius: 20px; text-decoration: none;
+        color: white; font-weight: 700; font-size: 1.1rem; transition: all 0.3s;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center; gap: 0.75rem;
+    }
+
+    .action-card:hover { transform: translateY(-5px) scale(1.02); box-shadow: 0 12px 30px rgba(0,0,0,0.15); color: white; }
+    .action-card i { font-size: 2rem; }
+    .action-card.scan { background: linear-gradient(135deg, #1e293b, #334155); }
+    .action-card.analyze { background: linear-gradient(135deg, #059669, #10b981); }
+    .action-card.request { background: linear-gradient(135deg, #7c3aed, #8b5cf6); }
+    .action-card.sommelier { background: linear-gradient(135deg, #6366f1, #818cf8); }
+
+    .demandes-section { margin-top: 2rem; }
+
+    .demandes-grid {
+        display: grid; grid-template-columns: repeat(auto-fill, minmax(450px, 1fr)); gap: 1.5rem;
+    }
+
+    .demande-premium-card {
+        background: white; border-radius: 20px; padding: 2rem;
+        border: 2px solid var(--nutri-border); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative; overflow: hidden;
+    }
+
+    .demande-premium-card:hover { border-color: var(--nutri-primary); transform: translateY(-5px); box-shadow: 0 12px 30px rgba(0,0,0,0.06); }
+
+    .card-id { position: absolute; top: -10px; right: -10px; background: var(--nutri-bg); color: var(--nutri-text); padding: 1rem; border-radius: 20px; font-weight: 800; font-size: 0.8rem; opacity: 0.5; }
+    .card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; }
+
+    .statut-badge-p { padding: 0.5rem 1.25rem; border-radius: 50px; font-weight: 700; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; }
+    .status-traite { background: #dcfce7; color: #065f46; }
+    .status-attente { background: #fef3c7; color: #92400e; }
+
+    .card-content h3 { font-size: 1.4rem; margin-bottom: 1rem; color: var(--nutri-text); }
+    .meta-info { display: flex; gap: 1.5rem; margin-bottom: 1.5rem; }
+    .meta-box { display: flex; flex-direction: column; }
+    .meta-box label { font-size: 0.75rem; color: #94a3b8; font-weight: 700; text-transform: uppercase; margin-bottom: 0.25rem; }
+    .meta-box span { font-weight: 700; color: #334155; }
+
+    .card-actions-p { display: flex; gap: 1rem; padding-top: 1.5rem; border-top: 1px dashed var(--nutri-border); }
+
+    .btn-nutri-view {
+        flex: 2; display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+        padding: 0.85rem; background: var(--nutri-primary); color: white; border-radius: 14px;
+        text-decoration: none; font-weight: 700; transition: all 0.2s;
+    }
+
+    .btn-nutri-view:hover { background: var(--nutri-primary-dark); box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); color: white; }
+
+    .btn-nutri-delete { flex: 0.5; background: #fee2e2; color: #991b1b; border: none; border-radius: 14px; cursor: pointer; transition: all 0.2s; }
+    .btn-nutri-delete:hover { background: #fecaca; }
+
+    .empty-nutri { text-align: center; padding: 5rem 2rem; background: white; border-radius: 24px; border: 3px dashed var(--nutri-border); }
+
+    .loading-spinner-sm { display: inline-block; width: 20px; height: 20px; border: 3px solid #e2e8f0; border-top-color: var(--nutri-primary); border-radius: 50%; animation: spin 1s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Top Toast Notification Bar ── */
+    .toast-alerts-bar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 10000;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 0.75rem 1rem;
+        gap: 0.5rem;
+        pointer-events: none;
+        transition: transform 0.4s ease;
+    }
+
+    .toast-alert {
+        pointer-events: auto;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.85rem 1.5rem;
+        border-radius: 14px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.18);
+        animation: toastIn 0.5s ease-out forwards;
+        max-width: 600px;
+        width: 100%;
+        cursor: pointer;
+    }
+
+    .toast-alert.toast-warning { background: #fffbeb; color: #92400e; border: 1px solid #fde68a; }
+    .toast-alert.toast-danger { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+    .toast-alert.toast-info { background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; }
+    .toast-alert.toast-success { background: #f0fdf4; color: #065f46; border: 1px solid #bbf7d0; }
+
+    .toast-alert i { font-size: 1.2rem; flex-shrink: 0; }
+    .toast-alert .toast-close { margin-left: auto; opacity: 0.5; cursor: pointer; padding: 0.25rem; }
+    .toast-alert .toast-close:hover { opacity: 1; }
+
+    @keyframes toastIn {
+        from { opacity: 0; transform: translateY(-30px) scale(0.95); }
+        to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    @keyframes toastOut {
+        from { opacity: 1; transform: translateY(0); }
+        to { opacity: 0; transform: translateY(-30px); }
+    }
+
+    /* ── Recipe Suggestions Section ── */
+    .recipes-section {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        border: 2px solid var(--nutri-border);
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.04);
+    }
+
+    .recipes-section h2 {
+        font-size: 1.4rem; font-weight: 700; margin-bottom: 0.5rem;
+        display: flex; align-items: center; gap: 0.5rem;
+    }
+
+    .recipes-subtitle {
+        font-size: 0.9rem; color: #94a3b8; margin-bottom: 1.5rem;
+    }
+
+    .recipes-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+        gap: 1.25rem;
+    }
+
+    .recipe-card {
+        border-radius: 16px;
+        overflow: hidden;
+        border: 2px solid var(--nutri-border);
+        transition: all 0.3s;
+        background: white;
+    }
+
+    .recipe-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+        border-color: var(--nutri-primary);
+    }
+
+    .recipe-card img {
+        width: 100%;
+        height: 180px;
+        object-fit: cover;
+    }
+
+    .recipe-card-body {
+        padding: 1.25rem;
+    }
+
+    .recipe-card-body h4 {
+        font-size: 1rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        color: var(--nutri-text);
+        line-height: 1.3;
+    }
+
+    .recipe-meta {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        margin-bottom: 0.75rem;
+    }
+
+    .recipe-tag {
+        padding: 0.2rem 0.6rem;
+        border-radius: 8px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        background: #f0fdf4;
+        color: var(--nutri-primary-dark);
+    }
+
+    .recipe-card-body p {
+        font-size: 0.8rem;
+        color: #64748b;
+        line-height: 1.5;
+        margin: 0;
+    }
+
+    .recipe-card-link {
+        display: block;
+        text-align: center;
+        padding: 0.75rem;
+        background: var(--nutri-primary);
+        color: white;
+        font-weight: 700;
+        text-decoration: none;
+        font-size: 0.85rem;
+        transition: background 0.2s;
+    }
+
+    .recipe-card-link:hover { background: var(--nutri-primary-dark); color: white; }
+
+    @media (max-width: 600px) {
+        .demandes-grid { grid-template-columns: 1fr; }
+        .meta-info { flex-direction: column; gap: 0.5rem; }
+        .regime-grid { grid-template-columns: repeat(2, 1fr); }
+        .action-grid { grid-template-columns: 1fr; }
+        .summary-grid { grid-template-columns: 1fr 1fr; }
+    }
+</style>
+{% endblock %}
+
+{% block sidebar %}
+    <span class="sidebar-nav-title">Navigation Nutrition</span>
+    <nav>
+        <a href="{{ path('app_my_nutrition') }}" class="sidebar-link active">
+            <i class="fas fa-utensils"></i> Tableau de bord
+        </a>
+        <a href="{{ path('app_nutrition_request') }}" class="sidebar-link">
+            <i class="fas fa-plus"></i> Nouvelle demande
+        </a>
+        <a href="{{ path('app_nutrition_scan') }}" class="sidebar-link">
+            <i class="fas fa-barcode"></i> Scanner produit
+        </a>
+        <a href="{{ path('app_nutrition_track') }}" class="sidebar-link">
+            <i class="fas fa-camera"></i> Analyse Photo IA
+        </a>
+        <a href="{{ path('app_nutrition_sommelier') }}" class="sidebar-link">
+            <i class="fas fa-wine-glass-alt"></i> Sommelier & Boissons
+        </a>
+    </nav>
+{% endblock %}
+
+{% block body %}
+<!-- Top Notification Toast Bar -->
+<div class="toast-alerts-bar" id="toastAlertsBar"></div>
+
+<div class="nutrition-container">
+
+    <!-- Header -->
+    <div class="nutri-header">
+        <i class="fas fa-utensils fa-3x mb-3"></i>
+        <h1 class="nutri-title">Mon Service Nutrition</h1>
+        <p class="nutri-subtitle">Choisissez votre régime prescrit et suivez vos repas intelligemment</p>
+    </div>
+
+    <!-- Regime Selection -->
+    {% if regimes_prescrits is defined and regimes_prescrits is not empty %}
+    <div class="regime-select-card">
+        <h2><i class="fas fa-clipboard-list me-2"></i> Choisir mon régime prescrit</h2>
+        <p class="text-muted mb-3">Sélectionnez le régime à appliquer pour l'analyse de vos repas</p>
+        <div class="regime-grid" id="regimeGrid">
+            {% for regime in regimes_prescrits %}
+            <div class="regime-option">
+                <input type="radio" name="selected_regime" id="regime_{{ regime.id }}" value="{{ regime.id }}"
+                       data-type="{{ regime.typeRegime }}"
+                       data-calories="{{ regime.caloriesJournalieres }}"
+                       data-repas="{{ regime.repasParJour }}"
+                       data-recommandes="{{ regime.alimentsRecommandes|join(',') }}"
+                       data-interdits="{{ regime.alimentsInterdits|join(',') }}"
+                       {{ active_regime is defined and active_regime and active_regime.id == regime.id ? 'checked' : '' }}>
+                <label for="regime_{{ regime.id }}">
+                    <span class="regime-icon">
+                        {% if regime.typeRegime == 'diabétique' %}🩺
+                        {% elseif regime.typeRegime == 'hypo_sodé' %}🧂
+                        {% elseif regime.typeRegime == 'sans_gluten' %}🌾
+                        {% elseif regime.typeRegime == 'cardioprotecteur' %}❤️
+                        {% else %}🍽️{% endif %}
+                    </span>
+                    <span class="regime-name">{{ regime.typeRegime|capitalize }}</span>
+                    <span class="regime-detail">{{ regime.caloriesJournalieres }} kcal/jour &bull; {{ regime.repasParJour }} repas</span>
+                    <span class="regime-detail">{{ regime.dateDebut|date('d/m/Y') }} - {{ regime.dateFin|date('d/m/Y') }}</span>
+                    {% if regime.demande is not null %}
+                    <span class="regime-detail" style="color: var(--nutri-primary); font-weight: 600;">
+                        Demande #{{ regime.demande.id }}
+                    </span>
+                    {% endif %}
+                </label>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% else %}
+    <div class="regime-select-card" style="text-align: center;">
+        <h2><i class="fas fa-clipboard-list me-2"></i> Aucun régime prescrit</h2>
+        <p class="text-muted">Faites une demande de régime et attendez qu'elle soit traitée par un nutritionniste.</p>
+        <a href="{{ path('app_nutrition_request') }}" class="btn btn-success btn-lg rounded-pill px-5 mt-2">
+            <i class="fas fa-plus me-2"></i> Demander un régime
+        </a>
+    </div>
+    {% endif %}
+
+    <!-- Summary Cards -->
+    <div class="summary-grid" id="summaryGrid">
+        <div class="summary-card">
+            <div class="summary-icon">🍽️</div>
+            <div class="summary-value" id="mealsCount">{{ meals_today|default(0) }}</div>
+            <div class="summary-label">Repas pris aujourd'hui</div>
+        </div>
+        <div class="summary-card">
+            <div class="summary-icon">🎯</div>
+            <div class="summary-value" id="mealsRemaining">
+                {% if active_regime is defined and active_regime %}
+                    {{ active_regime.repasParJour - meals_today|default(0) }}
+                {% else %}
+                    -
+                {% endif %}
+            </div>
+            <div class="summary-label">Repas restants</div>
+        </div>
+        <div class="summary-card">
+            <div class="summary-icon">🔥</div>
+            <div class="summary-value" id="caloriesConsumed">{{ calories_consumed_today|default(0) }}</div>
+            <div class="summary-label">Calories consommées</div>
+        </div>
+        <div class="summary-card">
+            <div class="summary-icon">⚡</div>
+            <div class="summary-value" id="caloriesRemaining">
+                {% if active_regime is defined and active_regime %}
+                    {{ active_regime.caloriesJournalieres - calories_consumed_today|default(0) }}
+                {% else %}
+                    -
+                {% endif %}
+            </div>
+            <div class="summary-label">Calories restantes</div>
+        </div>
+    </div>
+
+    <!-- Notifications Panel (ML-powered) -->
+    <div class="notifications-panel" id="notificationsPanel">
+        <h2><i class="fas fa-bell"></i> Alertes & Rappels Repas</h2>
+        <div id="notificationsList">
+            {% if regimes_prescrits is not defined or regimes_prescrits is empty %}
+                <div class="notification-item type-warning">
+                    <div class="notification-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                    <div class="notification-content">
+                        <h4>Aucun régime prescrit</h4>
+                        <p>Demandez un régime à votre nutritionniste pour activer les rappels repas intelligents.</p>
+                        <a href="{{ path('app_nutrition_request') }}" class="btn btn-sm btn-success rounded-pill mt-2">
+                            <i class="fas fa-plus me-1"></i> Demander un régime
+                        </a>
+                    </div>
+                </div>
+            {% else %}
+                <div class="text-center py-3">
+                    <div class="loading-spinner-sm"></div>
+                    <p class="text-muted mt-2 small">Chargement des rappels...</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Meal Timeline -->
+    <div class="meal-timeline" id="mealTimeline" style="{{ (regimes_prescrits is not defined or regimes_prescrits is empty) ? 'display:none' : '' }}">
+        <h2><i class="fas fa-stream me-2"></i> Planning repas du jour</h2>
+        <div id="timelineContainer">
+            <div class="text-center py-3"><div class="loading-spinner-sm"></div></div>
+        </div>
+    </div>
+
+    <!-- Recipe Suggestions (MealDB) -->
+    {% if regimes_prescrits is defined and regimes_prescrits is not empty %}
+    <div class="recipes-section" id="recipesSection">
+        <h2><i class="fas fa-book-open"></i> Recettes suggérées pour vous</h2>
+        <p class="recipes-subtitle" id="recipesSubtitle">Suggestions personnalisées selon votre régime, calories restantes et aliments recommandés</p>
+        <div class="recipes-grid" id="recipesGrid">
+            <div class="text-center py-3" style="grid-column: 1 / -1;">
+                <div class="loading-spinner-sm"></div>
+                <p class="text-muted mt-2 small">Chargement des recettes...</p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {# ── Food Trends Analysis ── #}
+    {% if regimes_prescrits is defined and regimes_prescrits is not empty %}
+    <div class="regime-select-card" id="trendsSection">
+        <h2><i class="fas fa-chart-line me-2"></i> Tendances alimentaires</h2>
+        <p class="text-muted mb-3">Analyse de vos habitudes sur les 30 derniers jours</p>
+        <div id="trendsContent">
+            <div class="text-center py-3">
+                <div class="loading-spinner-sm"></div>
+                <p class="text-muted mt-2 small">Analyse en cours...</p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {# ── Risk Score Dashboard [DISABLED] ── #}
+    {# {% if regimes_prescrits is defined and regimes_prescrits is not empty %}
+    <div class="regime-select-card" id="riskSection">
+        <h2><i class="fas fa-shield-alt me-2"></i> Score de risque nutritionnel</h2>
+        <p class="text-muted mb-3">Évaluation personnalisée basée sur votre profil et vos repas</p>
+        <div id="riskContent">
+            <div class="text-center py-3">
+                <button class="btn btn-outline-warning rounded-pill px-4" id="loadRiskBtn" onclick="loadRiskScore()">
+                    <i class="fas fa-shield-alt me-2"></i> Calculer mon score
+                </button>
+            </div>
+        </div>
+    </div>
+    {% endif %} #}
+
+    {# ── Nutritionist Summary [DISABLED] ── #}
+    {# {% if regimes_prescrits is defined and regimes_prescrits is not empty %}
+    <div class="regime-select-card" id="summarySection">
+        <h2><i class="fas fa-file-medical-alt me-2"></i> Bilan nutritionniste</h2>
+        <p class="text-muted mb-3">Résumé complet pour votre nutritionniste avec recommandations</p>
+        <div id="summaryContent">
+            <div class="text-center py-3">
+                <button class="btn btn-outline-primary rounded-pill px-4" id="loadSummaryBtn" onclick="loadNutritionistSummary()">
+                    <i class="fas fa-file-medical-alt me-2"></i> Générer le bilan
+                </button>
+            </div>
+        </div>
+    </div>
+    {% endif %} #}
+
+    <!-- Action Buttons -->
+    <div class="action-grid">
+        <a href="{{ path('app_nutrition_track') }}" class="action-card analyze">
+            <i class="fas fa-camera"></i>
+            <span>Analyser mon repas (IA)</span>
+        </a>
+        <a href="{{ path('app_nutrition_scan') }}" class="action-card scan">
+            <i class="fas fa-barcode"></i>
+            <span>Scanner un produit</span>
+        </a>
+        <a href="{{ path('app_nutrition_request') }}" class="action-card request">
+            <i class="fas fa-plus"></i>
+            <span>Nouvelle demande de régime</span>
+        </a>
+        <a href="{{ path('app_nutrition_sommelier') }}" class="action-card sommelier">
+            <i class="fas fa-wine-glass-alt"></i>
+            <span>Sommelier & Boissons</span>
+        </a>
+    </div>
+
+    <!-- Existing Demandes -->
+    {% if demande_regimes is not empty %}
+    <div class="demandes-section">
+        <h2 class="h4 mb-3"><i class="fas fa-folder-open me-2"></i> Mes demandes de régime</h2>
+        <div class="demandes-grid">
+            {% for demande in demande_regimes %}
+                {% set isTraitee = (demande.statut == 'traité') %}
+                <div class="demande-premium-card">
+                    <span class="card-id">ID #{{ demande.id }}</span>
+                    <div class="card-top">
+                        <div class="date-tag">
+                            <span style="display:block; font-size: 0.75rem; color: #94a3b8; font-weight: 700;">DATE</span>
+                            <span style="font-weight: 700; color: #334155;">{{ demande.dateDemande|date('d/m/Y') }}</span>
+                        </div>
+                        <span class="statut-badge-p {{ isTraitee ? 'status-traite' : 'status-attente' }}">
+                            {{ isTraitee ? '✅ Traitée' : '🕒 En attente' }}
+                        </span>
+                    </div>
+                    <div class="card-content">
+                        <h3>{{ demande.typeRegimeSouhaite }}</h3>
+                        <div class="meta-info">
+                            <div class="meta-box">
+                                <label>Objectif</label>
+                                <span>{{ demande.objectifPrincipal|length > 30 ? demande.objectifPrincipal|slice(0, 30) ~ '...' : demande.objectifPrincipal }}</span>
+                            </div>
+                            <div class="meta-box">
+                                <label>Budget</label>
+                                <span>{{ demande.budgetMensuel ?: '0' }} DH</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-actions-p">
+                        <a href="{{ path('app_nutrition_show', {'id': demande.id}) }}" class="btn-nutri-view">
+                            {{ isTraitee ? '👁️ Voir mon régime' : '👁️ Détails demande' }}
+                        </a>
+                        <form method="post" action="{{ path('app_nutrition_delete', {'id': demande.id}) }}"
+                              onsubmit="return confirm('Supprimer définitivement ?');">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ demande.id) }}">
+                            <button type="submit" class="btn-nutri-delete"><i class="fas fa-trash"></i></button>
+                        </form>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const regimeInputs = document.querySelectorAll('input[name="selected_regime"]');
+    const notificationsList = document.getElementById('notificationsList');
+    const timelineContainer = document.getElementById('timelineContainer');
+    const mealTimeline = document.getElementById('mealTimeline');
+    const mealsRemaining = document.getElementById('mealsRemaining');
+    const caloriesRemaining = document.getElementById('caloriesRemaining');
+    const toastBar = document.getElementById('toastAlertsBar');
+    const recipesGrid = document.getElementById('recipesGrid');
+    const recipesSubtitle = document.getElementById('recipesSubtitle');
+
+    // ── Toast Notification System ──
+    function showToast(message, type = 'info', icon = 'bell', duration = 8000) {
+        const iconMap = { warning: 'exclamation-triangle', danger: 'times-circle', info: 'info-circle', success: 'check-circle' };
+        const toast = document.createElement('div');
+        toast.className = `toast-alert toast-${type}`;
+        toast.innerHTML = `<i class="fas fa-${icon || iconMap[type] || 'bell'}"></i><span>${message}</span><span class="toast-close" onclick="this.parentElement.style.animation='toastOut 0.3s forwards';setTimeout(()=>this.parentElement.remove(),300)"><i class="fas fa-times"></i></span>`;
+        toastBar.appendChild(toast);
+        setTimeout(() => {
+            if (toast.parentElement) {
+                toast.style.animation = 'toastOut 0.3s forwards';
+                setTimeout(() => toast.remove(), 300);
+            }
+        }, duration);
+    }
+
+    // ── Load Data on page open ──
+    const checkedRegime = document.querySelector('input[name="selected_regime"]:checked');
+    if (checkedRegime) {
+        loadMealReminders(checkedRegime.value);
+        loadRecipeSuggestions(checkedRegime.value);
+        try { loadTrends(); } catch(e) { console.warn('Trends init deferred:', e); }
+    }
+
+    regimeInputs.forEach(input => {
+        input.addEventListener('change', function() {
+            loadMealReminders(this.value);
+            loadRecipeSuggestions(this.value);
+            loadTrends();
+            const cals = parseInt(this.dataset.calories) || 2000;
+            const repas = parseInt(this.dataset.repas) || 3;
+            const consumed = {{ calories_consumed_today|default(0) }};
+            const mealsToday = {{ meals_today|default(0) }};
+            mealsRemaining.textContent = Math.max(0, repas - mealsToday);
+            caloriesRemaining.textContent = Math.max(0, cals - consumed);
+        });
+    });
+
+    // ── Meal Reminders + Toast Alerts ──
+    let remindersRetryCount = 0;
+    function loadMealReminders(regimeId, useML = false) {
+        notificationsList.innerHTML = '<div class="text-center py-3"><div class="loading-spinner-sm"></div><p class="text-muted mt-2 small">' + (useML ? '✨ Amélioration IA en cours...' : 'Chargement des rappels...') + '</p></div>';
+        timelineContainer.innerHTML = '<div class="text-center py-3"><div class="loading-spinner-sm"></div></div>';
+
+        const formData = new FormData();
+        formData.append('regime_id', regimeId);
+        if (useML) formData.append('use_ml', '1');
+
+        const ctrl = new AbortController();
+        const timer = setTimeout(() => ctrl.abort(), useML ? 20000 : 8000);
+
+        fetch('{{ path("app_nutrition_meal_reminders") }}', {
+            method: 'POST',
+            body: formData,
+            signal: ctrl.signal,
+            credentials: 'same-origin'
+        })
+        .then(res => {
+            clearTimeout(timer);
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            const ct = res.headers.get('content-type') || '';
+            if (!ct.includes('application/json')) throw new Error('Not JSON (session expired?)');
+            return res.json();
+        })
+        .then(data => {
+            remindersRetryCount = 0;
+            if (data.status === 'success') {
+                renderNotifications(data.notifications || []);
+                renderTimeline(data.suggestions_repas || [], data.repas_consommes || 0);
+                mealTimeline.style.display = 'block';
+                mealsRemaining.textContent = data.repas_restants || 0;
+                caloriesRemaining.textContent = data.calories_restantes || 0;
+
+                // Show toast alerts for important notifications
+                (data.notifications || []).forEach((n, i) => {
+                    if (n.type === 'warning' || n.type === 'danger') {
+                        setTimeout(() => showToast(n.message || n.titre, n.type, n.icon), i * 600);
+                    }
+                });
+
+                // Check if a meal is due NOW
+                (data.suggestions_repas || []).forEach(meal => {
+                    if (meal.statut === 'maintenant') {
+                        showToast(`🍽️ C'est l'heure de votre ${meal.type_repas} ! (~${meal.calories_suggerees} kcal)`, 'warning', 'clock', 15000);
+                    } else if (meal.statut === 'en_retard') {
+                        showToast(`⚠️ Vous avez raté votre ${meal.type_repas} !`, 'danger', 'exclamation-circle', 12000);
+                    }
+                });
+
+                // Bouton IA optionnel
+                if (!data.ml_source) {
+                    const aiBtn = document.createElement('div');
+                    aiBtn.className = 'text-end mt-2';
+                    aiBtn.innerHTML = `<button onclick="loadMealReminders('${regimeId}', true)" class="btn btn-sm btn-outline-success rounded-pill"><i class="fas fa-magic me-1"></i>Améliorer avec l'IA</button>`;
+                    notificationsList.appendChild(aiBtn);
+                }
+            } else {
+                notificationsList.innerHTML = '<div class="notification-item type-danger"><div class="notification-icon"><i class="fas fa-times-circle"></i></div><div class="notification-content"><h4>Erreur</h4><p>' + (data.message || data.error || 'Erreur inconnue') + '</p></div></div>';
+            }
+        })
+        .catch(err => {
+            clearTimeout(timer);
+            console.error('Meal reminders error:', err);
+            // Retry once automatically on failure
+            if (remindersRetryCount < 1) {
+                remindersRetryCount++;
+                notificationsList.innerHTML = '<div class="text-center py-3"><div class="loading-spinner-sm"></div><p class="text-muted mt-2 small">Reconnexion en cours...</p></div>';
+                setTimeout(() => loadMealReminders(regimeId), 2000);
+                return;
+            }
+            const msg = err.name === 'AbortError'
+                ? 'Le service met trop de temps à répondre.'
+                : 'Les rappels ne sont pas disponibles actuellement.';
+            notificationsList.innerHTML = `<div class="notification-item type-warning">
+                <div class="notification-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                <div class="notification-content">
+                    <h4>Service temporairement indisponible</h4>
+                    <p>${msg}</p>
+                    <button onclick="loadMealReminders('${regimeId}')" class="btn btn-sm btn-outline-primary mt-2"><i class="fas fa-sync-alt me-1"></i>Réessayer</button>
+                </div>
+            </div>`;
+            timelineContainer.innerHTML = '';
+            mealTimeline.style.display = 'none';
+        });
+    }
+
+    // ── Recipe Suggestions via MealDB ──
+    function loadRecipeSuggestions(regimeId) {
+        if (!recipesGrid) return;
+        recipesGrid.innerHTML = '<div class="text-center py-3" style="grid-column:1/-1"><div class="loading-spinner-sm"></div><p class="text-muted mt-2 small">Recherche de recettes adaptées...</p></div>';
+
+        const formData = new FormData();
+        formData.append('regime_id', regimeId);
+
+        const rCtrl = new AbortController();
+        const rTimer = setTimeout(() => rCtrl.abort(), 20000);
+
+        fetch('{{ path("app_nutrition_recipe_suggestions") }}', {
+            method: 'POST',
+            body: formData,
+            signal: rCtrl.signal,
+            credentials: 'same-origin'
+        })
+        .then(res => {
+            clearTimeout(rTimer);
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            const ct = res.headers.get('content-type') || '';
+            if (!ct.includes('application/json')) throw new Error('Not JSON');
+            return res.json();
+        })
+        .then(data => {
+            if (data.status === 'success') {
+                if (data.message && data.recipes.length === 0) {
+                    recipesGrid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:2rem;"><div style="font-size:3rem;margin-bottom:1rem;">🎉</div><h4>${data.message}</h4></div>`;
+                    return;
+                }
+                if (recipesSubtitle) {
+                    const parts = [];
+                    if (data.calories_restantes !== undefined) parts.push(`<strong>${data.calories_restantes}</strong> kcal restantes`);
+                    if (data.repas_restants !== undefined) parts.push(`<strong>${data.repas_restants}</strong> repas restants`);
+                    if (data.calories_par_repas) parts.push(`~<strong>${data.calories_par_repas}</strong> kcal/repas suggéré`);
+                    if (data.aliments_recommandes && data.aliments_recommandes.length) {
+                        parts.push('Privilégier : <strong>' + data.aliments_recommandes.slice(0, 4).join(', ') + '</strong>');
+                    }
+                    recipesSubtitle.innerHTML = parts.join(' &bull; ');
+                }
+                renderRecipes(data.recipes);
+            } else {
+                recipesGrid.innerHTML = '<div style="grid-column:1/-1" class="text-center text-muted py-3">Impossible de charger les recettes.</div>';
+            }
+        })
+        .catch(err => {
+            clearTimeout(rTimer);
+            console.error('Recipe suggestions error:', err);
+            const msg = err.name === 'AbortError' ? 'Le chargement des recettes a expiré.' : 'Service de recettes indisponible.';
+            recipesGrid.innerHTML = '<div style="grid-column:1/-1" class="text-center text-muted py-3">' + msg + '</div>';
+        });
+    }
+
+    function renderRecipes(recipes) {
+        if (!recipes.length) {
+            recipesGrid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:2rem;" class="text-muted">Aucune recette trouvée pour ce régime.</div>';
+            return;
+        }
+        recipesGrid.innerHTML = recipes.map(r => `
+            <div class="recipe-card">
+                <img src="${r.image || '/images/default-meal.jpg'}" alt="${r.name}" loading="lazy" onerror="this.src='/images/default-meal.jpg'">
+                <div class="recipe-card-body">
+                    <h4>${r.name}</h4>
+                    <div class="recipe-meta">
+                        ${r.category ? `<span class="recipe-tag">🍽️ ${r.category}</span>` : ''}
+                        ${r.area ? `<span class="recipe-tag" style="background:#eff6ff;color:#1e40af;">🌍 ${r.area}</span>` : ''}
+                        ${r.tags ? r.tags.split(',').filter(t => t.trim()).slice(0, 3).map(t => `<span class="recipe-tag" style="background:#faf5ff;color:#7c3aed;">${t.trim()}</span>`).join('') : ''}
+                    </div>
+                    ${r.instructions ? `<p>${r.instructions.substring(0, 160)}</p>` : ''}
+                </div>
+                <a href="{{ path('app_nutrition_meals') }}/${r.id}" class="recipe-card-link">
+                    <i class="fas fa-eye me-1"></i> Voir la recette complète
+                </a>
+            </div>
+        `).join('');
+    }
+
+    function renderNotifications(notifications) {
+        if (!notifications.length) {
+            notificationsList.innerHTML = '<div class="notification-item type-success"><div class="notification-icon"><i class="fas fa-check-circle"></i></div><div class="notification-content"><h4>Tout est en ordre !</h4><p>Aucun rappel pour le moment.</p></div></div>';
+            return;
+        }
+        notificationsList.innerHTML = notifications.map((n, i) => `
+            <div class="notification-item type-${n.type || 'info'}" style="animation-delay: ${i * 0.1}s">
+                <div class="notification-icon"><i class="fas fa-${n.icon || 'bell'}"></i></div>
+                <div class="notification-content">
+                    <h4>${n.titre || ''}</h4>
+                    <p>${n.message || ''}</p>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function renderTimeline(suggestions, repasConsommes) {
+        if (!suggestions.length && repasConsommes === 0) {
+            timelineContainer.innerHTML = '<p class="text-muted text-center">Aucun planning disponible.</p>';
+            return;
+        }
+        let html = '';
+        for (let i = 0; i < repasConsommes; i++) {
+            html += `<div class="timeline-item" style="opacity: 0.6;">
+                <div class="timeline-dot done"></div>
+                <div class="timeline-info">
+                    <div class="timeline-meal-name">Repas ${i + 1}</div>
+                    <div class="timeline-time">✅ Terminé</div>
+                </div>
+                <div class="timeline-cals" style="color: #94a3b8;">Fait</div>
+            </div>`;
+        }
+        suggestions.forEach(meal => {
+            const statut = meal.statut;
+            const dotClass = statut === 'maintenant' ? 'now' : (statut === 'en_retard' ? 'late' : 'upcoming');
+            const statusText = statut === 'maintenant' ? '🔔 Maintenant' : (statut === 'en_retard' ? '⚠️ En retard' : `${meal.heure_debut}h - ${meal.heure_fin}h`);
+            html += `<div class="timeline-item">
+                <div class="timeline-dot ${dotClass}"></div>
+                <div class="timeline-info">
+                    <div class="timeline-meal-name">${meal.type_repas}</div>
+                    <div class="timeline-time">${statusText}</div>
+                </div>
+                <div class="timeline-cals">~${meal.calories_suggerees} kcal</div>
+            </div>`;
+        });
+        timelineContainer.innerHTML = html;
+    }
+
+    // Auto-refresh every 5 minutes (rappels seulement, pas les tendances)
+    setInterval(() => {
+        const checked = document.querySelector('input[name="selected_regime"]:checked');
+        if (checked) {
+            loadMealReminders(checked.value);
+            loadRecipeSuggestions(checked.value);
+        }
+    }, 5 * 60 * 1000);
+
+    // ── Trends Analysis ──
+    function loadTrends(useML = false) {
+        const cont = document.getElementById('trendsContent');
+        cont.innerHTML = '<div class="text-center py-3"><div class="loading-spinner-sm"></div><p class="text-muted mt-2 small">' + (useML ? '✨ Analyse IA approfondie...' : 'Analyse des tendances...') + '</p></div>';
+
+        const ctrl = new AbortController();
+        const timer = setTimeout(() => ctrl.abort(), useML ? 25000 : 8000);
+
+        const formData = new FormData();
+        if (useML) formData.append('use_ml', '1');
+
+        fetch('{{ path("app_nutrition_trends") }}', { method: 'POST', signal: ctrl.signal,
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            body: formData,
+            credentials: 'same-origin'
+        })
+        .then(r => {
+            clearTimeout(timer);
+            if (!r.ok) throw new Error('HTTP ' + r.status);
+            const ct = r.headers.get('content-type') || '';
+            if (!ct.includes('application/json')) throw new Error('Not JSON');
+            return r.json();
+        })
+        .then(data => {
+            if (data.status !== 'success') {
+                cont.innerHTML = `<div class="alert alert-warning">${data.message || 'Erreur'}</div>`;
+                return;
+            }
+            let html = '';
+            // Variety score
+            html += `<div style="text-align:center;margin-bottom:1.5rem;">
+                <div style="display:inline-block;width:100px;height:100px;border-radius:50%;background:conic-gradient(var(--nutri-primary) ${data.variete_score}%, #e5e7eb ${data.variete_score}%);display:inline-flex;align-items:center;justify-content:center;">
+                    <div style="width:70px;height:70px;border-radius:50%;background:white;display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:800;color:var(--nutri-primary-dark);">${data.variete_score}</div>
+                </div>
+                <p style="margin-top:0.5rem;font-weight:600;">Score de variété alimentaire</p>
+                <p class="text-muted small">${data.jours_analyses || 0} jours analysés — ${data.aliments_uniques || 0} aliments différents</p>
+            </div>`;
+            // Top foods
+            if (data.aliments_frequents && data.aliments_frequents.length) {
+                html += '<h4 style="font-size:1rem;font-weight:700;margin-bottom:0.5rem;"><i class="fas fa-medal me-1"></i> Aliments les plus fréquents</h4>';
+                html += '<div class="list-group mb-3">';
+                data.aliments_frequents.slice(0, 5).forEach((f, i) => {
+                    html += `<div class="list-group-item d-flex justify-content-between align-items-center" style="border-radius:${i===0?'12px 12px':'0'} ${i===Math.min(4,data.aliments_frequents.length-1)?'0 0 12px 12px':''};border:none;border-bottom:1px solid #f1f5f9;">
+                        <span><strong>${i+1}.</strong> ${f.nom}</span>
+                        <span class="badge bg-success rounded-pill">${f.count}x</span>
+                    </div>`;
+                });
+                html += '</div>';
+            }
+            // Alerts
+            if (data.alertes && data.alertes.length) {
+                data.alertes.forEach(a => {
+                    html += `<div class="alert alert-${a.type === 'danger' ? 'danger' : 'warning'} d-flex align-items-center" style="border-radius:12px;">
+                        <i class="fas fa-${a.icon || 'exclamation-triangle'} me-2"></i>
+                        <div><strong>${a.titre}</strong><br>${a.message}</div>
+                    </div>`;
+                });
+            }
+            cont.innerHTML = html || '<p class="text-muted text-center">Pas assez de données pour l\'analyse.</p>';
+            // Bouton IA optionnel
+            if (!useML) {
+                const aiDiv = document.createElement('div');
+                aiDiv.className = 'text-end mt-3';
+                aiDiv.innerHTML = '<button onclick="loadTrends(true)" class="btn btn-sm btn-outline-success rounded-pill"><i class="fas fa-magic me-1"></i>Analyse IA approfondie</button>';
+                cont.appendChild(aiDiv);
+            }
+        })
+        .catch(err => {
+            console.error('Trends error:', err);
+            cont.innerHTML = `<div class="alert alert-warning" style="border-radius:12px;">
+                <i class="fas fa-exclamation-triangle me-2"></i>Impossible de charger les tendances.
+                <button onclick="loadTrends()" class="btn btn-sm btn-outline-warning ms-2"><i class="fas fa-sync-alt me-1"></i>Réessayer</button>
+            </div>`;
+        });
+    }
+
+    // ── Risk Score ──
+    function loadRiskScore() {
+        const cont = document.getElementById('riskContent');
+        cont.innerHTML = '<div class="text-center py-3"><div class="loading-spinner-sm"></div><p class="text-muted mt-2 small">Calcul du score de risque...</p></div>';
+
+        const ctrl = new AbortController();
+        const timer = setTimeout(() => ctrl.abort(), 25000);
+
+        fetch('{{ path("app_nutrition_risk_score") }}', { method: 'POST', signal: ctrl.signal,
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            credentials: 'same-origin'
+        })
+        .then(r => {
+            clearTimeout(timer);
+            if (!r.ok) throw new Error('HTTP ' + r.status);
+            const ct = r.headers.get('content-type') || '';
+            if (!ct.includes('application/json')) throw new Error('Not JSON');
+            return r.json();
+        })
+        .then(data => {
+            if (data.status !== 'success') {
+                cont.innerHTML = `<div class="alert alert-warning">${data.message || 'Erreur'}</div>`;
+                return;
+            }
+            let html = '';
+            // Score gauge
+            html += `<div style="text-align:center;margin-bottom:1.5rem;">
+                <div style="display:inline-flex;align-items:center;justify-content:center;width:120px;height:120px;border-radius:50%;background:${data.couleur};color:white;font-size:2.5rem;font-weight:800;box-shadow:0 4px 16px rgba(0,0,0,0.15);">
+                    ${data.score}
+                </div>
+                <p style="margin-top:0.75rem;font-size:1.2rem;font-weight:700;text-transform:capitalize;color:${data.couleur};">${data.niveau}</p>
+                ${data.imc ? `<p class="text-muted small">IMC : <strong>${data.imc}</strong></p>` : ''}
+            </div>`;
+            // Details
+            if (data.details && data.details.length) {
+                html += '<div class="list-group mb-3">';
+                data.details.forEach(d => {
+                    html += `<div class="list-group-item" style="border:none;border-bottom:1px solid #f1f5f9;"><i class="fas fa-info-circle me-2 text-muted"></i>${d}</div>`;
+                });
+                html += '</div>';
+            }
+            // Recommendations
+            if (data.recommandations && data.recommandations.length) {
+                html += '<h4 style="font-size:1rem;font-weight:700;margin-bottom:0.5rem;"><i class="fas fa-lightbulb me-1"></i> Recommandations</h4>';
+                data.recommandations.forEach(r => {
+                    html += `<div class="alert alert-info" style="border-radius:12px;">${r}</div>`;
+                });
+            }
+            cont.innerHTML = html;
+        })
+        .catch(err => {
+            console.error('Risk score error:', err);
+            cont.innerHTML = `<div class="alert alert-warning" style="border-radius:12px;">
+                <i class="fas fa-exclamation-triangle me-2"></i>Impossible de calculer le score de risque.
+                <button onclick="loadRiskScore()" class="btn btn-sm btn-outline-warning ms-2"><i class="fas fa-sync-alt me-1"></i>Réessayer</button>
+            </div>`;
+        });
+    }
+
+    // ── Nutritionist Summary ──
+    function loadNutritionistSummary() {
+        const cont = document.getElementById('summaryContent');
+        cont.innerHTML = '<div class="text-center py-3"><div class="loading-spinner-sm"></div><p class="text-muted mt-2 small">Génération du bilan nutritionniste...</p></div>';
+
+        const ctrl = new AbortController();
+        const timer = setTimeout(() => ctrl.abort(), 30000);
+
+        fetch('{{ path("app_nutrition_summary") }}', { method: 'POST', signal: ctrl.signal,
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            credentials: 'same-origin'
+        })
+        .then(r => {
+            clearTimeout(timer);
+            if (!r.ok) throw new Error('HTTP ' + r.status);
+            const ct = r.headers.get('content-type') || '';
+            if (!ct.includes('application/json')) throw new Error('Not JSON');
+            return r.json();
+        })
+        .then(data => {
+            if (data.status !== 'success') {
+                cont.innerHTML = `<div class="alert alert-warning">${data.message || 'Erreur'}</div>`;
+                return;
+            }
+            const s = data.resume || {};
+            let html = '';
+            // Summary stats
+            html += `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1rem;margin-bottom:1.5rem;">
+                <div style="background:#f0fdf4;padding:1rem;border-radius:12px;text-align:center;">
+                    <div style="font-size:1.8rem;font-weight:800;color:#059669;">${s.taux_conformite || 0}%</div>
+                    <div style="font-size:0.8rem;color:#6b7280;font-weight:600;">Conformité</div>
+                </div>
+                <div style="background:#eff6ff;padding:1rem;border-radius:12px;text-align:center;">
+                    <div style="font-size:1.8rem;font-weight:800;color:#2563eb;">${s.calories_moyenne || 0}</div>
+                    <div style="font-size:0.8rem;color:#6b7280;font-weight:600;">Cal. moy./repas</div>
+                </div>
+                <div style="background:#faf5ff;padding:1rem;border-radius:12px;text-align:center;">
+                    <div style="font-size:1.8rem;font-weight:800;color:#7c3aed;">${s.nombre_repas || 0}</div>
+                    <div style="font-size:0.8rem;color:#6b7280;font-weight:600;">Repas suivis</div>
+                </div>
+                <div style="background:#fefce8;padding:1rem;border-radius:12px;text-align:center;">
+                    <div style="font-size:1.8rem;font-weight:800;color:#ca8a04;">${data.variete_score || 0}</div>
+                    <div style="font-size:0.8rem;color:#6b7280;font-weight:600;">Score variété</div>
+                </div>
+            </div>`;
+            // Frequent foods
+            if (data.aliments_frequents && data.aliments_frequents.length) {
+                html += '<h4 style="font-size:1rem;font-weight:700;margin-bottom:0.5rem;"><i class="fas fa-utensils me-1"></i> Aliments les plus consommés</h4>';
+                html += '<div class="d-flex flex-wrap gap-2 mb-3">';
+                data.aliments_frequents.slice(0, 8).forEach(f => {
+                    html += `<span class="badge bg-light text-dark border" style="padding:0.5rem 0.75rem;font-size:0.85rem;">${f.nom} <strong>(${f.count})</strong></span>`;
+                });
+                html += '</div>';
+            }
+            // Forbidden consumed
+            if (data.aliments_interdits_consommes && data.aliments_interdits_consommes.length) {
+                html += '<div class="alert alert-danger" style="border-radius:12px;"><i class="fas fa-ban me-2"></i><strong>Aliments interdits consommés :</strong> ' + data.aliments_interdits_consommes.join(', ') + '</div>';
+            }
+            // Suggestions
+            if (data.suggestions_ajustement && data.suggestions_ajustement.length) {
+                html += '<h4 style="font-size:1rem;font-weight:700;margin-bottom:0.5rem;"><i class="fas fa-lightbulb me-1"></i> Suggestions d\'ajustement</h4>';
+                data.suggestions_ajustement.forEach(s => {
+                    html += `<div class="alert alert-info" style="border-radius:12px;">${s}</div>`;
+                });
+            }
+            cont.innerHTML = html || '<p class="text-muted text-center">Pas assez de données pour générer le bilan.</p>';
+        })
+        .catch(err => {
+            console.error('Nutritionist summary error:', err);
+            cont.innerHTML = `<div class="alert alert-warning" style="border-radius:12px;">
+                <i class="fas fa-exclamation-triangle me-2"></i>Impossible de générer le bilan nutritionniste.
+                <button onclick="loadNutritionistSummary()" class="btn btn-sm btn-outline-warning ms-2"><i class="fas fa-sync-alt me-1"></i>Réessayer</button>
+            </div>`;
+        });
+    }
+});
+</script>
+{% endblock %}

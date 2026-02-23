@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accès Refusé - Administration</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        .access-denied-container {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            background: rgba(255,255,255,0.95);
+        }
+        
+        .card-header {
+            background: linear-gradient(45deg, #ff6b35, #ff8e53);
+            color: white;
+            border-radius: 15px 15px 0 0 !important;
+            border-bottom: none;
+            padding: 1.5rem;
+        }
+        
+        .card-body {
+            padding: 2rem;
+            line-height: 1.6;
+        }
+        
+        .alert-warning {
+            border: none;
+            border-left: 4px solid #ff6b35;
+            background: linear-gradient(45deg, rgba(255,107,53,0.1), rgba(255,142,83,0.1));
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+        }
+        
+        .alert-heading {
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+        
+        .alert p {
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+        
+        .alert hr {
+            margin: 1.5rem 0;
+        }
+        
+        .card-section {
+            margin-bottom: 2rem;
+        }
+        
+        .card-section:last-child {
+            margin-bottom: 0;
+        }
+        
+        .section-title {
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #495057;
+        }
+        
+        .btn {
+            border-radius: 8px;
+            font-weight: 500;
+            padding: 0.75rem 1.5rem;
+            transition: all 0.3s ease;
+            margin: 0.25rem;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border: none;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102,126,234,0.4);
+        }
+        
+        .btn-outline-secondary {
+            border-color: #6c757d;
+            color: #6c757d;
+        }
+        
+        .btn-outline-secondary:hover {
+            background-color: #6c757d;
+            border-color: #6c757d;
+            transform: translateY(-2px);
+        }
+        
+        .btn-outline-primary {
+            border-color: #667eea;
+            color: #667eea;
+        }
+        
+        .btn-outline-primary:hover {
+            background-color: #667eea;
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+        
+        @media (max-width: 768px) {
+            .access-denied-container {
+                padding: 10px;
+            }
+            
+            .card-body {
+                padding: 1.5rem;
+            }
+            
+            .btn {
+                display: block;
+                width: 100%;
+                margin: 0.5rem 0;
+            }
+        }
+        
+        .list-unstyled li {
+            padding: 0.75rem 0;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            display: flex;
+            align-items: flex-start;
+            line-height: 1.5;
+        }
+        
+        .list-unstyled li:last-child {
+            border-bottom: none;
+        }
+        
+        .list-unstyled li i {
+            margin-top: 0.25rem;
+            flex-shrink: 0;
+        }
+        
+        .alert-light {
+            background: rgba(248,249,250,0.8);
+            border: 1px solid rgba(233,236,239,0.5);
+            border-radius: 10px;
+            margin-top: 1.5rem;
+            padding: 1.5rem;
+        }
+        
+        .card-footer {
+            background: rgba(248,249,250,0.5); 
+            border-radius: 0 0 15px 15px;
+            padding: 1.5rem;
+            border-top: 1px solid rgba(233,236,239,0.3);
+        }
+        
+        .text-muted {
+            font-size: 0.85rem;
+            background: rgba(255,255,255,0.7);
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            margin-top: 1.5rem;
+            display: inline-block;
+        }
+        
+        code {
+            background-color: rgba(248,249,250,0.8);
+            color: #e83e8c;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+        
+        .fa-2x {
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body>
+    <div class="access-denied-container">
+        <div class="card">
+            <div class="card-header text-center">
+                <h4 class="mb-0">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Accès Refusé
+                </h4>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning" role="alert">
+                    <h5 class="alert-heading">
+                        <i class="fas fa-shield-alt me-2"></i>
+                        Accès Administrateur Requis
+                    </h5>
+                    <p>
+                        {% if user %}
+                            Bonjour <strong>{{ user.firstName ?? user.email }}</strong>,
+                        {% endif %}
+                    </p>
+                    <p>
+                        {% if user %}
+                            Vous êtes actuellement connecté en tant qu'<strong>utilisateur simple</strong>.
+                            L'accès à la section d'administration est réservé aux <strong>administrateurs</strong> uniquement.
+                        {% else %}
+                            Vous devez être connecté en tant qu'administrateur pour accéder à cette page.
+                        {% endif %}
+                    </p>
+                    <hr>
+                    <div>
+                        <i class="fas fa-info-circle text-info me-2"></i>
+                        <small>
+                            <strong>Note :</strong> Cette tentative d'accès a été enregistrée et les administrateurs ont été notifiés.
+                        </small>
+                    </div>
+                </div>
+
+                <div class="card-section">
+                    <h6 class="section-title">Que faire maintenant ?</h6>
+                    <ul class="list-unstyled">
+                        <li>
+                            <i class="fas fa-arrow-right text-primary me-2"></i>
+                            Retournez à votre <a href="{{ path('app_dashboard', {'_locale': app.request.locale|default('fr')}) }}" class="text-decoration-none">tableau de bord utilisateur</a>
+                        </li>
+                        <li>
+                            <i class="fas fa-envelope text-primary me-2"></i>
+                            Contactez un administrateur si vous pensez avoir besoin d'un accès d'administration
+                        </li>
+                        <li>
+                            <i class="fas fa-question-circle text-primary me-2"></i>
+                            Consultez la <a href="#" class="text-decoration-none">page d'aide</a> pour plus d'informations
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="alert alert-light" role="alert">
+                    <div class="row align-items-center">
+                        <div class="col-2 text-center">
+                            <i class="fas fa-user-shield fa-2x text-muted"></i>
+                        </div>
+                        <div class="col-10">
+                            <h6 class="mb-2">Pour devenir administrateur</h6>
+                            <small class="text-muted">
+                                Les droits d'administration sont accordés automatiquement aux comptes avec une adresse email <strong>@wannasni.com</strong>.
+                                Pour les autres comptes, contactez l'équipe d'administration.
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer text-center">
+                <a href="{{ path('app_dashboard', {'_locale': app.request.locale|default('fr')}) }}" class="btn btn-primary me-3 mb-2 mb-md-0">
+                    <i class="fas fa-tachometer-alt me-1"></i>
+                    Retour au Tableau de Bord
+                </a>
+                {% if user %}
+                    <a href="{{ path('app_logout', {'_locale': app.request.locale|default('fr')}) }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-sign-out-alt me-1"></i>
+                        Se Déconnecter
+                    </a>
+                {% else %}
+                    <a href="{{ path('app_login', {'_locale': app.request.locale|default('fr')}) }}" class="btn btn-outline-primary">
+                        <i class="fas fa-sign-in-alt me-1"></i>
+                        Se Connecter
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="text-center">
+            <div class="text-muted">
+                <i class="fas fa-clock me-2"></i>
+                Page consultée le {{ "now"|date("d/m/Y à H:i") }}
+                {% if requested_path %}
+                    <br><strong>Page demandée :</strong> <code>{{ requested_path }}</code>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</body>
+</html>

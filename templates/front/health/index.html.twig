@@ -1,0 +1,707 @@
+{% extends 'base_dashboard.html.twig' %}
+
+{% block title %}Mon Journal de Santé - WANNASNI{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    /* ============================================
+       HEALTH PAGE - Senior-Friendly Design
+       Large fonts, simple layout, clear actions
+       ============================================ */
+    
+    :root {
+        --health-primary: #dc2626;
+        --health-primary-light: #ef4444;
+        --health-bg: #fef2f2;
+        --health-card: #ffffff;
+        --health-text: #1a1a2e;
+        --health-text-muted: #64748b;
+        --health-border: #fecaca;
+    }
+
+    /* Chat styles handled by chat/style.css */
+
+    .health-wrapper {
+        min-height: 100vh;
+        padding: 2rem 1.5rem 4rem;
+        background: linear-gradient(180deg, var(--health-bg) 0%, #f8fafc 30%);
+    }
+
+    .health-container {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    /* Back Link */
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--health-primary);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 1.1rem;
+        margin-bottom: 1.5rem;
+        padding: 0.75rem 1.25rem;
+        border-radius: 50px;
+        background: white;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        transition: all 0.2s;
+    }
+
+    .back-link:hover {
+        background: var(--health-bg);
+        transform: translateX(-4px);
+    }
+
+    /* Header */
+    .health-header {
+        background: linear-gradient(135deg, var(--health-primary), var(--health-primary-light));
+        border-radius: 24px;
+        padding: 2.5rem;
+        margin-bottom: 2rem;
+        color: white;
+        text-align: center;
+        box-shadow: 0 8px 32px rgba(220, 38, 38, 0.3);
+    }
+
+    .health-header-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+    }
+
+    .health-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .health-subtitle {
+        font-size: 1.25rem;
+        opacity: 0.9;
+        margin-bottom: 1.5rem;
+    }
+
+    .btn-new-entry {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1.25rem 2.5rem;
+        background: white;
+        color: var(--health-primary);
+        border-radius: 50px;
+        font-size: 1.25rem;
+        font-weight: 700;
+        text-decoration: none;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+        transition: all 0.3s;
+    }
+
+    .btn-new-entry:hover {
+        transform: scale(1.05);
+        box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    }
+
+    .btn-ml, .btn-map {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.6rem;
+        padding: 0.9rem 1.8rem;
+        border-radius: 50px;
+        font-size: 1rem;
+        font-weight: 700;
+        text-decoration: none;
+        box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+        transition: all 0.3s;
+    }
+
+    .btn-ml {
+        background: #d1fae5;
+        color: #065f46;
+    }
+
+    .btn-ml:hover {
+        background: #a7f3d0;
+        transform: scale(1.05);
+        box-shadow: 0 8px 22px rgba(0,0,0,0.18);
+    }
+
+    .btn-map {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+
+    .btn-map:hover {
+        background: #bfdbfe;
+        transform: scale(1.05);
+        box-shadow: 0 8px 22px rgba(0,0,0,0.18);
+    }
+
+    .header-extra-btns {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1.25rem;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    /* Health Records */
+    .record-list {
+        display: grid;
+        gap: 1.25rem;
+    }
+
+    .record-card {
+        background: var(--health-card);
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+        border: 2px solid var(--health-border);
+        transition: all 0.3s;
+    }
+
+    .record-card:hover {
+        border-color: var(--health-primary);
+        transform: translateY(-4px);
+        box-shadow: 0 8px 32px rgba(220, 38, 38, 0.15);
+    }
+
+    .record-date {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--health-text);
+        margin-bottom: 1.25rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px dashed var(--health-border);
+    }
+
+    .record-date-icon {
+        font-size: 1.5rem;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .stat-card {
+        text-align: center;
+        padding: 1.25rem;
+        background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+        border-radius: 16px;
+        border: 1px solid #e2e8f0;
+    }
+
+    .stat-icon {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-value {
+        font-size: 1.75rem;
+        font-weight: 700;
+        line-height: 1.2;
+        margin-bottom: 0.25rem;
+    }
+
+    .stat-value.bp { color: #dc2626; }
+    .stat-value.hr { color: #2563eb; }
+    .stat-value.weight { color: #16a34a; }
+
+    .stat-label {
+        font-size: 0.9rem;
+        color: var(--health-text-muted);
+        text-transform: uppercase;
+        font-weight: 600;
+    }
+
+    .mood-display {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+        padding: 1rem;
+        background: linear-gradient(135deg, #fef3c7, #fefce8);
+        border-radius: 16px;
+    }
+
+    .mood-emoji {
+        font-size: 2.5rem;
+    }
+
+    .mood-text {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #92400e;
+    }
+
+    /* Actions */
+    .record-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        border-top: 2px dashed var(--health-border);
+    }
+
+    .btn-action {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 1rem;
+        border-radius: 12px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.2s;
+        border: 2px solid;
+    }
+
+    .btn-view {
+        background: #d1fae5;
+        color: #065f46;
+        border-color: #6ee7b7;
+    }
+
+    .btn-view:hover {
+        background: #065f46;
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    .btn-edit {
+        background: #dbeafe;
+        color: #1e40af;
+        border-color: #93c5fd;
+    }
+
+    .btn-edit:hover {
+        background: #1e40af;
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    .btn-delete {
+        background: #fee2e2;
+        color: #991b1b;
+        border-color: #fecaca;
+        cursor: pointer;
+    }
+
+    .btn-delete:hover {
+        background: #991b1b;
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    /* Flash Messages */
+    .alert {
+        padding: 1.25rem 1.5rem;
+        border-radius: 16px;
+        margin-bottom: 1.5rem;
+        font-size: 1.1rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .alert-success {
+        background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+        color: #065f46;
+        border: 2px solid #6ee7b7;
+    }
+
+    .alert-error {
+        background: linear-gradient(135deg, #fee2e2, #fecaca);
+        color: #991b1b;
+        border: 2px solid #fca5a5;
+    }
+
+    .alert-warning {
+        background: linear-gradient(135deg, #fef3c7, #fde68a);
+        color: #92400e;
+        border: 2px solid #fcd34d;
+    }
+
+    .alert-info {
+        background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+        color: #1e40af;
+        border: 2px solid #93c5fd;
+    }
+
+    /* Pagination */
+    .pagination-wrapper {
+        display: flex;
+        justify-content: center;
+        margin-top: 3rem;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+    }
+
+    .pagination-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.25rem;
+        background: white;
+        color: var(--health-text);
+        border: 2px solid var(--health-border);
+        border-radius: 12px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.2s;
+    }
+
+    .pagination-btn:hover:not(.disabled) {
+        border-color: var(--health-primary);
+        color: var(--health-primary);
+        transform: translateY(-2px);
+    }
+
+    .pagination-btn.active {
+        background: var(--health-primary);
+        color: white;
+        border-color: var(--health-primary);
+    }
+
+    .pagination-btn.disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        background: #f1f5f9;
+        color: #94a3b8;
+    }
+
+    @media (max-width: 640px) {
+        .health-title { font-size: 2rem; }
+        .stats-grid { grid-template-columns: repeat(2, 1fr); }
+        .record-actions {
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="health-wrapper">
+    <div class="health-container">
+        
+        {# Flash Messages #}
+        {% for message in app.flashes('success') %}
+            <div class="alert alert-success">✅ {{ message }}</div>
+        {% endfor %}
+        {% for message in app.flashes('error') %}
+            <div class="alert alert-error">❌ {{ message }}</div>
+        {% endfor %}
+        {% for message in app.flashes('warning') %}
+            <div class="alert alert-warning">⚠️ {{ message }}</div>
+        {% endfor %}
+        {% for message in app.flashes('info') %}
+            <div class="alert alert-info">ℹ️ {{ message }}</div>
+        {% endfor %}
+
+        <a href="{{ path('app_dashboard', {'_locale': app.request.locale}) }}" class="back-link">
+            ← Retour au tableau de bord
+        </a>
+        
+        <!-- Header -->
+        <div class="health-header">
+            <div class="health-header-icon">❤️</div>
+            <h1 class="health-title">Mon Journal de Santé</h1>
+            <p class="health-subtitle">Suivez vos indicateurs de bien-être</p>
+            <a href="{{ path('app_my_health_add', {'_locale': app.request.locale}) }}" class="btn-new-entry">
+                ➕ Nouvelle entrée
+            </a>
+            <div class="header-extra-btns">
+                <a href="{{ path('app_medicament_alternatives', {'_locale': app.request.locale}) }}" class="btn-ml">
+                    🧬 Alternatives ML
+                </a>
+                <a href="{{ path('app_map_index', {'_locale': app.request.locale}) }}" class="btn-map">
+                    📍 Carte Santé (Pharmacies & Hôpitaux)
+                </a>
+            </div>
+        </div>
+
+        <!-- Records List -->
+        <div class="record-list">
+            {% if health_records|length == 0 %}
+            <div class="record-card" style="text-align: center; padding: 3rem;">
+                <div style="font-size: 4rem; margin-bottom: 1rem;">📋</div>
+                <p style="font-size: 1.25rem; color: #64748b; margin-bottom: 1rem;">Aucune entrée de santé trouvée.</p>
+                <a href="{{ path('app_my_health_add', {'_locale': app.request.locale}) }}" class="btn-new-entry" style="display: inline-flex;">
+                    ➕ Ajouter une entrée
+                </a>
+            </div>
+            {% else %}
+            {% for record in health_records %}
+            <div class="record-card">
+                <div class="record-date">
+                    <span class="record-date-icon">📅</span>
+                    {{ record.date|date('l d F Y') }}
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">🩺</div>
+                        <div class="stat-value bp">{{ record.tensionArterielle ?? '-' }}</div>
+                        <div class="stat-label">Tension</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">💓</div>
+                        <div class="stat-value hr">{{ record.frequenceCardiaque ?? '-' }}</div>
+                        <div class="stat-label">Pouls (BPM)</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🌡️</div>
+                        <div class="stat-value weight">{{ record.temperature ? (record.temperature ~ ' °C') : '-' }}</div>
+                        <div class="stat-label">Température</div>
+                    </div>
+                </div>
+                <div class="mood-display">
+                    <span class="mood-emoji">
+                        {% if record.humeur == 'excellent' %}😊
+                        {% elseif record.humeur == 'good' or record.humeur == 'bon' %}🙂
+                        {% elseif record.humeur == 'average' or record.humeur == 'moyen' %}😐
+                        {% else %}😑{% endif %}
+                    </span>
+                    <span class="mood-text">
+                        Humeur: {% if record.humeur == 'excellent' %}Excellente{% elseif record.humeur == 'good' or record.humeur == 'bon' %}Bonne{% elseif record.humeur == 'average' or record.humeur == 'moyen' %}Moyenne{% else %}{{ record.humeur ?? 'Non renseigné' }}{% endif %}
+                    </span>
+                </div>
+
+                <!-- Actions -->
+                <div class="record-actions">
+                    <a href="{{ path('app_my_health_show', {'id': record.id, '_locale': app.request.locale}) }}" class="btn-action btn-view">
+                        👁️ Voir
+                    </a>
+                    <a href="{{ path('app_my_health_edit', {'id': record.id, '_locale': app.request.locale}) }}" class="btn-action btn-edit">
+                        ✏️ Modifier
+                    </a>
+                    <form method="post" action="{{ path('app_my_health_delete', {'id': record.id, '_locale': app.request.locale}) }}" style="flex: 1;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette entrée ?');">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ record.id) }}">
+                        <button type="submit" class="btn-action btn-delete" style="width: 100%; border: 2px solid #fecaca;">
+                            🗑️ Supprimer
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+
+            {# Pagination Controls #}
+            {% if total_pages is defined and total_pages > 1 %}
+            <div class="pagination-wrapper">
+                {% if current_page > 1 %}
+                    <a href="{{ path('app_my_health', {'_locale': app.request.locale, 'page': current_page - 1}) }}" class="pagination-btn">
+                        ⬅️ Précédent
+                    </a>
+                {% else %}
+                    <span class="pagination-btn disabled">⬅️ Précédent</span>
+                {% endif %}
+
+                {% for i in 1..total_pages %}
+                    {% if i == current_page %}
+                        <span class="pagination-btn active">{{ i }}</span>
+                    {% else %}
+                        <a href="{{ path('app_my_health', {'_locale': app.request.locale, 'page': i}) }}" class="pagination-btn">{{ i }}</a>
+                    {% endif %}
+                {% endfor %}
+
+                {% if current_page < total_pages %}
+                    <a href="{{ path('app_my_health', {'_locale': app.request.locale, 'page': current_page + 1}) }}" class="pagination-btn">
+                        Suivant ➡️
+                    </a>
+                {% else %}
+                    <span class="pagination-btn disabled">Suivant ➡️</span>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            {% endif %}
+        </div>
+
+    </div>
+</div>
+
+<!-- Unified Chat & Voice Launcher -->
+<button class="chat-toggle-btn unified-launcher" id="chat-toggle" aria-label="Chat & Voice Assistant" title="Chat & Voice Assistant">
+    <svg class="icon-chat" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+    </svg>
+    <span class="mic-indicator" title="Voice Assistant available">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+            <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+        </svg>
+    </span>
+    <span class="notification-badge" style="display: none;">1</span>
+</button>
+
+<!-- Smart Chat Container -->
+<div id="smart-chat-container">
+    <div class="chat-window" id="chat-window">
+        <div class="chat-header">
+            <div class="header-info">
+                <div class="avatar-ring">
+                    <img src="https://ui-avatars.com/api/?name=Health&background=1976D2&color=fff" alt="Health Agent">
+                    <span class="status-dot"></span>
+                </div>
+                <div class="agent-details">
+                    <span class="agent-name">Assistant Santé</span>
+                    <span class="agent-status" id="agent-status">Votre bien-être d'abord</span>
+                </div>
+            </div>
+            <select id="persona-select" class="persona-select" title="AI Persona">
+                <option value="health">🏊 Santé</option>
+                <option value="default">🤖 Assistant</option>
+            </select>
+            <div class="header-actions">
+                <button class="header-icon-btn" id="export-chat" title="Exporter">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                </button>
+                <button class="header-icon-btn" id="clear-chat" title="Nouveau">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 20h9"></path>
+                        <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                    </svg>
+                </button>
+                <button class="close-btn" id="close-chat" aria-label="Fermer">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 6L6 18M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <div class="drop-zone" id="drop-zone">
+            <div class="drop-zone-content">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="17 8 12 3 7 8"></polyline>
+                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                </svg>
+                <span>Déposez un fichier ici</span>
+            </div>
+        </div>
+        <div class="chat-messages" id="chat-messages">
+            <div class="message bot-message welcome">
+                <p>Bonjour! Je suis votre <strong>Assistant Santé</strong> 🏊<br>
+                   Prêt à vous accompagner dans votre parcours de bien-être!</p>
+                <span class="timestamp">Maintenant</span>
+            </div>
+        </div>
+        <div class="usage-stats" id="usage-stats">
+            <span>💬 <span id="msg-count">0</span> msgs</span>
+            <span>📈 <span id="token-count">0</span> tokens</span>
+        </div>
+        <div class="suggested-prompts" id="suggested-prompts">
+            <button class="prompt-chip" data-prompt="Conseils pour une alimentation équilibrée">🍎 Nutrition</button>
+            <button class="prompt-chip" data-prompt="Exercices pour seniors">🏃 Exercice</button>
+            <button class="prompt-chip" data-prompt="Gérer le stress au quotidien">🧘 Stress</button>
+            <button class="prompt-chip" data-prompt="Améliorer mon sommeil">😴 Sommeil</button>
+        </div>
+        <div class="chat-input-area">
+            <div class="typing-indicator" id="typing-indicator">
+                <span></span><span></span><span></span>
+            </div>
+            <div id="image-preview-container" class="image-preview hidden">
+                <img id="image-preview" src="" alt="Preview">
+                <button id="remove-image" class="remove-btn">×</button>
+            </div>
+            <div class="input-wrapper">
+                <input type="file" id="image-upload" accept="image/*" style="display: none;">
+                <input type="file" id="file-upload" accept=".pdf,.txt" style="display: none;">
+                <button id="upload-btn" title="Télécharger Image">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path>
+                    </svg>
+                </button>
+                <button id="mic-input-btn" title="Entrée vocale" class="mic-input-btn">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                        <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                        <line x1="12" y1="19" x2="12" y2="23"></line>
+                        <line x1="8" y1="23" x2="16" y2="23"></line>
+                    </svg>
+                </button>
+                <button id="voice-call-btn" title="Appel vocal IA" class="voice-call-btn">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                    </svg>
+                </button>
+                <input type="text" id="user-input" placeholder="Posez vos questions sur la santé..." autocomplete="off">
+                <button id="send-btn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="22" y1="2" x2="11" y2="13"></line>
+                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Voice Call Overlay -->
+<div class="voice-call-overlay" id="voice-call-overlay">
+    <div class="voice-call-container">
+        <div class="voice-orb-wrapper">
+            <div class="voice-orb" id="voice-orb">
+                <div class="orb-inner"></div>
+            </div>
+            <div class="voice-orb-ring ring-1"></div>
+            <div class="voice-orb-ring ring-2"></div>
+            <div class="voice-orb-ring ring-3"></div>
+        </div>
+        <div class="voice-call-status" id="voice-call-status">Connecting...</div>
+        <div class="voice-transcript" id="voice-transcript"></div>
+        <div class="voice-ai-text" id="voice-ai-text"></div>
+        <div class="voice-call-controls">
+            <button class="voice-control-btn mute-btn" id="voice-mute-btn" title="Mute/Unmute">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                    <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                    <line x1="12" y1="19" x2="12" y2="23"></line>
+                    <line x1="8" y1="23" x2="16" y2="23"></line>
+                </svg>
+            </button>
+            <button class="voice-control-btn end-call-btn" id="voice-end-call" title="End Call">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M22 10.5c-1.6-1.6-3.7-2.5-5.9-2.5-1.4 0-2.7.3-3.9.8l1.5 1.5c.7-.2 1.5-.3 2.3-.3 1.6 0 3.1.6 4.2 1.8l1.8-1.8zM7 12.5c-.8 0-1.6.1-2.3.3L3.2 11.3C4.3 10.8 5.6 10.5 7 10.5c2.2 0 4.3.9 5.9 2.5l-1.8 1.8c-1.1-1.2-2.6-1.8-4.1-1.8zm5 3.5h5v5h-5v-5zm-10 0h5v5H2v-5z"/>
+                </svg>
+            </button>
+            <button class="voice-control-btn speaker-btn" id="voice-speaker-btn" title="Speaker On/Off">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                    <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                    <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+                </svg>
+            </button>
+        </div>
+        <!-- Permanent text input (always visible, like Siri/Google Assistant) -->
+        <div class="voice-text-bar" id="voice-text-bar">
+            <input type="text" id="voice-text-field" placeholder="Type or speak..." autocomplete="off">
+            <button id="voice-text-send" title="Send">➤</button>
+        </div>
+
+        <div class="voice-call-timer" id="voice-call-timer">00:00</div>
+    </div>
+</div>
+
+<link rel="stylesheet" href="{{ asset('chat/style.css') }}?v=8">
+<script src="{{ asset('chat/api.js') }}?v=8"></script>
+<script src="{{ asset('chat/script.js') }}?v=8"></script>
+
+<script>
+// Legacy chat functionality removed - using new AI chat system
+{% endblock %}

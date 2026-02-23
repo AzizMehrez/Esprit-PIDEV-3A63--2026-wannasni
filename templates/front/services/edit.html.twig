@@ -1,0 +1,474 @@
+{% extends 'base_dashboard.html.twig' %}
+
+{% block title %}Modifier le Service - WANNASNI{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    :root {
+        --dash-primary: #2E7D32;
+        --dash-primary-light: #4CAF50;
+        --dash-primary-soft: rgba(46, 125, 50, 0.08);
+        --dash-bg: #f8faf8;
+        --dash-card: #ffffff;
+        --dash-text: #1a1a2e;
+        --dash-text-muted: #64748b;
+        --dash-border: #e2e8f0;
+        --dash-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+        --dash-radius: 20px;
+        --dash-radius-sm: 12px;
+    }
+
+    body { background: var(--dash-bg); }
+
+    .page-wrapper {
+        min-height: 100vh;
+        padding: 2rem 1.5rem 4rem;
+        background: linear-gradient(180deg, #eff6ff 0%, var(--dash-bg) 30%);
+    }
+
+    .page-container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #2563eb;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.95rem;
+        margin-bottom: 1.5rem;
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        transition: all 0.2s;
+    }
+
+    .back-link:hover {
+        background: rgba(37, 99, 235, 0.08);
+    }
+
+    .form-card {
+        background: var(--dash-card);
+        border-radius: var(--dash-radius);
+        box-shadow: var(--dash-shadow);
+        border: 1px solid var(--dash-border);
+        overflow: hidden;
+    }
+
+    .form-header {
+        padding: 1.5rem 2rem;
+        border-bottom: 1px solid var(--dash-border);
+        background: linear-gradient(to right, rgba(37, 99, 235, 0.08), transparent);
+    }
+
+    .form-title {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-family: 'Playfair Display', serif;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--dash-text);
+    }
+
+    .form-title-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
+        background: linear-gradient(135deg, #2563eb, #1d4ed8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.25rem;
+    }
+
+    .form-body {
+        padding: 2rem;
+    }
+
+    .form-section {
+        margin-bottom: 2.5rem;
+        padding-bottom: 2rem;
+        border-bottom: 2px solid var(--dash-border);
+    }
+
+    .form-section:last-of-type {
+        border-bottom: none;
+    }
+
+    .section-title {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--dash-text);
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+
+    .form-label {
+        display: block;
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: var(--dash-text);
+        margin-bottom: 0.75rem;
+    }
+
+    .form-label .required {
+        color: #ef4444;
+    }
+
+    .service-types {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+
+    .service-type-option {
+        padding: 1.5rem;
+        border: 2px solid var(--dash-border);
+        border-radius: var(--dash-radius-sm);
+        cursor: pointer;
+        transition: all 0.2s;
+        text-align: center;
+    }
+
+    .service-type-option:hover {
+        border-color: #2563eb;
+    }
+
+    .service-type-option.selected {
+        border-color: #2563eb;
+        background: rgba(37, 99, 235, 0.05);
+        box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+    }
+
+    .service-type-option input {
+        display: none;
+    }
+
+    .type-icon {
+        font-size: 2.5rem;
+        display: block;
+        margin-bottom: 0.75rem;
+    }
+
+    .type-name {
+        font-weight: 700;
+        font-size: 1rem;
+        color: var(--dash-text);
+        margin-bottom: 0.35rem;
+    }
+
+    .type-desc {
+        font-size: 0.8rem;
+        color: var(--dash-text-muted);
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 1rem 1.25rem;
+        font-size: 1rem;
+        border: 2px solid var(--dash-border);
+        border-radius: var(--dash-radius-sm);
+        background: white;
+        transition: all 0.2s;
+        font-family: inherit;
+    }
+
+    .form-input:focus {
+        outline: none;
+        border-color: #2563eb;
+        box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+    }
+
+    .urgence-options {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.75rem;
+    }
+
+    .urgence-option {
+        text-align: center;
+        padding: 1rem;
+        border: 2px solid var(--dash-border);
+        border-radius: var(--dash-radius-sm);
+        cursor: pointer;
+        transition: all 0.2s;
+        font-weight: 600;
+        font-size: 0.95rem;
+    }
+
+    .urgence-option:hover {
+        border-color: #2563eb;
+    }
+
+    .urgence-option.selected {
+        border-color: #2563eb;
+        background: rgba(37, 99, 235, 0.05);
+    }
+
+    .urgence-option input { display: none; }
+
+    .checkbox-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1rem;
+        border: 2px solid var(--dash-border);
+        border-radius: var(--dash-radius-sm);
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .checkbox-wrapper:hover {
+        border-color: #2563eb;
+        background: rgba(37, 99, 235, 0.02);
+    }
+
+    .checkbox-wrapper input[type="checkbox"] {
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+    }
+
+    .checkbox-label {
+        font-weight: 600;
+        font-size: 1rem;
+        color: var(--dash-text);
+    }
+
+    .btn-group {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+
+    .btn {
+        padding: 1rem 2rem;
+        font-size: 1rem;
+        font-weight: 600;
+        border-radius: var(--dash-radius-sm);
+        cursor: pointer;
+        text-decoration: none;
+        text-align: center;
+        transition: all 0.2s;
+        border: none;
+    }
+
+    .btn-primary {
+        flex: 1;
+        background: linear-gradient(135deg, #2563eb, #1d4ed8);
+        color: white;
+        box-shadow: 0 4px 16px rgba(37, 99, 235, 0.25);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(37, 99, 235, 0.35);
+    }
+
+    .btn-secondary {
+        background: white;
+        color: var(--dash-text-muted);
+        border: 2px solid var(--dash-border);
+    }
+
+    .btn-secondary:hover {
+        border-color: #2563eb;
+        color: #2563eb;
+    }
+
+    .alert {
+        padding: 1rem 1.25rem;
+        margin-bottom: 1.5rem;
+        border-radius: 12px;
+        font-size: 1rem;
+    }
+
+    .alert-success { background: #d1fae5; color: #065f46; border-left: 4px solid #10b981; }
+    .alert-danger { background: #fee2e2; color: #991b1b; border-left: 4px solid #ef4444; }
+
+    @media (max-width: 640px) {
+        .service-types, .urgence-options, .form-row {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="page-wrapper">
+    <div class="page-container">
+        <a href="{{ path('app_my_services', {'_locale': app.request.locale}) }}" class="back-link">
+            ← Retour aux services
+        </a>
+
+        <div class="form-card">
+            <div class="form-header">
+                <h1 class="form-title">
+                    <span class="form-title-icon">✏️</span>
+                    Modifier le Service
+                </h1>
+            </div>
+            <div class="form-body">
+                {% for message in app.flashes('success') %}
+                    <div class="alert alert-success">✅ {{ message }}</div>
+                {% endfor %}
+
+                {% for message in app.flashes('error') %}
+                    <div class="alert alert-danger">❌ {{ message }}</div>
+                {% endfor %}
+
+                <form method="post" novalidate>
+                    
+                    <!-- Section 1: Informations de Contact -->
+                    <div class="form-section">
+                        <h2 class="section-title">📞 Informations de Contact</h2>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Téléphone</label>
+                                <input type="tel" class="form-input" name="senior_telephone" value="{{ service.seniorTelephone }}" placeholder="+216 XX XXX XXX">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Email</label>
+                                <input type="email" class="form-input" name="senior_email" value="{{ service.seniorEmail }}" placeholder="votre@email.com">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 2: Type de Service -->
+                    <div class="form-section">
+                        <h2 class="section-title">🛎️ Type de Service</h2>
+                        <div class="form-group">
+                            <label class="form-label"><span class="required">*</span> Choisissez un service</label>
+                            <div class="service-types">
+                                {% for type in service_types %}
+                                <label class="service-type-option {% if service.typeService == type.id %}selected{% endif %}">
+                                    <input type="radio" name="type_service" value="{{ type.id }}" {% if service.typeService == type.id %}checked{% endif %} required>
+                                    <span class="type-icon">{{ type.icon }}</span>
+                                    <div class="type-name">{{ type.name }}</div>
+                                    <div class="type-desc">{{ type.description }}</div>
+                                </label>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label"><span class="required">*</span> Description de votre besoin</label>
+                            <textarea class="form-input" name="description" rows="4" required>{{ service.description }}</textarea>
+                        </div>
+                    </div>
+
+                    <!-- Section 3: Adresse -->
+                    <div class="form-section">
+                        <h2 class="section-title">📍 Adresse du Service</h2>
+                        <div class="form-group">
+                            <label class="form-label">Adresse complète</label>
+                            <input type="text" class="form-input" name="adresse" value="{{ service.adresse }}">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Ville</label>
+                                <input type="text" class="form-input" name="ville" value="{{ service.ville }}">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Code Postal</label>
+                                <input type="text" class="form-input" name="code_postal" value="{{ service.codePostal }}">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 4: Planification -->
+                    <div class="form-section">
+                        <h2 class="section-title">📅 Planification</h2>
+                        <div class="form-group">
+                            <label class="form-label">⚡ Niveau d'urgence</label>
+                            <div class="urgence-options">
+                                <label class="urgence-option {% if service.niveauUrgence == 'normale' %}selected{% endif %}">
+                                    <input type="radio" name="niveau_urgence" value="normale" {% if service.niveauUrgence == 'normale' %}checked{% endif %}>
+                                    🟢 Normale
+                                </label>
+                                <label class="urgence-option {% if service.niveauUrgence == 'moyenne' %}selected{% endif %}">
+                                    <input type="radio" name="niveau_urgence" value="moyenne" {% if service.niveauUrgence == 'moyenne' %}checked{% endif %}>
+                                    🟡 Moyenne
+                                </label>
+                                <label class="urgence-option {% if service.niveauUrgence == 'urgente' %}selected{% endif %}">
+                                    <input type="radio" name="niveau_urgence" value="urgente" {% if service.niveauUrgence == 'urgente' %}checked{% endif %}>
+                                    🔴 Urgente
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">📅 Date souhaitée</label>
+                            <input type="date" class="form-input" name="date_souhaitee" value="{% if service.dateSouhaitee %}{{ service.dateSouhaitee|date('Y-m-d') }}{% endif %}">
+                        </div>
+                    </div>
+
+                    <!-- Section 5: Budget -->
+                    <div class="form-section">
+                        <h2 class="section-title">💰 Budget Estimé</h2>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Budget Minimum (TND)</label>
+                                <input type="number" step="0.01" class="form-input" name="budget_minimum" value="{{ service.budgetMinimum }}">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Budget Maximum (TND)</label>
+                                <input type="number" step="0.01" class="form-input" name="budget_maximum" value="{{ service.budgetMaximum }}">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 6: Notification -->
+                    <div class="form-section">
+                        <h2 class="section-title">🔔 Notifications</h2>
+                        <div class="form-group">
+                            <label class="checkbox-wrapper">
+                                <input type="checkbox" name="notifier_proches" {% if service.notifierProches %}checked{% endif %}>
+                                <span class="checkbox-label">Notifier mes proches de cette demande</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="btn-group">
+                        <button type="submit" class="btn btn-primary">💾 Enregistrer les modifications</button>
+                        <a href="{{ path('app_my_services', {'_locale': app.request.locale}) }}" class="btn btn-secondary">Annuler</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.querySelectorAll('.service-type-option').forEach(option => {
+    option.addEventListener('click', () => {
+        document.querySelectorAll('.service-type-option').forEach(o => o.classList.remove('selected'));
+        option.classList.add('selected');
+    });
+});
+
+document.querySelectorAll('.urgence-option').forEach(option => {
+    option.addEventListener('click', () => {
+        document.querySelectorAll('.urgence-option').forEach(o => o.classList.remove('selected'));
+        option.classList.add('selected');
+    });
+});
+</script>
+{% endblock %}

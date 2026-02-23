@@ -1,0 +1,117 @@
+{% extends 'base_back.html.twig' %}
+
+{% block title %}Détail Rapport #{{ report.id }}{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Rapport Hebdomadaire #{{ report.id }}</h1>
+        <a href="{{ path('app_nutritionist_reports') }}" class="d-none d-sm-inline-block btn btn-sm btn-secondary shadow-sm">
+            <i class="fas fa-arrow-left fa-sm text-white-50"></i> Retour
+        </a>
+    </div>
+
+    <div class="row">
+
+        <!-- Senior Info Card -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Patient (Senior)</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ report.senior.firstName }} {{ report.senior.lastName }}
+                            </div>
+                            <div class="text-xs text-muted mt-1">
+                                Période: {{ report.periodeDebut|date('d/m') }} - {{ report.periodeFin|date('d/m') }}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-user fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Compliance Card -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Taux de Conformité</div>
+                            <div class="row no-gutters align-items-center">
+                                <div class="col-auto">
+                                    <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">{{ report.tauxConformite|round }}%</div>
+                                </div>
+                                <div class="col">
+                                    <div class="progress progress-sm mr-2">
+                                        <div class="progress-bar bg-success" role="progressbar"
+                                            style="width: {{ report.tauxConformite }}%" aria-valuenow="{{ report.tauxConformite }}" aria-valuemin="0"
+                                            aria-valuemax="100"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-clipboard-check fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- AI Suggestions -->
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-robot mr-2"></i>Analyse IA & Suggestions
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <strong>Suggestions générées par Gemini :</strong>
+                    </div>
+                    {% if report.suggestionsIA %}
+                        <div class="markdown-body">
+                            {{ report.suggestionsIA|nl2br }}
+                        </div>
+                    {% else %}
+                        <p class="text-muted">Aucune suggestion disponible.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Problematic Foods -->
+        <div class="col-lg-6 mb-4">
+             <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-danger">Aliments Problématiques</h6>
+                </div>
+                <div class="card-body">
+                    {% if report.alimentsProblematiques is not empty %}
+                        <ul class="list-group">
+                            {% for food in report.alimentsProblematiques %}
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    {{ food }}
+                                    <span class="badge badge-danger badge-pill">!</span>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="text-success">Aucun aliment problématique détecté cette semaine.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

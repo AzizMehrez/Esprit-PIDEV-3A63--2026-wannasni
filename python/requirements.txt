@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+tensorflow
+numpy
+pandas
+python-multipart
+opencv-python
+scikit-image
+scikit-learn
+requests

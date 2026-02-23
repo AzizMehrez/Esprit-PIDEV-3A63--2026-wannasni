@@ -1,0 +1,513 @@
+{% extends 'base_dashboard.html.twig' %}
+
+{% block title %}Paiement - {{ plan.name }} - SilverAssist Premium{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    :root {
+        --dash-primary: #2E7D32;
+        --dash-primary-light: #4CAF50;
+        --dash-primary-soft: rgba(46, 125, 50, 0.08);
+        --dash-accent: #FF6B35;
+        --dash-bg: #f8faf8;
+        --dash-text: #1a1a2e;
+        --dash-text-muted: #64748b;
+        --dash-border: #e2e8f0;
+        --dash-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+        --dash-radius: 20px;
+        --dash-radius-sm: 12px;
+    }
+    body { background: var(--dash-bg); }
+
+    .checkout-wrapper {
+        min-height: 100vh;
+        padding: 2rem 1.5rem 4rem;
+        background: linear-gradient(180deg, #f0f7f0 0%, var(--dash-bg) 30%);
+    }
+    .checkout-container { max-width: 900px; margin: 0 auto; }
+
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--dash-primary);
+        text-decoration: none;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+    }
+    .back-link:hover { text-decoration: underline; }
+
+    /* Flash Messages */
+    .flash-msg {
+        padding: 1rem 1.5rem;
+        border-radius: var(--dash-radius-sm);
+        margin-bottom: 1.25rem;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    .flash-success { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+    .flash-error { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+
+    /* Layout */
+    .checkout-layout {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+    }
+
+    /* Summary Card */
+    .checkout-summary {
+        background: white;
+        border-radius: var(--dash-radius);
+        padding: 2rem;
+        box-shadow: var(--dash-shadow);
+        border: 2px solid var(--dash-primary);
+        position: sticky;
+        top: 2rem;
+    }
+    .summary-icon { font-size: 3rem; text-align: center; margin-bottom: 1rem; }
+    .summary-plan { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: var(--dash-primary); text-align: center; margin-bottom: 0.5rem; }
+    .summary-price { font-size: 2.5rem; font-weight: 800; text-align: center; margin-bottom: 1.5rem; }
+    .summary-price span { font-size: 1rem; font-weight: 400; color: var(--dash-text-muted); }
+
+    .summary-features { list-style: none; padding: 0; margin: 0 0 1.5rem; }
+    .summary-features li {
+        padding: 0.6rem 0;
+        color: var(--dash-text);
+        font-size: 0.95rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        border-bottom: 1px solid #f1f5f9;
+    }
+    .summary-features li:last-child { border: none; }
+    .summary-features li .feat-icon { color: var(--dash-primary); font-size: 1.1rem; flex-shrink: 0; }
+
+    .summary-total {
+        background: var(--dash-primary-soft);
+        border-radius: var(--dash-radius-sm);
+        padding: 1.25rem;
+        text-align: center;
+    }
+    .summary-total-label { font-size: 0.9rem; color: var(--dash-text-muted); margin-bottom: 0.25rem; }
+    .summary-total-amount { font-size: 1.8rem; font-weight: 700; color: var(--dash-primary); }
+
+    /* Payment Form */
+    .checkout-form-card {
+        background: white;
+        border-radius: var(--dash-radius);
+        padding: 2rem;
+        box-shadow: var(--dash-shadow);
+    }
+    .checkout-form-card h2 { font-family: 'Playfair Display', serif; color: var(--dash-primary); margin-bottom: 0.5rem; font-size: 1.4rem; }
+    .checkout-form-card .subtitle { color: var(--dash-text-muted); margin-bottom: 1.5rem; }
+
+    .secure-badge {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: #dcfce7;
+        color: #166534;
+        padding: 0.6rem 1rem;
+        border-radius: var(--dash-radius-sm);
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group { margin-bottom: 1.25rem; }
+    .form-label {
+        display: block;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--dash-text);
+        margin-bottom: 0.4rem;
+    }
+    .form-input {
+        width: 100%;
+        padding: 0.85rem 1rem;
+        border: 2px solid var(--dash-border);
+        border-radius: var(--dash-radius-sm);
+        font-size: 1rem;
+        transition: border-color 0.2s;
+        box-sizing: border-box;
+    }
+    .form-input:focus { outline: none; border-color: var(--dash-primary); box-shadow: 0 0 0 3px rgba(46,125,50,0.1); }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+    .form-select {
+        width: 100%;
+        padding: 0.85rem 1rem;
+        border: 2px solid var(--dash-border);
+        border-radius: var(--dash-radius-sm);
+        font-size: 1rem;
+        background: white;
+        cursor: pointer;
+    }
+    .form-select:focus { outline: none; border-color: var(--dash-primary); }
+
+    /* Submit */
+    .checkout-submit {
+        width: 100%;
+        padding: 1.1rem;
+        border: none;
+        border-radius: 50px;
+        font-size: 1.1rem;
+        font-weight: 700;
+        cursor: pointer;
+        background: linear-gradient(135deg, var(--dash-primary), var(--dash-primary-light));
+        color: white;
+        margin-top: 0.5rem;
+        transition: all 0.2s;
+    }
+    .checkout-submit:hover { box-shadow: 0 6px 24px rgba(46,125,50,0.35); transform: translateY(-2px); }
+    .checkout-submit:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+    .terms-text {
+        font-size: 0.8rem;
+        color: var(--dash-text-muted);
+        text-align: center;
+        margin-top: 1rem;
+        line-height: 1.5;
+    }
+
+    /* Simulation Notice */
+    .simulation-notice {
+        background: #fef3c7;
+        border: 1px solid #fbbf24;
+        border-radius: var(--dash-radius-sm);
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+        font-size: 0.9rem;
+        color: #92400e;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    /* Active sub warning */
+    .active-sub-warning {
+        background: #fee2e2;
+        border: 2px solid #ef4444;
+        border-radius: var(--dash-radius-sm);
+        padding: 1.25rem;
+        margin-bottom: 1.5rem;
+        color: #991b1b;
+    }
+    .active-sub-warning h3 { margin: 0 0 0.5rem; font-size: 1.1rem; }
+    .active-sub-warning p { margin: 0; font-size: 0.95rem; }
+    .active-sub-warning a { color: #1e40af; font-weight: 600; text-decoration: underline; }
+
+    /* Card validation feedback */
+    .form-input.valid { border-color: #22c55e; background: #f0fdf4; }
+    .form-input.invalid { border-color: #ef4444; background: #fef2f2; }
+    .field-error { color: #dc2626; font-size: 0.8rem; margin-top: 0.25rem; display: none; }
+    .field-error.show { display: block; }
+
+    @media (max-width: 768px) {
+        .checkout-wrapper { padding: 1rem 1rem 6rem; }
+        .checkout-layout { grid-template-columns: 1fr; }
+        .checkout-summary { position: static; order: -1; }
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="checkout-wrapper">
+    <div class="checkout-container">
+
+        {# Flash Messages #}
+        {% for label, messages in app.flashes %}
+            {% for message in messages %}
+                <div class="flash-msg flash-{{ label }}">
+                    {% if label == 'success' %}✅{% else %}❌{% endif %}
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endfor %}
+
+        <a href="{{ path('app_subscription_plans', {'_locale': app.request.locale}) }}" class="back-link">← Retour aux plans</a>
+
+        <div class="checkout-layout">
+            {# Payment Form #}
+            <div class="checkout-form-card">
+                <h2>💳 Paiement sécurisé</h2>
+                <p class="subtitle">Finalisez votre abonnement {{ plan.name }}</p>
+
+                <div class="secure-badge">🔒 Connexion sécurisée SSL — Paiement chiffré</div>
+
+                {# ═══ Warning si abonnement déjà actif ═══ #}
+                {% if currentSubscription is defined and currentSubscription %}
+                    <div class="active-sub-warning">
+                        <h3>⚠️ Vous avez déjà un abonnement actif</h3>
+                        <p>
+                            Votre plan <strong>{{ currentSubscription.plan.name }}</strong> est actif depuis le {{ currentSubscription.startDate|date('d/m/Y') }}.
+                            Pour changer de plan, rendez-vous dans <a href="{{ path('app_subscription', {'_locale': app.request.locale}) }}">votre espace abonnement</a>.
+                        </p>
+                    </div>
+                {% endif %}
+
+                <form method="post" action="{{ path('app_subscription_subscribe', {'planSlug': plan.slug, '_locale': app.request.locale}) }}" id="checkoutForm" novalidate>
+                    {# Senior selector for family #}
+                    {% if isFamily %}
+                        <div class="form-group">
+                            <label class="form-label">👤 Senior bénéficiaire</label>
+                            <select name="senior_id" class="form-select" required>
+                                <option value="">-- Choisir un senior --</option>
+                                {% for senior in seniors %}
+                                    <option value="{{ senior.id }}" {% if app.request.query.get('senior_id') == senior.id ~ '' %}selected{% endif %}>
+                                        {{ senior.fullName }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    {% endif %}
+
+                    <div class="form-group">
+                        <label class="form-label">Nom du titulaire</label>
+                        <input type="text" class="form-input" id="cardHolder" name="card_holder" placeholder="Jean Dupont" value="{{ app.user.fullName }}" required minlength="3">
+                        <div class="field-error" id="holderError">Le nom doit contenir au moins 3 caractères.</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Numéro de carte <span style="font-weight: 400; color: var(--dash-text-muted);">(Stripe test uniquement)</span></label>
+                        <input type="text" class="form-input" id="cardNumber" name="card_number" placeholder="4242 4242 4242 4242" maxlength="19" required autocomplete="off">
+                        <div class="field-error" id="cardError">Numéro invalide — utilisez une carte de test Stripe.</div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Expiration</label>
+                            <input type="text" class="form-input" id="cardExpiry" name="card_expiry" placeholder="MM/AA" maxlength="5" required autocomplete="off">
+                            <div class="field-error" id="expiryError">Date invalide ou carte expirée.</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">CVV</label>
+                            <input type="text" class="form-input" id="cardCvv" name="card_cvv" placeholder="123" maxlength="4" required autocomplete="off">
+                            <div class="field-error" id="cvvError">3 ou 4 chiffres requis.</div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="checkout-submit" id="submitBtn" {% if currentSubscription is defined and currentSubscription %}disabled title="Vous avez déjà un abonnement actif"{% endif %}>
+                        🔐 Payer {{ plan.formattedPrice }} et s'abonner
+                    </button>
+
+                    <p class="terms-text">
+                        En cliquant sur « Payer », vous acceptez les conditions d'abonnement SilverAssist Premium.
+                        Votre carte sera débitée de {{ plan.formattedPrice }} chaque mois. Annulable à tout moment.
+                    </p>
+                </form>
+            </div>
+
+            {# Summary Card #}
+            <div class="checkout-summary">
+                <div class="summary-icon">
+                    {% if plan.slug == 'essentiel' %}🥉
+                    {% elseif plan.slug == 'confort' %}🥈
+                    {% else %}🥇{% endif %}
+                </div>
+                <div class="summary-plan">{{ plan.name }}</div>
+                <div class="summary-price">{{ plan.priceMonthly|number_format(2, ',', '') }}<span>€/mois</span></div>
+
+                <ul class="summary-features">
+                    <li><span class="feat-icon">✓</span> Réduction de {{ plan.discountPercent }}% sur les interventions</li>
+                    <li><span class="feat-icon">✓</span> {{ plan.maintenanceLabel }}</li>
+                    {% if plan.prioriteUrgences %}
+                        <li><span class="feat-icon">✓</span> Priorité dans les urgences</li>
+                    {% endif %}
+                    {% if plan.technicienDedie %}
+                        <li><span class="feat-icon">✓</span> Technicien personnel dédié</li>
+                    {% endif %}
+                    <li><span class="feat-icon">✓</span> Badge Abonné Premium</li>
+                    <li><span class="feat-icon">✓</span> Récapitulatif mensuel des économies</li>
+                </ul>
+
+                <div class="summary-total">
+                    <div class="summary-total-label">Montant du prélèvement mensuel</div>
+                    <div class="summary-total-amount">{{ plan.priceMonthly|number_format(2, ',', '') }}€</div>
+                </div>
+
+                <div style="margin-top: 1.25rem; padding: 1rem; background: #f0fdf4; border-radius: var(--dash-radius-sm); font-size: 0.9rem; color: #166534; text-align: center;">
+                    💡 <strong>Économie estimée :</strong> Jusqu'à {{ plan.discountPercent }}% sur chaque intervention demandée
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+// Cartes Stripe test valides
+const VALID_CARDS = [
+    '4242424242424242', '4000056655665556', '5555555555554444',
+    '5200828282828210', '378282246310005', '371449635398431',
+    '6011111111111117', '3056930009020004', '3566002020360505',
+    '6200000000000005'
+];
+
+// Validation temps réel
+function validateCard() {
+    const raw = document.getElementById('cardNumber').value.replace(/\s/g, '');
+    const el = document.getElementById('cardNumber');
+    const err = document.getElementById('cardError');
+
+    if (raw.length === 0) {
+        el.classList.remove('valid', 'invalid');
+        err.classList.remove('show');
+        return false;
+    }
+
+    if (VALID_CARDS.includes(raw)) {
+        el.classList.add('valid');
+        el.classList.remove('invalid');
+        err.classList.remove('show');
+        return true;
+    } else {
+        el.classList.add('invalid');
+        el.classList.remove('valid');
+        if (raw.length >= 13) err.classList.add('show');
+        return false;
+    }
+}
+
+function validateExpiry() {
+    const val = document.getElementById('cardExpiry').value;
+    const el = document.getElementById('cardExpiry');
+    const err = document.getElementById('expiryError');
+    const match = val.match(/^(0[1-9]|1[0-2])\/([0-9]{2})$/);
+
+    if (!val) {
+        el.classList.remove('valid', 'invalid');
+        err.classList.remove('show');
+        return false;
+    }
+
+    if (match) {
+        const month = parseInt(match[1]);
+        const year = 2000 + parseInt(match[2]);
+        const now = new Date();
+        const expiry = new Date(year, month, 0); // last day of month
+
+        if (expiry >= now) {
+            el.classList.add('valid');
+            el.classList.remove('invalid');
+            err.classList.remove('show');
+            return true;
+        }
+    }
+
+    el.classList.add('invalid');
+    el.classList.remove('valid');
+    if (val.length >= 5) err.classList.add('show');
+    return false;
+}
+
+function validateCvv() {
+    const val = document.getElementById('cardCvv').value;
+    const el = document.getElementById('cardCvv');
+    const err = document.getElementById('cvvError');
+
+    if (!val) {
+        el.classList.remove('valid', 'invalid');
+        err.classList.remove('show');
+        return false;
+    }
+
+    if (/^[0-9]{3,4}$/.test(val)) {
+        el.classList.add('valid');
+        el.classList.remove('invalid');
+        err.classList.remove('show');
+        return true;
+    }
+
+    el.classList.add('invalid');
+    el.classList.remove('valid');
+    err.classList.add('show');
+    return false;
+}
+
+function validateHolder() {
+    const val = document.getElementById('cardHolder').value.trim();
+    const el = document.getElementById('cardHolder');
+    const err = document.getElementById('holderError');
+
+    if (!val) {
+        el.classList.remove('valid', 'invalid');
+        err.classList.remove('show');
+        return false;
+    }
+
+    if (val.length >= 3) {
+        el.classList.add('valid');
+        el.classList.remove('invalid');
+        err.classList.remove('show');
+        return true;
+    }
+
+    el.classList.add('invalid');
+    el.classList.remove('valid');
+    err.classList.add('show');
+    return false;
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const cardInput = document.getElementById('cardNumber');
+    const expiryInput = document.getElementById('cardExpiry');
+    const cvvInput = document.getElementById('cardCvv');
+    const holderInput = document.getElementById('cardHolder');
+
+    // Formatage + validation en temps réel
+    cardInput.addEventListener('input', function() {
+        let val = this.value.replace(/\D/g, '').substring(0, 16);
+        val = val.replace(/(.{4})/g, '$1 ').trim();
+        this.value = val;
+        validateCard();
+    });
+
+    expiryInput.addEventListener('input', function() {
+        let val = this.value.replace(/\D/g, '').substring(0, 4);
+        if (val.length >= 2) val = val.substring(0, 2) + '/' + val.substring(2);
+        this.value = val;
+        validateExpiry();
+    });
+
+    cvvInput.addEventListener('input', function() {
+        this.value = this.value.replace(/\D/g, '').substring(0, 4);
+        validateCvv();
+    });
+
+    holderInput.addEventListener('input', validateHolder);
+
+    // Validation initiale
+    validateHolder();
+
+    // Validation avant soumission
+    const form = document.getElementById('checkoutForm');
+    const btn = document.getElementById('submitBtn');
+
+    form.addEventListener('submit', function(e) {
+        const isCardOk = validateCard();
+        const isExpiryOk = validateExpiry();
+        const isCvvOk = validateCvv();
+        const isHolderOk = validateHolder();
+
+        if (!isCardOk || !isExpiryOk || !isCvvOk || !isHolderOk) {
+            e.preventDefault();
+
+            // Montrer toutes les erreurs
+            if (!isCardOk) document.getElementById('cardError').classList.add('show');
+            if (!isExpiryOk) document.getElementById('expiryError').classList.add('show');
+            if (!isCvvOk) document.getElementById('cvvError').classList.add('show');
+            if (!isHolderOk) document.getElementById('holderError').classList.add('show');
+            return;
+        }
+
+        btn.disabled = true;
+        btn.textContent = '⏳ Vérification du paiement...';
+    });
+});
+</script>
+{% endblock %}
