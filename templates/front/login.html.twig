@@ -36,21 +36,10 @@
             </div>
             
             {% if error is defined and error %}
-                {% set isSuspended = 'suspendu' in error.messageKey %}
-                {% if isSuspended %}
-                    <div class="auth-error" role="alert" style="background:linear-gradient(135deg,#fff5f5,#fed7d7);border:2px solid #fc8181;border-radius:14px;padding:1.25rem 1.5rem;display:flex;align-items:flex-start;gap:1rem;">
-                        <div style="font-size:2rem;flex-shrink:0;line-height:1;">🔒</div>
-                        <div>
-                            <div style="font-weight:700;font-size:1rem;color:#c53030;margin-bottom:0.25rem;">Compte suspendu</div>
-                            <div style="font-size:0.9rem;color:#9b2c2c;line-height:1.5;">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
-                        </div>
-                    </div>
-                {% else %}
-                    <div class="auth-error" role="alert">
-                        <span class="error-icon">⚠️</span>
-                        {{ error.messageKey|trans(error.messageData, 'security') }}
-                    </div>
-                {% endif %}
+                <div class="auth-error" role="alert">
+                    <span class="error-icon">⚠️</span>
+                    {{ error.messageKey|trans(error.messageData, 'security') }}
+                </div>
             {% endif %}
             
             {% if app.flashes('success') %}
@@ -93,11 +82,10 @@
                     </label>
                     <a href="{{ path('app_forgot_password', {_locale: app.request.locale}) }}" class="auth-link">{{ 'auth.forgot_password_link'|trans|default('Mot de passe oublié ?') }}</a>
                 </div>
-
-                <input type="hidden" name="_captcha" id="captchaHiddenInput" value="">
+                
                 <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
                 
-                <button type="submit" class="btn btn-primary btn-large btn-full" id="loginSubmitBtn">
+                <button type="submit" class="btn btn-primary btn-large btn-full">
                     {{ 'cta.login'|trans|default('Se connecter') }}
                 </button>
             </form>
@@ -119,7 +107,7 @@
             </div>
             
             <div class="social-auth-buttons">
-                <a href="{{ path('connect_google_start', {_locale: app.request.locale}) }}" class="btn-social btn-google" data-turbo="false">
+                <button type="button" class="btn-social btn-google" disabled>
                     <span class="btn-social-icon">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="20" height="20">
                             <path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"/>
@@ -129,25 +117,23 @@
                         </svg>
                     </span>
                     <span>{{ 'auth.continue_google'|trans|default('Continuer avec Google') }}</span>
-                </a>
-                <a href="{{ path('connect_github_start', {_locale: app.request.locale}) }}" class="btn-social btn-github" data-turbo="false">
-                    <span class="btn-social-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20">
-                            <path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.6.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/>
-                        </svg>
-                    </span>
-                    <span>{{ 'auth.continue_github'|trans|default('Continuer avec GitHub') }}</span>
-                </a>
-                {% if app.request.server.get('X_OAUTH_ENABLED') == 'true' %}
-                <a href="{{ path('connect_x_start', {_locale: app.request.locale}) }}" class="btn-social btn-x" data-turbo="false">
+                </button>
+                <button type="button" class="btn-social btn-x" disabled>
                     <span class="btn-social-icon">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18">
                             <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
                         </svg>
                     </span>
                     <span>{{ 'auth.continue_x'|trans|default('Continuer avec X') }}</span>
-                </a>
-                {% endif %}
+                </button>
+                <button type="button" class="btn-social btn-facebook" disabled>
+                    <span class="btn-social-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20">
+                            <path fill="#1877F2" d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                        </svg>
+                    </span>
+                    <span>{{ 'auth.continue_facebook'|trans|default('Continuer avec Facebook') }}</span>
+                </button>
             </div>
             
             <div class="auth-footer">
@@ -335,22 +321,6 @@
                 setTimeout(() => {
                     window.location.href = data.redirect || '/{{ app.request.locale ?? "fr" }}/dashboard';
                 }, 1500);
-            } else if (data.code === 'ACCOUNT_INACTIVE') {
-                // Close modal and show the suspension banner on the main page
-                const modal = document.getElementById('faceLoginModal');
-                if (modal) modal.style.display = 'none';
-                let banner = document.getElementById('suspensionBanner');
-                if (!banner) {
-                    banner = document.createElement('div');
-                    banner.id = 'suspensionBanner';
-                    banner.style.cssText = 'background:linear-gradient(135deg,#fff5f5,#fed7d7);border:2px solid #fc8181;border-radius:14px;padding:1.25rem 1.5rem;display:flex;align-items:flex-start;gap:1rem;margin-bottom:1.25rem;';
-                    banner.innerHTML = '<div style="font-size:2rem;flex-shrink:0;line-height:1;">🔒</div><div><div style="font-weight:700;font-size:1rem;color:#c53030;margin-bottom:0.25rem;">Compte suspendu</div><div style="font-size:0.9rem;color:#9b2c2c;line-height:1.5;">' + data.error + '</div></div>';
-                    const form = document.querySelector('.auth-form');
-                    if (form) form.parentNode.insertBefore(banner, form);
-                }
-                banner.style.display = 'flex';
-                confirmFaceLoginBtn.disabled = false;
-                confirmFaceLoginBtn.textContent = "{{ 'action.login'|trans|default('Se connecter') }}";
             } else {
                 showFaceLoginStatus('error', data.error || "{{ 'error.face_not_recognized'|trans|default('Visage non reconnu') }}");
                 confirmFaceLoginBtn.disabled = false;
@@ -391,153 +361,4 @@
     }
 })();
 </script>
-
-<!-- Captcha Modal -->
-<div id="captchaModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.5);backdrop-filter:blur(4px);justify-content:center;align-items:center;">
-    <div style="background:#fff;border-radius:20px;padding:2rem;width:380px;max-width:92vw;box-shadow:0 20px 60px rgba(0,0,0,0.3);animation:captchaSlideIn 0.3s ease;">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">
-            <h3 style="margin:0;font-size:1.2rem;color:#1e1b4b;display:flex;align-items:center;gap:0.5rem;">
-                🛡️ {{ 'captcha.label'|trans|default('Captcha de sécurité') }}
-            </h3>
-            <button type="button" id="captchaModalClose" style="background:none;border:none;font-size:1.5rem;cursor:pointer;color:#6b7280;line-height:1;">&times;</button>
-        </div>
-        <p style="font-size:0.85rem;color:#6366f1;margin:0 0 1rem;">{{ 'captcha.hint'|trans|default('Entrez les caractères affichés') }}</p>
-        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
-            <img id="captchaModalImage" src="" alt="Captcha" style="border-radius:10px;border:2px solid #a5b4fc;height:70px;user-select:none;-webkit-user-drag:none;">
-            <button type="button" id="captchaModalRefresh" style="background:none;border:2px solid #a5b4fc;border-radius:10px;padding:0.5rem 0.65rem;cursor:pointer;font-size:1.3rem;transition:transform .2s;" title="{{ 'captcha.refresh'|trans|default('Nouvelle image') }}">🔄</button>
-        </div>
-        <input type="text"
-               id="captchaModalInput"
-               placeholder="{{ 'captcha.placeholder'|trans|default('Entrez le code ci-dessus') }}"
-               autocomplete="off"
-               style="width:100%;box-sizing:border-box;padding:0.75rem 1rem;border:1.5px solid #c7d2fe;border-radius:10px;font-size:1.1rem;letter-spacing:0.25em;font-weight:600;text-transform:uppercase;outline:none;transition:border-color .2s;margin-bottom:1rem;">
-        <div id="captchaModalError" style="display:none;color:#dc2626;font-size:0.85rem;margin-bottom:0.75rem;text-align:center;">
-            {{ 'captcha.required'|trans|default('Veuillez résoudre le captcha pour continuer.') }}
-        </div>
-        <div style="display:flex;gap:0.75rem;">
-            <button type="button" id="captchaModalCancel" style="flex:1;padding:0.75rem;border:1.5px solid #d1d5db;border-radius:10px;background:#fff;color:#374151;font-size:0.95rem;cursor:pointer;font-weight:500;">
-                {{ 'auth.confirm_link_cancel'|trans|default('Annuler') }}
-            </button>
-            <button type="button" id="captchaModalConfirm" style="flex:1;padding:0.75rem;border:none;border-radius:10px;background:linear-gradient(135deg,#6366f1,#4f46e5);color:#fff;font-size:0.95rem;cursor:pointer;font-weight:600;transition:opacity .2s;">
-                {{ 'cta.login'|trans|default('Se connecter') }}
-            </button>
-        </div>
-    </div>
-</div>
-<style>
-@keyframes captchaSlideIn {
-    from { opacity:0; transform:translateY(-20px) scale(0.95); }
-    to   { opacity:1; transform:translateY(0) scale(1); }
-}
-#captchaModalInput:focus { border-color:#6366f1; box-shadow:0 0 0 3px rgba(99,102,241,0.15); }
-</style>
-
-<script>
-(function() {
-    const loginForm        = document.querySelector('.auth-form');
-    const submitBtn        = document.getElementById('loginSubmitBtn');
-    const hiddenCaptcha    = document.getElementById('captchaHiddenInput');
-    const modal            = document.getElementById('captchaModal');
-    const modalImage       = document.getElementById('captchaModalImage');
-    const modalInput       = document.getElementById('captchaModalInput');
-    const modalError       = document.getElementById('captchaModalError');
-    const modalRefresh     = document.getElementById('captchaModalRefresh');
-    const modalConfirm     = document.getElementById('captchaModalConfirm');
-    const modalCancel      = document.getElementById('captchaModalCancel');
-    const modalClose       = document.getElementById('captchaModalClose');
-    const captchaRefreshUrl = '{{ path("app_captcha_refresh", {_locale: app.request.locale}) }}';
-
-    let captchaLoaded = false;
-
-    // Intercept form submission
-    loginForm.addEventListener('submit', function(e) {
-        // If captcha already solved (hidden field has value), allow submit
-        if (hiddenCaptcha.value.trim().length > 0) {
-            return; // let the form submit normally
-        }
-
-        e.preventDefault();
-
-        // Validate email + password first
-        const email = document.getElementById('inputEmail');
-        const password = document.getElementById('inputPassword');
-        if (!email.value.trim() || !password.value.trim()) {
-            loginForm.reportValidity();
-            return;
-        }
-
-        // Fetch captcha and show modal
-        showCaptchaModal();
-    });
-
-    function showCaptchaModal() {
-        modalError.style.display = 'none';
-        modalInput.value = '';
-        modal.style.display = 'flex';
-        loadCaptchaImage();
-        setTimeout(() => modalInput.focus(), 300);
-    }
-
-    function closeCaptchaModal() {
-        modal.style.display = 'none';
-        modalInput.value = '';
-        hiddenCaptcha.value = '';
-    }
-
-    function loadCaptchaImage() {
-        modalImage.style.opacity = '0.5';
-        fetch(captchaRefreshUrl)
-            .then(r => r.json())
-            .then(data => {
-                if (data.success && data.image) {
-                    modalImage.src = data.image;
-                    captchaLoaded = true;
-                }
-                modalImage.style.opacity = '1';
-            })
-            .catch(err => {
-                console.error('Captcha load failed:', err);
-                modalImage.style.opacity = '1';
-            });
-    }
-
-    // Refresh button
-    modalRefresh.addEventListener('click', function() {
-        modalRefresh.style.transform = 'rotate(360deg)';
-        setTimeout(() => { modalRefresh.style.transform = ''; }, 400);
-        modalInput.value = '';
-        modalError.style.display = 'none';
-        loadCaptchaImage();
-    });
-
-    // Confirm button — set hidden field and submit form
-    modalConfirm.addEventListener('click', function() {
-        const code = modalInput.value.trim();
-        if (!code) {
-            modalError.style.display = 'block';
-            modalInput.focus();
-            return;
-        }
-        hiddenCaptcha.value = code;
-        modal.style.display = 'none';
-        loginForm.submit();
-    });
-
-    // Enter key in input
-    modalInput.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            modalConfirm.click();
-        }
-    });
-
-    // Cancel / close
-    modalCancel.addEventListener('click', closeCaptchaModal);
-    modalClose.addEventListener('click', closeCaptchaModal);
-    modal.addEventListener('click', function(e) {
-        if (e.target === modal) closeCaptchaModal();
-    });
-})();
-</script>
-
 {% endblock %}
