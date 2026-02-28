@@ -10,11 +10,11 @@ class PythonMLService
     private $httpClient;
     private $pythonApiUrl;
 
-    public function __construct(HttpClientInterface $httpClient)
+    public function __construct(HttpClientInterface $httpClient, string $pythonApiUrl)
     {
         $this->httpClient = $httpClient;
-        // Port ML remis à 8001 (serveur ML)
-        $this->pythonApiUrl = 'http://127.0.0.1:8001';
+        // URL injectée depuis services.yaml / .env
+        $this->pythonApiUrl = rtrim($pythonApiUrl, '/');
     }
 
     public function step1Detect(string $imagePath): array

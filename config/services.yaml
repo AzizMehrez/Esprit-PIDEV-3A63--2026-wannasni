@@ -8,6 +8,8 @@ parameters:
     python_default: 'python'
     meal_photos_directory: '%kernel.project_dir%/public/uploads/meals'
     beverage_photos_directory: '%kernel.project_dir%/public/uploads/beverages'
+    python_ml_api_url: '%env(default:ml_api_default:PYTHON_ML_API_URL)%'
+    ml_api_default: 'http://127.0.0.1:8001'
 
 services:
     # default configuration for services in *this* file
@@ -37,3 +39,7 @@ services:
     App\Service\BeveragePhotoUploadService:
         arguments:
             $beveragePhotosDirectory: '%beverage_photos_directory%'
+
+    App\Service\PythonMLService:
+        arguments:
+            $pythonApiUrl: '%python_ml_api_url%'
