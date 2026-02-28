@@ -3,6 +3,13 @@
 {% set text_direction = current_locale == 'ar' ? 'rtl' : 'ltr' %}
 <html lang="{{ current_locale }}" dir="{{ text_direction }}">
     <head>
+        <script>
+            // Chrome Web Speech API requires localhost (not 127.0.0.1) for microphone access.
+            // Auto-redirect so voice always works without any user action.
+            if (window.location.hostname === '127.0.0.1') {
+                window.location.replace(window.location.href.replace('127.0.0.1', 'localhost'));
+            }
+        </script>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta name="description" content="{{ 'meta.description'|trans }}">
@@ -188,14 +195,6 @@
                 </div>
             </div>
         </footer>
-        
-        {# Floating Help Button - Always Visible #}
-        <div class="floating-help" id="floatingHelp">
-            <button class="help-trigger" onclick="document.getElementById('helpModal').classList.add('active')" aria-label="Get Help">
-                <span class="help-icon">🆘</span>
-                <span class="help-text">Aide</span>
-            </button>
-        </div>
         
         {# Help Modal #}
         <div class="help-modal" id="helpModal" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
@@ -479,24 +478,28 @@
                 
                 if (prefersSeniorMode || prefersReducedMotion) {
                     body.classList.add('senior-mode');
-                    toggle.classList.add('active');
-                    toggle.setAttribute('aria-pressed', 'true');
-                    toggle.querySelector('.toggle-label').textContent = 'Normal Mode';
+                    if (toggle) {
+                        toggle.classList.add('active');
+                        toggle.setAttribute('aria-pressed', 'true');
+                        toggle.querySelector('.toggle-label').textContent = 'Normal Mode';
+                    }
                 }
 
-                toggle.addEventListener('click', function() {
-                    body.classList.toggle('senior-mode');
-                    const isEnabled = body.classList.contains('senior-mode');
-                    
-                    localStorage.setItem('seniorMode', isEnabled ? 'enabled' : 'disabled');
-                    toggle.classList.toggle('active', isEnabled);
-                    toggle.setAttribute('aria-pressed', isEnabled ? 'true' : 'false');
-                    toggle.querySelector('.toggle-label').textContent = isEnabled ? 'Normal Mode' : 'Senior Mode';
-                    
-                    // Success visual feedback
-                    toggle.classList.add('success');
-                    setTimeout(() => toggle.classList.remove('success'), 800);
-                });
+                if (toggle) {
+                    toggle.addEventListener('click', function() {
+                        body.classList.toggle('senior-mode');
+                        const isEnabled = body.classList.contains('senior-mode');
+                        
+                        localStorage.setItem('seniorMode', isEnabled ? 'enabled' : 'disabled');
+                        toggle.classList.toggle('active', isEnabled);
+                        toggle.setAttribute('aria-pressed', isEnabled ? 'true' : 'false');
+                        toggle.querySelector('.toggle-label').textContent = isEnabled ? 'Normal Mode' : 'Senior Mode';
+                        
+                        // Success visual feedback
+                        toggle.classList.add('success');
+                        setTimeout(() => toggle.classList.remove('success'), 800);
+                    });
+                }
                 
                 // ========== Animated Counter for Trust Section ==========
                 const counter = document.getElementById('familyCounter');

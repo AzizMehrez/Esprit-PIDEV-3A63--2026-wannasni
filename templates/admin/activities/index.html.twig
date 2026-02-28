@@ -35,7 +35,7 @@
     <div class="stat-card">
         <div class="stat-icon orange">⏱️</div>
         <div class="stat-info">
-            <div class="stat-value">{{ (activities|reduce((carry, a) => carry + a.duration, 0) / activities|length)|round }}min</div>
+            <div class="stat-value">{{ activities|length > 0 ? (activities|reduce((carry, a) => carry + a.duration, 0) / activities|length)|round : 0 }}min</div>
             <div class="stat-label">Durée Moyenne</div>
         </div>
     </div>
@@ -70,9 +70,10 @@
             <tr>
                 <th class="sortable" onclick="sortTable(0)">Activité</th>
                 <th class="sortable" onclick="sortTable(1)">Type</th>
-                <th class="sortable" onclick="sortTable(2)">Horaire</th>
-                <th class="sortable" onclick="sortTable(3)">Participants</th>
-                <th class="sortable" onclick="sortTable(4)">Statut</th>
+                <th class="sortable" onclick="sortTable(2)">Lieu</th>
+                <th class="sortable" onclick="sortTable(3)">Horaire</th>
+                <th class="sortable" onclick="sortTable(4)">Participants</th>
+                <th class="sortable" onclick="sortTable(5)">Statut</th>
                 <th style="width: 120px;">Actions</th>
             </tr>
         </thead>
@@ -95,6 +96,9 @@
                 </td>
                 <td>
                     <span class="badge badge-info">{{ activity.type|capitalize }}</span>
+                </td>
+                <td>
+                    📍 {{ activity.location ?? 'Non spécifié' }}
                 </td>
                 <td>{{ activity.schedule }}</td>
                 <td>

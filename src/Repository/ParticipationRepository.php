@@ -73,4 +73,58 @@ class ParticipationRepository extends ServiceEntityRepository
             ->getQuery()
             ->getSingleScalarResult();
     }
+
+    /**
+     * Check if a senior is already registered for an activity
+     */
+    public function isRegistered(int $activityId, int $seniorId): bool
+    {
+        $result = $this->createQueryBuilder('p')
+            ->select('COUNT(p.id)')
+            ->andWhere('p.activityId = :activityId')
+            ->andWhere('p.seniorId = :seniorId')
+            ->andWhere('p.status NOT IN (:cancelledStatuses)')
+            ->setParameter('activityId', $activityId)
+            ->setParameter('seniorId', $seniorId)
+            ->setParameter('cancelledStatuses', ['annulé', 'cancelled'])
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return (int) $result > 0;
+    }
+
+    /**
+     * Find participations by senior ID (alias for findBySenior)
+     */
+    public function findBySeniorId(int $seniorId): array
+    {
+        return $this->findBySenior($seniorId);
+    }
+
+    /**
+     * Find participation by user and activity
+     */
+    public function findByUserAndActivity(int $seniorId, int $activityId): ?Participation
+    {
+        return $this->createQueryBuilder('p')
+            ->andWhere('p.seniorId = :seniorId')
+            ->andWhere('p.activityId = :activityId')
+            ->setParameter('seniorId', $seniorId)
+            ->setParameter('activityId', $activityId)
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
+    /**
+     * Find recent participation changes
+     */
+    public function findRecentChanges(int $limit = 10): array
+    {
+        return $this->createQueryBuilder('p')
+            ->orderBy('p.registeredAt', 'DESC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
 }

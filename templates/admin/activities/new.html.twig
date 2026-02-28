@@ -196,6 +196,18 @@
         ← Retour aux Activités
     </a>
 
+    {# Error Messages #}
+    {% for message in app.flashes('error') %}
+        <div style="background: rgba(239, 68, 68, 0.15); color: #dc2626; border: 1px solid rgba(239, 68, 68, 0.3); padding: 1rem 1.25rem; border-radius: 10px; margin-bottom: 1.5rem; font-weight: 600;">
+            ❌ {{ message }}
+        </div>
+    {% endfor %}
+
+    {# Validation Error Alert #}
+    <div id="validation-error" style="display: none; background: rgba(239, 68, 68, 0.15); color: #dc2626; border: 1px solid rgba(239, 68, 68, 0.3); padding: 1rem 1.25rem; border-radius: 10px; margin-bottom: 1.5rem; font-weight: 600;">
+        ❌ <span id="error-message"></span>
+    </div>
+
     <div class="form-card">
         <div class="form-card-header">
             <div class="form-card-icon">🎯</div>
@@ -221,8 +233,9 @@
                     <label class="form-label">
                         <span class="form-label-icon">📝</span>
                         Description
+                        <span class="required-mark">*</span>
                     </label>
-                    <textarea class="form-textarea" name="description" rows="4" placeholder="Décrivez les objectifs, le déroulement et les bénéfices de l'activité..."></textarea>
+                    <textarea class="form-textarea" name="description" rows="4" placeholder="Décrivez les objectifs, le déroulement et les bénéfices de l'activité..." required></textarea>
                     <div class="form-helper">Description complète de l'activité pour informer les participants</div>
                 </div>
 
@@ -255,33 +268,26 @@
                 </div>
             </div>
 
-            {# Location & Schedule #}
+            {# Schedule #}
             <div class="form-section">
-                <h3 class="section-title">📍 Lieu et Horaires</h3>
-                
-                <div class="form-group">
-                    <label class="form-label">
-                        <span class="form-label-icon">📍</span>
-                        Lieu
-                    </label>
-                    <input type="text" class="form-input" name="location" placeholder="ex: Salle de gym, Parc municipal, Salle 201...">
-                    <div class="form-helper">Indiquez l'endroit où se déroulera l'activité</div>
-                </div>
+                <h3 class="section-title">🕐 Horaires</h3>
 
                 <div class="form-grid">
                     <div class="form-group">
                         <label class="form-label">
                             <span class="form-label-icon">🕐</span>
                             Date/heure de début
+                            <span class="required-mark">*</span>
                         </label>
-                        <input type="datetime-local" class="form-input" name="start_time">
+                        <input type="datetime-local" class="form-input" name="start_time" required>
                     </div>
                     <div class="form-group">
                         <label class="form-label">
                             <span class="form-label-icon">🕐</span>
                             Date/heure de fin
+                            <span class="required-mark">*</span>
                         </label>
-                        <input type="datetime-local" class="form-input" name="end_time">
+                        <input type="datetime-local" class="form-input" name="end_time" required>
                     </div>
                 </div>
             </div>
@@ -294,17 +300,60 @@
                     <label class="form-label">
                         <span class="form-label-icon">👥</span>
                         Nombre maximum de participants
+                        <span class="required-mark">*</span>
                     </label>
-                    <input type="number" class="form-input" name="max_participants" value="20" min="1" max="200">
+                    <input type="number" class="form-input" name="max_participants" value="20" min="1" max="200" required>
                     <div class="form-helper">Limite de participants pour cette activité (1-200)</div>
                 </div>
             </div>
             
             <div class="form-actions">
-                <button type="submit" class="btn-submit">✨ Créer l'Activité</button>
+                <button type="submit" class="btn-submit" id="submit-btn">✨ Créer l'Activité</button>
                 <a href="{{ path('admin_activities') }}" class="btn-cancel">Annuler</a>
             </div>
         </form>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form');
+    const nameInput = document.querySelector('input[name="name"]');
+    const startTimeInput = document.querySelector('input[name="start_time"]');
+    const endTimeInput = document.querySelector('input[name="end_time"]');
+    const submitBtn = document.getElementById('submit-btn');
+    const errorDiv = document.getElementById('validation-error');
+    const errorMsg = document.getElementById('error-message');
+    
+    function validateForm() {
+        errorDiv.style.display = 'none';
+        
+        // Check if end_time is before start_time
+        if (startTimeInput.value && endTimeInput.value) {
+            const startDate = new Date(startTimeInput.value);
+            const endDate = new Date(endTimeInput.value);
+            
+            if (endDate < startDate) {
+                errorMsg.textContent = 'L\'heure de fin ne peut pas être antérieure à l\'heure de début.';
+                errorDiv.style.display = 'block';
+                return false;
+            }
+        }
+        
+        return true;
+    }
+    
+    // Validate on input change
+    startTimeInput.addEventListener('change', validateForm);
+    endTimeInput.addEventListener('change', validateForm);
+    
+    // Validate on form submit
+    form.addEventListener('submit', function(e) {
+        if (!validateForm()) {
+            e.preventDefault();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    });
+});
+</script>
 {% endblock %}

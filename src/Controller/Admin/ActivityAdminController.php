@@ -54,16 +54,30 @@ class ActivityAdminController extends AbstractController
     public function new(Request $request): Response
     {
         if ($request->isMethod('POST')) {
+            $name = $request->request->get('name', '');
+            $startTime = $request->request->get('start_time');
+            $endTime = $request->request->get('end_time');
+
+            // Duplicate name validation
+            $existingActivity = $this->activityRepository->findOneBy(['title' => $name]);
+            if ($existingActivity) {
+                $this->addFlash('error', 'Une activité avec le nom "' . $name . '" existe déjà.');
+                return $this->render('admin/activities/new.html.twig');
+            }
+
+            // End time must be after start time
+            if ($startTime && $endTime && new \DateTime($endTime) <= new \DateTime($startTime)) {
+                $this->addFlash('error', 'La date de fin doit être postérieure à la date de début.');
+                return $this->render('admin/activities/new.html.twig');
+            }
+
             $activity = new Activity();
-            $activity->setTitle($request->request->get('name', ''));
+            $activity->setTitle($name);
             $activity->setDescription($request->request->get('description', ''));
             $activity->setType($request->request->get('type', 'social'));
-            $activity->setLocation($request->request->get('location', ''));
             $activity->setMaxParticipants($request->request->getInt('max_participants') ?: null);
             $activity->setIsActive($request->request->get('status', 'active') === 'active');
 
-            $startTime = $request->request->get('start_time');
-            $endTime = $request->request->get('end_time');
             $activity->setStartTime($startTime ? new \DateTime($startTime) : new \DateTime());
             $activity->setEndTime($endTime ? new \DateTime($endTime) : null);
 
@@ -71,10 +85,38 @@ class ActivityAdminController extends AbstractController
             $this->em->flush();
 
             $this->addFlash('success', 'Activité "' . $activity->getTitle() . '" créée avec succès !');
-            return $this->redirectToRoute('admin_activities');
+            return $this->redirectToRoute('admin_activities_select_location', ['id' => $activity->getId()]);
         }
 
         return $this->render('admin/activities/new.html.twig');
+    }
+
+    #[Route('/{id}/select-location', name: 'admin_activities_select_location', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
+    public function selectLocation(int $id, Request $request): Response
+    {
+        $activity = $this->activityRepository->find($id);
+        if (!$activity) {
+            throw $this->createNotFoundException('Activity not found');
+        }
+
+        if ($request->isMethod('POST')) {
+            $selectedLocation = $request->request->get('location');
+            if ($selectedLocation) {
+                $activity->setLocation($selectedLocation);
+                $this->em->persist($activity);
+                $this->em->flush();
+                
+                $this->addFlash('success', 'Localisation sauvegardée avec succès !');
+                return $this->redirectToRoute('admin_activities');
+            }
+        }
+
+        return $this->render('admin/activities/select_location.html.twig', [
+            'activity' => $activity,
+            'activityType' => $activity->getType(),
+            'startTime' => $activity->getStartTime()?->format('Y-m-d H:i'),
+            'endTime' => $activity->getEndTime()?->format('Y-m-d H:i'),
+        ]);
     }
 
     #[Route('/{id}', name: 'admin_activities_show', requirements: ['id' => '\d+'])]
@@ -120,15 +162,31 @@ class ActivityAdminController extends AbstractController
         }
 
         if ($request->isMethod('POST')) {
-            $activity->setTitle($request->request->get('name', $activity->getTitle()));
+            $newName = $request->request->get('name', $activity->getTitle());
+
+            // Duplicate name validation (exclude current activity)
+            $existingActivity = $this->activityRepository->findOneBy(['title' => $newName]);
+            if ($existingActivity && $existingActivity->getId() !== $id) {
+                $this->addFlash('error', 'Une activité avec le nom "' . $newName . '" existe déjà.');
+                return $this->redirectToRoute('admin_activities_edit', ['id' => $id]);
+            }
+
+            $startTime = $request->request->get('start_time');
+            $endTime = $request->request->get('end_time');
+
+            // End time must be after start time
+            if ($startTime && $endTime && new \DateTime($endTime) <= new \DateTime($startTime)) {
+                $this->addFlash('error', 'La date de fin doit être postérieure à la date de début.');
+                return $this->redirectToRoute('admin_activities_edit', ['id' => $id]);
+            }
+
+            $activity->setTitle($newName);
             $activity->setDescription($request->request->get('description', ''));
             $activity->setType($request->request->get('type', $activity->getType()));
             $activity->setLocation($request->request->get('location', ''));
             $activity->setMaxParticipants($request->request->getInt('max_participants') ?: null);
             $activity->setIsActive($request->request->get('status', 'active') === 'active');
 
-            $startTime = $request->request->get('start_time');
-            $endTime = $request->request->get('end_time');
             if ($startTime) {
                 $activity->setStartTime(new \DateTime($startTime));
             }

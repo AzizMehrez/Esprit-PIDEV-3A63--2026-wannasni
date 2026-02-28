@@ -1,6 +1,11 @@
 <!DOCTYPE html>
 <html lang="{{ app.request.locale|default('fr') }}" dir="{{ app.request.locale == 'ar' ? 'rtl' : 'ltr' }}">
     <head>
+        <script>
+            if (window.location.hostname === '127.0.0.1') {
+                window.location.replace(window.location.href.replace('127.0.0.1', 'localhost'));
+            }
+        </script>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>{% block title %}WANNASNI{% endblock %}</title>

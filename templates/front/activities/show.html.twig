@@ -1,0 +1,679 @@
+{% extends 'base_dashboard.html.twig' %}
+
+{% block title %}{{ activity.name }} - WANNASNI{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    .activity-show-wrapper {
+        min-height: 100vh;
+        padding: 2rem 1.5rem 4rem;
+        background: linear-gradient(180deg, #f0fdf4 0%, #f8fafc 30%);
+    }
+
+    .activity-show-container {
+        max-width: 1100px;
+        margin: 0 auto;
+    }
+
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #2E7D32;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 1.1rem;
+        margin-bottom: 1.5rem;
+        padding: 0.75rem 1.25rem;
+        border-radius: 50px;
+        background: white;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        transition: all 0.2s;
+    }
+
+    .back-link:hover {
+        background: #f0fdf4;
+        transform: translateX(-4px);
+    }
+
+    .show-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 2rem;
+    }
+
+    .show-card {
+        background: white;
+        border: 2px solid #dcfce7;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+        margin-bottom: 1.5rem;
+    }
+
+    .show-card-header {
+        background: linear-gradient(135deg, rgba(46, 125, 50, 0.08), rgba(76, 175, 80, 0.05));
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid #dcfce7;
+    }
+
+    .show-card-title {
+        margin: 0;
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #2E7D32;
+    }
+
+    .show-card-body {
+        padding: 1.5rem;
+    }
+
+    .activity-header-card .show-card-body {
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+    }
+
+    .activity-header-card h1 {
+        margin: 0 0 0.5rem 0;
+        color: #2E7D32;
+        font-size: 1.8rem;
+    }
+
+    .activity-header-card p {
+        color: #64748b;
+        margin: 0;
+        line-height: 1.6;
+    }
+
+    .type-badge {
+        background: linear-gradient(135deg, #2E7D32, #4CAF50);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .detail-grid {
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        gap: 1rem;
+    }
+
+    .detail-box {
+        padding: 1rem;
+        background: rgba(46, 125, 50, 0.05);
+        border-radius: 10px;
+    }
+
+    .detail-label {
+        font-size: 0.8rem;
+        color: #64748b;
+        text-transform: uppercase;
+        font-weight: 700;
+        margin-bottom: 0.3rem;
+    }
+
+    .detail-value {
+        font-weight: 600;
+        font-size: 1.05rem;
+        color: #1a1a2e;
+    }
+
+    .location-box {
+        padding: 1rem;
+        background: rgba(34, 197, 94, 0.05);
+        border-radius: 10px;
+        border-left: 4px solid #22c55e;
+    }
+
+    .location-name {
+        font-weight: 600;
+        font-size: 1.05rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .location-address {
+        font-size: 0.9rem;
+        color: #64748b;
+        margin-bottom: 0.8rem;
+    }
+
+    .location-actions {
+        display: flex;
+        gap: 0.8rem;
+        flex-wrap: wrap;
+    }
+
+    .btn-directions {
+        background: linear-gradient(135deg, #f59e0b, #f97316);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        font-weight: 500;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-size: 0.9rem;
+    }
+
+    .btn-directions:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+    }
+
+    .amenity-tag {
+        background: linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(34, 197, 94, 0.1));
+        color: #22c55e;
+        padding: 0.3rem 0.7rem;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        display: inline-block;
+    }
+
+    .amenities-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 0.8rem;
+    }
+
+    /* Sidebar cards */
+    .status-enrolled {
+        background: rgba(34, 197, 94, 0.1);
+        color: #22c55e;
+        padding: 1rem;
+        border-radius: 10px;
+        text-align: center;
+        border: 1px solid rgba(34, 197, 94, 0.3);
+    }
+
+    .status-full {
+        background: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
+        padding: 1rem;
+        border-radius: 10px;
+        text-align: center;
+        border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .btn-enroll {
+        width: 100%;
+        padding: 0.85rem;
+        font-weight: 700;
+        font-size: 1.1rem;
+        background: linear-gradient(135deg, #2E7D32, #4CAF50);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .btn-enroll:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(46, 125, 50, 0.3);
+    }
+
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-bottom: 0.8rem;
+        border-bottom: 1px solid #dcfce7;
+    }
+
+    .info-row:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+
+    .info-label {
+        color: #64748b;
+        font-size: 1rem;
+    }
+
+    .info-value {
+        font-weight: 600;
+        font-size: 1rem;
+    }
+
+    .btn-back {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        background: transparent;
+        color: #2E7D32;
+        border: 2px solid #2E7D32;
+        border-radius: 12px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 1.05rem;
+        transition: all 0.2s;
+    }
+
+    .btn-back:hover {
+        background: rgba(46, 125, 50, 0.05);
+    }
+
+    @media (max-width: 768px) {
+        .show-grid {
+            grid-template-columns: 1fr;
+        }
+        .detail-grid {
+            grid-template-columns: 1fr;
+        }
+        .activity-header-card .show-card-body {
+            flex-direction: column;
+            gap: 1rem;
+        }
+    }
+
+    /* Directions Modal */
+    .directions-overlay {
+        display: none;
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 1000;
+        padding: 1rem;
+    }
+
+    .directions-modal {
+        position: absolute;
+        top: 50%; left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        border-radius: 20px;
+        max-width: 500px;
+        width: 100%;
+        max-height: 90vh;
+        overflow: auto;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+
+    .directions-header {
+        position: sticky;
+        top: 0;
+        background: linear-gradient(135deg, #f59e0b, #f97316);
+        color: white;
+        padding: 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-radius: 20px 20px 0 0;
+    }
+
+    .directions-header h2 {
+        margin: 0;
+        font-size: 1.25rem;
+    }
+
+    .directions-close {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 1.5rem;
+        cursor: pointer;
+    }
+
+    .directions-body {
+        padding: 1.5rem;
+    }
+
+    .dest-info {
+        background: rgba(34, 197, 94, 0.1);
+        padding: 1rem;
+        border-radius: 12px;
+        margin-bottom: 1.5rem;
+        border-left: 4px solid #22c55e;
+    }
+
+    .user-loc-box {
+        background: #f3f4f6;
+        padding: 1rem;
+        border-radius: 10px;
+        margin-bottom: 1.5rem;
+    }
+
+    .distance-box {
+        display: none;
+        background: #e0f2fe;
+        padding: 1rem;
+        border-radius: 10px;
+        margin-bottom: 1.5rem;
+        border-left: 4px solid #0284c7;
+    }
+
+    .distance-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+
+    .btn-gmaps {
+        width: 100%;
+        background: linear-gradient(135deg, #3b82f6, #2563eb);
+        color: white;
+        border: none;
+        padding: 1rem;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        margin-bottom: 0.75rem;
+    }
+
+    .btn-close-modal {
+        width: 100%;
+        background: #e5e7eb;
+        color: #333;
+        border: none;
+        padding: 1rem;
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+    .btn-refresh-loc {
+        background: #3b82f6;
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        margin-top: 0.5rem;
+        cursor: pointer;
+        font-weight: 500;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="activity-show-wrapper">
+    <div class="activity-show-container">
+        <a href="{{ path('app_my_activities', {'_locale': app.request.locale}) }}" class="back-link">← Retour aux Activités</a>
+
+        <div class="show-grid">
+            <!-- Main Content -->
+            <div>
+                <!-- Header -->
+                <div class="show-card activity-header-card">
+                    <div class="show-card-body">
+                        <div style="flex: 1;">
+                            <h1>{{ activity.name }}</h1>
+                            <p>{{ activity.description }}</p>
+                        </div>
+                        <span class="type-badge">{{ activity.type|capitalize }}</span>
+                    </div>
+                </div>
+
+                <!-- Activity Details -->
+                <div class="show-card">
+                    <div class="show-card-header">
+                        <h3 class="show-card-title">📋 Détails de l'Activité</h3>
+                    </div>
+                    <div class="show-card-body">
+                        <div style="display: grid; gap: 1rem;">
+                            <!-- Schedule & Participants -->
+                            <div class="detail-grid">
+                                <div class="detail-box">
+                                    <div class="detail-label">📅 Date & Heure</div>
+                                    <div class="detail-value">{{ activity.schedule }}</div>
+                                </div>
+                                <div class="detail-box">
+                                    <div class="detail-label">👥 Participants</div>
+                                    <div class="detail-value">
+                                        {{ activity.participants }}
+                                        {% if activity.maxParticipants %}
+                                            / {{ activity.maxParticipants }}
+                                        {% else %}
+                                            personnes inscrites
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Location -->
+                            {% if activity.location %}
+                                <div class="location-box">
+                                    <div class="detail-label">📍 Lieu</div>
+                                    <div class="location-name">{{ activity.location }}</div>
+                                    
+                                    {% if activity.locationData is defined and activity.locationData %}
+                                        <div class="location-address">{{ activity.locationData.address }}</div>
+
+                                        <div class="location-actions">
+                                            <button type="button" class="btn-directions"
+                                                    onclick="showDirectionsGuide({{ activity.locationData.latitude }}, {{ activity.locationData.longitude }}, '{{ activity.location|e('js') }}')">
+                                                📍 Guide & Itinéraire
+                                            </button>
+                                            <a href="https://www.google.com/maps/dir/?api=1&destination={{ activity.locationData.latitude }},{{ activity.locationData.longitude }}" 
+                                               target="_blank" rel="noopener noreferrer" class="btn-directions" style="background: #3b82f6;">
+                                                🗺️ Google Maps
+                                            </a>
+                                        </div>
+
+                                        {% if activity.locationData.amenities is defined and activity.locationData.amenities %}
+                                            <div style="margin-top: 1rem;">
+                                                <div class="detail-label">✨ Équipements</div>
+                                                <div class="amenities-list">
+                                                    {% for amenity in activity.locationData.amenities %}
+                                                        <span class="amenity-tag">✓ {{ amenity }}</span>
+                                                    {% endfor %}
+                                                </div>
+                                            </div>
+                                        {% endif %}
+
+                                        <div style="margin-top: 1rem;">
+                                            <div class="detail-label">🏢 Capacité</div>
+                                            <div class="detail-value">{{ activity.locationData.capacity }} personnes maximum</div>
+                                        </div>
+
+                                        <div style="margin-top: 0.8rem;">
+                                            <div class="detail-label">⏰ Horaires</div>
+                                            <div class="detail-value">{{ activity.locationData.availability }}</div>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Full Description -->
+                {% if activity.description %}
+                    <div class="show-card">
+                        <div class="show-card-header">
+                            <h3 class="show-card-title">📝 Description Complète</h3>
+                        </div>
+                        <div class="show-card-body">
+                            <p style="line-height: 1.6; color: #64748b;">{{ activity.description }}</p>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Sidebar -->
+            <div>
+                <!-- Status Card -->
+                <div class="show-card">
+                    <div class="show-card-body">
+                        {% if activity.isFull is defined and activity.isFull %}
+                            <div class="status-full">
+                                <div style="font-weight: 600; font-size: 1.1rem;">🔴 Activité Complète</div>
+                                <div style="font-size: 0.9rem; margin-top: 0.3rem;">Cette activité a atteint son quota de participants</div>
+                            </div>
+                        {% elseif isEnrolled is defined and isEnrolled %}
+                            <div class="status-enrolled">
+                                <div style="font-weight: 600; font-size: 1.1rem;">✓ Vous êtes inscrit</div>
+                                <div style="font-size: 0.9rem; margin-top: 0.3rem;">Vous participez à cette activité</div>
+                            </div>
+                        {% else %}
+                            <form method="POST" action="{{ path('app_my_activities_enroll', {'_locale': app.request.locale, 'id': activity.id}) }}">
+                                <input type="hidden" name="_token" value="{{ csrf_token('enroll_activity_' ~ activity.id) }}">
+                                <button type="submit" class="btn-enroll">✓ S'inscrire à l'Activité</button>
+                            </form>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Quick Info -->
+                <div class="show-card" style="margin-top: 1.5rem;">
+                    <div class="show-card-header">
+                        <h3 class="show-card-title">ℹ️ Informations Rapides</h3>
+                    </div>
+                    <div class="show-card-body">
+                        <div style="display: grid; gap: 0.8rem;">
+                            <div class="info-row">
+                                <span class="info-label">Type</span>
+                                <strong class="info-value">{{ activity.type|capitalize }}</strong>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Inscrits</span>
+                                <strong class="info-value">{{ activity.participants }}{% if activity.maxParticipants %}/{{ activity.maxParticipants }}{% endif %}</strong>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Status</span>
+                                <span style="background: linear-gradient(135deg, #22c55e, #16a34a); color: white; padding: 0.25rem 0.75rem; border-radius: 6px; font-size: 0.85rem; font-weight: 600;">Actif</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div style="margin-top: 2rem; text-align: center;">
+            <a href="{{ path('app_my_activities', {'_locale': app.request.locale}) }}" class="btn-back">← Retour aux Activités</a>
+        </div>
+    </div>
+</div>
+
+<!-- Directions Modal -->
+<div class="directions-overlay" id="directionsModal">
+    <div class="directions-modal">
+        <div class="directions-header">
+            <h2>📍 Guide de Localisation</h2>
+            <button class="directions-close" onclick="closeDirectionsGuide()">✕</button>
+        </div>
+        <div class="directions-body">
+            <div class="dest-info">
+                <div style="font-weight: 600; font-size: 1rem; margin-bottom: 0.5rem;" id="destName">Destination</div>
+                <div style="font-size: 0.9rem; color: #666;" id="destCoords">Coordonnées</div>
+            </div>
+
+            <div style="margin-bottom: 1.5rem;">
+                <div style="font-weight: 600; margin-bottom: 0.5rem; color: #333;">📍 Votre Position</div>
+                <div class="user-loc-box">
+                    <div id="userLocation" style="color: #666; font-size: 0.9rem;">Détermination de votre position...</div>
+                    <button class="btn-refresh-loc" onclick="getUserLocation()">🔄 Actualiser la Position</button>
+                </div>
+            </div>
+
+            <div class="distance-box" id="distanceInfo">
+                <div class="distance-grid">
+                    <div>
+                        <div class="detail-label">Distance</div>
+                        <div style="font-weight: 600; font-size: 1.1rem;" id="distance">-</div>
+                    </div>
+                    <div>
+                        <div class="detail-label">Durée Estimée</div>
+                        <div style="font-weight: 600; font-size: 1.1rem;" id="duration">-</div>
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn-gmaps" id="openGoogleMapsBtn" onclick="openGoogleMapsDirections()">🗺️ Ouvrir dans Google Maps</button>
+            <button class="btn-close-modal" onclick="closeDirectionsGuide()">Fermer</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+let userLat, userLng;
+let destLat, destLng, destName;
+
+function showDirectionsGuide(lat, lng, name) {
+    destLat = lat;
+    destLng = lng;
+    destName = name;
+    
+    document.getElementById('destName').textContent = name;
+    document.getElementById('destCoords').textContent = lat.toFixed(4) + '°, ' + lng.toFixed(4) + '°';
+    document.getElementById('directionsModal').style.display = 'block';
+    
+    getUserLocation();
+}
+
+function closeDirectionsGuide() {
+    document.getElementById('directionsModal').style.display = 'none';
+}
+
+function getUserLocation() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+            userLat = position.coords.latitude;
+            userLng = position.coords.longitude;
+            
+            document.getElementById('userLocation').innerHTML =
+                '<div>📍 Latitude: ' + userLat.toFixed(4) + '°</div>' +
+                '<div>📍 Longitude: ' + userLng.toFixed(4) + '°</div>';
+            
+            calculateDistance(userLat, userLng, destLat, destLng);
+        }, function(error) {
+            document.getElementById('userLocation').innerHTML =
+                '<div style="color: #ef4444; margin-bottom: 0.5rem;">❌ Position non disponible</div>' +
+                '<div style="font-size: 0.85rem;">Veuillez autoriser l\'accès à votre position.</div>';
+        });
+    } else {
+        document.getElementById('userLocation').innerHTML =
+            '<div style="color: #ef4444;">❌ Géolocalisation non supportée</div>';
+    }
+}
+
+function calculateDistance(lat1, lng1, lat2, lng2) {
+    var R = 6371;
+    var dLat = (lat2 - lat1) * Math.PI / 180;
+    var dLng = (lng2 - lng1) * Math.PI / 180;
+    
+    var a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+            Math.sin(dLng/2) * Math.sin(dLng/2);
+    
+    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    var distance = R * c;
+    var estimatedTime = Math.ceil(distance / 5 * 60);
+    
+    document.getElementById('distance').textContent = distance.toFixed(1) + ' km';
+    document.getElementById('duration').textContent = estimatedTime + ' min';
+    document.getElementById('distanceInfo').style.display = 'block';
+}
+
+function openGoogleMapsDirections() {
+    if (userLat && userLng) {
+        window.open('https://www.google.com/maps/dir/' + userLat + ',' + userLng + '/' + destLat + ',' + destLng, '_blank');
+    } else {
+        alert('Veuillez d\'abord actualiser votre position');
+    }
+}
+
+document.addEventListener('click', function(event) {
+    var modal = document.getElementById('directionsModal');
+    if (event.target === modal) {
+        closeDirectionsGuide();
+    }
+});
+</script>
+{% endblock %}

@@ -19,13 +19,16 @@ class HealthJournalType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        $builder
-            ->add('senior', EntityType::class, [
+        if (!$options['hide_senior']) {
+            $builder->add('senior', EntityType::class, [
                 'class' => User::class,
                 'choice_label' => function(User $u) { return trim(($u->getFirstName() ?? '') . ' ' . ($u->getLastName() ?? '')); },
                 'placeholder' => 'Sélectionner un patient',
                 'required' => false,
-            ])
+            ]);
+        }
+
+        $builder
             ->add('date', DateTimeType::class, [
                 'label' => 'Date et heure *',
                 'widget' => 'single_text',
@@ -137,6 +140,7 @@ class HealthJournalType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => HealthJournal::class,
+            'hide_senior' => false,
         ]);
     }
 }

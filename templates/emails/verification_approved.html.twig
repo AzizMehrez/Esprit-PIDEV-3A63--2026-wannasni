@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compte Vérifié - WANNASNI</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f4f4f4; }
+        .email-container { background-color: #ffffff; border-radius: 10px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .header { text-align: center; padding-bottom: 20px; border-bottom: 3px solid #3b82f6; margin-bottom: 30px; }
+        .header h1 { color: #3b82f6; margin: 0; font-size: 28px; }
+        .badge-showcase { text-align: center; margin: 30px 0; }
+        .badge-icon { display: inline-flex; align-items: center; justify-content: center; width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; font-size: 28px; font-weight: bold; box-shadow: 0 4px 15px rgba(59,130,246,0.4); }
+        .badge-icon.purple { background: linear-gradient(135deg, #8b5cf6, #7c3aed); box-shadow: 0 4px 15px rgba(139,92,246,0.4); }
+        .congrats-text { font-size: 18px; color: #1e40af; text-align: center; margin: 20px 0; }
+        .info-box { background-color: #eff6ff; border-left: 4px solid #3b82f6; padding: 15px 20px; margin: 20px 0; border-radius: 5px; }
+        .cta-button { display: inline-block; padding: 12px 30px; background-color: #3b82f6; color: white; text-decoration: none; border-radius: 5px; margin: 20px 0; font-weight: bold; text-align: center; }
+        .footer { margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; text-align: center; font-size: 12px; color: #888; }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header">
+            <h1>🎉 Félicitations !</h1>
+        </div>
+
+        <p class="congrats-text">Bonjour <strong>{{ user.firstName|default('') }}</strong>,</p>
+
+        <div class="badge-showcase">
+            <div class="badge-icon {% if user.effectiveBadge == 'purple' %}purple{% endif %}">✓</div>
+            <p style="margin-top: 10px; font-weight: 600; color: #1e40af;">Votre compte est maintenant vérifié !</p>
+        </div>
+
+        <div class="info-box">
+            <p>Votre demande de vérification a été approuvée. Vous bénéficiez désormais d'un <strong>badge de vérification</strong> visible sur votre profil networking.</p>
+            <p>Ce badge confirme l'authenticité de votre compte auprès de la communauté WANNASNI.</p>
+        </div>
+
+        <div style="text-align: center;">
+            <a href="http://127.0.0.1:8000/fr/networking" class="cta-button">Voir mon profil vérifié →</a>
+        </div>
+
+        <div class="footer">
+            <p>Cet email a été envoyé automatiquement par WANNASNI.</p>
+            <p>&copy; {{ "now"|date("Y") }} WANNASNI - Tous droits réservés</p>
+        </div>
+    </div>
+</body>
+</html>

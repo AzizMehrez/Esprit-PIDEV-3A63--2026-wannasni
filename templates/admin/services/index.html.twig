@@ -135,10 +135,20 @@
                 <td>
                     <div style="display: flex; align-items: center; gap: 0.75rem;">
                         <div style="width: 36px; height: 36px; border-radius: 8px; background: linear-gradient(135deg, #3b82f6, #8b5cf6); display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 0.85rem; color: white;">
-                            {{ service.user.firstName|first|upper }}{{ service.user.lastName|first|upper }}
+                            {% if service.user %}
+                                {{ service.user.firstName|first|upper }}{{ service.user.lastName|first|upper }}
+                            {% else %}
+                                ?
+                            {% endif %}
                         </div>
                         <div>
-                            <div style="font-weight: 600;">{{ service.user.firstName }} {{ service.user.lastName }}</div>
+                            <div style="font-weight: 600;">
+                                {% if service.user %}
+                                    {{ service.user.firstName }} {{ service.user.lastName }}
+                                {% else %}
+                                    {{ service.seniorEmail|default('Utilisateur inconnu') }}
+                                {% endif %}
+                            </div>
                         </div>
                     </div>
                 </td>

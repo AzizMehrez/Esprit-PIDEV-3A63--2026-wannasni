@@ -36,6 +36,10 @@
                 <span style="font-weight: 500;">{{ activity.schedule }}</span>
             </div>
             <div style="display: flex; justify-content: space-between;">
+                <span style="color: var(--text-secondary);">Location</span>
+                <span style="font-weight: 500;">{{ activity.location ?? '📍 Non défini' }}</span>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
                 <span style="color: var(--text-secondary);">Status</span>
                 <span class="badge {% if activity.status == 'active' %}badge-success{% else %}badge-default{% endif %}">
                     {{ activity.status|capitalize }}

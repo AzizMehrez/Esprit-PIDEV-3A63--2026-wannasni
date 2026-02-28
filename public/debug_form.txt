@@ -128,3 +128,88 @@ Errors: Array
 (
 )
 
+--- New Submission ---
+Inputs: Array
+(
+    [type_service] => electricite
+    [description] => Problème électrique identifié : câblage, prise ou éclairage défectueux.
+    [senior_telephone] => 27750877
+    [senior_email] => aziz@wannasni.com
+    [adresse] => tunisia,ariana
+    [ville] => ariana
+    [code_postal] => 2040
+    [niveau_urgence] => urgente
+    [date_souhaitee] => 2026-02-22
+    [budget_minimum] => 12
+    [budget_maximum] => 100
+    [notifier_proches] => 1
+)
+
+Errors: Array
+(
+)
+
+--- New Submission ---
+Inputs: Array
+(
+    [type_service] => electricite
+    [description] => KLFJGID
+    [senior_telephone] => 27750877
+    [senior_email] => aziz@wannasni.com
+    [adresse] => tunisia,ariana
+    [ville] => ariana
+    [code_postal] => 2040
+    [niveau_urgence] => normale
+    [date_souhaitee] => 2026-02-22
+    [budget_minimum] => 12
+    [budget_maximum] => 100
+    [notifier_proches] => 
+)
+
+Errors: Array
+(
+)
+
+--- New Submission ---
+Inputs: Array
+(
+    [type_service] => electricite
+    [description] => Problème électrique identifié : câblage, prise ou éclairage défectueux.
+    [senior_telephone] => +21627750877
+    [senior_email] => azizmehrez1@gmail.com
+    [adresse] => tunisia,ariana
+    [ville] => ariana
+    [code_postal] => 2040
+    [niveau_urgence] => urgente
+    [date_souhaitee] => 2026-02-22
+    [budget_minimum] => 12
+    [budget_maximum] => 100
+    [notifier_proches] => 
+)
+
+Errors: Array
+(
+    [0] => Le numéro de téléphone doit contenir exactement 8 chiffres.
+)
+
+--- New Submission ---
+Inputs: Array
+(
+    [type_service] => electricite
+    [description] => Problème électrique identifié : câblage, prise ou éclairage défectueux.
+    [senior_telephone] => 27750877
+    [senior_email] => azizmehrez1@gmail.com
+    [adresse] => tunisia,ariana
+    [ville] => ariana
+    [code_postal] => 2040
+    [niveau_urgence] => urgente
+    [date_souhaitee] => 2026-02-22
+    [budget_minimum] => 12
+    [budget_maximum] => 100
+    [notifier_proches] => 
+)
+
+Errors: Array
+(
+)
+

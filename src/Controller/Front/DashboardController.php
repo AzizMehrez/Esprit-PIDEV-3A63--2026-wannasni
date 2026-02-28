@@ -14,6 +14,11 @@ class DashboardController extends AbstractController
         // Get the currently logged-in user
         $user = $this->getUser();
 
+        // Redirect to login if not authenticated
+        if (!$user) {
+            return $this->redirectToRoute('app_login');
+        }
+
         // Check if profile is incomplete
         $profileIncomplete = !$user->getDateNaissance() || !$user->getAdresse() || 
                            !$user->getVille() || !$user->getCodePostal() || !$user->getPays();

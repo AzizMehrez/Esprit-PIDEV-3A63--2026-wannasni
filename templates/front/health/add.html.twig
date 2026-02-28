@@ -4,6 +4,7 @@
 
 {% block stylesheets %}
 {{ parent() }}
+<meta name="turbo-visit-control" content="reload">
 <style>
     :root {
         --dash-primary: #dc2626;
@@ -219,6 +220,42 @@
             grid-template-columns: 1fr;
         }
     }
+
+    /* Suggestion Box Styles */
+    .suggestion-box {
+        padding: 1.25rem;
+        background: linear-gradient(135deg, #eff6ff, #dbeafe);
+        border-radius: 16px;
+        border: 2px solid #bfdbfe;
+        box-shadow: 0 4px 15px rgba(37, 99, 235, 0.05);
+        margin-top: 1rem;
+        transition: all 0.3s ease;
+    }
+    .suggestion-header {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 700;
+        color: #1e40af;
+        margin-bottom: 0.75rem;
+        font-size: 1rem;
+    }
+    .suggestion-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.5rem;
+        padding: 0.75rem;
+        background: rgba(255, 255, 255, 0.6);
+        border-radius: 10px;
+        margin-bottom: 0.5rem;
+        font-size: 0.95rem;
+        color: #1e3a8a;
+        line-height: 1.4;
+        border-left: 4px solid #3b82f6;
+    }
+    .suggestion-item:last-child {
+        margin-bottom: 0;
+    }
 </style>
 {% endblock %}
 
@@ -245,7 +282,10 @@
                 </h1>
             </div>
             <div class="form-body">
-                {{ form_start(form) }}
+                {{ form_start(form, {'attr': {'data-turbo': 'false'}}) }}
+                
+                {# Global form errors (CSRF, etc.) #}
+                {{ form_errors(form) }}
                 
                 {# Date Section #}
                 <div class="form-section">
@@ -276,6 +316,16 @@
                         {{ form_label(form.temperature) }}
                         {{ form_widget(form.temperature, {'attr': {'class': 'form-input', 'placeholder': '36.5'}}) }}
                         {{ form_errors(form.temperature) }}
+
+                        <!-- Real-time Suggestion Box -->
+                        <div id="realtime-suggestion" class="suggestion-box" style="display: none;">
+                            <div class="suggestion-header">
+                                <span>💡 Conseil instantané :</span>
+                            </div>
+                            <div id="suggestion-list" class="suggestion-content">
+                                <!-- Dynamically filled by JS -->
+                            </div>
+                        </div>
                     </div>
                 </div>
                 
@@ -349,8 +399,7 @@
                     </div>
                 </div>
 
-                {# Hide senior field for regular users - auto-set in controller #}
-                {{ form_widget(form.senior, {'attr': {'style': 'display:none'}}) }}
+                {# Senior is auto-set in the controller - no form field needed #}
                 
                 <div class="btn-group">
                     <button type="submit" class="btn btn-primary">💾 Enregistrer</button>
@@ -362,4 +411,100 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+(function() {
+    function initHealthSuggestions() {
+        // Sélecteurs flexibles pour supporter différents préfixes de formulaire Symfony
+        const tempInput = document.querySelector('input[id*="_temperature"]');
+        const heartInput = document.querySelector('input[id*="_frequenceCardiaque"]');
+        const tensionInput = document.querySelector('input[id*="_tensionArterielle"]');
+        const suggestionBox = document.getElementById('realtime-suggestion');
+        const suggestionList = document.getElementById('suggestion-list');
+
+        if (!tempInput || !heartInput || !tensionInput || !suggestionBox || !suggestionList) {
+            return;
+        }
+
+        // --- BASE DE CONNAISSANCES SANTÉ ---
+        const healthBase = {
+            temperature: (val) => {
+                if (val > 39) return { status: 'danger', text: '🌡️ <strong>Forte fièvre :</strong> Votre température est très élevée (' + val + '°C). Veuillez contacter un médecin rapidement.' };
+                if (val > 38) return { status: 'warning', text: '🤒 <strong>Fièvre :</strong> Vous semblez avoir de la fièvre. Reposez-vous et hydratez-vous bien.' };
+                if (val < 35.5) return { status: 'warning', text: '🥶 <strong>Hypothermie :</strong> Votre température est basse. Couvrez-vous bien et prenez une boisson chaude.' };
+                if (val >= 36 && val <= 37.5) return { status: 'success', text: '✅ <strong>Température :</strong> Votre température est normale.' };
+                return null;
+            },
+            heart: (val) => {
+                if (val > 100) return { status: 'danger', text: '💓 <strong>Tachycardie :</strong> Votre pouls est rapide (' + val + ' bpm). Essayez de vous asseoir et de respirer calmement.' };
+                if (val < 50) return { status: 'warning', text: '🧘 <strong>Bradycardie :</strong> Votre pouls est lent. Si vous ressentez des vertiges, parlez-en à un médecin.' };
+                if (val >= 60 && val <= 90) return { status: 'success', text: '✅ <strong>Pouls :</strong> Votre rythme cardiaque est excellent.' };
+                return null;
+            },
+            tension: (str) => {
+                const parts = str.split('/');
+                if (parts.length === 2) {
+                    let sys = parseInt(parts[0]);
+                    // Gérer les deux formats (ex: 14/8 ou 140/80)
+                    if (sys < 25) sys = sys * 10;
+
+                    if (sys > 150) return { status: 'danger', text: '⚠️ <strong>Hypertension :</strong> Votre tension est élevée (' + str + '). Évitez les efforts et le sel aujourd\'hui.' };
+                    if (sys < 95) return { status: 'warning', text: '📉 <strong>Hypotension :</strong> Votre tension est un peu basse. Levez-vous doucement pour éviter les vertiges.' };
+                    if (sys >= 110 && sys <= 135) return { status: 'success', text: '✅ <strong>Tension :</strong> Votre pression artérielle est parfaite.' };
+                }
+                return null;
+            }
+        };
+
+        function updateSuggestions() {
+            const temp = parseFloat(tempInput.value);
+            const heart = parseInt(heartInput.value);
+            const tension = tensionInput.value;
+            let finalSuggestions = [];
+
+            const tSug = healthBase.temperature(temp);
+            if (tSug) finalSuggestions.push(tSug);
+
+            const hSug = healthBase.heart(heart);
+            if (hSug) finalSuggestions.push(hSug);
+
+            const pSug = healthBase.tension(tension);
+            if (pSug) finalSuggestions.push(pSug);
+
+            if (finalSuggestions.length > 0) {
+                suggestionList.innerHTML = finalSuggestions.map(s => `
+                    <div class="suggestion-item" style="border-left: 5px solid ${s.status === 'danger' ? '#ef4444' : (s.status === 'warning' ? '#f59e0b' : '#10b981')}; background: white; padding: 10px; margin-bottom: 8px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                        <span>${s.text}</span>
+                    </div>
+                `).join('');
+                suggestionBox.style.display = 'block';
+            } else {
+                suggestionBox.style.display = 'none';
+            }
+        }
+
+        // Écouteurs d'événements
+        [tempInput, heartInput, tensionInput].forEach(input => {
+            if (input) {
+                input.addEventListener('input', updateSuggestions);
+                input.addEventListener('change', updateSuggestions);
+            }
+        });
+
+        // Appel initial
+        updateSuggestions();
+    }
+
+    // Support pour Turbo et chargement classique
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initHealthSuggestions);
+    } else {
+        initHealthSuggestions();
+    }
+    document.addEventListener('turbo:load', initHealthSuggestions);
+})();
+</script>
 {% endblock %}

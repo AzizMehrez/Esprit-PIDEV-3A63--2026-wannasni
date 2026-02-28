@@ -8,8 +8,14 @@ parameters:
     python_default: 'python'
     meal_photos_directory: '%kernel.project_dir%/public/uploads/meals'
     beverage_photos_directory: '%kernel.project_dir%/public/uploads/beverages'
+<<<<<<< HEAD
     python_ml_api_url: '%env(default:ml_api_default:PYTHON_ML_API_URL)%'
     ml_api_default: 'http://127.0.0.1:8001'
+=======
+    openai_api_key: '%env(default::OPENAI_API_KEY)%'
+    huggingface_api_key: '%env(default::HUGGINGFACE_API_KEY)%'
+    ai_local_service_url: '%env(default::AI_LOCAL_SERVICE_URL)%'
+>>>>>>> origin/master
 
 services:
     # default configuration for services in *this* file
@@ -40,6 +46,48 @@ services:
         arguments:
             $beveragePhotosDirectory: '%beverage_photos_directory%'
 
+<<<<<<< HEAD
     App\Service\PythonMLService:
         arguments:
             $pythonApiUrl: '%python_ml_api_url%'
+=======
+    # Image Content Moderation Service (NSFW, violence, weapons, political, drugs)
+    App\Service\ImageModerationService:
+        arguments:
+            $projectDir: '%kernel.project_dir%'
+            $pythonPath: '%python_path%'
+
+    # Verification Analyzer Service (AI profile analysis for verification requests)
+    App\Service\VerificationAnalyzerService:
+        arguments:
+            $projectDir: '%kernel.project_dir%'
+            $pythonPath: '%python_path%'
+
+    # Text Content Moderation Service (multilingual toxicity detection for networking)
+    App\Service\TextModerationService:
+        arguments:
+            $projectDir: '%kernel.project_dir%'
+            $pythonPath: '%python_path%'
+
+    # Captcha Service (Python-generated image captcha for login protection)
+    App\Service\CaptchaService:
+        arguments:
+            $projectDir: '%kernel.project_dir%'
+            $pythonPath: '%python_path%'
+
+    # AI Image Analysis Service for service requests
+    App\Service\ServiceImageAnalyzerService:
+        arguments:
+            $openaiApiKey: '%openai_api_key%'
+            $huggingfaceApiKey: '%huggingface_api_key%'
+            $localServiceUrl: '%ai_local_service_url%'
+            $projectDir: '%kernel.project_dir%'
+
+    # Loyalty Gamification Service with ML reward predictor
+    App\Service\LoyaltyService:
+        arguments:
+            $projectDir: '%kernel.project_dir%'
+
+    # add more service definitions when explicit configuration is needed
+    # please note that last definitions always *replace* previous ones
+>>>>>>> origin/master

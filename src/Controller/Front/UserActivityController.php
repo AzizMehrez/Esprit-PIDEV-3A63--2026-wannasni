@@ -281,4 +281,62 @@ class UserActivityController extends AbstractController
 
         return $this->redirectToRoute('app_participation_history', ['_locale' => $request->getLocale()]);
     }
+
+    #[Route('/{id}', name: 'app_activity_show', requirements: ['id' => '\d+'])]
+    public function show(int $id): Response
+    {
+        $activity = $this->activityRepository->find($id);
+        if (!$activity) {
+            throw $this->createNotFoundException('Activity not found');
+        }
+
+        $participantCount = $this->participationRepository->countActiveByActivity($id);
+
+        $activityData = [
+            'id' => $activity->getId(),
+            'name' => $activity->getTitle(),
+            'description' => $activity->getDescription() ?? '',
+            'type' => $activity->getType(),
+            'schedule' => $activity->getStartTime()?->format('d/m/Y H:i') ?? 'N/A',
+            'location' => $activity->getLocation() ?? '',
+            'participants' => $participantCount,
+            'maxParticipants' => $activity->getMaxParticipants(),
+            'isFull' => $activity->isFull(),
+            'locationData' => null,
+        ];
+
+        // Resolve location data from locations.json
+        if ($activity->getLocation()) {
+            $locationsFile = $this->getParameter('kernel.project_dir') . '/public/data/locations.json';
+            if (file_exists($locationsFile)) {
+                $data = json_decode(file_get_contents($locationsFile), true);
+                $locations = $data['locations'] ?? [];
+                foreach ($locations as $loc) {
+                    if (strtolower($loc['name']) === strtolower($activity->getLocation())) {
+                        $activityData['locationData'] = $loc;
+                        break;
+                    }
+                }
+            }
+        }
+
+        // Check if user is enrolled
+        $isEnrolled = false;
+        /** @var User|null $user */
+        $user = $this->getUser();
+        if ($user instanceof User) {
+            $participation = $this->participationRepository->findOneBy([
+                'seniorId' => $user->getId(),
+                'activityId' => $id
+            ]);
+            if ($participation && !in_array($participation->getStatus(), ['annulé', 'cancelled'])) {
+                $isEnrolled = true;
+            }
+        }
+
+        return $this->render('front/activities/show.html.twig', [
+            'activity' => $activityData,
+            'isEnrolled' => $isEnrolled,
+        ]);
+    }
 }

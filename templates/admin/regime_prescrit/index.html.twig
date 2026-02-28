@@ -86,15 +86,19 @@
 <div class="admin-toolbar">
     <div class="toolbar-search">
         <form method="get" action="{{ path('admin_nutrition') }}" style="display: flex; gap: 0.5rem;">
-            <input type="text" name="search" placeholder="Rechercher un régime..." value="{{ search_term ?? '' }}">
+            <input type="hidden" name="sort" value="{{ current_sort ?? 'desc' }}">
+            <input type="text" name="search" placeholder="Rechercher (nom, type, pathologie...)" value="{{ search_term ?? '' }}">
             <button type="submit" class="btn btn-secondary">🔍</button>
+            {% if search_term is defined and search_term %}
+                <a href="{{ path('admin_nutrition', {sort: current_sort ?? 'desc'}) }}" class="btn btn-outline" title="Effacer la recherche">✕</a>
+            {% endif %}
         </form>
     </div>
     <div class="toolbar-actions">
         <div class="filter-group">
-            <a href="{{ path('admin_nutrition', {sort: current_sort ?? 'desc'}) }}" class="filter-btn active">Tous</a>
-            <a href="{{ path('admin_nutrition', {sort: 'asc'}) }}" class="filter-btn {% if current_sort == 'asc' %}active{% endif %}">Plus anciens</a>
-            <a href="{{ path('admin_nutrition', {sort: 'desc'}) }}" class="filter-btn {% if current_sort == 'desc' %}active{% endif %}">Plus récents</a>
+            <a href="{{ path('admin_nutrition', {sort: current_sort ?? 'desc'}) }}" class="filter-btn {% if not (search_term is defined and search_term) %}active{% endif %}">Tous</a>
+            <a href="{{ path('admin_nutrition', {sort: 'asc', search: search_term ?? ''}) }}" class="filter-btn {% if current_sort == 'asc' %}active{% endif %}">Plus anciens</a>
+            <a href="{{ path('admin_nutrition', {sort: 'desc', search: search_term ?? ''}) }}" class="filter-btn {% if current_sort == 'desc' %}active{% endif %}">Plus récents</a>
         </div>
         <div class="export-group">
             <a href="#" class="btn-export btn-export-pdf" title="Exporter en PDF" onclick="window.print(); return false;">
@@ -194,7 +198,8 @@
                         <a href="{{ path('admin_nutrition_edit', {id: regime.id}) }}" class="action-btn" title="Modifier">✏️</a>
                         <a href="{{ path('admin_nutrition_export_pdf', {id: regime.demande.id}) }}" class="action-btn" title="PDF" target="_blank">📄</a>
                         
-                        <form method="post" action="{{ path('admin_nutrition_send_sms', {id: regime.id}) }}" style="display: inline;" onsubmit="return confirm('Envoyer un SMS d\'alerte manuel au proche ?')">
+                        <form method="post" action="{{ path('admin_nutrition_send_sms', {id: regime.id}) }}" style="display: inline;" onsubmit="return confirm(&quot;Envoyer un SMS d'alerte manuel au proche ?&quot;)">
+                            <input type="hidden" name="_token" value="{{ csrf_token('send_sms_' ~ regime.id) }}">
                             <button type="submit" class="action-btn" style="background: #6366f1; color: white; border-color: #6366f1;" title="Envoyer SMS Manuel">📱</button>
                         </form>
 
@@ -417,14 +422,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 let aValue = a.cells[columnIndex].textContent.trim();
                 let bValue = b.cells[columnIndex].textContent.trim();
                 
-                // Handle numeric values (ID and Calories column)
-                if (columnIndex === 0 || columnIndex === 3) {
-                    aValue = parseInt(aValue.replace(/[^0-9]/g, ''));
-                    bValue = parseInt(bValue.replace(/[^0-9]/g, ''));
+                // Handle numeric values (ID, Limit calories, Consommé columns)
+                if (columnIndex === 0 || columnIndex === 3 || columnIndex === 4) {
+                    aValue = parseInt(aValue.replace(/[^0-9]/g, '')) || 0;
+                    bValue = parseInt(bValue.replace(/[^0-9]/g, '')) || 0;
                 }
                 
-                // Handle dates
-                if (columnIndex === 4 || columnIndex === 5) {
+                // Handle dates (Début=5, Fin=6)
+                if (columnIndex === 5 || columnIndex === 6) {
                     aValue = new Date(aValue.split('/').reverse().join('-'));
                     bValue = new Date(bValue.split('/').reverse().join('-'));
                 }

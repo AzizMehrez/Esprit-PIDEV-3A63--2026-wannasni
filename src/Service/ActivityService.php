@@ -107,10 +107,12 @@ class ActivityService
         }
 
         $participation = new Participation();
-        $participation->setActivity($activity);
+        $participation->setActivityId($activity->getId());
         $participation->setSeniorId($seniorId);
         $participation->setStatus('inscrit');
-        $participation->setRegistrationDate(new \DateTime());
+        $participation->setRegisteredAt(new \DateTime());
+        $participation->setTitle($activity->getTitle());
+        $participation->setRegistrationMethod('web');
 
         $this->em->persist($participation);
 
@@ -135,14 +137,14 @@ class ActivityService
         }
 
         // Business rule: Cannot cancel if activity already started
-        if ($participation->getActivity() && $participation->getActivity()->getStartTime() <= new \DateTime()) {
+        $activity = $this->activityRepository->find($participation->getActivityId());
+        if ($activity && $activity->getStartTime() <= new \DateTime()) {
             throw new BusinessRuleException('Cannot cancel after activity has started');
         }
 
         $participation->setStatus('annulé');
 
         // Update participant count on the activity
-        $activity = $participation->getActivity();
         if ($activity) {
             $activity->setCurrentParticipants(max(0, $activity->getCurrentParticipants() - 1));
         }
@@ -185,9 +187,9 @@ class ActivityService
         return array_map(function(Participation $p) {
             return [
                 'id' => $p->getId(),
-                'activity_id' => $p->getId(),
+                'activity_id' => $p->getActivityId(),
                 'status' => $p->getStatus(),
-                'registered_at' => $p->getRegistrationDate()?->format('Y-m-d H:i:s'),
+                'registered_at' => $p->getRegisteredAt()?->format('Y-m-d H:i:s'),
             ];
         }, $participations);
     }

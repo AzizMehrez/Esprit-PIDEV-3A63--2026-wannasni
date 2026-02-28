@@ -1,0 +1,377 @@
+{% extends 'base_dashboard.html.twig' %}
+
+{% set current_locale = app.request.locale|default('fr') %}
+
+{% block title %}Networking - WANNASNI{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<link rel="stylesheet" href="/css/networking.css">
+{% endblock %}
+
+{% block body %}
+<div class="net-page">
+    {# ── Networking Ban Banner ── #}
+    {% if user.isNetworkingBanned() %}
+    <div class="net-ban-banner">
+        <span>⛔</span>
+        <div>
+            <strong>Accès restreint</strong>
+            <p>Votre accès au networking est en lecture seule. Vous ne pouvez pas publier, commenter ou envoyer de messages.</p>
+        </div>
+    </div>
+    {% endif %}
+
+    {# ── Verification Prompt ── #}
+    {% if not user.isAccountVerified() and not hasActiveVerificationRequest %}
+    <div class="net-verify-prompt" id="verifyPrompt">
+        <div class="net-verify-prompt-inner">
+            <div class="net-verify-icon">✨</div>
+            <div class="net-verify-text">
+                <strong>Voulez-vous être vérifié ?</strong>
+                <p>Obtenez un badge de vérification bleu sur votre profil pour gagner en crédibilité.</p>
+            </div>
+            <button class="net-verify-btn" id="btnRequestVerification">Demander la vérification</button>
+        </div>
+    </div>
+    {% elseif not user.isAccountVerified() and hasActiveVerificationRequest %}
+    <div class="net-verify-pending">
+        <span>⏳</span>
+        <div>
+            <strong>Demande en cours</strong>
+            <p>Votre demande de vérification est en cours d'examen. Vous serez notifié par email.</p>
+        </div>
+    </div>
+    {% endif %}
+
+    {# ── Verification Request Modal ── #}
+    <div class="net-modal" id="verificationModal" style="display:none;">
+        <div class="net-modal-content">
+            <button class="net-modal-close" id="closeVerification">&times;</button>
+            <h2>✨ Demande de vérification</h2>
+            <p>Expliquez pourquoi vous souhaitez être vérifié :</p>
+            <textarea id="verificationReason" rows="4" placeholder="Ex: Je suis un professionnel de santé et je souhaite partager du contenu vérifié..." style="width:100%;padding:12px;border:1px solid #ddd;border-radius:8px;resize:vertical;font-size:0.95rem;"></textarea>
+            <div style="margin-top:1rem;display:flex;gap:0.5rem;justify-content:flex-end;">
+                <button class="net-post-btn" id="btnSubmitVerification" style="background:#3b82f6;">Soumettre</button>
+            </div>
+            <div id="verificationError" style="color:#dc2626;margin-top:0.5rem;display:none;"></div>
+        </div>
+    </div>
+
+    {# ── Top Navigation Bar ── #}
+    <div class="net-topbar">
+        <div class="net-topbar-inner">
+            <a href="{{ path('app_profile', {'_locale': current_locale}) }}" class="net-back-btn">← Profil</a>
+            <h1 class="net-topbar-title">🌐 Networking</h1>
+            <div class="net-topbar-actions">
+                <button class="net-icon-btn" id="btnSearchToggle" title="Rechercher">🔍</button>
+                <button class="net-icon-btn net-badge-btn" id="btnInvites" title="Invitations">
+                    👥
+                    {% if pendingInvitesCount > 0 %}
+                        <span class="net-badge">{{ pendingInvitesCount }}</span>
+                    {% endif %}
+                </button>
+                <button class="net-icon-btn net-badge-btn" id="btnMessages" title="Messages">
+                    💬
+                    {% if unreadMessagesCount > 0 %}
+                        <span class="net-badge">{{ unreadMessagesCount }}</span>
+                    {% endif %}
+                </button>
+                <button class="net-icon-btn" id="btnSettings" title="Paramètres">⚙️</button>
+            </div>
+        </div>
+        {# Search bar (hidden by default) #}
+        <div class="net-search-bar" id="searchBar" style="display:none;">
+            <input type="text" id="searchInput" placeholder="Rechercher des utilisateurs..." autocomplete="off">
+            <div class="net-search-results" id="searchResults"></div>
+        </div>
+    </div>
+
+    {# ── Tab Navigation ── #}
+    <div class="net-tabs">
+        <button class="net-tab active" data-tab="feed">📰 Feed</button>
+        <button class="net-tab" data-tab="reels">🎬 Reels</button>
+        <button class="net-tab" data-tab="friends">👥 Amis</button>
+        <button class="net-tab" data-tab="messages">💬 Messages</button>
+    </div>
+
+    {# ── Feed Tab ── #}
+    <div class="net-tab-content active" id="tab-feed">
+        {# Create Post #}
+        <div class="net-create-post">
+            <div class="net-create-header">
+                <div class="net-avatar-sm">
+                    {% if user.imageProfil %}
+                        <img src="{{ user.imageProfil }}" alt="">
+                    {% else %}
+                        {{ user.firstName|default('U')|first|upper }}
+                    {% endif %}
+                </div>
+                <textarea id="postContent" placeholder="Quoi de neuf ?" rows="2"></textarea>
+            </div>
+            <div class="net-create-media-preview" id="mediaPreview" style="display:none;"></div>
+            <div class="net-create-actions">
+                <div class="net-media-buttons">
+                    <label class="net-media-btn" title="Photo">
+                        📷 Photo
+                        <input type="file" accept="image/*" id="mediaImage" multiple style="display:none;">
+                    </label>
+                    <label class="net-media-btn" title="Vidéo">
+                        🎥 Vidéo
+                        <input type="file" accept="video/*" id="mediaVideo" style="display:none;">
+                    </label>
+                    <select id="postType" class="net-post-type">
+                        <option value="post">📝 Post</option>
+                        <option value="video">🎬 Vidéo</option>
+                        <option value="reel">🎞️ Reel</option>
+                    </select>
+                </div>
+                <button class="net-post-btn" id="btnCreatePost">Publier</button>
+            </div>
+        </div>
+
+        {# Posts Feed #}
+        <div class="net-feed" id="feedContainer">
+            {% for post in posts %}
+                <div class="net-post" data-post-id="{{ post.id }}">
+                    <div class="net-post-header">
+                        <a href="{{ path('app_networking_user_profile', {'_locale': current_locale, 'id': post.author.id}) }}" class="net-post-author">
+                            <div class="net-avatar-sm">
+                                {% if post.author.imageProfil %}
+                                    <img src="{{ post.author.imageProfil }}" alt="">
+                                {% else %}
+                                    {{ post.author.firstName|default('U')|first|upper }}
+                                {% endif %}
+                            </div>
+                            <div>
+                                <strong>{{ post.author.fullName }}</strong>
+                                {% if post.author.effectiveBadge == 'purple' %}
+                                    <span class="net-badge-verified purple" title="Admin vérifié">✓</span>
+                                {% elseif post.author.effectiveBadge == 'blue' %}
+                                    <span class="net-badge-verified blue" title="Vérifié">✓</span>
+                                {% endif %}
+                                <small>{{ post.createdAt|date('d/m/Y H:i') }}</small>
+                                {% if post.type != 'post' %}
+                                    <span class="net-post-type-badge">{{ post.type == 'reel' ? '🎞️ Reel' : '🎬 Vidéo' }}</span>
+                                {% endif %}
+                            </div>
+                        </a>
+                        {% if post.author.id == user.id %}
+                            <button class="net-post-menu" data-post-id="{{ post.id }}" title="Options">⋮</button>
+                        {% endif %}
+                    </div>
+                    {% if post.content %}
+                        <div class="net-post-content">{{ post.content|nl2br }}</div>
+                    {% endif %}
+                    {% if post.media|length > 0 %}
+                        <div class="net-post-media">
+                            {% for m in post.media %}
+                                {% if m.mediaType == 'image' %}
+                                    <img src="{{ m.filePath }}" alt="Post media" class="net-media-img" loading="lazy">
+                                {% elseif m.mediaType == 'video' %}
+                                    <video controls class="net-media-video" preload="metadata">
+                                        <source src="{{ m.filePath }}">
+                                    </video>
+                                {% elseif m.mediaType == 'voice' %}
+                                    <audio controls class="net-media-audio">
+                                        <source src="{{ m.filePath }}">
+                                    </audio>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    <div class="net-post-stats">
+                        <span class="net-like-count" id="likeCount-{{ post.id }}">{{ post.likesCount }} ❤️</span>
+                        <span class="net-comment-count" data-post-id="{{ post.id }}">{{ post.commentsCount }} commentaires</span>
+                    </div>
+                    <div class="net-post-actions">
+                        <button class="net-action-btn {% if post.id in likedPostIds %}liked{% endif %}" data-action="like" data-post-id="{{ post.id }}">
+                            {{ post.id in likedPostIds ? '❤️' : '🤍' }} J'aime
+                        </button>
+                        <button class="net-action-btn" data-action="comment" data-post-id="{{ post.id }}">💬 Commenter</button>
+                        <button class="net-action-btn" data-action="share" data-post-id="{{ post.id }}">📤 Partager</button>
+                    </div>
+                    {# Comments section (hidden by default) #}
+                    <div class="net-comments-section" id="comments-{{ post.id }}" style="display:none;">
+                        <div class="net-comments-list" id="commentsList-{{ post.id }}"></div>
+                        <div class="net-comment-form">
+                            <input type="text" class="net-comment-input" placeholder="Écrire un commentaire..." data-post-id="{{ post.id }}">
+                            <button class="net-comment-send" data-post-id="{{ post.id }}">Envoyer</button>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="net-empty">
+                    <p>🌟 Aucun post pour le moment. Commencez à publier ou connectez-vous avec d'autres utilisateurs !</p>
+                </div>
+            {% endfor %}
+        </div>
+
+        {# Suggested Users Sidebar (mobile: card row) #}
+        {% if suggestedUsers|length > 0 %}
+        <div class="net-suggestions">
+            <h3>Suggestions</h3>
+            <div class="net-suggestion-list">
+                {% for su in suggestedUsers %}
+                    <div class="net-suggestion-card">
+                        <a href="{{ path('app_networking_user_profile', {'_locale': current_locale, 'id': su.id}) }}">
+                            <div class="net-avatar-md">
+                                {% if su.imageProfil %}
+                                    <img src="{{ su.imageProfil }}" alt="">
+                                {% else %}
+                                    {{ su.firstName|default('U')|first|upper }}
+                                {% endif %}
+                            </div>
+                            <strong>{{ su.fullName }}</strong>
+                        </a>
+                        <button class="net-invite-btn" data-user-id="{{ su.id }}">+ Inviter</button>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    {# ── Reels Tab ── #}
+    <div class="net-tab-content" id="tab-reels">
+        <div class="net-reels-container" id="reelsContainer">
+            <p class="net-empty">🎬 Les reels apparaîtront ici. Publiez un reel depuis le fil !</p>
+        </div>
+    </div>
+
+    {# ── Friends Tab ── #}
+    <div class="net-tab-content" id="tab-friends">
+        <div class="net-friends-section">
+            <h3>📩 Invitations en attente</h3>
+            <div id="pendingInvites" class="net-invites-list"></div>
+        </div>
+        <div class="net-friends-section">
+            <h3>👥 Mes amis</h3>
+            <div id="friendsList" class="net-friends-list"></div>
+        </div>
+    </div>
+
+    {# ── Messages Tab ── #}
+    <div class="net-tab-content" id="tab-messages">
+        <div class="net-msg-layout">
+            <div class="net-msg-sidebar" id="conversationsList">
+                <p class="net-empty">Chargement des conversations...</p>
+            </div>
+            <div class="net-msg-chat" id="chatArea">
+                <div class="net-msg-placeholder">
+                    <p>💬 Sélectionnez une conversation pour commencer</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# ── Settings Modal ── #}
+    <div class="net-modal" id="settingsModal" style="display:none;">
+        <div class="net-modal-content">
+            <button class="net-modal-close" id="closeSettings">&times;</button>
+            <h2>⚙️ Paramètres du profil</h2>
+            <div class="net-setting-row">
+                <span>Profil {{ user.profilePublic ? 'Public' : 'Privé' }}</span>
+                <label class="net-toggle">
+                    <input type="checkbox" id="privacyToggle" {{ user.profilePublic ? 'checked' : '' }}>
+                    <span class="net-toggle-slider"></span>
+                </label>
+            </div>
+            <p class="net-setting-desc">Quand votre profil est privé, seuls vos amis peuvent voir vos posts.</p>
+        </div>
+    </div>
+
+    {# ── Share Modal ── #}
+    <div class="net-modal" id="shareModal" style="display:none;">
+        <div class="net-modal-content">
+            <button class="net-modal-close" id="closeShare">&times;</button>
+            <h2>📤 Partager avec un ami</h2>
+            <div id="shareFriendsList" class="net-share-friends"></div>
+        </div>
+    </div>
+</div>
+
+{# Pass locale and user data to JS #}
+<script>
+    window.NET_CONFIG = {
+        locale: '{{ current_locale }}',
+        userId: {{ user.id }},
+        userName: '{{ user.fullName|e('js') }}',
+        userAvatar: '{{ user.imageProfil|default('')|e('js') }}',
+        urls: {
+            createPost: '{{ path('app_networking_post_create', {'_locale': current_locale}) }}',
+            likePost: '{{ path('app_networking_post_like', {'_locale': current_locale, 'id': 0}) }}'.replace('/0/', '/{id}/'),
+            deletePost: '{{ path('app_networking_post_delete', {'_locale': current_locale, 'id': 0}) }}'.replace('/0/', '/{id}/'),
+            commentPost: '{{ path('app_networking_post_comment', {'_locale': current_locale, 'id': 0}) }}'.replace('/0/', '/{id}/'),
+            getComments: '{{ path('app_networking_post_comments', {'_locale': current_locale, 'id': 0}) }}'.replace('/0/', '/{id}/'),
+            search: '{{ path('app_networking_search', {'_locale': current_locale}) }}',
+            sendInvite: '{{ path('app_networking_invite_send', {'_locale': current_locale, 'id': 0}) }}'.replace('/0', '/{id}'),
+            acceptInvite: '{{ path('app_networking_invite_accept', {'_locale': current_locale, 'id': 0}) }}'.replace('/0', '/{id}'),
+            rejectInvite: '{{ path('app_networking_invite_reject', {'_locale': current_locale, 'id': 0}) }}'.replace('/0', '/{id}'),
+            pendingInvites: '{{ path('app_networking_invites_pending', {'_locale': current_locale}) }}',
+            friends: '{{ path('app_networking_friends', {'_locale': current_locale}) }}',
+            removeFriend: '{{ path('app_networking_friend_remove', {'_locale': current_locale, 'id': 0}) }}'.replace('/0', '/{id}'),
+            conversations: '{{ path('app_networking_conversations', {'_locale': current_locale}) }}',
+            getMessages: '{{ path('app_networking_messages_get', {'_locale': current_locale, 'id': 0}) }}'.replace('/0', '/{id}'),
+            sendMessage: '{{ path('app_networking_message_send', {'_locale': current_locale, 'userId': 0}) }}'.replace('/0', '/{id}'),
+            sharePost: '{{ path('app_networking_share_post', {'_locale': current_locale}) }}',
+            togglePrivacy: '{{ path('app_networking_privacy_toggle', {'_locale': current_locale}) }}',
+            userProfile: '{{ path('app_networking_user_profile', {'_locale': current_locale, 'id': 0}) }}'.replace('/0', '/{id}'),
+            verificationRequest: '{{ path('app_networking_verification_request', {'_locale': current_locale}) }}',
+        }
+    };
+</script>
+<script src="/js/networking.js"></script>
+<script>
+// ── Verification Request Modal ──
+(function() {
+    const btnOpen = document.getElementById('btnRequestVerification');
+    const modal = document.getElementById('verificationModal');
+    const btnClose = document.getElementById('closeVerification');
+    const btnSubmit = document.getElementById('btnSubmitVerification');
+    const errorDiv = document.getElementById('verificationError');
+
+    if (btnOpen && modal) {
+        btnOpen.addEventListener('click', () => { modal.style.display = 'flex'; });
+        btnClose.addEventListener('click', () => { modal.style.display = 'none'; });
+        modal.addEventListener('click', (e) => { if (e.target === modal) modal.style.display = 'none'; });
+
+        btnSubmit.addEventListener('click', async () => {
+            const reason = document.getElementById('verificationReason').value.trim();
+            errorDiv.style.display = 'none';
+            if (reason.length < 10) {
+                errorDiv.textContent = 'Veuillez écrire au moins 10 caractères.';
+                errorDiv.style.display = 'block';
+                return;
+            }
+            btnSubmit.disabled = true;
+            btnSubmit.textContent = 'Envoi...';
+            try {
+                const res = await fetch(window.NET_CONFIG.urls.verificationRequest, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ reason }),
+                });
+                const data = await res.json();
+                if (data.success) {
+                    modal.style.display = 'none';
+                    const prompt = document.getElementById('verifyPrompt');
+                    if (prompt) {
+                        prompt.innerHTML = '<div class="net-verify-pending"><span>⏳</span><div><strong>Demande envoyée !</strong><p>' + data.message + '</p></div></div>';
+                        prompt.className = '';
+                    }
+                } else {
+                    errorDiv.textContent = data.error || 'Une erreur est survenue.';
+                    errorDiv.style.display = 'block';
+                }
+            } catch (err) {
+                errorDiv.textContent = 'Erreur réseau. Réessayez.';
+                errorDiv.style.display = 'block';
+            }
+            btnSubmit.disabled = false;
+            btnSubmit.textContent = 'Soumettre';
+        });
+    }
+})();
+</script>
+{% endblock %}

@@ -8,6 +8,18 @@
     <a href="{{ path('admin_activities') }}" class="btn btn-secondary">← Retour aux Activités</a>
 </div>
 
+{# Error Messages #}
+{% for message in app.flashes('error') %}
+    <div style="background: rgba(239, 68, 68, 0.15); color: #dc2626; border: 1px solid rgba(239, 68, 68, 0.3); padding: 1rem 1.25rem; border-radius: 10px; margin-bottom: 1.5rem; font-weight: 600;">
+        ❌ {{ message }}
+    </div>
+{% endfor %}
+
+{# Validation Error Alert #}
+<div id="validation-error" style="display: none; background: rgba(239, 68, 68, 0.15); color: #dc2626; border: 1px solid rgba(239, 68, 68, 0.3); padding: 1rem 1.25rem; border-radius: 10px; margin-bottom: 1.5rem; font-weight: 600;">
+    ❌ <span id="error-message"></span>
+</div>
+
 <div class="card" style="max-width: 700px;">
     <div class="card-header">
         <h2 class="card-title">Modifier : {{ activity.name }}</h2>
@@ -20,8 +32,8 @@
         </div>
         
         <div class="form-group">
-            <label class="form-label">Description</label>
-            <textarea class="form-input" name="description" rows="3">{{ activity.description }}</textarea>
+            <label class="form-label">Description *</label>
+            <textarea class="form-input" name="description" rows="3" required>{{ activity.description }}</textarea>
         </div>
         
         <div class="form-group">
@@ -37,24 +49,39 @@
         </div>
 
         <div class="form-group">
-            <label class="form-label">Lieu</label>
-            <input type="text" class="form-input" name="location" value="{{ activity.location }}" placeholder="ex: Salle de gym">
+            <label class="form-label">Lieu *</label>
+            <select class="form-input" name="location" required>
+                <option value="" {% if not activity.location %}selected{% endif %}>Sélectionnez un lieu...</option>
+                <option value="Yoga & Wellness Studio Tunis" {% if activity.location == "Yoga & Wellness Studio Tunis" %}selected{% endif %}>Yoga & Wellness Studio Tunis</option>
+                <option value="Parc El Omrane Supérieur - Yoga Area" {% if activity.location == "Parc El Omrane Supérieur - Yoga Area" %}selected{% endif %}>Parc El Omrane Supérieur - Yoga Area</option>
+                <option value="Studio Salsateca - Salle de Danse" {% if activity.location == "Studio Salsateca - Salle de Danse" %}selected{% endif %}>Studio Salsateca - Salle de Danse</option>
+                <option value="Centre Culturel - Salle Polyvalente" {% if activity.location == "Centre Culturel - Salle Polyvalente" %}selected{% endif %}>Centre Culturel - Salle Polyvalente</option>
+                <option value="Elite Fitness Gym Ariana" {% if activity.location == "Elite Fitness Gym Ariana" %}selected{% endif %}>Elite Fitness Gym Ariana</option>
+                <option value="Bibliothèque Nationale Tunis" {% if activity.location == "Bibliothèque Nationale Tunis" %}selected{% endif %}>Bibliothèque Nationale Tunis</option>
+                <option value="Tech Hub Sfax - Innovation Center" {% if activity.location == "Tech Hub Sfax - Innovation Center" %}selected{% endif %}>Tech Hub Sfax - Innovation Center</option>
+                <option value="Institut Supérieur d'Informatique - Salle Lecture" {% if activity.location == "Institut Supérieur d'Informatique - Salle Lecture" %}selected{% endif %}>Institut Supérieur d'Informatique - Salle Lecture</option>
+                <option value="Parc Belvedère - Espace Libre" {% if activity.location == "Parc Belvedère - Espace Libre" %}selected{% endif %}>Parc Belvedère - Espace Libre</option>
+                <option value="Maison des Jeunes - Tunis Nord" {% if activity.location == "Maison des Jeunes - Tunis Nord" %}selected{% endif %}>Maison des Jeunes - Tunis Nord</option>
+                <option value="Auditorium Ezzahra" {% if activity.location == "Auditorium Ezzahra" %}selected{% endif %}>Auditorium Ezzahra</option>
+                <option value="Complexe Sportif Olympique - Piscine" {% if activity.location == "Complexe Sportif Olympique - Piscine" %}selected{% endif %}>Complexe Sportif Olympique - Piscine</option>
+                <option value="Studio D'Art & Créativité" {% if activity.location == "Studio D'Art & Créativité" %}selected{% endif %}>Studio D'Art & Créativité</option>
+            </select>
         </div>
 
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
             <div class="form-group">
-                <label class="form-label">Date/heure début</label>
-                <input type="datetime-local" class="form-input" name="start_time" value="{{ activity.startTime }}">
+                <label class="form-label">Date/heure début *</label>
+                <input type="datetime-local" class="form-input" name="start_time" value="{{ activity.startTime }}" required>
             </div>
             <div class="form-group">
-                <label class="form-label">Date/heure fin</label>
-                <input type="datetime-local" class="form-input" name="end_time" value="{{ activity.endTime }}">
+                <label class="form-label">Date/heure fin *</label>
+                <input type="datetime-local" class="form-input" name="end_time" value="{{ activity.endTime }}" required>
             </div>
         </div>
 
         <div class="form-group">
-            <label class="form-label">Max participants</label>
-            <input type="number" class="form-input" name="max_participants" value="{{ activity.maxParticipants }}" min="1" max="200">
+            <label class="form-label">Max participants *</label>
+            <input type="number" class="form-input" name="max_participants" value="{{ activity.maxParticipants }}" min="1" max="200" required>
         </div>
         
         <div class="form-group">
@@ -66,9 +93,50 @@
         </div>
         
         <div style="display: flex; gap: 1rem; margin-top: 2rem;">
-            <button type="submit" class="btn btn-primary">Sauvegarder</button>
+            <button type="submit" class="btn btn-primary" id="submit-btn">Sauvegarder</button>
             <a href="{{ path('admin_activities_show', {id: activity.id}) }}" class="btn btn-secondary">Annuler</a>
         </div>
     </form>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form');
+    const startTimeInput = document.querySelector('input[name="start_time"]');
+    const endTimeInput = document.querySelector('input[name="end_time"]');
+    const submitBtn = document.getElementById('submit-btn');
+    const errorDiv = document.getElementById('validation-error');
+    const errorMsg = document.getElementById('error-message');
+    
+    function validateForm() {
+        errorDiv.style.display = 'none';
+        
+        // Check if end_time is before start_time
+        if (startTimeInput.value && endTimeInput.value) {
+            const startDate = new Date(startTimeInput.value);
+            const endDate = new Date(endTimeInput.value);
+            
+            if (endDate < startDate) {
+                errorMsg.textContent = 'L\'heure de fin ne peut pas être antérieure à l\'heure de début.';
+                errorDiv.style.display = 'block';
+                return false;
+            }
+        }
+        
+        return true;
+    }
+    
+    // Validate on input change
+    startTimeInput.addEventListener('change', validateForm);
+    endTimeInput.addEventListener('change', validateForm);
+    
+    // Validate on form submit
+    form.addEventListener('submit', function(e) {
+        if (!validateForm()) {
+            e.preventDefault();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    });
+});
+</script>
 {% endblock %}

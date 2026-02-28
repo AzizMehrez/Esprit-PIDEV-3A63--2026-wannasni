@@ -41,7 +41,7 @@ class HealthController extends AbstractController
                 'entry' => [
                     'id' => $journal->getId(),
                     'date' => $journal->getDate()?->format('Y-m-d'),
-                    'blood_pressure' => $journal->getBloodPressure(),
+                    'tension_arterielle' => $journal->getTensionArterielle(),
                     'temperature' => $journal->getTemperature(),
                 ]
             ], 201);
@@ -104,8 +104,8 @@ class HealthController extends AbstractController
                 'success' => true,
                 'treatment' => [
                     'id' => $treatment->getId(),
-                    'medication' => $treatment->getMedication(),
-                    'dosage' => $treatment->getDosage(),
+                    'medicaments' => $treatment->getMedicaments(),
+                    'posologie' => $treatment->getPosologie(),
                 ]
             ], 201);
 

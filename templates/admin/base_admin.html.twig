@@ -639,6 +639,12 @@
                 <span class="nav-icon">📦</span>
                 Commandes
             </a>
+
+            <div class="nav-section">Fidélité</div>
+            <a href="{{ path('admin_loyalty') }}" class="nav-item {% if 'admin_loyalty' in app.request.get('_route') %}active{% endif %}">
+                <span class="nav-icon">🏆</span>
+                Programme Fidélité
+            </a>
         </nav>
 
         <div class="sidebar-footer">

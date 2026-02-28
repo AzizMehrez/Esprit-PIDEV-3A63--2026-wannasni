@@ -159,6 +159,127 @@
         border-color: var(--dash-primary);
         color: var(--dash-primary);
     }
+    
+    /* ========================
+       FLOATING CHAT BUTTON
+    ======================== */
+    
+    .floating-chat-btn {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        width: 65px;
+        height: 65px;
+        background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+        border: none;
+        border-radius: 50%;
+        box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        color: white;
+        font-size: 1.5rem;
+    }
+
+    .floating-chat-btn:hover {
+        transform: translateY(-3px) scale(1.1);
+        box-shadow: 0 12px 35px rgba(99, 102, 241, 0.5);
+        background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+        color: white;
+        text-decoration: none;
+    }
+
+    .floating-chat-btn:active {
+        transform: translateY(-1px) scale(1.05);
+    }
+
+    .chat-btn-icon {
+        width: 28px;
+        height: 28px;
+        stroke-width: 2.5;
+        transition: transform 0.2s ease;
+    }
+
+    .floating-chat-btn:hover .chat-btn-icon {
+        transform: scale(1.2);
+    }
+
+    .floating-chat-btn::before {
+        content: '';
+        position: absolute;
+        inset: -3px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #6366f1, #8b5cf6);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        z-index: -1;
+    }
+
+    .floating-chat-btn:hover::before {
+        opacity: 0.3;
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% {
+            transform: scale(1);
+            opacity: 0.3;
+        }
+        50% {
+            transform: scale(1.15);
+            opacity: 0.1;
+        }
+    }
+
+    .chat-btn-tooltip {
+        position: absolute;
+        bottom: 75px;
+        right: 0;
+        background: rgba(0, 0, 0, 0.8);
+        color: white;
+        padding: 8px 12px;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        white-space: nowrap;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(10px);
+        transition: all 0.3s ease;
+        pointer-events: none;
+    }
+
+    .floating-chat-btn:hover .chat-btn-tooltip {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+    }
+
+    .chat-btn-tooltip::after {
+        content: '';
+        position: absolute;
+        top: 100%;
+        right: 20px;
+        border: 6px solid transparent;
+        border-top-color: rgba(0, 0, 0, 0.8);
+    }
+
+    @media (max-width: 768px) {
+        .floating-chat-btn {
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+        }
+
+        .chat-btn-icon {
+            width: 24px;
+            height: 24px;
+        }
+    }
 </style>
 {% endblock %}
 
@@ -205,8 +326,15 @@
                                 <img src="{{ user.imageProfil }}" alt="Profile" style="width: 100px; height: 100px; object-fit: cover; border-radius: 50%; border: 2px solid #e2e8f0;">
                             </div>
                         {% endif %}
-                        <input type="file" class="form-input" name="imageProfil" accept="image/*" style="padding: 0.75rem;">
-                        <small style="color: #64748b; display: block; margin-top: 0.5rem;">Formats acceptés: JPG, PNG, GIF (Max 2MB)</small>
+
+                        <!-- Preview + validation UI -->
+                        <div id="img-preview-wrap" style="display:none; margin-bottom:1rem; text-align:center;">
+                            <img id="img-preview" src="" alt="Aperçu" style="width:120px;height:120px;object-fit:cover;border-radius:50%;border:3px solid #e2e8f0;transition:border-color .3s;">
+                        </div>
+                        <div id="img-status" style="display:none; margin-bottom:.75rem; padding:.75rem 1rem; border-radius:10px; font-size:.9rem; font-weight:600;"></div>
+
+                        <input type="file" class="form-input" name="imageProfil" id="imageProfil" accept="image/*" style="padding: 0.75rem;">
+                        <small style="color: #64748b; display: block; margin-top: 0.5rem;">📷 Une photo de votre visage est requise. Formats: JPG, PNG (Max 2MB)</small>
                     </div>
 
                     <div class="form-group">
@@ -240,7 +368,7 @@
                     </div>
 
                     <div class="btn-group">
-                        <button type="submit" class="btn btn-primary">💾 Enregistrer</button>
+                        <button type="submit" id="submit-btn" class="btn btn-primary">💾 Enregistrer</button>
                         <a href="{{ path('app_profile', {'_locale': app.request.locale}) }}" class="btn btn-secondary">Annuler</a>
                     </div>
                 </form>
@@ -248,4 +376,97 @@
         </div>
     </div>
 </div>
+
+<script>
+(function() {
+    const input      = document.getElementById('imageProfil');
+    const previewWrap= document.getElementById('img-preview-wrap');
+    const preview    = document.getElementById('img-preview');
+    const status     = document.getElementById('img-status');
+    const submitBtn  = document.getElementById('submit-btn');
+    const validateUrl= '{{ path('app_profile_validate_image', {'_locale': app.request.locale}) }}';
+
+    let imageValid = true; // no file selected = no restriction
+
+    function showStatus(msg, ok) {
+        status.textContent = msg;
+        status.style.display = 'block';
+        if (ok) {
+            status.style.background = '#d4f4dd';
+            status.style.color      = '#276749';
+            status.style.border     = '1.5px solid #48bb78';
+            preview.style.border    = '3px solid #48bb78';
+        } else {
+            status.style.background = '#fef2f2';
+            status.style.color      = '#c53030';
+            status.style.border     = '1.5px solid #fc8181';
+            preview.style.border    = '3px solid #fc8181';
+        }
+        submitBtn.disabled   = !ok;
+        submitBtn.style.opacity = ok ? '1' : '0.5';
+        submitBtn.style.cursor  = ok ? 'pointer' : 'not-allowed';
+    }
+
+    function showLoading() {
+        status.textContent   = '🔍 Analyse du visage en cours…';
+        status.style.display = 'block';
+        status.style.background = '#eff6ff';
+        status.style.color      = '#1d4ed8';
+        status.style.border     = '1.5px solid #93c5fd';
+        preview.style.border    = '3px solid #93c5fd';
+        submitBtn.disabled      = true;
+        submitBtn.style.opacity = '0.5';
+    }
+
+    input.addEventListener('change', async function() {
+        const file = input.files[0];
+        if (!file) {
+            previewWrap.style.display = 'none';
+            status.style.display      = 'none';
+            submitBtn.disabled        = false;
+            submitBtn.style.opacity   = '1';
+            imageValid = true;
+            return;
+        }
+
+        // Show preview immediately
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+            preview.src              = e.target.result;
+            previewWrap.style.display= 'block';
+            showLoading();
+
+            // Send to backend for face detection
+            const formData = new FormData();
+            formData.append('imageData', e.target.result);
+
+            try {
+                const res  = await fetch(validateUrl, { method: 'POST', body: formData });
+                const data = await res.json();
+
+                imageValid = data.valid;
+                if (data.valid) {
+                    showStatus('✅ ' + data.message, true);
+                } else {
+                    showStatus('❌ ' + data.message + '\n\nVeuillez vérifier votre photo et télécharger une photo de visage humain.', false);
+                }
+            } catch (err) {
+                showStatus('⚠️ Impossible de valider l\'image. Vérifiez votre connexion.', false);
+                imageValid = false;
+            }
+        };
+        reader.readAsDataURL(file);
+    });
+
+    // Extra guard: block form submit if image invalid
+    input.closest('form').addEventListener('submit', function(e) {
+        if (!imageValid) {
+            e.preventDefault();
+            showStatus('❌ Veuillez télécharger une photo de visage humain valide avant d\'enregistrer.', false);
+        }
+    });
+})();
+</script>
+
+<!-- Floating Chat Button removed as per user request -->
 {% endblock %}

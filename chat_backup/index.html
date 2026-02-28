@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus AI — Smart Assistant</title>
+    <meta name="description"
+        content="Nexus AI - Your intelligent assistant with web search, image analysis, voice chat, and more.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- Prism.js for code syntax highlighting -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- Smart Chat Widget -->
+    <div id="smart-chat-container">
+        <!-- Profile Panel -->
+        <div class="profile-panel" id="profile-panel">
+            <div class="profile-panel-header">
+                <div class="profile-panel-title">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                    Mon Profil
+                </div>
+                <button class="profile-close-btn" id="profile-close" title="Close Profile">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 6 6 18"></path>
+                        <path d="m6 6 12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="profile-panel-content">
+                <div class="profile-loading" id="profile-loading">
+                    <div class="loading-spinner"></div>
+                    <p>Chargement de votre profil...</p>
+                </div>
+                <iframe 
+                    id="profile-iframe" 
+                    src="" 
+                    frameborder="0"
+                    style="display: none; width: 100%; height: 100%; border: none;"
+                    title="Profil WANNASNI">
+                </iframe>
+                <div class="profile-error" id="profile-error" style="display: none;">
+                    <div class="error-icon">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="15" y1="9" x2="9" y2="15"></line>
+                            <line x1="9" y1="9" x2="15" y2="15"></line>
+                        </svg>
+                    </div>
+                    <p>Impossible de charger le profil</p>
+                    <button class="retry-btn" id="profile-retry">Réessayer</button>
+                    <a href="http://127.0.0.1:8000/fr/profile" target="_blank" class="external-link-btn">Ouvrir dans un nouvel onglet</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat Window -->
+        <div class="chat-window" id="chat-window">
+            <div class="chat-header">
+                <div class="header-info">
+                    <div class="avatar-ring">
+                        <img src="https://ui-avatars.com/api/?name=AI&background=6366f1&color=fff" alt="AI Agent">
+                        <span class="status-dot"></span>
+                    </div>
+                    <div class="agent-details">
+                        <span class="agent-name">Nexus AI</span>
+                        <span class="agent-status" id="agent-status">Online & Ready</span>
+                    </div>
+                </div>
+                <!-- Persona Selector -->
+                <select id="persona-select" class="persona-select" title="AI Persona">
+                    <option value="default">🤖 Nexus</option>
+                    <option value="coder">💻 Coder</option>
+                    <option value="tutor">📚 Tutor</option>
+                    <option value="creative">🎨 Creative</option>
+                    <option value="casual">😎 Casual</option>
+                </select>
+                <div class="header-actions">
+                    <!-- Profile Button -->
+                    <button class="header-icon-btn" id="profile-toggle" title="My Profile">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                    </button>
+                    <!-- Chat History -->
+                    <button class="header-icon-btn" id="history-toggle" title="Chat History">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                    </button>
+                    <!-- Dark/Light Mode Toggle -->
+                    <button class="header-icon-btn" id="theme-toggle" title="Toggle Theme">
+                        <svg id="theme-icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
+                        <svg id="theme-icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" style="display:none">
+                            <circle cx="12" cy="12" r="5"></circle>
+                            <line x1="12" y1="1" x2="12" y2="3"></line>
+                            <line x1="12" y1="21" x2="12" y2="23"></line>
+                            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                            <line x1="1" y1="12" x2="3" y2="12"></line>
+                            <line x1="21" y1="12" x2="23" y2="12"></line>
+                            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                        </svg>
+                    </button>
+                    <!-- Export Chat -->
+                    <button class="header-icon-btn" id="export-chat" title="Export Chat">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="7 10 12 15 17 10"></polyline>
+                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                        </svg>
+                    </button>
+                    <!-- Clear Chat -->
+                    <button class="header-icon-btn" id="clear-chat" title="New Chat">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M12 20h9"></path>
+                            <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                        </svg>
+                    </button>
+                    <!-- Close -->
+                    <button class="close-btn" id="close-chat" aria-label="Close Chat">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M18 6L6 18M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Chat History Sidebar -->
+            <div class="chat-sidebar" id="chat-sidebar">
+                <div class="sidebar-header">
+                    <span class="sidebar-title">Chat History</span>
+                    <button class="sidebar-new-btn" id="sidebar-new-chat" title="New Chat">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        New
+                    </button>
+                </div>
+                <div class="sidebar-list" id="sidebar-list">
+                    <!-- Sessions will be rendered here dynamically -->
+                </div>
+            </div>
+
+            <!-- Drag & Drop Zone -->
+            <div class="drop-zone" id="drop-zone">
+                <div class="drop-zone-content">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="1.5">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="17 8 12 3 7 8"></polyline>
+                        <line x1="12" y1="3" x2="12" y2="15"></line>
+                    </svg>
+                    <span>Drop file or image here</span>
+                </div>
+            </div>
+
+            <div class="chat-messages" id="chat-messages">
+                <div class="message bot-message welcome">
+                    <p>Hello! I'm <strong>Nexus</strong> 🤖 Your AI assistant with superpowers:<br>
+                        🔍 Web Search · 📷 Image Analysis · 🖥️ Screen Share · 🎙️ Voice Chat · 🗄️ Database Access</p>
+                    <span class="timestamp">Just now</span>
+                </div>
+            </div>
+
+            <!-- Usage Stats -->
+            <div class="usage-stats" id="usage-stats">
+                <span>💬 <span id="msg-count">0</span> msgs</span>
+                <span>📊 <span id="token-count">0</span> tokens</span>
+            </div>
+
+            <!-- Suggested Prompts -->
+            <div class="suggested-prompts" id="suggested-prompts">
+                <button class="prompt-chip" data-prompt="Search the web for latest AI news">🔍 Search the web</button>
+                <button class="prompt-chip" data-prompt="What can you do?">💡 What can you do?</button>
+                <button class="prompt-chip" data-prompt="Tell me a fun fact">🎲 Fun fact</button>
+                <button class="prompt-chip" data-prompt="Help me with my code">💻 Help with code</button>
+            </div>
+
+            <div class="chat-input-area">
+                <div class="typing-indicator" id="typing-indicator">
+                    <span></span><span></span><span></span>
+                </div>
+                <div id="image-preview-container" class="image-preview hidden">
+                    <img id="image-preview" src="" alt="Preview">
+                    <button id="remove-image" class="remove-btn">×</button>
+                </div>
+
+                <div class="input-wrapper">
+                    <input type="file" id="image-upload" accept="image/*" style="display: none;">
+                    <input type="file" id="file-upload" accept=".pdf,.csv,.txt,.json,.xml,.html,.md,.js,.py,.php,.css"
+                        style="display: none;">
+                    <button id="upload-btn" title="Upload Image">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path
+                                d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48">
+                            </path>
+                        </svg>
+                    </button>
+                    <button id="file-upload-btn" title="Upload File (PDF, CSV, TXT...)">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                            <line x1="12" y1="18" x2="12" y2="12"></line>
+                            <line x1="9" y1="15" x2="15" y2="15"></line>
+                        </svg>
+                    </button>
+                    <button id="screen-share-btn" title="Share Screen">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                            <line x1="8" y1="21" x2="16" y2="21"></line>
+                            <line x1="12" y1="17" x2="12" y2="21"></line>
+                        </svg>
+                    </button>
+                    <button id="voice-btn" title="Voice Input">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                            <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                            <line x1="12" y1="19" x2="12" y2="23"></line>
+                            <line x1="8" y1="23" x2="16" y2="23"></line>
+                        </svg>
+                    </button>
+                    <input type="text" id="user-input" placeholder="Type a message..." autocomplete="off">
+                    <button id="send-btn">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Floating Toggle Button -->
+        <button class="chat-toggle-btn" id="chat-toggle">
+            <svg class="icon-chat" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+            </svg>
+            <span class="notification-badge">1</span>
+        </button>
+    </div>
+
+    <!-- Voice Call Overlay -->
+    <div class="voice-call-overlay" id="voice-call-overlay">
+        <div class="voice-call-container">
+            <!-- Animated Orb -->
+            <div class="voice-orb-wrapper">
+                <div class="voice-orb-ring ring-1"></div>
+                <div class="voice-orb-ring ring-2"></div>
+                <div class="voice-orb-ring ring-3"></div>
+                <div class="voice-orb" id="voice-orb">
+                    <div class="orb-inner"></div>
+                </div>
+            </div>
+
+            <!-- Status -->
+            <div class="voice-call-status" id="voice-call-status">Tap to start talking</div>
+
+            <!-- Live Transcript -->
+            <div class="voice-transcript" id="voice-transcript"></div>
+
+            <!-- AI Response Text -->
+            <div class="voice-ai-text" id="voice-ai-text"></div>
+
+            <!-- Controls -->
+            <div class="voice-call-controls">
+                <button class="voice-control-btn mute-btn" id="voice-mute-btn" title="Mute">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                        <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                        <line x1="12" y1="19" x2="12" y2="23"></line>
+                        <line x1="8" y1="23" x2="16" y2="23"></line>
+                    </svg>
+                </button>
+                <button class="voice-control-btn end-call-btn" id="voice-end-call" title="End Call">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path
+                            d="M10.68 13.31a16 16 0 0 0 3.41 2.6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7 2 2 0 0 1 1.72 2v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91">
+                        </path>
+                        <line x1="1" y1="1" x2="23" y2="23"></line>
+                    </svg>
+                </button>
+                <button class="voice-control-btn speaker-btn" id="voice-speaker-btn" title="Speaker">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                        <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Call Timer -->
+            <div class="voice-call-timer" id="voice-call-timer">00:00</div>
+        </div>
+    </div>
+
+    <!-- Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-javascript.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-php.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-css.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-sql.min.js"></script>
+    <script src="api.js"></script>
+    <script src="script.js"></script>
+    <!-- ML Chat Integration -->
+    <script src="ml_chat_integration.js"></script>
+</body>
+
+</html>

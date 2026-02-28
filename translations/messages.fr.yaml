@@ -164,6 +164,15 @@ auth:
     continue_google: "Continuer avec Google"
     continue_x: "Continuer avec X"
     continue_facebook: "Continuer avec Facebook"
+    continue_github: "Continuer avec GitHub"
+    confirm_link_title: "Lier votre compte"
+    confirm_link_desc: "Un compte existe déjà avec l'email %email%. Voulez-vous lier votre compte %provider% ?"
+    confirm_link_info_title: "Que va-t-il se passer ?"
+    confirm_link_bullet1: "Votre compte %provider% sera lié à votre compte existant."
+    confirm_link_bullet2: "Vous pourrez vous connecter avec les deux méthodes."
+    confirm_link_bullet3: "Vos données actuelles seront conservées."
+    confirm_link_button: "Oui, lier mon compte %provider%"
+    confirm_link_cancel: "Non, annuler"
     forgot_password_link: "Mot de passe oublié ?"
     send_reset_link: "Envoyer le lien de réinitialisation"
     remember_password: "Vous vous souvenez de votre mot de passe ?"
@@ -217,6 +226,15 @@ auth:
     face_consent_required: "Vous devez accepter le traitement de vos données biométriques."
     camera_error: "Impossible d'accéder à la caméra. Veuillez autoriser l'accès."
 
+# Captcha
+captcha:
+    label: "Captcha de sécurité"
+    hint: "Entrez les caractères affichés"
+    placeholder: "Entrez le code ci-dessus"
+    refresh: "Nouvelle image"
+    invalid: "Le captcha est incorrect. Veuillez réessayer."
+    required: "Veuillez résoudre le captcha pour continuer."
+
 # Success messages
 success:
     face_login: "Connexion réussie par Face ID !"
@@ -233,3 +251,50 @@ action:
     login: "Se connecter"
     capture_face: "Capturer le visage"
     retake: "Reprendre"
+
+# Modération de contenu
+moderation:
+    rejected: "Votre message contient des mots inappropriés et a été rejeté."
+    affects_rate: "Cela affecte votre réputation sur le réseau."
+    warnings: "Avertissements : %count%"
+    banned_notice: "Votre accès networking est en lecture seule. Vous ne pouvez pas publier ni commenter."
+    inappropriate_content: "Contenu inapproprié détecté."
+    image_sensitive: "Cette photo contient du contenu sensible et ne sera pas publiée."
+    image_unavailable: "Impossible de vérifier cette image pour le moment. Par mesure de sécurité, elle ne sera pas publiée."
+    image_share_appropriate: "Veuillez partager uniquement du contenu approprié et respectueux."
+
+# Abonnement
+subscription:
+    title: "Mon Abonnement"
+    plans: "Nos Formules"
+    subscribe: "S'abonner"
+    cancel: "Annuler l'abonnement"
+    suspend: "Suspendre"
+    reactivate: "Réactiver"
+    checkout: "Commander"
+    status:
+        active: "Actif"
+        suspended: "Suspendu"
+        cancelled: "Annulé"
+        past_due: "Impayé"
+        pending: "En attente"
+    plan:
+        essentiel: "Essentiel"
+        confort: "Confort"
+        premium: "Premium"
+    no_subscription: "Vous n'avez pas encore d'abonnement"
+    choose_plan: "Choisir une formule"
+
+# Fidélité
+loyalty:
+    title: "Programme Fidélité"
+    points: "Points"
+    rewards: "Récompenses"
+    history: "Historique"
+    redeem: "Utiliser"
+    balance: "Solde de points"
+    earn_points: "Gagnez des points"
+    no_points: "Vous n'avez pas encore de points"
+    no_rewards: "Aucune récompense disponible"
+    reward_redeemed: "Récompense utilisée avec succès !"
+    points_earned: "%points% points gagnés"

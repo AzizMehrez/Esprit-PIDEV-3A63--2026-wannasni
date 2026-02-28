@@ -1,0 +1,331 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Fidélité Gamifiée - Admin WANNASNI{% endblock %}
+
+{% block page_title %}🏆 Programme Fidélité — Suivi Automatique{% endblock %}
+
+{% block content %}
+<style>
+    .loyalty-admin-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 1.25rem;
+        margin-bottom: 2rem;
+    }
+    .loyalty-stat-card {
+        background: var(--admin-card);
+        border-radius: var(--admin-radius);
+        padding: 1.5rem;
+        text-align: center;
+        border: 1px solid var(--admin-border);
+    }
+    .loyalty-stat-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+    .loyalty-stat-value { font-size: 2rem; font-weight: 800; color: var(--admin-primary-light); }
+    .loyalty-stat-label { font-size: 0.85rem; color: var(--admin-text-muted); margin-top: 0.25rem; }
+
+    .admin-section {
+        margin-bottom: 2rem;
+    }
+    .admin-section-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin-bottom: 1.25rem;
+        color: var(--admin-text);
+    }
+
+    .admin-table {
+        width: 100%;
+        background: var(--admin-card);
+        border-radius: var(--admin-radius);
+        overflow: hidden;
+        border: 1px solid var(--admin-border);
+    }
+    .admin-table th {
+        background: rgba(59, 130, 246, 0.1);
+        padding: 1rem;
+        text-align: left;
+        font-weight: 600;
+        font-size: 0.85rem;
+        color: var(--admin-text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+    .admin-table td {
+        padding: 0.85rem 1rem;
+        border-bottom: 1px solid var(--admin-border);
+        font-size: 0.95rem;
+    }
+    .admin-table tr:hover td { background: rgba(255,255,255,0.03); }
+
+    .rank-badge {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        font-size: 0.85rem;
+    }
+    .rank-1 { background: linear-gradient(135deg, #F59E0B, #D97706); color: white; }
+    .rank-2 { background: linear-gradient(135deg, #9CA3AF, #6B7280); color: white; }
+    .rank-3 { background: linear-gradient(135deg, #D97706, #92400E); color: white; }
+    .rank-default { background: var(--admin-border); color: var(--admin-text-muted); }
+
+    .points-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        background: rgba(34, 197, 94, 0.15);
+        color: #22C55E;
+        padding: 0.3rem 0.75rem;
+        border-radius: 50px;
+        font-weight: 700;
+        font-size: 0.9rem;
+    }
+
+    .reward-status {
+        display: inline-block;
+        padding: 0.2rem 0.65rem;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+    .reward-status.available { background: rgba(34, 197, 94, 0.15); color: #22C55E; }
+    .reward-status.redeemed { background: rgba(59, 130, 246, 0.15); color: #60A5FA; }
+    .reward-status.expired { background: rgba(239, 68, 68, 0.15); color: #EF4444; }
+
+    .auto-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        background: rgba(59, 130, 246, 0.15);
+        color: #60A5FA;
+        padding: 0.25rem 0.65rem;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .source-badge {
+        display: inline-block;
+        padding: 0.2rem 0.65rem;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+    .source-badge.intervention { background: rgba(34, 197, 94, 0.15); color: #22C55E; }
+    .source-badge.subscription { background: rgba(168, 85, 247, 0.15); color: #A855F7; }
+    .source-badge.activity { background: rgba(59, 130, 246, 0.15); color: #60A5FA; }
+    .source-badge.bonus { background: rgba(245, 158, 11, 0.15); color: #F59E0B; }
+
+    .flash-msg {
+        padding: 1rem 1.5rem;
+        border-radius: var(--admin-radius-sm);
+        margin-bottom: 1rem;
+        font-weight: 600;
+    }
+    .flash-msg.success { background: rgba(34, 197, 94, 0.15); color: #22C55E; }
+    .flash-msg.error { background: rgba(239, 68, 68, 0.15); color: #EF4444; }
+
+    .two-col {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+    }
+
+    @media (max-width: 900px) {
+        .two-col { grid-template-columns: 1fr; }
+        .award-form { flex-direction: column; }
+    }
+</style>
+
+{# Flash Messages #}
+{% for type, messages in app.flashes %}
+    {% for message in messages %}
+        <div class="flash-msg {{ type }}">{{ message }}</div>
+    {% endfor %}
+{% endfor %}
+
+{# ─── Global Stats ───────────────────────────────────────────────── #}
+<div class="loyalty-admin-grid">
+    <div class="loyalty-stat-card">
+        <div class="loyalty-stat-icon">🎁</div>
+        <div class="loyalty-stat-value">{{ rewardStats.total|default(0) }}</div>
+        <div class="loyalty-stat-label">Total Récompenses</div>
+    </div>
+    <div class="loyalty-stat-card">
+        <div class="loyalty-stat-icon">✅</div>
+        <div class="loyalty-stat-value">{{ rewardStats.redeemed|default(0) }}</div>
+        <div class="loyalty-stat-label">Échangées</div>
+    </div>
+    <div class="loyalty-stat-card">
+        <div class="loyalty-stat-icon">⏳</div>
+        <div class="loyalty-stat-value">{{ rewardStats.available|default(0) }}</div>
+        <div class="loyalty-stat-label">En Attente</div>
+    </div>
+    <div class="loyalty-stat-card">
+        <div class="loyalty-stat-icon">📈</div>
+        <div class="loyalty-stat-value">{{ rewardStats.redemptionRate|default(0) }}%</div>
+        <div class="loyalty-stat-label">Taux d'échange</div>
+    </div>
+</div>
+
+{# ─── Auto-attribution Notice ─────────────────────────────────────── #}
+<div class="admin-section">
+    <div style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.25); border-radius: var(--admin-radius); padding: 1rem 1.5rem; display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.5rem;">
+        <span style="font-size: 1.5rem;">🤖</span>
+        <div>
+            <strong style="color: #60A5FA;">Attribution automatique activée</strong>
+            <div style="font-size: 0.85rem; color: var(--admin-text-muted); margin-top: 0.25rem;">
+                Les points sont attribués automatiquement lors du paiement d'une intervention, souscription d'un abonnement, ou participation à une activité. Aucune action manuelle requise.
+            </div>
+        </div>
+    </div>
+
+    <h2 class="admin-section-title">📋 Derniers Points Attribués</h2>
+    {% if recentPoints|length > 0 %}
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Utilisateur</th>
+                <th>Points</th>
+                <th>Source</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for point in recentPoints %}
+            <tr>
+                <td style="white-space: nowrap; font-size: 0.85rem;">{{ point.earnedAt|date('d/m/Y H:i') }}</td>
+                <td>
+                    <a href="{{ path('admin_loyalty_user', {'id': point.senior.id}) }}" style="color: var(--admin-primary-light); text-decoration: none; font-weight: 600;">
+                        {{ point.senior.fullName ?: point.senior.email }}
+                    </a>
+                </td>
+                <td>
+                    <span class="points-badge">
+                        {% if point.points > 0 %}+{% endif %}{{ point.points }}
+                    </span>
+                </td>
+                <td>
+                    <span class="source-badge {{ point.source }}">
+                        {% if point.source == 'intervention' %}🔧 Intervention
+                        {% elseif point.source == 'subscription' %}📦 Abonnement
+                        {% elseif point.source == 'activity' %}🎯 Activité
+                        {% elseif point.source == 'bonus' %}🎁 Bonus
+                        {% else %}{{ point.source }}
+                        {% endif %}
+                    </span>
+                    <span class="auto-badge">⚡ Auto</span>
+                </td>
+                <td style="font-size: 0.85rem; color: var(--admin-text-muted);">{{ point.description|length > 60 ? point.description|slice(0, 60) ~ '…' : point.description }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div style="text-align: center; padding: 3rem; background: var(--admin-card); border-radius: var(--admin-radius); border: 1px solid var(--admin-border); color: var(--admin-text-muted);">
+        <div style="font-size: 2rem; margin-bottom: 0.5rem;">📋</div>
+        <p>Aucun point attribué pour le moment. Les points seront distribués automatiquement.</p>
+    </div>
+    {% endif %}
+</div>
+
+<div class="two-col">
+    {# ─── Leaderboard ─────────────────────────────────────────────── #}
+    <div class="admin-section">
+        <h2 class="admin-section-title">🏅 Classement Fidélité</h2>
+        {% if leaderboard|length > 0 %}
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Rang</th>
+                    <th>Utilisateur</th>
+                    <th>Points</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for entry in leaderboard %}
+                <tr>
+                    <td>
+                        <span class="rank-badge {% if loop.index == 1 %}rank-1{% elseif loop.index == 2 %}rank-2{% elseif loop.index == 3 %}rank-3{% else %}rank-default{% endif %}">
+                            {{ loop.index }}
+                        </span>
+                    </td>
+                    <td>
+                        <strong>{{ entry.user.fullName ?: entry.user.email }}</strong>
+                        <div style="font-size: 0.8rem; color: var(--admin-text-muted);">{{ entry.user.email }}</div>
+                    </td>
+                    <td>
+                        <span class="points-badge">⭐ {{ entry.totalPoints|number_format(0, '.', ' ') }}</span>
+                    </td>
+                    <td>
+                        <a href="{{ path('admin_loyalty_user', {'id': entry.user.id}) }}" style="color: var(--admin-primary-light); text-decoration: none; font-weight: 600; font-size: 0.85rem;">
+                            Détails →
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div style="text-align: center; padding: 3rem; background: var(--admin-card); border-radius: var(--admin-radius); border: 1px solid var(--admin-border); color: var(--admin-text-muted);">
+            <div style="font-size: 2rem; margin-bottom: 0.5rem;">🏅</div>
+            <p>Aucun utilisateur n'a encore gagné de points.</p>
+        </div>
+        {% endif %}
+    </div>
+
+    {# ─── Recent Rewards ──────────────────────────────────────────── #}
+    <div class="admin-section">
+        <h2 class="admin-section-title">🎁 Récompenses Récentes</h2>
+        {% if recentRewards|length > 0 %}
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Utilisateur</th>
+                    <th>Récompense</th>
+                    <th>Statut</th>
+                    <th>IA</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for reward in recentRewards %}
+                <tr>
+                    <td>
+                        <strong>{{ reward.senior.fullName ?: reward.senior.email }}</strong>
+                    </td>
+                    <td>
+                        <div>{{ reward.typeIcon }} {{ reward.typeLabel }}</div>
+                        <div style="font-size: 0.8rem; color: var(--admin-text-muted);">{{ reward.pointsCost }} pts</div>
+                    </td>
+                    <td>
+                        <span class="reward-status {{ reward.status }}">
+                            {% if reward.status == 'available' %}Disponible
+                            {% elseif reward.status == 'redeemed' %}Échangé
+                            {% else %}Expiré{% endif %}
+                        </span>
+                    </td>
+                    <td>
+                        {% if reward.mlConfidence %}
+                        <span style="font-size: 0.85rem;">🤖 {{ (reward.mlConfidence * 100)|round }}%</span>
+                        {% else %}
+                        <span style="color: var(--admin-text-muted); font-size: 0.85rem;">—</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div style="text-align: center; padding: 3rem; background: var(--admin-card); border-radius: var(--admin-radius); border: 1px solid var(--admin-border); color: var(--admin-text-muted);">
+            <div style="font-size: 2rem; margin-bottom: 0.5rem;">🎁</div>
+            <p>Aucune récompense générée pour le moment.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

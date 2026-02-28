@@ -3,7 +3,11 @@
 namespace App\Controller\Front;
 
 use App\Entity\ServiceRequest;
+use App\Entity\LoyaltyPoint;
 use App\Service\NotificationService;
+use App\Service\SubscriptionService;
+use App\Service\LoyaltyService;
+use App\Entity\User;
 
 use App\Repository\ServiceRequestRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -17,6 +21,8 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class UserServiceController extends AbstractController
 {
     private array $serviceTypes = [
+        ['id' => 'electricite', 'name' => 'Électricité', 'icon' => '⚡', 'description' => 'Réparations et installations électriques'],
+        ['id' => 'plomberie', 'name' => 'Plomberie', 'icon' => '🔧', 'description' => 'Réparations fuites, canalisations, sanitaires'],
         ['id' => 'transport', 'name' => 'Transport Médical', 'icon' => '🚗', 'description' => 'Transport vers rendez-vous médicaux'],
         ['id' => 'menage', 'name' => 'Ménage', 'icon' => '🏠', 'description' => 'Aide au ménage quotidien'],
         ['id' => 'courses', 'name' => 'Courses', 'icon' => '🛒', 'description' => 'Aide aux courses alimentaires'],
@@ -44,7 +50,7 @@ class UserServiceController extends AbstractController
     }
 
     #[Route('/request', name: 'app_services_request', methods: ['GET', 'POST'])]
-    public function request(Request $request, EntityManagerInterface $em, NotificationService $notificationService): Response
+    public function request(Request $request, EntityManagerInterface $em, NotificationService $notificationService, SubscriptionService $subscriptionService, ServiceRequestRepository $serviceRequestRepository, LoyaltyService $loyaltyService): Response
     {
         if ($request->isMethod('POST')) {
             // ... (existing code for user check)
@@ -53,6 +59,23 @@ class UserServiceController extends AbstractController
                 $this->addFlash('error', 'Vous devez être connecté pour demander un service.');
                 return $this->redirectToRoute('app_login');
             }
+
+            // Vérifier abonnement et nombre de demandes précédentes (requêtes SQL directes pour éviter le cache Doctrine)
+            $hasSubscription = false;
+            $previousRequestsCount = 0;
+            if ($user instanceof User) {
+                $conn = $em->getConnection();
+                $activeSubCount = (int) $conn->fetchOne(
+                    'SELECT COUNT(*) FROM subscription WHERE senior_id = ? AND status = ?',
+                    [$user->getId(), 'active']
+                );
+                $hasSubscription = ($activeSubCount > 0);
+                $previousRequestsCount = (int) $conn->fetchOne(
+                    'SELECT COUNT(*) FROM service_request WHERE user_id = ?',
+                    [$user->getId()]
+                );
+            }
+            $isFirstAttempt = ($previousRequestsCount === 0);
 
             // Validation inputs
             $inputs = [
@@ -71,6 +94,12 @@ class UserServiceController extends AbstractController
             ];
 
             $errors = [];
+
+            // Bloquer et rediriger si pas d'abonnement ET essai terminé
+            if (!$hasSubscription && !$isFirstAttempt) {
+                $this->addFlash('warning', 'Votre période d\'essai est terminée. Veuillez choisir une formule d\'abonnement pour accéder à nos services.');
+                return $this->redirectToRoute('app_subscription_plans', ['_locale' => $request->getLocale()]);
+            }
 
             // 1. Required fields
             if (empty($inputs['type_service'])) $errors[] = "Le type de service est requis.";
@@ -109,7 +138,9 @@ class UserServiceController extends AbstractController
                 return $this->render('front/services/request.html.twig', [
                     'service_types' => $this->serviceTypes,
                     'last_inputs' => $inputs,
-                    'errors' => $errors
+                    'errors' => $errors,
+                    'hasSubscription' => $hasSubscription,
+                    'isFirstAttempt' => $isFirstAttempt,
                 ], new Response('', 422));
             }
 
@@ -144,26 +175,78 @@ class UserServiceController extends AbstractController
                 $serviceRequest->getId()
             );
 
+            // ── Auto-award loyalty points for service request ──
+            if ($user instanceof User) {
+                try {
+                    $loyaltyService->awardBonusPoints(
+                        $user,
+                        10,
+                        LoyaltyPoint::SOURCE_BONUS,
+                        $serviceRequest->getId(),
+                        sprintf('Points fidélité : demande de service %s', $serviceRequest->getTypeService())
+                    );
+                } catch (\Exception $e) {
+                    // Loyalty error should not block service request
+                }
+            }
+
             $this->addFlash('success', 'Votre demande de service a été envoyée avec succès !');
             return $this->redirectToRoute('app_my_services', ['_locale' => $request->getLocale()]);
+        }
+
+        // GET: determine subscription and first attempt status (requêtes SQL directes)
+        $user = $this->getUser();
+        $hasSubscription = false;
+        $isFirstAttempt = true;
+        if ($user instanceof User) {
+            $conn = $em->getConnection();
+            $activeSubCount = (int) $conn->fetchOne(
+                'SELECT COUNT(*) FROM subscription WHERE senior_id = ? AND status = ?',
+                [$user->getId(), 'active']
+            );
+            $hasSubscription = ($activeSubCount > 0);
+            $requestCount = (int) $conn->fetchOne(
+                'SELECT COUNT(*) FROM service_request WHERE user_id = ?',
+                [$user->getId()]
+            );
+            $isFirstAttempt = ($requestCount === 0);
+        }
+
+        // Si pas d'abonnement et essai terminé → redirection vers les abonnements
+        if (!$hasSubscription && !$isFirstAttempt) {
+            $this->addFlash('warning', 'Votre période d\'essai est terminée. Veuillez choisir une formule d\'abonnement pour accéder à nos services.');
+            return $this->redirectToRoute('app_subscription_plans', ['_locale' => $request->getLocale()]);
         }
 
         return $this->render('front/services/request.html.twig', [
             'service_types' => $this->serviceTypes,
             'last_inputs' => [],
+            'hasSubscription' => $hasSubscription,
+            'isFirstAttempt' => $isFirstAttempt,
         ]);
     }
 
     #[Route('/{id}', name: 'app_services_show', methods: ['GET'])]
-    public function show(ServiceRequest $service): Response
+    public function show(ServiceRequest $service, SubscriptionService $subscriptionService): Response
     {
         // Ensure user can only view their own services
         if ($service->getUser() !== $this->getUser()) {
             throw $this->createAccessDeniedException('Vous ne pouvez pas accéder à ce service.');
         }
 
+        // Calculer la réduction abonné si applicable (lecture seule, pas d'enregistrement)
+        $discountInfo = null;
+        $user = $this->getUser();
+        if ($user && $service->getBudgetMaximum()) {
+            $discountInfo = $subscriptionService->previewDiscount(
+                $user,
+                (float)$service->getBudgetMaximum()
+            );
+        }
+
         return $this->render('front/services/show.html.twig', [
             'service' => $service,
+            'discountInfo' => $discountInfo,
         ]);
     }
 

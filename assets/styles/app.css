@@ -2806,6 +2806,30 @@ body.senior-mode .lang-switcher {
     color: var(--color-white);
 }
 
+/* GitHub Button */
+.btn-github {
+    border-color: #E8E8E8;
+}
+
+.btn-github:hover {
+    background: #24292e;
+    border-color: #24292e;
+    color: var(--color-white);
+    box-shadow: 0 4px 12px rgba(36, 41, 46, 0.3);
+}
+
+.btn-github .btn-social-icon {
+    color: #24292e;
+}
+
+.btn-github:hover .btn-social-icon {
+    color: var(--color-white);
+}
+
+.btn-github:hover .btn-social-icon svg path {
+    fill: var(--color-white);
+}
+
 /* Disabled Social Buttons */
 .btn-social:disabled {
     opacity: 0.5;

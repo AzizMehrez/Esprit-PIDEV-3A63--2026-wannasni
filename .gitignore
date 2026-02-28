@@ -34,3 +34,7 @@ push_error_details.txt
 push_log.txt
 push_log_normal.txt
 twilio_out.txt
+.env
+.env
+.env
+.env.local

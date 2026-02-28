@@ -139,6 +139,15 @@ auth:
     continue_google: "تابع مع Google"
     continue_x: "تابع مع X"
     continue_facebook: "تابع مع Facebook"
+    continue_github: "تابع مع GitHub"
+    confirm_link_title: "ربط حسابك"
+    confirm_link_desc: "يوجد حساب بالفعل بالبريد الإلكتروني %email%. هل تريد ربط حساب %provider% الخاص بك؟"
+    confirm_link_info_title: "ماذا سيحدث؟"
+    confirm_link_bullet1: "سيتم ربط حساب %provider% الخاص بك بحسابك الحالي."
+    confirm_link_bullet2: "يمكنك تسجيل الدخول باستخدام كلتا الطريقتين."
+    confirm_link_bullet3: "سيتم الحفاظ على بياناتك الحالية."
+    confirm_link_button: "نعم، اربط حساب %provider% الخاص بي"
+    confirm_link_cancel: "لا، إلغاء"
     # التعرف على الوجه
     face_id: "التعرف على الوجه"
     face_id_desc: "التقط وجهك لتسجيل دخول آمن."
@@ -167,6 +176,15 @@ auth:
     face_consent_required: "يجب أن توافق على معالجة بياناتك البيومترية."
     camera_error: "تعذر الوصول إلى الكاميرا. يرجى السماح بالوصول."
 
+# كابتشا
+captcha:
+    label: "كابتشا الأمان"
+    hint: "أدخل الأحرف المعروضة"
+    placeholder: "أدخل الرمز أعلاه"
+    refresh: "صورة جديدة"
+    invalid: "الكابتشا غير صحيحة. يرجى المحاولة مرة أخرى."
+    required: "يرجى حل الكابتشا للمتابعة."
+
 # Success messages
 success:
     face_login: "تم تسجيل الدخول بنجاح بـ Face ID!"
@@ -183,3 +201,50 @@ action:
     login: "تسجيل الدخول"
     capture_face: "التقاط الوجه"
     retake: "إعادة التقاط"
+
+# إشراف المحتوى
+moderation:
+    rejected: "رسالتك تحتوي على كلمات غير لائقة وقد تم رفضها."
+    affects_rate: "هذا يؤثر على سمعتك في الشبكة."
+    warnings: "تحذيرات: %count%"
+    banned_notice: "وصولك إلى الشبكة للقراءة فقط. لا يمكنك النشر أو التعليق."
+    inappropriate_content: "تم اكتشاف محتوى غير لائق."
+    image_sensitive: "تحتوي هذه الصورة على محتوى حساس ولن يتم نشرها."
+    image_unavailable: "تعذر التحقق من هذه الصورة حاليًا. لأسباب تتعلق بالسلامة، لن يتم نشرها."
+    image_share_appropriate: "يرجى مشاركة محتوى مناسب ومحترم فقط."
+
+# الاشتراك
+subscription:
+    title: "اشتراكي"
+    plans: "خططنا"
+    subscribe: "اشترك"
+    cancel: "إلغاء الاشتراك"
+    suspend: "تعليق"
+    reactivate: "إعادة التفعيل"
+    checkout: "طلب"
+    status:
+        active: "نشط"
+        suspended: "معلق"
+        cancelled: "ملغى"
+        past_due: "متأخر"
+        pending: "قيد الانتظار"
+    plan:
+        essentiel: "أساسي"
+        confort: "مريح"
+        premium: "مميز"
+    no_subscription: "ليس لديك اشتراك حتى الآن"
+    choose_plan: "اختر خطة"
+
+# الولاء
+loyalty:
+    title: "برنامج الولاء"
+    points: "نقاط"
+    rewards: "مكافآت"
+    history: "السجل"
+    redeem: "استبدال"
+    balance: "رصيد النقاط"
+    earn_points: "اكسب نقاطًا"
+    no_points: "ليس لديك نقاط حتى الآن"
+    no_rewards: "لا توجد مكافآت"
+    reward_redeemed: "تم استبدال المكافأة بنجاح!"
+    points_earned: "%points% نقطة مكتسبة"
