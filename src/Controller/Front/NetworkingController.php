@@ -25,8 +25,10 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/{_locale}/networking', requirements: ['_locale' => 'fr|en|ar'])]
+#[IsGranted('ROLE_USER')]
 class NetworkingController extends AbstractController
 {
     public function __construct(
@@ -48,8 +50,11 @@ class NetworkingController extends AbstractController
     #[Route('', name: 'app_networking', methods: ['GET'])]
     public function index(): Response
     {
-        /** @var User $user */
+        /** @var User|null $user */
         $user = $this->getUser();
+        if (!$user instanceof User) {
+            return $this->redirectToRoute('app_login');
+        }
         $friendIds = $this->connectionRepo->findFriendIds($user);
         $posts = $this->postRepo->findFeedPosts($user, $friendIds);
         $pendingCount = $this->inviteRepo->countPendingForUser($user);

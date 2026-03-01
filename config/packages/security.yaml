@@ -49,6 +49,7 @@ security:
         - { path: ^/en/register, roles: PUBLIC_ACCESS }
         - { path: ^/ar/register, roles: PUBLIC_ACCESS }
         - { path: ^/.+/nutrition, roles: ROLE_USER }
+        - { path: ^/.+/networking, roles: ROLE_USER }
         - { path: ^/fr/connect, roles: PUBLIC_ACCESS }
         - { path: ^/en/connect, roles: PUBLIC_ACCESS }
         - { path: ^/ar/connect, roles: PUBLIC_ACCESS }
