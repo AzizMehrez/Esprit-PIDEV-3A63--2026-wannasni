@@ -30,7 +30,7 @@ class NutritionService
         $plan = $this->getActiveNutritionPlan($seniorId);
 
         // Validate against allergies
-        if ($plan && isset($data['ingredients'])) {
+        if (isset($data['ingredients'])) {
             $this->validateMealAgainstPlan($data['ingredients'], $plan);
         }
 
@@ -129,7 +129,7 @@ class NutritionService
     /**
      * Get active nutrition plan for senior (mock)
      */
-    private function getActiveNutritionPlan(int $seniorId): ?NutritionPlan
+    private function getActiveNutritionPlan(int $seniorId): NutritionPlan
     {
         // Mock: Return a sample plan
         $plan = new NutritionPlan();

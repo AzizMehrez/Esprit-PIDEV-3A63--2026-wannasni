@@ -304,7 +304,7 @@ class SommelierService
     /**
      * Score une boisson entity par rapport au contexte
      */
-    private function scoreBeverage(Beverage $bev, string $moment, ?RegimePrescrit $regime): int
+    public function scoreBeverage(Beverage $bev, string $moment, ?RegimePrescrit $regime): int
     {
         $score = 0;
         $regimeType = $regime ? $regime->getTypeRegime() : 'normal';
@@ -336,7 +336,7 @@ class SommelierService
         return $score;
     }
 
-    private function mealToMoment(string $mealType): string
+    public function mealToMoment(string $mealType): string
     {
         return match (strtolower($mealType)) {
             'petit-déjeuner', 'petit_dejeuner', 'breakfast' => 'matin',

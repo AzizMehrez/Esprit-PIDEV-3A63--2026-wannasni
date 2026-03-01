@@ -4,7 +4,6 @@ namespace App\Controller\Front\Nutrition;
 
 use App\Service\GeminiService;
 use App\Service\MealDbService;
-use App\Service\AIPrompts;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -74,7 +73,7 @@ class MealController extends AbstractController
         }
 
         // Build prompt with system context
-        $prompt = AIPrompts::CHAT_SYSTEM_PROMPT . "\n\nQuestion de l'utilisateur: " . $question;
+        $prompt = "Tu es un coach nutritionnel expert. Réponds de manière concise.\n\nQuestion de l'utilisateur: " . $question;
         
         $response = $geminiService->generateText($prompt);
 

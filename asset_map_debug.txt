@@ -1,0 +1,33 @@
+
+Asset Mapper Paths
+------------------
+
+ --------------------------------------------------- --------------------------
+  Path                                                Namespace prefix
+ --------------------------------------------------- --------------------------
+  C:\Users\bacco\OneDrive...ny\ux-turbo\assets\dist   @symfony/ux-turbo
+  C:\Users\bacco\OneDrive...ulus-bundle\assets\dist   @symfony/stimulus-bundle
+  C:\Users\bacco\OneDrive...u\MonProjetFinal\assets
+ --------------------------------------------------- --------------------------
+
+Mapped Assets
+-------------
+
+ ---------------------------------------------- ---------------------------------------------------
+  Logical Path                                   Filesystem Path
+ ---------------------------------------------- ---------------------------------------------------
+  @symfony/ux-turbo/turbo_controller.js          C:\Users\bacco\OneDrive...ist\turbo_controller.js
+  @symfony/ux-turbo/turbo_stream_controller.js   C:\Users\bacco\OneDrive...bo_stream_controller.js
+  @symfony/stimulus-bundle/controllers.js        C:\Users\bacco\OneDrive...ets\dist\controllers.js
+  @symfony/stimulus-bundle/loader.js             C:\Users\bacco\OneDrive...e\assets\dist\loader.js
+  app.js                                         C:\Users\bacco\OneDrive...ojetFinal\assets\app.js
+  bootstrap.js                                   C:\Users\bacco\OneDrive...nal\assets\bootstrap.js
+  controllers/hello_controller.js                C:\Users\bacco\OneDrive...ers\hello_controller.js
+  js/nutrition-upload.js                         C:\Users\bacco\OneDrive...\js\nutrition-upload.js
+  styles/app.css                                 C:\Users\bacco\OneDrive...l\assets\styles\app.css
+  styles/design-guidelines.md                    C:\Users\bacco\OneDrive...es\design-guidelines.md
+  vendor/@hotwired/stimulus/stimulus.index.js    C:\Users\bacco\OneDrive...mulus\stimulus.index.js
+  vendor/@hotwired/turbo/turbo.index.js          C:\Users\bacco\OneDrive...ed\turbo\turbo.index.js
+ ---------------------------------------------- ---------------------------------------------------
+
+ ! [NOTE] To see the full paths, re-run with the --full option.

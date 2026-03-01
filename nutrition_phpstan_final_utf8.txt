@@ -1,0 +1,45 @@
+﻿vendor\bin\phpstan : Note: 
+Using configuration file C:\U
+sers\bacco\OneDrive\Bureau\Mo
+nProjetFinal\phpstan.neon.
+Au caractère Ligne:1 : 1
++ vendor\bin\phpstan analyse 
+src/Controller/Front/Nutritio
+n src/Service ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~
+    + CategoryInfo           
+   : NotSpecified: (Note: U  
+  sing con...l\phpstan.neo   
+ n.:String) [], RemoteExc    
+eption
+    + FullyQualifiedErrorId  
+   : NativeCommandError
+ 
+  0/11 [>--------------------
+-------]   0%[1G[2K 11/11 [
+============================]
+ 100%
+
+ -- -------------------------------------------------------------------------- 
+     Error                                                                     
+ -- -------------------------------------------------------------------------- 
+     Child process error: PHPStan process crashed because it reached           
+     configured PHP memory limit: 128M                                         
+     Increase your memory limit in php.ini or run PHPStan with --memory-limit  
+     CLI option.                                                               
+      while running parallel worker                                            
+ -- -------------------------------------------------------------------------- 
+
+
+ [ERROR] Found 1 error                                                         
+
+ÔÜá´©Å  Result is incomplete 
+because of severe errors. 
+ÔÜá´©Å
+   Fix these errors first 
+and then re-run PHPStan
+   to get all reported 
+errors.
+

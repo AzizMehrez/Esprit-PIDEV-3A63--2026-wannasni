@@ -8,6 +8,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
 use Symfony\Component\Security\Http\Event\CheckPassportEvent;
 use Symfony\Component\Security\Http\Event\LoginSuccessEvent;
+use Symfony\Component\Security\Http\Event\LoginFailureEvent;
 
 /**
  * Enforces captcha validation on every login attempt.
@@ -31,6 +32,7 @@ class LoginCaptchaSubscriber implements EventSubscriberInterface
         return [
             CheckPassportEvent::class => ['onCheckPassport', 128],
             LoginSuccessEvent::class  => ['onLoginSuccess', 0],
+            LoginFailureEvent::class  => ['onLoginFailure', 0],
         ];
     }
 
@@ -41,6 +43,11 @@ class LoginCaptchaSubscriber implements EventSubscriberInterface
     {
         $request = $this->requestStack->getCurrentRequest();
         if (!$request) {
+            return;
+        }
+
+        // Only enforce captcha if the user has reached the threshold
+        if (!$this->captchaService->isCaptchaRequired()) {
             return;
         }
 
@@ -57,5 +64,16 @@ class LoginCaptchaSubscriber implements EventSubscriberInterface
     public function onLoginSuccess(LoginSuccessEvent $event): void
     {
         $this->captchaService->resetFailedAttempts();
+    }
+
+    /**
+     * On failed login, increment failed attempts counter.
+     */
+    public function onLoginFailure(LoginFailureEvent $event): void
+    {
+        // Don't increment if the failure was DUE to the captcha itself
+        if ($event->getException()->getMessageKey() !== 'captcha.invalid') {
+            $this->captchaService->incrementFailedAttempts();
+        }
     }
 }

@@ -9,6 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: SuiviRepasRepository::class)]
 class SuiviRepas
 {
+    /** @var int|null */
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -25,6 +26,7 @@ class SuiviRepas
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $photoUrl = null;
 
+    /** @var array<int|string, mixed> */
     #[ORM\Column]
     private array $alimentsIdentifies = [];
 
@@ -43,6 +45,7 @@ class SuiviRepas
     #[ORM\Column(type: 'integer', nullable: true)]
     private ?int $scoreNutritionnel = null;
 
+    /** @var array<string, mixed>|null */
     #[ORM\Column(type: Types::JSON, nullable: true)]
     private ?array $portionsEstimees = null;
 
@@ -52,9 +55,11 @@ class SuiviRepas
     #[ORM\Column(type: 'integer', nullable: true)]
     private ?int $scoreRisque = null;
 
+    /** @var array<string, mixed>|null */
     #[ORM\Column(type: Types::JSON, nullable: true)]
     private ?array $analyseTexture = null;
 
+    /** @var array<string, mixed>|null */
     #[ORM\Column(type: Types::JSON, nullable: true)]
     private ?array $detailsNutriments = null;
 

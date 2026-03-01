@@ -30,6 +30,9 @@ class NutritionController extends AbstractController
     private function findUserRegimes(RegimePrescritRepository $repo): array
     {
         $user = $this->getUser();
+        if (!$user instanceof \App\Entity\User) {
+            return [];
+        }
         return $repo->createQueryBuilder('r')
             ->where('r.user = :user OR r.seniorId = :seniorId')
             ->setParameter('user', $user)
@@ -48,6 +51,9 @@ class NutritionController extends AbstractController
     private function findUserDemands(DemandeRegimeRepository $repo): array
     {
         $user = $this->getUser();
+        if (!$user instanceof \App\Entity\User) {
+            return [];
+        }
         return $repo->createQueryBuilder('d')
             ->where('d.user = :user OR d.seniorId = :seniorId')
             ->setParameter('user', $user)
@@ -60,18 +66,27 @@ class NutritionController extends AbstractController
     private function isOwnerOfDemand(DemandeRegime $demande): bool
     {
         $user = $this->getUser();
+        if (!$user instanceof \App\Entity\User) {
+            return false;
+        }
         return $demande->getUser() === $user || $demande->getSeniorId() === $user->getId();
     }
 
     private function isOwnerOfRegime(RegimePrescrit $regime): bool
     {
         $user = $this->getUser();
+        if (!$user instanceof \App\Entity\User) {
+            return false;
+        }
         return $regime->getUser() === $user || $regime->getSeniorId() === $user->getId();
     }
 
     private function getTodayMealStats(EntityManagerInterface $em): array
     {
         $user = $this->getUser();
+        if (!$user instanceof \App\Entity\User) {
+            return ['meals' => 0, 'calories' => 0];
+        }
         $today = new \DateTime('today');
         try {
             $mealsToday = (int) $em->getRepository(SuiviRepas::class)->createQueryBuilder('s')
@@ -146,6 +161,9 @@ class NutritionController extends AbstractController
         HttpClientInterface $httpClient
     ): JsonResponse {
         $user = $this->getUser();
+        if (!$user instanceof \App\Entity\User) {
+            return new JsonResponse(['error' => 'Utilisateur non connecté'], 401);
+        }
         $regimeId = $request->request->get('regime_id');
         $regime = $regimePrescritRepository->find($regimeId);
 
@@ -172,8 +190,8 @@ class NutritionController extends AbstractController
                     $repasConsommes,
                     $caloriesConsommees,
                     $caloriesLimite,
-                    $regime->getAlimentsRecommandes() ?? [],
-                    $regime->getAlimentsInterdits() ?? []
+                    $regime->getAlimentsRecommandes(),
+                    $regime->getAlimentsInterdits()
                 );
                 if (($mlResult['status'] ?? '') === 'success') {
                     return new JsonResponse($mlResult);
@@ -474,6 +492,9 @@ class NutritionController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $user = $this->getUser();
+            if (!$user instanceof \App\Entity\User) {
+                return $this->redirectToRoute('app_login');
+            }
 
             $demandeRegime->setUser($user);
             $demandeRegime->setSeniorId($user->getId());
@@ -624,8 +645,8 @@ class NutritionController extends AbstractController
 
         // Get smart suggestions from MealDB based on regime
         $suggestions = $mealDbService->getRegimeSuggestions(
-            $regime->getAlimentsRecommandes() ?? [],
-            $regime->getAlimentsInterdits() ?? [],
+            $regime->getAlimentsRecommandes(),
+            $regime->getAlimentsInterdits(),
             6
         );
 
@@ -759,8 +780,8 @@ class NutritionController extends AbstractController
             'calories_par_repas' => $caloriesParRepas,
             'repas_restants' => $repasRestants,
             'regime_type' => $regime->getTypeRegime(),
-            'aliments_recommandes' => $regime->getAlimentsRecommandes() ?? [],
-            'aliments_interdits' => $regime->getAlimentsInterdits() ?? [],
+            'aliments_recommandes' => $regime->getAlimentsRecommandes(),
+            'aliments_interdits' => $regime->getAlimentsInterdits(),
         ]);
     }
 
@@ -782,6 +803,9 @@ class NutritionController extends AbstractController
 
         // Get meal history for the last 30 days
         $user = $this->getUser();
+        if (!$user instanceof \App\Entity\User) {
+            return new JsonResponse(['status' => 'error', 'message' => 'Utilisateur non connecté'], 401);
+        }
         $since = new \DateTime('-30 days');
         $meals = $em->getRepository(SuiviRepas::class)->createQueryBuilder('s')
             ->where('s.senior = :senior')
@@ -1034,7 +1058,7 @@ class NutritionController extends AbstractController
         foreach ($meals as $meal) {
             $mealHistory[] = [
                 'date' => $meal->getDateRepas()->format('Y-m-d H:i'),
-                'aliments' => $meal->getAlimentsIdentifies() ?? [],
+                'aliments' => $meal->getAlimentsIdentifies(),
                 'calories' => $meal->getCaloriesCalculees() ?? 0,
                 'estConforme' => $meal->isEstConforme(),
             ];
@@ -1049,8 +1073,8 @@ class NutritionController extends AbstractController
                 $regime->getPoidsActuel(),
                 $regime->getTaille(),
                 null,
-                $regime->getAlimentsRecommandes() ?? [],
-                $regime->getAlimentsInterdits() ?? []
+                $regime->getAlimentsRecommandes(),
+                $regime->getAlimentsInterdits()
             );
             if (($result['status'] ?? '') === 'success') {
                 return new JsonResponse($result);
@@ -1065,13 +1089,13 @@ class NutritionController extends AbstractController
         $totalCalories = 0;
         $foodCounts = [];
         $interditsConsommes = [];
-        $alimentsInterdits = $regime->getAlimentsInterdits() ?? [];
+        $alimentsInterdits = $regime->getAlimentsInterdits();
 
         foreach ($meals as $meal) {
             if ($meal->isEstConforme()) $conformes++;
             $totalCalories += $meal->getCaloriesCalculees() ?? 0;
 
-            foreach ($meal->getAlimentsIdentifies() ?? [] as $aliment) {
+            foreach ($meal->getAlimentsIdentifies() as $aliment) {
                 $name = is_string($aliment) ? $aliment : ($aliment['nom'] ?? '');
                 if ($name && $name !== 'non_detecte') {
                     $foodCounts[$name] = ($foodCounts[$name] ?? 0) + 1;
@@ -1140,6 +1164,9 @@ class NutritionController extends AbstractController
     public function testAlert(EntityManagerInterface $em): Response
     {
         $user = $this->getUser();
+        if (!$user instanceof \App\Entity\User) {
+            return $this->redirectToRoute('app_login');
+        }
         
         // Simuler un repas à 5000 calories pour aujourd'hui
         $suivi = new SuiviRepas();

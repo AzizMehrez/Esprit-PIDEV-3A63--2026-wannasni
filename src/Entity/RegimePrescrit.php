@@ -29,6 +29,7 @@ class RegimePrescrit
     public const SUIVI_QUOTIDIEN = 'quotidien';
     public const SUIVI_HEBDOMADAIRE = 'hebdomadaire';
 
+    /** @var int|null */
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]

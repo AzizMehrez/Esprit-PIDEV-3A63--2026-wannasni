@@ -1,0 +1,34 @@
+﻿vendor\bin\phpstan : Note: 
+Using configuration file C:\U
+sers\bacco\OneDrive\Bureau\Mo
+nProjetFinal\phpstan.neon.
+Au caractère Ligne:1 : 1
++ vendor\bin\phpstan analyse 
+src/Controller/Front/Nutritio
+n/MealControl ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~
+    + CategoryInfo           
+   : NotSpecified: (Note: U  
+  sing con...l\phpstan.neo   
+ n.:String) [], RemoteExc    
+eption
+    + FullyQualifiedErrorId  
+   : NativeCommandError
+ 
+ 0/4 [>----------------------
+-----]   0%[1G[2K 4/4 [====
+========================] 
+100%
+
+ ------ --------------------------------- 
+  Line   Service\NutritionService.php     
+ ------ --------------------------------- 
+  :33    Left side of && is always true.  
+         ­ƒ¬¬  booleanAnd.leftAlwaysTrue    
+ ------ --------------------------------- 
+
+
+ [ERROR] Found 1 error                                                         
+

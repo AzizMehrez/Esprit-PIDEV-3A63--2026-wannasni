@@ -38,3 +38,7 @@ twilio_out.txt
 .env
 .env
 .env.local
+
+###> phpstan/phpstan ###
+phpstan.neon
+###< phpstan/phpstan ###

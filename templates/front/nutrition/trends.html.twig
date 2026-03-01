@@ -1,0 +1,132 @@
+{% extends 'base_dashboard.html.twig' %}
+
+{% block title %}Tendances Nutritionnelles IA - WANNASNI{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    .trends-container {
+        max-width: 1000px;
+        margin: 2rem auto;
+        padding: 2rem;
+        background: white;
+        border-radius: 24px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.04);
+    }
+    .trend-card {
+        background: #f8fafc;
+        border-radius: 20px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        border: 1px solid #e2e8f0;
+    }
+    .insight-pill {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        margin: 0.25rem;
+    }
+    .insight-positive { background: #dcfce7; color: #166534; }
+    .insight-warning { background: #fef3c7; color: #92400e; }
+    .insight-info { background: #e0f2fe; color: #075985; }
+    
+    .trend-chart-mini {
+        height: 150px;
+        background: white;
+        border-radius: 12px;
+        margin-top: 1rem;
+        display: flex;
+        align-items: flex-end;
+        padding: 10px;
+        gap: 4px;
+    }
+    .chart-bar {
+        flex: 1;
+        background: #10b981;
+        border-radius: 4px 4px 0 0;
+        min-height: 5px;
+        transition: height 0.3s;
+    }
+    .chart-bar.non-conforme { background: #ef4444; }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    <div class="trends-container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1 class="h2 mb-1">📊 Analyse de vos tendances</h1>
+                <p class="text-muted">Basé sur vos {{ history_count }} derniers repas analysés par l'IA.</p>
+            </div>
+            <a href="{{ path('app_nutrition_track') }}" class="btn btn-success rounded-pill">
+                <i class="fas fa-camera me-2"></i> Analyser un repas
+            </a>
+        </div>
+
+        {% if history_count > 0 %}
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="trend-card">
+                        <h3 class="h5 mb-3"><i class="fas fa-magic me-2 text-primary"></i> Synthèse de l'IA</h3>
+                        <p class="mb-4">
+                            {{ trends.summary|default("L'IA analyse vos habitudes alimentaires pour vous proposer un bilan personnalisé et des conseils adaptés à votre régime.") }}
+                        </p>
+                        
+                        <div class="d-flex flex-wrap">
+                            {% for insight in trends.insights|default([]) %}
+                                <span class="insight-pill {{ insight.type == 'positive' ? 'insight-positive' : (insight.type == 'warning' ? 'insight-warning' : 'insight-info') }}">
+                                    <i class="fas {{ insight.icon|default('fa-lightbulb') }} me-1"></i> {{ insight.text }}
+                                </span>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="trend-card">
+                        <h3 class="h5 mb-3"><i class="fas fa-chart-line me-2 text-success"></i> Apport calorique récent</h3>
+                        <div class="trend-chart-mini">
+                            {% for meal in trends.history|default([]) %}
+                                <div class="chart-bar {{ not meal.conforme ? 'non-conforme' : '' }}" 
+                                     style="height: {{ (meal.calories / 1500 * 100)|clamp(5, 100) }}%;"
+                                     title="{{ meal.date|date('d/m') }} : {{ meal.calories }} kcal">
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <div class="d-flex justify-content-between mt-2 text-muted small">
+                            <span>Il y a 30 repas</span>
+                            <span>Aujourd'hui</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="trend-card text-center">
+                        <div class="display-5 font-weight-bold text-success mb-1">{{ trends.compliance_rate|default(0) }}%</div>
+                        <div class="text-muted small text-uppercase font-weight-bold">Taux de conformité</div>
+                    </div>
+
+                    <div class="trend-card">
+                        <h4 class="h6 mb-3">🥦 Aliments fréquents</h4>
+                        <div class="list-group list-group-flush bg-transparent">
+                            {% for food, count in trends.top_foods|default({}) %}
+                                <div class="list-group-item bg-transparent d-flex justify-content-between px-0">
+                                    <span>{{ food|capitalize }}</span>
+                                    <span class="badge bg-light text-dark rounded-pill">{{ count }}x</span>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-utensils fa-4x text-light mb-3"></i>
+                <h3>Pas encore assez de données</h3>
+                <p class="text-muted">Commencez par prendre en photo quelques repas pour voir vos tendances.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

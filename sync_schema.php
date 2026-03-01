@@ -1,0 +1,58 @@
+<?php
+// Script to apply schema updates manually, avoiding RENAME INDEX issues on older MariaDB
+require 'vendor/autoload.php';
+use Symfony\Component\Dotenv\Dotenv;
+
+(new Dotenv())->bootEnv('.env');
+
+$url = $_ENV['DATABASE_URL'];
+$parsed = parse_url($url);
+$host = $parsed['host'];
+$user = $parsed['user'];
+$pass = $parsed['pass'] ?? '';
+$db = ltrim($parsed['path'], '/');
+
+$pdo = new PDO("mysql:host=$host;dbname=$db", $user, $pass);
+$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+$sqls = [
+    "ALTER TABLE health_journal CHANGE humeur humeur VARCHAR(100) DEFAULT NULL, CHANGE qualite_sommeil qualite_sommeil VARCHAR(100) DEFAULT NULL, CHANGE appetit appetit VARCHAR(100) DEFAULT NULL, CHANGE tension_arterielle tension_arterielle VARCHAR(50) DEFAULT NULL, CHANGE temperature temperature DOUBLE PRECISION DEFAULT NULL, CHANGE activite_physique activite_physique VARCHAR(255) DEFAULT NULL, CHANGE hydratation hydratation VARCHAR(50) DEFAULT NULL",
+    "ALTER TABLE intervention CHANGE types_services types_services VARCHAR(255) DEFAULT NULL, CHANGE competences competences VARCHAR(255) DEFAULT NULL, CHANGE tarif_horaire tarif_horaire NUMERIC(10, 2) DEFAULT NULL, CHANGE zone_intervention zone_intervention VARCHAR(255) DEFAULT NULL, CHANGE technicien_nom technicien_nom VARCHAR(255) DEFAULT NULL, CHANGE technicien_email technicien_email VARCHAR(255) DEFAULT NULL, CHANGE technicien_telephone technicien_telephone VARCHAR(255) DEFAULT NULL, CHANGE date_creation date_creation DATETIME DEFAULT NULL, CHANGE date_debut date_debut DATETIME DEFAULT NULL, CHANGE date_fin date_fin DATETIME DEFAULT NULL, CHANGE payment_date payment_date DATETIME DEFAULT NULL, CHANGE payment_method payment_method VARCHAR(50) DEFAULT NULL",
+    "ALTER TABLE service_request CHANGE senior_telephone senior_telephone VARCHAR(20) DEFAULT NULL, CHANGE senior_email senior_email VARCHAR(100) DEFAULT NULL, CHANGE adresse adresse VARCHAR(255) DEFAULT NULL, CHANGE ville ville VARCHAR(100) DEFAULT NULL, CHANGE code_postal code_postal VARCHAR(20) DEFAULT NULL, CHANGE date_souhaitee date_souhaitee DATETIME DEFAULT NULL, CHANGE budget_minimum budget_minimum NUMERIC(10, 2) DEFAULT NULL, CHANGE budget_maximum budget_maximum NUMERIC(10, 2) DEFAULT NULL, CHANGE technicien_nom technicien_nom VARCHAR(100) DEFAULT NULL, CHANGE date_assignation date_assignation DATETIME DEFAULT NULL, CHANGE date_debut date_debut DATETIME DEFAULT NULL, CHANGE date_fin date_fin DATETIME DEFAULT NULL",
+    "ALTER TABLE treatment CHANGE posologie posologie VARCHAR(255) DEFAULT NULL, CHANGE frequence frequence VARCHAR(100) DEFAULT NULL, CHANGE date_fin date_fin DATETIME DEFAULT NULL, CHANGE statut statut VARCHAR(50) DEFAULT NULL",
+    "ALTER TABLE user CHANGE password password VARCHAR(255) DEFAULT NULL, CHANGE roles roles JSON NOT NULL, CHANGE first_name first_name VARCHAR(100) DEFAULT NULL, CHANGE last_name last_name VARCHAR(100) DEFAULT NULL, CHANGE phone phone VARCHAR(20) DEFAULT NULL, CHANGE last_login_at last_login_at DATETIME DEFAULT NULL, CHANGE face_encoding face_encoding JSON DEFAULT NULL, CHANGE face_image_path face_image_path VARCHAR(255) DEFAULT NULL, CHANGE face_consent_at face_consent_at DATETIME DEFAULT NULL, CHANGE image_profil image_profil VARCHAR(255) DEFAULT NULL, CHANGE date_naissance date_naissance DATE DEFAULT NULL, CHANGE adresse adresse VARCHAR(255) DEFAULT NULL, CHANGE ville ville VARCHAR(100) DEFAULT NULL, CHANGE code_postal code_postal VARCHAR(20) DEFAULT NULL, CHANGE pays pays VARCHAR(100) DEFAULT NULL, CHANGE location location VARCHAR(255) DEFAULT NULL, CHANGE reset_token reset_token VARCHAR(100) DEFAULT NULL, CHANGE reset_token_expires_at reset_token_expires_at DATETIME DEFAULT NULL, CHANGE verification_code verification_code VARCHAR(10) DEFAULT NULL, CHANGE specialite specialite VARCHAR(100) DEFAULT NULL, CHANGE tarif_horaire tarif_horaire NUMERIC(10, 2) DEFAULT NULL, CHANGE user_domain user_domain VARCHAR(50) DEFAULT NULL, CHANGE verified_at verified_at DATETIME DEFAULT NULL, CHANGE verification_badge_type verification_badge_type VARCHAR(20) DEFAULT NULL, CHANGE last_strike_at last_strike_at DATETIME DEFAULT NULL",
+    "ALTER TABLE rapport_hebdomadaire CHANGE aliments_problematiques aliments_problematiques JSON NOT NULL",
+    "ALTER TABLE subscription_plan CHANGE stripe_price_id stripe_price_id VARCHAR(100) DEFAULT NULL",
+    "ALTER TABLE activites CHANGE end_time end_time DATETIME DEFAULT NULL, CHANGE location location VARCHAR(255) DEFAULT NULL",
+    "ALTER TABLE beverage CHANGE nutritional_info nutritional_info JSON DEFAULT NULL, CHANGE health_benefits health_benefits JSON DEFAULT NULL, CHANGE image_url image_url VARCHAR(255) DEFAULT NULL, CHANGE origin origin VARCHAR(100) DEFAULT NULL, CHANGE brand brand VARCHAR(100) DEFAULT NULL",
+    "ALTER TABLE beverage_log CHANGE custom_beverage_name custom_beverage_name VARCHAR(150) DEFAULT NULL, CHANGE category category VARCHAR(50) DEFAULT NULL, CHANGE moment moment VARCHAR(30) DEFAULT NULL, CHANGE meal_context meal_context JSON DEFAULT NULL",
+    "ALTER TABLE beverage_order CHANGE order_number order_number VARCHAR(50) DEFAULT NULL, CHANGE shipping_address shipping_address VARCHAR(255) DEFAULT NULL, CHANGE shipping_city shipping_city VARCHAR(100) DEFAULT NULL, CHANGE shipping_postal_code shipping_postal_code VARCHAR(20) DEFAULT NULL, CHANGE phone phone VARCHAR(20) DEFAULT NULL, CHANGE payment_method payment_method VARCHAR(50) DEFAULT NULL, CHANGE confirmed_at confirmed_at DATETIME DEFAULT NULL, CHANGE shipped_at shipped_at DATETIME DEFAULT NULL, CHANGE delivered_at delivered_at DATETIME DEFAULT NULL",
+    "ALTER TABLE beverage_order_item CHANGE quantity quantity INT NOT NULL, CHANGE added_at added_at DATETIME NOT NULL",
+    "ALTER TABLE beverage_product CHANGE name name VARCHAR(200) NOT NULL, CHANGE short_description short_description LONGTEXT DEFAULT NULL, CHANGE sale_price sale_price NUMERIC(10, 2) DEFAULT NULL, CHANGE is_sugar_free is_sugar_free TINYINT(1) NOT NULL, CHANGE is_caffeine_free is_caffeine_free TINYINT(1) NOT NULL, CHANGE is_bio is_bio TINYINT(1) NOT NULL, CHANGE health_benefits health_benefits JSON DEFAULT NULL, CHANGE nutritional_info nutritional_info JSON DEFAULT NULL, CHANGE compatible_regimes compatible_regimes LONGTEXT DEFAULT NULL, CHANGE ingredients ingredients LONGTEXT DEFAULT NULL, CHANGE brand brand VARCHAR(100) DEFAULT NULL, CHANGE origin origin VARCHAR(100) DEFAULT NULL, CHANGE volume volume VARCHAR(50) DEFAULT NULL, CHANGE image_url image_url VARCHAR(255) DEFAULT NULL, CHANGE stock_quantity stock_quantity INT NOT NULL, CHANGE is_active is_active TINYINT(1) NOT NULL, CHANGE is_featured is_featured TINYINT(1) NOT NULL, CHANGE average_rating average_rating NUMERIC(3, 2) DEFAULT NULL, CHANGE review_count review_count INT NOT NULL, CHANGE sales_count sales_count INT NOT NULL, CHANGE created_at created_at DATETIME NOT NULL",
+    "ALTER TABLE connection_invite CHANGE responded_at responded_at DATETIME DEFAULT NULL",
+    "ALTER TABLE conversation CHANGE last_message_at last_message_at DATETIME DEFAULT NULL",
+    "ALTER TABLE demande_regime DROP COLUMN IF EXISTS allergies",
+    "ALTER TABLE demande_regime CHANGE code_barres_photo code_barres_photo VARCHAR(255) DEFAULT NULL, CHANGE code_barres_numero code_barres_numero VARCHAR(20) DEFAULT NULL, CHANGE produit_analyse produit_analyse JSON DEFAULT NULL, CHANGE date_traitement date_traitement DATETIME DEFAULT NULL, CHANGE poids poids DOUBLE PRECISION DEFAULT NULL, CHANGE taille taille DOUBLE PRECISION DEFAULT NULL, CHANGE niveau_activite niveau_activite VARCHAR(30) DEFAULT NULL, CHANGE numero_proche numero_proche VARCHAR(20) DEFAULT NULL",
+    "ALTER TABLE loyalty_point CHANGE points points INT NOT NULL, CHANGE expires_at expires_at DATETIME DEFAULT NULL",
+    "ALTER TABLE loyalty_reward CHANGE points_cost points_cost INT NOT NULL, CHANGE status status VARCHAR(30) NOT NULL, CHANGE ml_confidence ml_confidence DOUBLE PRECISION DEFAULT NULL, CHANGE ml_features ml_features JSON DEFAULT NULL, CHANGE redeemed_at redeemed_at DATETIME DEFAULT NULL, CHANGE expires_at expires_at DATETIME DEFAULT NULL",
+    "ALTER TABLE message CHANGE attachment_path attachment_path VARCHAR(500) DEFAULT NULL",
+    "ALTER TABLE participations CHANGE title title VARCHAR(255) DEFAULT NULL, CHANGE registered_at registered_at DATETIME DEFAULT NULL, CHANGE registration_method registration_method VARCHAR(50) DEFAULT NULL, CHANGE presence_confirmation_date presence_confirmation_date DATETIME DEFAULT NULL, CHANGE share_with_family share_with_family VARCHAR(50) DEFAULT NULL",
+    "ALTER TABLE post CHANGE updated_at updated_at DATETIME DEFAULT NULL",
+    "ALTER TABLE post_comment CHANGE updated_at updated_at DATETIME DEFAULT NULL",
+    "ALTER TABLE post_media CHANGE original_name original_name VARCHAR(255) DEFAULT NULL",
+    "ALTER TABLE regime_prescrit CHANGE poids_actuel poids_actuel DOUBLE PRECISION DEFAULT NULL, CHANGE taille taille DOUBLE PRECISION DEFAULT NULL, CHANGE niveau_activite niveau_activite VARCHAR(30) DEFAULT NULL, CHANGE texture_alimentaire texture_alimentaire VARCHAR(30) DEFAULT NULL",
+    "ALTER TABLE subscription CHANGE status status VARCHAR(30) NOT NULL, CHANGE stripe_subscription_id stripe_subscription_id VARCHAR(255) DEFAULT NULL, CHANGE stripe_customer_id stripe_customer_id VARCHAR(255) DEFAULT NULL, CHANGE end_date end_date DATETIME DEFAULT NULL, CHANGE next_billing_date next_billing_date DATETIME DEFAULT NULL, CHANGE failed_payment_attempts failed_payment_attempts INT NOT NULL, CHANGE total_saved total_saved NUMERIC(10, 2) NOT NULL, CHANGE maintenances_used maintenances_used INT NOT NULL, CHANGE cancelled_at cancelled_at DATETIME DEFAULT NULL",
+    "ALTER TABLE suivi_repas CHANGE photo_url photo_url VARCHAR(255) DEFAULT NULL, CHANGE aliments_identifies aliments_identifies JSON NOT NULL, CHANGE portions_estimees portions_estimees JSON DEFAULT NULL, CHANGE mode_cuisson mode_cuisson VARCHAR(30) DEFAULT NULL, CHANGE analyse_texture analyse_texture JSON DEFAULT NULL, CHANGE details_nutriments details_nutriments JSON DEFAULT NULL",
+    "ALTER TABLE user_social_account CHANGE provider_email provider_email VARCHAR(255) DEFAULT NULL, CHANGE provider_display_name provider_display_name VARCHAR(255) DEFAULT NULL, CHANGE avatar_url avatar_url VARCHAR(500) DEFAULT NULL, CHANGE last_used_at last_used_at DATETIME DEFAULT NULL",
+    "ALTER TABLE verification_request CHANGE status status VARCHAR(20) NOT NULL, CHANGE ai_report ai_report JSON DEFAULT NULL, CHANGE ai_score ai_score DOUBLE PRECISION DEFAULT NULL, CHANGE reviewed_at reviewed_at DATETIME DEFAULT NULL",
+    "ALTER TABLE messenger_messages CHANGE delivered_at delivered_at DATETIME DEFAULT NULL",
+];
+
+foreach ($sqls as $sql) {
+    try {
+        $pdo->exec($sql);
+        echo "SUCCESS: $sql\n";
+    } catch (Exception $e) {
+        echo "ERROR: $sql - " . $e->getMessage() . "\n";
+    }
+}

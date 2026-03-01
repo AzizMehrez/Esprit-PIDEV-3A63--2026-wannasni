@@ -1,0 +1,62 @@
+﻿ ------ --------------------------------------------------------------------- 
+  Line   Controller\Front\Nutrition\SommelierController.php                   
+ ------ --------------------------------------------------------------------- 
+  :422   Parameter #1 $user of method                                         
+         App\Service\BeverageMarketplaceService::addToCart() expects          
+         App\Entity\User, Symfony\Component\Security\Core\User\UserInterface  
+         given.                                                               
+         ­ƒ¬¬  argument.type                                                    
+  :425   Parameter #1 $user of method                                         
+         App\Service\BeverageMarketplaceService::getOrCreateCart() expects    
+         App\Entity\User, Symfony\Component\Security\Core\User\UserInterface  
+         given.                                                               
+         ­ƒ¬¬  argument.type                                                    
+  :540   Parameter #1 $user of method                                         
+         App\Service\BeverageMarketplaceService::checkout() expects           
+         App\Entity\User, Symfony\Component\Security\Core\User\UserInterface  
+         given.                                                               
+         ­ƒ¬¬  argument.type                                                    
+ ------ --------------------------------------------------------------------- 
+
+ ------ ----------------------------------------------------------------------- 
+  Line   Entity\Beverage.php                                                    
+ ------ ----------------------------------------------------------------------- 
+  :35    Property App\Entity\Beverage::$id (int|null) is never assigned int so  
+         it can be removed from the property type.                              
+         ­ƒ¬¬  property.unusedType                                                
+ ------ ----------------------------------------------------------------------- 
+
+ ------ ----------------------------------------------------------------------- 
+  Line   Entity\BeverageLog.php                                                 
+ ------ ----------------------------------------------------------------------- 
+  :15    Property App\Entity\BeverageLog::$id (int|null) is never assigned int  
+         so it can be removed from the property type.                           
+         ­ƒ¬¬  property.unusedType                                                
+ ------ ----------------------------------------------------------------------- 
+
+ ------ --------------------------------------------------------------------- 
+  Line   Entity\DemandeRegime.php                                             
+ ------ --------------------------------------------------------------------- 
+  :38    Property App\Entity\DemandeRegime::$id (int|null) is never assigned  
+         int so it can be removed from the property type.                     
+         ­ƒ¬¬  property.unusedType                                              
+ ------ --------------------------------------------------------------------- 
+
+ ------ ---------------------------------------------------------------------- 
+  Line   Entity\RegimePrescrit.php                                             
+ ------ ---------------------------------------------------------------------- 
+  :35    Property App\Entity\RegimePrescrit::$id (int|null) is never assigned  
+         int so it can be removed from the property type.                      
+         ­ƒ¬¬  property.unusedType                                               
+ ------ ---------------------------------------------------------------------- 
+
+ ------ ---------------------------------------------------------------------- 
+  Line   Entity\SuiviRepas.php                                                 
+ ------ ---------------------------------------------------------------------- 
+  :15    Property App\Entity\SuiviRepas::$id (int|null) is never assigned int  
+         so it can be removed from the property type.                          
+         ­ƒ¬¬  property.unusedType                                               
+ ------ ---------------------------------------------------------------------- 
+
+ [ERROR] Found 8 errors                                                        
+

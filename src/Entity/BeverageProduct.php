@@ -96,7 +96,7 @@ class BeverageProduct
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $createdAt = null;
 
-    #[ORM\OneToMany(mappedBy: 'product', targetEntity: BeverageOrderItem::class)]
+    #[ORM\OneToMany(mappedBy: 'product', targetEntity: BeverageOrderItem::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $orderItems;
 
     public function __construct()

@@ -1,0 +1,66 @@
+﻿vendor\bin\phpstan : Note: 
+Using configuration file C:\U
+sers\bacco\OneDrive\Bureau\Mo
+nProjetFinal\phpstan.neon.
+Au caractère Ligne:1 : 1
++ vendor\bin\phpstan analyse 
+src/Controller/Front/Nutritio
+n src/Service ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~
+    + CategoryInfo           
+   : NotSpecified: (Note: U  
+  sing con...l\phpstan.neo   
+ n.:String) [], RemoteExc    
+eption
+    + FullyQualifiedErrorId  
+   : NativeCommandError
+ 
+  0/11 [>--------------------
+-------]   0%[1G[2K 11/11 [
+============================]
+ 100%
+
+ ------ ----------------------------------------------------------------------- 
+  Line   Entity\Beverage.php                                                    
+ ------ ----------------------------------------------------------------------- 
+  :36    Property App\Entity\Beverage::$id (int|null) is never assigned int so  
+         it can be removed from the property type.                              
+         ­ƒ¬¬  property.unusedType                                                
+ ------ ----------------------------------------------------------------------- 
+
+ ------ ----------------------------------------------------------------------- 
+  Line   Entity\BeverageLog.php                                                 
+ ------ ----------------------------------------------------------------------- 
+  :16    Property App\Entity\BeverageLog::$id (int|null) is never assigned int  
+         so it can be removed from the property type.                           
+         ­ƒ¬¬  property.unusedType                                                
+ ------ ----------------------------------------------------------------------- 
+
+ ------ --------------------------------------------------------------------- 
+  Line   Entity\DemandeRegime.php                                             
+ ------ --------------------------------------------------------------------- 
+  :39    Property App\Entity\DemandeRegime::$id (int|null) is never assigned  
+         int so it can be removed from the property type.                     
+         ­ƒ¬¬  property.unusedType                                              
+ ------ --------------------------------------------------------------------- 
+
+ ------ ---------------------------------------------------------------------- 
+  Line   Entity\RegimePrescrit.php                                             
+ ------ ---------------------------------------------------------------------- 
+  :36    Property App\Entity\RegimePrescrit::$id (int|null) is never assigned  
+         int so it can be removed from the property type.                      
+         ­ƒ¬¬  property.unusedType                                               
+ ------ ---------------------------------------------------------------------- 
+
+ ------ ---------------------------------------------------------------------- 
+  Line   Entity\SuiviRepas.php                                                 
+ ------ ---------------------------------------------------------------------- 
+  :16    Property App\Entity\SuiviRepas::$id (int|null) is never assigned int  
+         so it can be removed from the property type.                          
+         ­ƒ¬¬  property.unusedType                                               
+ ------ ---------------------------------------------------------------------- 
+
+ [ERROR] Found 5 errors                                                        
+

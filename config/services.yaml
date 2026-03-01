@@ -8,14 +8,11 @@ parameters:
     python_default: 'python'
     meal_photos_directory: '%kernel.project_dir%/public/uploads/meals'
     beverage_photos_directory: '%kernel.project_dir%/public/uploads/beverages'
-<<<<<<< HEAD
     python_ml_api_url: '%env(default:ml_api_default:PYTHON_ML_API_URL)%'
     ml_api_default: 'http://127.0.0.1:8001'
-=======
     openai_api_key: '%env(default::OPENAI_API_KEY)%'
     huggingface_api_key: '%env(default::HUGGINGFACE_API_KEY)%'
     ai_local_service_url: '%env(default::AI_LOCAL_SERVICE_URL)%'
->>>>>>> origin/master
 
 services:
     # default configuration for services in *this* file
@@ -46,11 +43,10 @@ services:
         arguments:
             $beveragePhotosDirectory: '%beverage_photos_directory%'
 
-<<<<<<< HEAD
     App\Service\PythonMLService:
         arguments:
             $pythonApiUrl: '%python_ml_api_url%'
-=======
+
     # Image Content Moderation Service (NSFW, violence, weapons, political, drugs)
     App\Service\ImageModerationService:
         arguments:
@@ -90,4 +86,3 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
->>>>>>> origin/master

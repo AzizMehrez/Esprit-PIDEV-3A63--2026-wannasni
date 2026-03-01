@@ -1,0 +1,28 @@
+﻿php : 
+Au caractère Ligne:1 : 1
++ php bin/console 
+doctrine:schema:validate > 
+doctrine_validate.txt 2>&1
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~
+    + CategoryInfo           
+   : NotSpecified: (:String  
+  ) [], RemoteException
+    + FullyQualifiedErrorId  
+   : NativeCommandError
+ 
+Mapping
+-------
+
+ [OK] The mapping files are 
+correct.                     
+                      
+
+Database
+--------
+
+ [ERROR] The database schema 
+is not in sync with the 
+current mapping file.     
+

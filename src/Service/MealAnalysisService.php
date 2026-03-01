@@ -9,12 +9,10 @@ use App\Service\AIPrompts;
 class MealAnalysisService
 {
     private $geminiService;
-    private $usdaService;
 
-    public function __construct(GeminiService $geminiService, USDAService $usdaService)
+    public function __construct(GeminiService $geminiService)
     {
         $this->geminiService = $geminiService;
-        $this->usdaService = $usdaService;
     }
 
     public function processMealPhoto(string $imagePath, RegimePrescrit $regime): SuiviRepas
@@ -59,13 +57,13 @@ class MealAnalysisService
         
         // 4. Generate AI Feedback
         $promptContext = [
-            'regime' => $regime->getType(), // Assuming getType() exists
+            'regime' => $regime->getTypeRegime(), // Adjusted to use getTypeRegime()
             'aliments' => json_encode($foods),
             'calories' => $totalCalories,
             'caloriesMax' => $regime->getCaloriesJournalieres() ?? 2000
         ];
         
-        $feedback = $this->geminiService->generateText(AIPrompts::FEEDBACK_REPAS, $promptContext);
+        $feedback = $this->geminiService->generateText("Fais-moi un retour nutritionnel sur ce repas: " . json_encode($promptContext));
         $suivi->setCommentairesIA($feedback);
         
         // Determining conformity based on AI sentiment or specific rules could be added here

@@ -29,6 +29,7 @@ class Beverage
     public const MOMENT_EVENING = 'soirée';
     public const MOMENT_ANYTIME = 'tout_moment';
 
+    /** @var int|null */
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]

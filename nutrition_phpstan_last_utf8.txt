@@ -1,0 +1,163 @@
+﻿vendor\bin\phpstan : Note: 
+Using configuration file C:\U
+sers\bacco\OneDrive\Bureau\Mo
+nProjetFinal\phpstan.neon.
+Au caractère Ligne:1 : 1
++ vendor\bin\phpstan analyse 
+src/Controller/Front/Nutritio
+n src/Entity/ ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~
+    + CategoryInfo           
+   : NotSpecified: (Note: U  
+  sing con...l\phpstan.neo   
+ n.:String) [], RemoteExc    
+eption
+    + FullyQualifiedErrorId  
+   : NativeCommandError
+ 
+  0/16 [>--------------------
+-------]   0%[1G[2K 16/16 [
+============================]
+ 100%
+
+ ------ ---------------------------------------------------------------------- 
+  Line   Controller\Front\Nutrition\SommelierController.php                    
+ ------ ---------------------------------------------------------------------- 
+  :35    Call to an undefined method                                           
+         Symfony\Component\Security\Core\User\UserInterface::getId().          
+         ­ƒ¬¬  method.notFound                                                   
+  :63    Parameter #1 $user of method                                          
+         App\Service\SommelierService::getPersonalizedHydrationAdvice()        
+         expects App\Entity\User,                                              
+         Symfony\Component\Security\Core\User\UserInterface|null given.        
+         ­ƒ¬¬  argument.type                                                     
+  :66    Parameter #1 $user of method                                          
+         App\Repository\BeverageLogRepository::findTodayLogs() expects         
+         App\Entity\User,                                                      
+         Symfony\Component\Security\Core\User\UserInterface|null given.        
+         ­ƒ¬¬  argument.type                                                     
+  :82    Parameter #1 $user of method                                          
+         App\Repository\BeverageOrderRepository::getCartItemCount() expects    
+         App\Entity\User,                                                      
+         Symfony\Component\Security\Core\User\UserInterface|null given.        
+         ­ƒ¬¬  argument.type                                                     
+  :167   Parameter #1 $user of method App\Entity\BeverageLog::setUser()        
+         expects App\Entity\User|null,                                         
+         Symfony\Component\Security\Core\User\UserInterface|null given.        
+         ­ƒ¬¬  argument.type                                                     
+  :209   Parameter #1 $user of method                                          
+         App\Service\SommelierService::getPersonalizedHydrationAdvice()        
+         expects App\Entity\User,                                              
+         Symfony\Component\Security\Core\User\UserInterface|null given.        
+         ­ƒ¬¬  argument.type                                                     
+  :222   Parameter #1 $user of method                                          
+         App\Repository\BeverageLogRepository::getHydrationStats() expects     
+         App\Entity\User,                                                      
+         Symfony\Component\Security\Core\User\UserInterface|null given.        
+         ­ƒ¬¬  argument.type                                                     
+  :223   Parameter #1 $user of method                                          
+         App\Repository\BeverageLogRepository::getFavoriteBeverages() expects  
+         App\Entity\User,                                                      
+         Symfony\Component\Security\Core\User\UserInterface|null given.        
+         ­ƒ¬¬  argument.type                                                     
+  :257   Parameter #1 $user of method                                          
+         App\Repository\BeverageLogRepository::findHistoryDays() expects       
+         App\Entity\User,                                                      
+         Symfony\Component\Security\Core\User\UserInterface|null given.        
+         ­ƒ¬¬  argument.type                                                     
+  :295   Offset 'error' on non-empty-array on left side of ?? always exists    
+         and is not nullable.                                                  
+         ­ƒ¬¬  nullCoalesce.offset                                               
+  :330   Parameter #1 $user of method App\Entity\BeverageLog::setUser()        
+         expects App\Entity\User|null,                                         
+         Symfony\Component\Security\Core\User\UserInterface|null given.        
+         ­ƒ¬¬  argument.type                                                     
+  :371   Parameter #1 $user of method                                          
+         App\Repository\BeverageOrderRepository::getCartItemCount() expects    
+         App\Entity\User,                                                      
+         Symfony\Component\Security\Core\User\UserInterface|null given.        
+         ­ƒ¬¬  argument.type                                                     
+  :410   Parameter #1 $user of method                                          
+         App\Service\BeverageMarketplaceService::addToCart() expects           
+         App\Entity\User, Symfony\Component\Security\Core\User\UserInterface   
+         given.                                                                
+         ­ƒ¬¬  argument.type                                                     
+  :413   Parameter #1 $user of method                                          
+         App\Service\BeverageMarketplaceService::getOrCreateCart() expects     
+         App\Entity\User, Symfony\Component\Security\Core\User\UserInterface   
+         given.                                                                
+         ­ƒ¬¬  argument.type                                                     
+  :438   Parameter #1 $user of method                                          
+         App\Service\BeverageMarketplaceService::updateCartItem() expects      
+         App\Entity\User,                                                      
+         Symfony\Component\Security\Core\User\UserInterface|null given.        
+         ­ƒ¬¬  argument.type                                                     
+  :453   Parameter #1 $user of method                                          
+         App\Service\BeverageMarketplaceService::removeFromCart() expects      
+         App\Entity\User,                                                      
+         Symfony\Component\Security\Core\User\UserInterface|null given.        
+         ­ƒ¬¬  argument.type                                                     
+  :465   Parameter #1 $user of method                                          
+         App\Service\BeverageMarketplaceService::getOrCreateCart() expects     
+         App\Entity\User,                                                      
+         Symfony\Component\Security\Core\User\UserInterface|null given.        
+         ­ƒ¬¬  argument.type                                                     
+  :525   Parameter #1 $user of method                                          
+         App\Service\BeverageMarketplaceService::checkout() expects            
+         App\Entity\User, Symfony\Component\Security\Core\User\UserInterface   
+         given.                                                                
+         ­ƒ¬¬  argument.type                                                     
+  :544   Parameter #1 $user of method                                          
+         App\Repository\BeverageOrderRepository::findUserOrders() expects      
+         App\Entity\User,                                                      
+         Symfony\Component\Security\Core\User\UserInterface|null given.        
+         ­ƒ¬¬  argument.type                                                     
+ ------ ---------------------------------------------------------------------- 
+
+ ------ ----------------------------------------------------------------------- 
+  Line   Entity\Beverage.php                                                    
+ ------ ----------------------------------------------------------------------- 
+  :35    Property App\Entity\Beverage::$id (int|null) is never assigned int so  
+         it can be removed from the property type.                              
+         ­ƒ¬¬  property.unusedType                                                
+ ------ ----------------------------------------------------------------------- 
+
+ ------ ----------------------------------------------------------------------- 
+  Line   Entity\BeverageLog.php                                                 
+ ------ ----------------------------------------------------------------------- 
+  :15    Property App\Entity\BeverageLog::$id (int|null) is never assigned int  
+         so it can be removed from the property type.                           
+         ­ƒ¬¬  property.unusedType                                                
+ ------ ----------------------------------------------------------------------- 
+
+ ------ ---------------------------------------------------------------------- 
+  Line   Entity\DemandeRegime.php                                              
+ ------ ---------------------------------------------------------------------- 
+  :38    Property App\Entity\DemandeRegime::$id (int|null) is never assigned   
+         int so it can be removed from the property type.                      
+         ­ƒ¬¬  property.unusedType                                               
+  :212   Property App\Entity\DemandeRegime::$produitAnalyse in isset() is not  
+         nullable nor uninitialized.                                           
+         ­ƒ¬¬  isset.initializedProperty                                         
+ ------ ---------------------------------------------------------------------- 
+
+ ------ ---------------------------------------------------------------------- 
+  Line   Entity\RegimePrescrit.php                                             
+ ------ ---------------------------------------------------------------------- 
+  :35    Property App\Entity\RegimePrescrit::$id (int|null) is never assigned  
+         int so it can be removed from the property type.                      
+         ­ƒ¬¬  property.unusedType                                               
+ ------ ---------------------------------------------------------------------- 
+
+ ------ ---------------------------------------------------------------------- 
+  Line   Entity\SuiviRepas.php                                                 
+ ------ ---------------------------------------------------------------------- 
+  :15    Property App\Entity\SuiviRepas::$id (int|null) is never assigned int  
+         so it can be removed from the property type.                          
+         ­ƒ¬¬  property.unusedType                                               
+ ------ ---------------------------------------------------------------------- 
+
+ [ERROR] Found 25 errors                                                       
+

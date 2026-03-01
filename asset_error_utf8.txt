@@ -1,0 +1,33 @@
+﻿php : 
+Au caractère Ligne:1 : 1
++ php bin/console 
+asset-mapper:compile > 
+asset_error.txt 2>&1
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~
+    + CategoryInfo           
+   : NotSpecified: (:String  
+  ) [], RemoteException
+    + FullyQualifiedErrorId  
+   : NativeCommandError
+ 
+                             
+                             
+        
+  There are no commands 
+defined in the 
+"asset-mapper" namespace.  
+                             
+                             
+        
+  Did you mean this?         
+                             
+        
+      asset-map              
+                             
+        
+                             
+                             
+        
+

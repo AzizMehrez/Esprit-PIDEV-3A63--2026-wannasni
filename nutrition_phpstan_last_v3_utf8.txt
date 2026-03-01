@@ -1,0 +1,57 @@
+﻿ ------ ----------------------------------------------------------------------- 
+  Line   Controller\Front\Nutrition\SommelierController.php                     
+ ------ ----------------------------------------------------------------------- 
+  :407   Negated boolean expression is always false.                            
+         ­ƒ¬¬  booleanNot.alwaysFalse                                             
+         ­ƒÆí  Because the type is coming from a PHPDoc, you can turn off this    
+         check by setting treatPhpDocTypesAsCertain: false in your phpstan.neo  
+         n.                                                                     
+  :525   Negated boolean expression is always false.                            
+         ­ƒ¬¬  booleanNot.alwaysFalse                                             
+         ­ƒÆí  Because the type is coming from a PHPDoc, you can turn off this    
+         check by setting treatPhpDocTypesAsCertain: false in your phpstan.neo  
+         n.                                                                     
+ ------ ----------------------------------------------------------------------- 
+
+ ------ ----------------------------------------------------------------------- 
+  Line   Entity\Beverage.php                                                    
+ ------ ----------------------------------------------------------------------- 
+  :36    Property App\Entity\Beverage::$id (int|null) is never assigned int so  
+         it can be removed from the property type.                              
+         ­ƒ¬¬  property.unusedType                                                
+ ------ ----------------------------------------------------------------------- 
+
+ ------ ----------------------------------------------------------------------- 
+  Line   Entity\BeverageLog.php                                                 
+ ------ ----------------------------------------------------------------------- 
+  :16    Property App\Entity\BeverageLog::$id (int|null) is never assigned int  
+         so it can be removed from the property type.                           
+         ­ƒ¬¬  property.unusedType                                                
+ ------ ----------------------------------------------------------------------- 
+
+ ------ --------------------------------------------------------------------- 
+  Line   Entity\DemandeRegime.php                                             
+ ------ --------------------------------------------------------------------- 
+  :39    Property App\Entity\DemandeRegime::$id (int|null) is never assigned  
+         int so it can be removed from the property type.                     
+         ­ƒ¬¬  property.unusedType                                              
+ ------ --------------------------------------------------------------------- 
+
+ ------ ---------------------------------------------------------------------- 
+  Line   Entity\RegimePrescrit.php                                             
+ ------ ---------------------------------------------------------------------- 
+  :36    Property App\Entity\RegimePrescrit::$id (int|null) is never assigned  
+         int so it can be removed from the property type.                      
+         ­ƒ¬¬  property.unusedType                                               
+ ------ ---------------------------------------------------------------------- 
+
+ ------ ---------------------------------------------------------------------- 
+  Line   Entity\SuiviRepas.php                                                 
+ ------ ---------------------------------------------------------------------- 
+  :16    Property App\Entity\SuiviRepas::$id (int|null) is never assigned int  
+         so it can be removed from the property type.                          
+         ­ƒ¬¬  property.unusedType                                               
+ ------ ---------------------------------------------------------------------- 
+
+ [ERROR] Found 7 errors                                                        
+

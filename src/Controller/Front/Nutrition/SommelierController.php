@@ -28,7 +28,12 @@ class SommelierController extends AbstractController
 {
     private function findLatestUserRegime(RegimePrescritRepository $repo): ?\App\Entity\RegimePrescrit
     {
+        /** @var \App\Entity\User|null $user */
         $user = $this->getUser();
+        if (!$user) {
+            return null;
+        }
+
         $regimes = $repo->createQueryBuilder('r')
             ->where('r.user = :user OR r.seniorId = :seniorId')
             ->setParameter('user', $user)
@@ -52,6 +57,7 @@ class SommelierController extends AbstractController
         BeverageOrderRepository $orderRepository,
         BeverageProductRepository $productRepo
     ): Response {
+        /** @var \App\Entity\User $user */
         $user = $this->getUser();
         $regime = $this->findLatestUserRegime($regimePrescritRepository);
 
@@ -155,6 +161,7 @@ class SommelierController extends AbstractController
         BeverageRepository $beverageRepository,
         EntityManagerInterface $em
     ): JsonResponse {
+        /** @var \App\Entity\User $user */
         $user = $this->getUser();
         $beverageId = $request->request->get('beverage_id');
         $customName = $request->request->get('custom_name');
@@ -204,6 +211,7 @@ class SommelierController extends AbstractController
         SommelierService $sommelierService,
         RegimePrescritRepository $regimePrescritRepository
     ): JsonResponse {
+        /** @var \App\Entity\User $user */
         $user = $this->getUser();
         $regime = $this->findLatestUserRegime($regimePrescritRepository);
         $data = $sommelierService->getPersonalizedHydrationAdvice($user, $regime);
@@ -218,6 +226,7 @@ class SommelierController extends AbstractController
     public function hydrationStats(
         BeverageLogRepository $beverageLogRepository
     ): JsonResponse {
+        /** @var \App\Entity\User $user */
         $user = $this->getUser();
         $stats = $beverageLogRepository->getHydrationStats($user, 7);
         $favorites = $beverageLogRepository->getFavoriteBeverages($user, 5);
@@ -253,6 +262,7 @@ class SommelierController extends AbstractController
     public function history(
         BeverageLogRepository $beverageLogRepository
     ): Response {
+        /** @var \App\Entity\User $user */
         $user = $this->getUser();
         $logs = $beverageLogRepository->findHistoryDays($user, 30);
 
@@ -292,7 +302,7 @@ class SommelierController extends AbstractController
                 
                 return new JsonResponse([
                     'status' => 'error',
-                    'message' => 'Impossible d\'analyser cette photo. Vérifiez que l\'image est claire et lisible. Erreur: ' . ($analysis['error'] ?? 'Inconnue'),
+                    'message' => 'Impossible d\'analyser cette photo. Vérifiez que l\'image est claire et lisible. Erreur: ' . $analysis['error'],
                 ]);
             }
 
@@ -318,6 +328,7 @@ class SommelierController extends AbstractController
         Request $request,
         EntityManagerInterface $em
     ): JsonResponse {
+        /** @var \App\Entity\User $user */
         $user = $this->getUser();
 
         $name = $request->request->get('name', 'Boisson inconnue');
@@ -358,6 +369,7 @@ class SommelierController extends AbstractController
         BeverageOrderRepository $orderRepo,
         RegimePrescritRepository $regimePrescritRepository
     ): Response {
+        /** @var \App\Entity\User $user */
         $user = $this->getUser();
         $regime = $this->findLatestUserRegime($regimePrescritRepository);
         $regimeType = $regime ? $regime->getTypeRegime() : null;
@@ -390,6 +402,7 @@ class SommelierController extends AbstractController
         BeverageProductRepository $productRepo
     ): JsonResponse {
         try {
+            /** @var \App\Entity\User|null $user */
             $user = $this->getUser();
             if (!$user) {
                 return new JsonResponse(['status' => 'error', 'message' => 'Vous devez être connecté.'], 401);
@@ -431,6 +444,7 @@ class SommelierController extends AbstractController
         Request $request,
         BeverageMarketplaceService $marketplaceService
     ): JsonResponse {
+        /** @var \App\Entity\User $user */
         $user = $this->getUser();
         $itemId = (int) $request->request->get('item_id');
         $quantity = (int) $request->request->get('quantity', 1);
@@ -447,6 +461,7 @@ class SommelierController extends AbstractController
         Request $request,
         BeverageMarketplaceService $marketplaceService
     ): JsonResponse {
+        /** @var \App\Entity\User $user */
         $user = $this->getUser();
         $itemId = (int) $request->request->get('item_id');
 
@@ -461,6 +476,7 @@ class SommelierController extends AbstractController
     public function cartData(
         BeverageMarketplaceService $marketplaceService
     ): JsonResponse {
+        /** @var \App\Entity\User $user */
         $user = $this->getUser();
         $cart = $marketplaceService->getOrCreateCart($user);
 
@@ -504,6 +520,7 @@ class SommelierController extends AbstractController
         BeverageMarketplaceService $marketplaceService
     ): JsonResponse {
         try {
+            /** @var \App\Entity\User|null $user */
             $user = $this->getUser();
             if (!$user) {
                 return new JsonResponse(['status' => 'error', 'message' => 'Vous devez être connecté pour commander.'], 401);
@@ -540,6 +557,7 @@ class SommelierController extends AbstractController
     public function orders(
         BeverageOrderRepository $orderRepo
     ): Response {
+        /** @var \App\Entity\User $user */
         $user = $this->getUser();
         $orders = $orderRepo->findUserOrders($user);
 

@@ -1,0 +1,87 @@
+﻿php :  Updating database 
+schema...
+Au caractère Ligne:1 : 1
++ php bin/console 
+doctrine:schema:update 
+--force > 
+doctrine_update_fina ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~
+    + CategoryInfo           
+   : NotSpecified: ( Updati  
+  ng database schema...:St   
+ ring) [], RemoteExceptio    
+n
+    + FullyQualifiedErrorId  
+   : NativeCommandError
+ 
+
+
+In ExceptionConverter.php 
+line 67:
+                             
+                             
+                     
+  An exception occurred 
+while executing a query: 
+SQLSTATE[42000]: Syntax erro 
+ 
+  r or access violation: 
+1064 You have an error in 
+your SQL syntax; check the  
+   manual that corresponds 
+to your MariaDB server 
+version for the right synta  
+  x to use near 'INDEX 
+uniq_plan_slug TO 
+UNIQ_EA664B63989D9B62' at 
+line 1      
+                             
+                             
+                     
+
+In Exception.php line 24:
+                             
+                             
+                     
+  SQLSTATE[42000]: Syntax 
+error or access violation: 
+1064 You have an error i  
+  n your SQL syntax; check 
+the manual that corresponds 
+to your MariaDB server  
+   version for the right 
+syntax to use near 'INDEX 
+uniq_plan_slug TO UNIQ_EA6  
+  64B63989D9B62' at line 1   
+                             
+                     
+                             
+                             
+                     
+
+In Connection.php line 27:
+                             
+                             
+                     
+  SQLSTATE[42000]: Syntax 
+error or access violation: 
+1064 You have an error i  
+  n your SQL syntax; check 
+the manual that corresponds 
+to your MariaDB server  
+   version for the right 
+syntax to use near 'INDEX 
+uniq_plan_slug TO UNIQ_EA6  
+  64B63989D9B62' at line 1   
+                             
+                     
+                             
+                             
+                     
+
+doctrine:schema:update [--em 
+EM] [--complete] 
+[--dump-sql] [-f|--force]
+

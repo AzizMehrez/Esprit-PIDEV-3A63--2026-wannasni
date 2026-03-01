@@ -1,0 +1,36 @@
+﻿PHPUnit 9.6.34 by Sebastian Bergmann and contributors.
+
+Testing App\Tests\Service\AdvancedNutritionTest
+FF.F...                                                             7 / 7 (100%)
+
+Time: 00:00.061, Memory: 12.00 MB
+
+There were 3 failures:
+
+1) App\Tests\Service\AdvancedNutritionTest::testMealToMomentMapping
+Failed asserting that two strings are equal.
+--- Expected
++++ Actual
+@@ @@
+-'d├®jeuner'
++'matin'
+
+C:\Users\bacco\OneDrive\Bureau\MonProjetFinal\tests\Service\AdvancedNutritionTest.php:38
+
+2) App\Tests\Service\AdvancedNutritionTest::testPythonMLStep2NutritionMock
+Failed asserting that two strings are equal.
+--- Expected
++++ Actual
+@@ @@
+-'success'
++'error'
+
+C:\Users\bacco\OneDrive\Bureau\MonProjetFinal\tests\Service\AdvancedNutritionTest.php:55
+
+3) App\Tests\Service\AdvancedNutritionTest::testSommelierScoreBeverage
+Failed asserting that 33 is greater than 50.
+
+C:\Users\bacco\OneDrive\Bureau\MonProjetFinal\tests\Service\AdvancedNutritionTest.php:84
+
+FAILURES!
+Tests: 7, Assertions: 9, Failures: 3.

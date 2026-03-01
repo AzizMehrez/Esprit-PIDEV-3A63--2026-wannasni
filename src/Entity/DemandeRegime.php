@@ -32,6 +32,7 @@ class DemandeRegime
     public const OBJECTIF_PRISE_MASSE = 'prise_masse';
     public const OBJECTIF_GESTION_MALADIE = 'gestion_maladie';
 
+    /** @var int|null */
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -48,6 +49,7 @@ class DemandeRegime
     #[ORM\Column(length: 20, nullable: true)]
     private ?string $codeBarresNumero = null;
 
+    /** @var array<string, mixed> */
     #[ORM\Column(type: Types::JSON, nullable: true)]
     private array $produitAnalyse = [];
 
@@ -166,7 +168,7 @@ class DemandeRegime
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $dateTraitement = null;
 
-    #[ORM\OneToMany(mappedBy: 'demande', targetEntity: RegimePrescrit::class, cascade: ['persist', 'remove'])]
+    #[ORM\OneToMany(mappedBy: 'demande', targetEntity: RegimePrescrit::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $regimesPrescrits;
 
     #[ORM\ManyToOne(targetEntity: User::class)]
@@ -208,10 +210,6 @@ class DemandeRegime
     
     public function getProduitAnalyse(): array
     {
-        // Sécurité : retourner un tableau vide si non initialisé (anciennes données)
-        if (!isset($this->produitAnalyse)) {
-            $this->produitAnalyse = [];
-        }
         return $this->produitAnalyse;
     }
     

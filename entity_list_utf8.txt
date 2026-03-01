@@ -1,0 +1,43 @@
+﻿
+
+    Répertoire : C:\Users\bacco\OneDrive\Bureau\MonProjetFinal\src\Entity
+
+
+Mode                 LastWriteTime         Length Name                                                                                                                                            
+----                 -------------         ------ ----                                                                                                                                            
+-a---l        14/02/2026     23:32              0 .gitignore                                                                                                                                      
+-a---l        21/02/2026     18:39           3752 Activity.php                                                                                                                                    
+-a---l        20/02/2026     12:54           9437 Beverage.php                                                                                                                                    
+-a---l        20/02/2026     12:54           4508 BeverageLog.php                                                                                                                                 
+-a---l        20/02/2026     13:44           7600 BeverageOrder.php                                                                                                                               
+-a---l        20/02/2026     14:20           2130 BeverageOrderItem.php                                                                                                                           
+-a---l        20/02/2026     13:44           8593 BeverageProduct.php                                                                                                                             
+-a----        28/02/2026     15:51           2699 ConnectionInvite.php                                                                                                                            
+-a----        28/02/2026     15:51           2868 Conversation.php                                                                                                                                
+-a---l        22/02/2026     16:26          15296 DemandeRegime.php                                                                                                                               
+-a---l        21/02/2026     18:39           5787 HealthJournal.php                                                                                                                               
+-a---l        21/02/2026     18:39           6464 Intervention.php                                                                                                                                
+-a----        28/02/2026     15:51           3336 LoyaltyPoint.php                                                                                                                                
+-a----        28/02/2026     15:51           6476 LoyaltyReward.php                                                                                                                               
+-a----        28/02/2026     15:51           3578 Message.php                                                                                                                                     
+-a---l        21/02/2026     18:39           2051 Notification.php                                                                                                                                
+-a---l        21/02/2026     18:39           1771 NutritionJournal.php                                                                                                                            
+-a---l        21/02/2026     18:39           1782 NutritionPlan.php                                                                                                                               
+-a---l        21/02/2026     18:39           6925 Participation.php                                                                                                                               
+-a----        28/02/2026     15:51           3990 Post.php                                                                                                                                        
+-a----        28/02/2026     15:51           2162 PostComment.php                                                                                                                                 
+-a----        28/02/2026     15:51           1495 PostLike.php                                                                                                                                    
+-a----        28/02/2026     15:51           2563 PostMedia.php                                                                                                                                   
+-a---l        15/02/2026     17:51           3690 RapportHebdomadaire.php                                                                                                                         
+-a---l        21/02/2026     18:39          12411 RegimePrescrit.php                                                                                                                              
+-a---l        21/02/2026     18:39           9557 ServiceRequest.php                                                                                                                              
+-a----        28/02/2026     15:51           9401 Subscription.php                                                                                                                                
+-a----        28/02/2026     15:51           4943 SubscriptionPlan.php                                                                                                                            
+-a---l        18/02/2026     11:49           5169 SuiviRepas.php                                                                                                                                  
+-a---l        21/02/2026     18:39           4391 Treatment.php                                                                                                                                   
+-a----        28/02/2026     15:56          15529 User.php                                                                                                                                        
+-a----        28/02/2026     15:51           2012 UserConnection.php                                                                                                                              
+-a----        28/02/2026     15:51           3803 UserSocialAccount.php                                                                                                                           
+-a----        28/02/2026     15:51           4183 VerificationRequest.php                                                                                                                         
+
+

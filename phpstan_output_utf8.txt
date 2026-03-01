@@ -1,0 +1,13 @@
+﻿ -- -------------------------------------------------------------------------- 
+     Error                                                                     
+ -- -------------------------------------------------------------------------- 
+     Child process error: PHPStan process crashed because it reached           
+     configured PHP memory limit: 128M                                         
+     Increase your memory limit in php.ini or run PHPStan with --memory-limit  
+     CLI option.                                                               
+      while running parallel worker                                            
+ -- -------------------------------------------------------------------------- 
+
+
+ [ERROR] Found 1 error                                                         
+

@@ -1,0 +1,60 @@
+﻿PHPUnit 9.6.34 by Sebastian Bergmann and contributors.
+
+Testing App\Tests\Service\AdvancedNutritionTest
+EFEEFEE                                                             7 / 7 (100%)
+
+Time: 00:00.047, Memory: 12.00 MB
+
+There were 5 errors:
+
+1) App\Tests\Service\AdvancedNutritionTest::testMealToMomentMapping
+Error: Call to private method App\Service\SommelierService::mealToMoment() from scope App\Tests\Service\AdvancedNutritionTest
+
+C:\Users\bacco\OneDrive\Bureau\MonProjetFinal\tests\Service\AdvancedNutritionTest.php:38
+
+2) App\Tests\Service\AdvancedNutritionTest::testPythonMLAnalyzeTrends
+Undefined array key "trend"
+
+C:\Users\bacco\OneDrive\Bureau\MonProjetFinal\tests\Service\AdvancedNutritionTest.php:70
+
+3) App\Tests\Service\AdvancedNutritionTest::testSommelierScoreBeverage
+Error: Call to private method App\Service\SommelierService::scoreBeverage() from scope App\Tests\Service\AdvancedNutritionTest
+
+C:\Users\bacco\OneDrive\Bureau\MonProjetFinal\tests\Service\AdvancedNutritionTest.php:84
+
+4) App\Tests\Service\AdvancedNutritionTest::testPythonMLCalculateRiskScore
+Undefined array key "risk_level"
+
+C:\Users\bacco\OneDrive\Bureau\MonProjetFinal\tests\Service\AdvancedNutritionTest.php:107
+
+5) App\Tests\Service\AdvancedNutritionTest::testPythonMLStep3Recipes
+Undefined array key "recommendations"
+
+C:\Users\bacco\OneDrive\Bureau\MonProjetFinal\tests\Service\AdvancedNutritionTest.php:123
+
+--
+
+There were 2 failures:
+
+1) App\Tests\Service\AdvancedNutritionTest::testPythonMLStep2NutritionMock
+Failed asserting that two strings are equal.
+--- Expected
++++ Actual
+@@ @@
+-'success'
++'error'
+
+C:\Users\bacco\OneDrive\Bureau\MonProjetFinal\tests\Service\AdvancedNutritionTest.php:55
+
+2) App\Tests\Service\AdvancedNutritionTest::testSommelierGetPartners
+Failed asserting that two strings are equal.
+--- Expected
++++ Actual
+@@ @@
+-'BioHydrate Tunisia'
++'Palais des Th├®s'
+
+C:\Users\bacco\OneDrive\Bureau\MonProjetFinal\tests\Service\AdvancedNutritionTest.php:93
+
+ERRORS!
+Tests: 7, Assertions: 4, Errors: 5, Failures: 2.

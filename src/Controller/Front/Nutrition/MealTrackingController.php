@@ -22,6 +22,7 @@ class MealTrackingController extends AbstractController
      */
     private function findLatestUserRegime(RegimePrescritRepository $repo): ?\App\Entity\RegimePrescrit
     {
+        /** @var \App\Entity\User|null $user */
         $user = $this->getUser();
         if (!$user) {
             return null;
@@ -42,6 +43,7 @@ class MealTrackingController extends AbstractController
      */
     private function getConsumedToday(EntityManagerInterface $em): int
     {
+        /** @var \App\Entity\User|null $user */
         $user = $this->getUser();
         try {
             $today = new \DateTime('today');
@@ -212,6 +214,7 @@ class MealTrackingController extends AbstractController
         RegimePrescritRepository $regimeRepo
     ): Response {
         try {
+            /** @var \App\Entity\User|null $user */
             $user = $this->getUser();
             $calories = $request->request->get('calories', 0);
             $compliance = json_decode($request->request->get('compliance', '{}'), true) ?? [];

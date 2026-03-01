@@ -1,0 +1,22 @@
+﻿PHPUnit 9.6.34 by Sebastian Bergmann and contributors.
+
+Testing App\Tests\Service\AdvancedNutritionTest
+.F.....                                                             7 / 7 (100%)
+
+Time: 00:00.121, Memory: 12.00 MB
+
+There was 1 failure:
+
+1) App\Tests\Service\AdvancedNutritionTest::testPythonMLStep2NutritionMock
+Format invalide : 
+Failed asserting that two strings are equal.
+--- Expected
++++ Actual
+@@ @@
+-'success'
++'error'
+
+C:\Users\bacco\OneDrive\Bureau\MonProjetFinal\tests\Service\AdvancedNutritionTest.php:58
+
+FAILURES!
+Tests: 7, Assertions: 12, Failures: 1.
