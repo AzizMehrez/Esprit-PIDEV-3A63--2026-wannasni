@@ -1,0 +1,399 @@
+{% extends 'base_dashboard.html.twig' %}
+
+{% block title %}Mon Régime #{{ demande_regime.id }}{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    :root {
+        --nutri-primary: #10b981;
+        --nutri-primary-dark: #059669;
+        --nutri-bg: #f0fdf4;
+        --nutri-card: #ffffff;
+        --nutri-text: #1f2937;
+        --nutri-text-muted: #6b7280;
+        --nutri-border: #d1fae5;
+    }
+
+    .nutrition-wrapper {
+        min-height: 100vh;
+        padding: 2rem 1rem 4rem;
+        background: linear-gradient(180deg, var(--nutri-bg) 0%, #f9fafb 30%);
+    }
+
+    .nutrition-container {
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+
+    /* Back Button */
+    .btn-back-clean {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--nutri-primary-dark);
+        text-decoration: none;
+        font-weight: 600;
+        margin-bottom: 2rem;
+        padding: 0.75rem 1.25rem;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        transition: all 0.2s;
+    }
+
+    .btn-back-clean:hover {
+        transform: translateX(-5px);
+        background: var(--nutri-bg);
+    }
+
+    /* Header Section */
+    .premium-header {
+        background: linear-gradient(135deg, var(--nutri-primary), var(--nutri-primary-dark));
+        border-radius: 30px;
+        padding: 3rem 2rem;
+        margin-bottom: 2.5rem;
+        color: white;
+        text-align: center;
+        box-shadow: 0 10px 40px rgba(16, 185, 129, 0.25);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .premium-header::after {
+        content: '🥗';
+        position: absolute;
+        right: -20px;
+        bottom: -20px;
+        font-size: 8rem;
+        opacity: 0.1;
+        transform: rotate(-15deg);
+    }
+
+    .header-icon-main {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        filter: drop-shadow(0 4px 10px rgba(0,0,0,0.2));
+    }
+
+    .premium-title {
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin-bottom: 0.5rem;
+        letter-spacing: -0.5px;
+    }
+
+    .premium-subtitle {
+        font-size: 1.2rem;
+        opacity: 0.9;
+    }
+
+    /* Info Cards Grid */
+    .detail-grid {
+        display: grid;
+        grid-template-columns: 1fr 1.5fr;
+        gap: 2rem;
+        margin-bottom: 3rem;
+    }
+
+    .card-glass {
+        background: white;
+        border-radius: 24px;
+        padding: 2rem;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.04);
+        border: 1px solid var(--nutri-border);
+    }
+
+    .card-title-nutri {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--nutri-text);
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid var(--nutri-bg);
+    }
+
+    /* Status Badges */
+    .badge-premium {
+        padding: 0.5rem 1.5rem;
+        border-radius: 50px;
+        font-size: 0.9rem;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+
+    .badge-traite { background: #dcfce7; color: #065f46; }
+    .badge-attente { background: #fef3c7; color: #92400e; }
+
+    /* Info Items */
+    .info-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+    }
+
+    .info-row {
+        display: flex;
+        align-items: center;
+        gap: 1.25rem;
+    }
+
+    .icon-box {
+        width: 50px;
+        height: 50px;
+        background: var(--nutri-bg);
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+    }
+
+    .info-content label {
+        display: block;
+        font-size: 0.85rem;
+        color: var(--nutri-text-muted);
+        font-weight: 600;
+        margin-bottom: 0.2rem;
+    }
+
+    .info-content span {
+        font-weight: 700;
+        color: var(--nutri-text);
+        font-size: 1.1rem;
+    }
+
+    /* Regime Specific Stats */
+    .stats-container {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-mini-card {
+        background: var(--nutri-bg);
+        padding: 1.5rem 1rem;
+        border-radius: 20px;
+        text-align: center;
+        border: 1px solid var(--nutri-border);
+    }
+
+    .stat-mini-card .emoji { font-size: 2.5rem; margin-bottom: 0.75rem; display: block; }
+    .stat-mini-card .val { font-size: 1.5rem; font-weight: 800; color: var(--nutri-primary-dark); display: block; }
+    .stat-mini-card .lab { font-size: 0.8rem; color: var(--nutri-text-muted); font-weight: 600; }
+
+    /* Food Cards */
+    .food-split {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+        margin-top: 2rem;
+    }
+
+    .food-card {
+        padding: 1.5rem;
+        border-radius: 20px;
+        border: 2px solid transparent;
+    }
+
+    .food-card.allowed { background: #f0fdf4; border-color: #86efac; }
+    .food-card.forbidden { background: #fef2f2; border-color: #fca5a5; }
+
+    .food-card h4 {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+        font-size: 1.1rem;
+        font-weight: 700;
+    }
+
+    .food-card ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .food-card li {
+        padding: 0.5rem 0;
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+        font-weight: 600;
+        color: #374151;
+    }
+
+    .food-card li:last-child { border-bottom: none; }
+
+    @media (max-width: 850px) {
+        .detail-grid { grid-template-columns: 1fr; }
+        .stats-container { grid-template-columns: 1fr; }
+        .food-split { grid-template-columns: 1fr; }
+    }
+</style>
+{% endblock %}
+
+{% block sidebar %}
+    <span class="sidebar-nav-title">Navigation Nutrition</span>
+    <nav>
+        <a href="{{ path('app_my_nutrition') }}" class="sidebar-link">
+            <i class="fas fa-utensils"></i> Tableau de bord
+        </a>
+        <a href="{{ path('app_nutrition_request') }}" class="sidebar-link">
+            <i class="fas fa-plus"></i> Nouvelle demande
+        </a>
+        <a href="{{ path('app_nutrition_scan') }}" class="sidebar-link">
+            <i class="fas fa-barcode"></i> Scanner produit
+        </a>
+        <a href="{{ path('app_nutrition_track') }}" class="sidebar-link">
+            <i class="fas fa-camera"></i> Analyse Photo IA
+        </a>
+    </nav>
+{% endblock %}
+
+{% block body %}
+<div class="nutrition-wrapper">
+    <div class="nutrition-container">
+        
+        <a href="{{ path('app_my_nutrition', {'_locale': app.request.locale}) }}" class="btn-back-clean">
+            ← Mes demandes de régime
+        </a>
+
+        <!-- Premium Header -->
+        <div class="premium-header">
+            <div class="header-icon-main">
+                <i class="fas fa-file-medical"></i>
+            </div>
+            <h1 class="premium-title">Détails de ma demande</h1>
+            <p class="premium-subtitle">Suivi personnalisé par votre nutritionniste</p>
+        </div>
+
+        <div class="detail-grid">
+            <!-- Left Card: Original Request -->
+            <div class="card-glass">
+                <div class="card-title-nutri">
+                    <span><i class="fas fa-clipboard-list me-2"></i>Ma Demande</span>
+                    {% if demande_regime.statut == 'traité' %}
+                        <span class="badge-premium badge-traite">Traitée</span>
+                    {% else %}
+                        <span class="badge-premium badge-attente">En attente</span>
+                    {% endif %}
+                </div>
+
+                <div class="info-list">
+                    <div class="info-row">
+                        <div class="icon-box"><i class="fas fa-utensils"></i></div>
+                        <div class="info-content">
+                            <label>Type souhaité</label>
+                            <span>{{ demande_regime.typeRegimeSouhaite }}</span>
+                        </div>
+                    </div>
+                    <div class="info-row">
+                        <div class="icon-box"><i class="fas fa-bullseye"></i></div>
+                        <div class="info-content">
+                            <label>Objectif</label>
+                            <span>{{ demande_regime.objectifPrincipal }}</span>
+                        </div>
+                    </div>
+                    <div class="info-row">
+                        <div class="icon-box"><i class="fas fa-wallet"></i></div>
+                        <div class="info-content">
+                            <label>Budget</label>
+                            <span>{{ demande_regime.budgetMensuel ? demande_regime.budgetMensuel ~ ' DH' : 'Non spécifié' }}</span>
+                        </div>
+                    </div>
+                    <div class="info-row">
+                        <div class="icon-box"><i class="fas fa-exclamation-triangle"></i></div>
+                        <div class="info-content">
+                            <label>Allergies</label>
+                            <span>{{ demande_regime.allergies ?: 'Aucune signalée' }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 2rem; display: flex; gap: 0.75rem;">
+                    <a href="{{ path('app_nutrition_edit', {'id': demande_regime.id}) }}" class="btn-back-clean" style="margin:0; flex:1; justify-content:center; background:#dbeafe; color:#1e40af;">
+                        ✏️ Modifier
+                    </a>
+                </div>
+            </div>
+
+            <!-- Right Card: Prescribed Diet (If available) -->
+            <div class="card-glass">
+                <div class="card-title-nutri">
+                    <span><i class="fas fa-microscope me-2"></i>Régime Personnalisé</span>
+                </div>
+
+                {% if demande_regime.statut == 'traité' %}
+                    {% set regime = demande_regime.regimesPrescrits|last %}
+                    {% if regime %}
+                        <!-- Visual Stats -->
+                        <div class="stats-container">
+                            <div class="stat-mini-card">
+                                <span class="emoji"><i class="fas fa-fire"></i></span>
+                                <span class="val">{{ regime.caloriesJournalieres }}</span>
+                                <span class="lab">kcal / jour</span>
+                            </div>
+                            <div class="stat-mini-card">
+                                <span class="emoji"><i class="fas fa-utensils"></i></span>
+                                <span class="val">{{ regime.repasParJour }}</span>
+                                <span class="lab">Repas / jour</span>
+                            </div>
+                            <div class="stat-mini-card">
+                                <span class="emoji"><i class="fas fa-tint"></i></span>
+                                <span class="val">{{ (regime.hydratationQuotidienne / 1000)|number_format(1) }}L</span>
+                                <span class="lab">Eau / jour</span>
+                            </div>
+                        </div>
+
+                        <!-- Recommendations Card -->
+                        <div style="background: var(--nutri-bg); padding: 1.5rem; border-radius: 20px; border-left: 5px solid var(--nutri-primary);">
+                            <h4 style="margin: 0 0 0.5rem 0; color: var(--nutri-primary-dark);"><i class="fas fa-user-md me-2"></i>Conseil du nutritionniste :</h4>
+                            <p style="margin: 0; font-style: italic; color: var(--nutri-text);">"{{ regime.recommandationsSpeciales ?: 'Pas de recommandations spécifiques pour le moment.' }}"</p>
+                        </div>
+
+                        <!-- Foods split -->
+                        <div class="food-split">
+                            <div class="food-card allowed">
+                                <h4><i class="fas fa-check-circle me-2"></i>Recommandés</h4>
+                                <ul>
+                                    {% if regime.alimentsRecommandes %}
+                                        {% for a in regime.alimentsRecommandes %}<li>{{ a }}</li>{% endfor %}
+                                    {% else %}
+                                        <li>Variée et équilibrée</li>
+                                    {% endif %}
+                                </ul>
+                            </div>
+                            <div class="food-card forbidden">
+                                <h4><i class="fas fa-times-circle me-2"></i>À éviter</h4>
+                                <ul>
+                                    {% if regime.alimentsInterdits %}
+                                        {% for a in regime.alimentsInterdits %}<li>{{ a }}</li>{% endfor %}
+                                    {% else %}
+                                        <li>Aucun interdit strict</li>
+                                    {% endif %}
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 1.5rem; text-align: center; font-size: 0.9rem; color: var(--nutri-text-muted);">
+                            📅 Consultation effectuée le {{ regime.datePrescription|date('d/m/Y') }}
+                        </div>
+                    {% endif %}
+                {% else %}
+                    <!-- Waiting State -->
+                    <div style="text-align: center; padding: 4rem 1rem;">
+                        <div style="font-size: 5rem; margin-bottom: 2rem;">⏳</div>
+                        <h3 style="color: #92400e;">En attente de traitement</h3>
+                        <p style="color: #b45309; max-width: 300px; margin: 0 auto;">Votre nutritionniste prépare votre programme personnalisé. Vous recevrez une notification dès qu'il sera prêt !</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+

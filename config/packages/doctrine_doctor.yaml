@@ -1,0 +1,159 @@
+# Doctrine Doctor - Runtime Analysis for Doctrine ORM
+# Full documentation: https://github.com/ahmed-bhs/doctrine-doctor/blob/main/docs/CONFIGURATION.md
+
+doctrine_doctor:
+    # Enable Doctrine Doctor (only in dev environment)
+    enabled: true
+
+    # Web Profiler integration
+    profiler:
+        show_in_toolbar: true
+        show_debug_info: false
+
+    # Performance Analyzers
+    analyzers:
+        # Detect N+1 query problems
+        n_plus_one:
+            enabled: true
+            threshold: 5
+
+        # Detect slow queries
+        slow_query:
+            enabled: true
+            threshold: 100
+
+        # Detect missing database indexes
+        missing_index:
+            enabled: true
+            slow_query_threshold: 50
+            explain_queries: true
+            min_rows_scanned: 1000
+
+        # Analyze hydration performance
+        hydration:
+            enabled: true
+            row_threshold: 99
+            critical_threshold: 999
+
+        # Detect excessive JOINs
+        eager_loading:
+            enabled: true
+            join_threshold: 4
+            critical_join_threshold: 7
+
+        # Detect findAll() without limits
+        find_all:
+            enabled: true
+            threshold: 99
+
+        # Detect batch operations without EntityManager::clear()
+        entity_manager_clear:
+            enabled: true
+            batch_size_threshold: 20
+
+        # Suggest getReference() for simple ID lookups
+        get_reference:
+            enabled: true
+            threshold: 2
+
+        # Detect flush() in loops
+        flush_in_loop:
+            enabled: true
+            flush_count_threshold: 5
+            time_window_ms: 1000
+
+        # Detect lazy loading in loops
+        lazy_loading:
+            enabled: true
+            threshold: 10
+
+        # Suggest bulk operations for mass updates/deletes
+        bulk_operation:
+            enabled: true
+            threshold: 20
+
+        # Optimize JOIN usage
+        join_optimization:
+            enabled: true
+            max_joins_recommended: 5
+            max_joins_critical: 8
+
+        # Suggest partial objects
+        partial_object:
+            enabled: true
+            threshold: 5
+
+        # Suggest DTO hydration
+        dto_hydration:
+            enabled: true
+
+        # Security Analyzers
+        dql_injection:
+            enabled: true
+
+        sql_injection_raw_queries:
+            enabled: true
+
+        sensitive_data_exposure:
+            enabled: true
+
+        insecure_random:
+            enabled: true
+
+        # Code Quality Analyzers
+        collection_initialization:
+            enabled: true
+
+        cascade_configuration:
+            enabled: true
+
+        cascade_all:
+            enabled: true
+
+        cascade_persist_independent:
+            enabled: true
+
+        missing_orphan_removal:
+            enabled: true
+
+        cascade_remove_independent:
+            enabled: true
+
+        bidirectional_consistency:
+            enabled: true
+
+        orphan_removal_no_cascade:
+            enabled: true
+
+        ondelete_mismatch:
+            enabled: true
+
+        foreign_key_mapping:
+            enabled: true
+
+        # Configuration Analyzers
+        strict_mode:
+            enabled: true
+
+        charset:
+            enabled: true
+
+        inno_db_engine:
+            enabled: true
+
+        connection_pooling:
+            enabled: false
+
+        doctrine_cache:
+            enabled: true
+
+        naming_convention:
+            enabled: false
+
+        # Disable blameable trait suggestions (we don't use createdBy/updatedBy audit fields)
+        blameable_trait:
+            enabled: false
+
+        # Disable embeddable suggestions (too invasive to refactor existing entities)
+        missing_embeddable_opportunity:
+            enabled: false

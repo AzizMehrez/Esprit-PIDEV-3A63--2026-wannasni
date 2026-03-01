@@ -1,0 +1,661 @@
+{% extends 'base_dashboard.html.twig' %}
+
+{% block title %}Mon Historique de Participation - WANNASNI{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    .history-container {
+        max-width: 900px;
+        margin: 2rem auto;
+        padding: 0 1.5rem;
+    }
+
+    .history-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .history-header h1 {
+        font-family: 'Playfair Display', serif;
+        font-size: 2rem;
+        color: #1a1a2e;
+        margin-bottom: 0.5rem;
+    }
+
+    .history-header p {
+        color: #6b7280;
+        font-size: 1.1rem;
+    }
+
+    .history-table-wrapper {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        overflow: hidden;
+    }
+
+    .history-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 1.05rem;
+    }
+
+    .history-table th {
+        background: #f8f9fa;
+        padding: 1rem 1.25rem;
+        text-align: left;
+        font-weight: 600;
+        color: #374151;
+        border-bottom: 2px solid #e5e7eb;
+    }
+
+    .history-table td {
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid #f3f4f6;
+        color: #4b5563;
+        vertical-align: middle;
+    }
+
+    .history-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    .history-table tr:hover {
+        background: #f9fafb;
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 0.3rem 0.75rem;
+        border-radius: 50px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    .badge-completed {
+        background: #d1fae5;
+        color: #065f46;
+    }
+
+    .badge-missed {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .badge-physical {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+
+    .badge-cognitive {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .badge-creative {
+        background: #ede9fe;
+        color: #5b21b6;
+    }
+
+    .badge-social {
+        background: #fce7f3;
+        color: #9d174d;
+    }
+
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #6b7280;
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 1.05rem;
+        margin-bottom: 1.5rem;
+        transition: color 0.2s;
+    }
+
+    .back-link:hover {
+        color: #2E7D32;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem;
+        color: #9ca3af;
+    }
+
+    .empty-state span {
+        font-size: 3rem;
+        display: block;
+        margin-bottom: 1rem;
+    }
+
+    /* Feedback button */
+    .btn-feedback {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.5rem 1rem;
+        background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+        color: white;
+        border: none;
+        border-radius: 50px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        box-shadow: 0 2px 8px rgba(139, 92, 246, 0.3);
+    }
+
+    .btn-feedback:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+    }
+
+    .btn-feedback.done {
+        background: linear-gradient(135deg, #10b981, #059669);
+        cursor: default;
+        box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+    }
+
+    .btn-feedback.done:hover {
+        transform: none;
+    }
+
+    /* Modal styles */
+    .feedback-overlay {
+        display: none;
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 9999;
+        justify-content: center;
+        align-items: center;
+        padding: 1rem;
+    }
+
+    .feedback-overlay.active {
+        display: flex;
+    }
+
+    .feedback-modal {
+        background: white;
+        border-radius: 20px;
+        width: 100%;
+        max-width: 560px;
+        max-height: 90vh;
+        overflow-y: auto;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        animation: modalSlideIn 0.3s ease;
+    }
+
+    @keyframes modalSlideIn {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .feedback-modal-header {
+        padding: 1.5rem 2rem;
+        border-bottom: 1px solid #f3f4f6;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .feedback-modal-header h2 {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.4rem;
+        color: #1a1a2e;
+        margin: 0;
+    }
+
+    .feedback-modal-close {
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+        color: #9ca3af;
+        padding: 0.25rem;
+        line-height: 1;
+        transition: color 0.2s;
+    }
+
+    .feedback-modal-close:hover {
+        color: #374151;
+    }
+
+    .feedback-modal-body {
+        padding: 1.5rem 2rem;
+    }
+
+    .feedback-section {
+        margin-bottom: 1.5rem;
+    }
+
+    .feedback-section-title {
+        font-size: 1.05rem;
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 0.75rem;
+    }
+
+    /* Star / number rating */
+    .rating-group {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .rating-group input[type="radio"] {
+        display: none;
+    }
+
+    .rating-group label {
+        width: 48px;
+        height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+        border: 2px solid #e5e7eb;
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #6b7280;
+        cursor: pointer;
+        transition: all 0.2s;
+        background: white;
+    }
+
+    .rating-group label:hover {
+        border-color: #8b5cf6;
+        color: #8b5cf6;
+        background: #f5f3ff;
+    }
+
+    .rating-group input[type="radio"]:checked + label {
+        background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+        color: white;
+        border-color: #7c3aed;
+        box-shadow: 0 2px 8px rgba(139, 92, 246, 0.3);
+    }
+
+    .feedback-textarea {
+        width: 100%;
+        min-height: 80px;
+        padding: 0.75rem 1rem;
+        border: 2px solid #e5e7eb;
+        border-radius: 12px;
+        font-family: 'Inter', sans-serif;
+        font-size: 1rem;
+        color: #374151;
+        resize: vertical;
+        transition: border-color 0.2s;
+        box-sizing: border-box;
+    }
+
+    .feedback-textarea:focus {
+        outline: none;
+        border-color: #8b5cf6;
+    }
+
+    .feedback-checkbox-group {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .feedback-checkbox-group input[type="checkbox"] {
+        width: 20px;
+        height: 20px;
+        accent-color: #8b5cf6;
+        cursor: pointer;
+    }
+
+    .feedback-checkbox-group label {
+        font-size: 1rem;
+        color: #374151;
+        cursor: pointer;
+    }
+
+    /* Share radio */
+    .share-group {
+        display: flex;
+        gap: 1rem;
+    }
+
+    .share-option {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .share-option input[type="radio"] {
+        width: 18px;
+        height: 18px;
+        accent-color: #8b5cf6;
+        cursor: pointer;
+    }
+
+    .share-option label {
+        font-size: 1rem;
+        color: #374151;
+        cursor: pointer;
+    }
+
+    .feedback-modal-footer {
+        padding: 1rem 2rem 1.5rem;
+        display: flex;
+        gap: 1rem;
+        justify-content: flex-end;
+    }
+
+    .btn-submit-feedback {
+        padding: 0.75rem 2rem;
+        background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+        color: white;
+        border: none;
+        border-radius: 50px;
+        font-size: 1.05rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s;
+        box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+    }
+
+    .btn-submit-feedback:hover {
+        transform: scale(1.03);
+        box-shadow: 0 6px 16px rgba(139, 92, 246, 0.4);
+    }
+
+    .btn-cancel-feedback {
+        padding: 0.75rem 1.5rem;
+        background: white;
+        color: #6b7280;
+        border: 2px solid #e5e7eb;
+        border-radius: 50px;
+        font-size: 1.05rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .btn-cancel-feedback:hover {
+        border-color: #d1d5db;
+        color: #374151;
+    }
+
+    /* Flash messages */
+    .flash-messages {
+        position: fixed;
+        top: 1rem;
+        right: 1rem;
+        z-index: 10000;
+    }
+
+    .flash-message {
+        padding: 1rem 1.5rem;
+        border-radius: 12px;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        animation: flashIn 0.3s ease;
+    }
+
+    .flash-success {
+        background: #d1fae5;
+        color: #065f46;
+    }
+
+    .flash-error {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    @keyframes flashIn {
+        from { opacity: 0; transform: translateX(20px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+
+    @media (max-width: 640px) {
+        .history-table th:nth-child(3),
+        .history-table td:nth-child(3),
+        .history-table th:nth-child(4),
+        .history-table td:nth-child(4) {
+            display: none;
+        }
+
+        .feedback-modal {
+            max-width: 100%;
+            border-radius: 16px;
+        }
+
+        .feedback-modal-body {
+            padding: 1rem 1.25rem;
+        }
+
+        .rating-group label {
+            width: 42px;
+            height: 42px;
+            font-size: 1rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="history-container">
+
+    <!-- Flash Messages -->
+    {% if app.flashes %}
+    <div class="flash-messages">
+        {% for type, messages in app.flashes %}
+            {% for message in messages %}
+                <div class="flash-message flash-{{ type }}">{{ message }}</div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <a href="{{ path('app_my_activities', {'_locale': app.request.locale}) }}" class="back-link">
+        ← Retour aux activités
+    </a>
+
+    <div class="history-header">
+        <h1>📊 Mon Historique de Participation</h1>
+        <p>Consultez votre historique d'activités et suivez votre progression</p>
+    </div>
+
+    {% if participation_history is not empty %}
+    <div class="history-table-wrapper">
+        <table class="history-table">
+            <thead>
+                <tr>
+                    <th>Activité</th>
+                    <th>Type</th>
+                    <th>Date</th>
+                    <th>Durée</th>
+                    <th>Statut</th>
+                    <th>Avis</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for entry in participation_history %}
+                <tr>
+                    <td><strong>{{ entry.activity_name }}</strong></td>
+                    <td>
+                        <span class="badge badge-{{ entry.type }}">
+                            {% if entry.type == 'physical' %}🏃 Physique
+                            {% elseif entry.type == 'cognitive' %}🧠 Cognitif
+                            {% elseif entry.type == 'creative' %}🎨 Créatif
+                            {% elseif entry.type == 'social' %}👥 Social
+                            {% else %}{{ entry.type }}
+                            {% endif %}
+                        </span>
+                    </td>
+                    <td>{{ entry.date|date('d/m/Y') }}</td>
+                    <td>{{ entry.duration }} min</td>
+                    <td>
+                        {% if entry.status == 'présent' or entry.status == 'attended' %}
+                            <span class="badge badge-completed">✅ Présent</span>
+                        {% elseif entry.status == 'annulé' or entry.status == 'cancelled' %}
+                            <span class="badge badge-missed">❌ Annulée</span>
+                        {% elseif entry.status == 'inscrit' or entry.status == 'registered' %}
+                            <span class="badge" style="background: #dbeafe; color: #1e40af;">📝 Inscrit</span>
+                        {% else %}
+                            <span class="badge">{{ entry.status }}</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if entry.status == 'présent' or entry.status == 'attended' %}
+                            {% if entry.has_feedback is defined and entry.has_feedback %}
+                                <span class="btn-feedback done">✅ Avis envoyé</span>
+                            {% else %}
+                                <button type="button" class="btn-feedback" onclick="openFeedbackModal({{ entry.activity_id }}, '{{ entry.activity_name|e('js') }}')">
+                                    📝 Donnez votre avis
+                                </button>
+                            {% endif %}
+                        {% elseif entry.status == 'inscrit' or entry.status == 'registered' %}
+                            <form method="POST" action="{{ path('app_mark_attended', {'_locale': app.request.locale, 'id': entry.id}) }}" style="display: inline;">
+                                <input type="hidden" name="_token" value="{{ csrf_token('mark_attended_' ~ entry.id) }}">
+                                <button type="submit" class="btn-feedback" style="background: #3b82f6;">
+                                    ✓ Marquer présent
+                                </button>
+                            </form>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <span>📭</span>
+        <p>Aucun historique de participation pour le moment.</p>
+    </div>
+    {% endif %}
+
+</div>
+
+<!-- Feedback Modal -->
+<div class="feedback-overlay" id="feedbackOverlay">
+    <div class="feedback-modal">
+        <div class="feedback-modal-header">
+            <h2>📝 Donnez votre avis</h2>
+            <button type="button" class="feedback-modal-close" onclick="closeFeedbackModal()">&times;</button>
+        </div>
+        <form id="feedbackForm" method="POST" action="">
+            <input type="hidden" name="_token" id="feedbackToken" value="">
+            <div class="feedback-modal-body">
+
+                <!-- Activity Rating -->
+                <div class="feedback-section">
+                    <div class="feedback-section-title">Évaluation de l'activité ⭐</div>
+                    <div class="rating-group">
+                        {% for i in 1..5 %}
+                        <input type="radio" name="rating" id="rating_{{ i }}" value="{{ i }}" required>
+                        <label for="rating_{{ i }}">{{ i }}</label>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Mood Before -->
+                <div class="feedback-section">
+                    <div class="feedback-section-title">Votre humeur avant l'activité 😊</div>
+                    <div class="rating-group">
+                        {% for i in 1..5 %}
+                        <input type="radio" name="mood_before" id="mood_before_{{ i }}" value="{{ i }}" required>
+                        <label for="mood_before_{{ i }}">{{ i }}</label>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Mood After -->
+                <div class="feedback-section">
+                    <div class="feedback-section-title">Votre humeur après l'activité 😊</div>
+                    <div class="rating-group">
+                        {% for i in 1..5 %}
+                        <input type="radio" name="mood_after" id="mood_after_{{ i }}" value="{{ i }}" required>
+                        <label for="mood_after_{{ i }}">{{ i }}</label>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Comments -->
+                <div class="feedback-section">
+                    <div class="feedback-section-title">Commentaires</div>
+                    <textarea name="comment" class="feedback-textarea" placeholder="Partagez votre expérience..."></textarea>
+                </div>
+
+                <!-- Problems -->
+                <div class="feedback-section">
+                    <div class="feedback-checkbox-group">
+                        <input type="checkbox" id="hasProblems" onchange="document.getElementById('problemsField').style.display = this.checked ? 'block' : 'none'">
+                        <label for="hasProblems">Avez-vous rencontré des problèmes?</label>
+                    </div>
+                    <div id="problemsField" style="display: none; margin-top: 0.75rem;">
+                        <textarea name="problems" class="feedback-textarea" placeholder="Décrivez les problèmes rencontrés (optionnel)..."></textarea>
+                    </div>
+                </div>
+
+                <!-- Recommend -->
+                <div class="feedback-section">
+                    <div class="feedback-checkbox-group">
+                        <input type="checkbox" name="recommend" id="recommend" value="1">
+                        <label for="recommend">Je recommanderais cette activité à mes amis</label>
+                    </div>
+                </div>
+
+                <!-- Share -->
+                <div class="feedback-section">
+                    <div class="feedback-section-title">Partager avec mes proches?</div>
+                    <div class="share-group">
+                        <div class="share-option">
+                            <input type="radio" name="share" id="share_oui" value="oui">
+                            <label for="share_oui">Oui</label>
+                        </div>
+                        <div class="share-option">
+                            <input type="radio" name="share" id="share_non" value="non" checked>
+                            <label for="share_non">Non</label>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="feedback-modal-footer">
+                <button type="submit" class="btn-submit-feedback">Soumettre mon avis</button>
+                <button type="button" class="btn-cancel-feedback" onclick="closeFeedbackModal()">Annuler</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function openFeedbackModal(activityId, activityName) {
+    var form = document.getElementById('feedbackForm');
+    form.action = '{{ path('app_activity_feedback', {'_locale': app.request.locale, 'id': '__ID__'})|e('js') }}'.replace('__ID__', activityId);
+    document.getElementById('feedbackToken').value = '{{ csrf_token('feedback') }}';
+    // Reset form fields
+    form.reset();
+    document.getElementById('problemsField').style.display = 'none';
+    document.getElementById('share_non').checked = true;
+    document.getElementById('feedbackOverlay').classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeFeedbackModal() {
+    document.getElementById('feedbackOverlay').classList.remove('active');
+    document.body.style.overflow = '';
+}
+
+// Close on overlay click
+document.getElementById('feedbackOverlay').addEventListener('click', function(e) {
+    if (e.target === this) closeFeedbackModal();
+});
+
+// Close on Escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeFeedbackModal();
+});
+</script>
+{% endblock %}

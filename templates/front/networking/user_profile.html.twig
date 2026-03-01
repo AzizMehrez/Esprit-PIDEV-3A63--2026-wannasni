@@ -1,0 +1,153 @@
+{% extends 'base_dashboard.html.twig' %}
+
+{% set current_locale = app.request.locale|default('fr') %}
+
+{% block title %}{{ target.fullName }} - Networking{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<link rel="stylesheet" href="/css/networking.css">
+{% endblock %}
+
+{% block body %}
+<div class="net-page">
+    <div class="net-topbar">
+        <div class="net-topbar-inner">
+            <a href="{{ path('app_networking', {'_locale': current_locale}) }}" class="net-back-btn">← Networking</a>
+            <h1 class="net-topbar-title">Profil</h1>
+        </div>
+    </div>
+
+    {# User Profile Header #}
+    <div class="net-user-profile">
+        <div class="net-profile-banner">
+            <div class="net-avatar-lg">
+                {% if target.imageProfil %}
+                    <img src="{{ target.imageProfil }}" alt="{{ target.fullName }}">
+                {% else %}
+                    {{ target.firstName|default('U')|first|upper }}
+                {% endif %}
+            </div>
+        </div>
+        <div class="net-profile-info">
+            <h2>
+                {{ target.fullName }}
+                {% if target.effectiveBadge == 'purple' %}
+                    <span class="net-badge-verified purple" title="Admin vérifié">✓</span>
+                {% elseif target.effectiveBadge == 'blue' %}
+                    <span class="net-badge-verified blue" title="Vérifié">✓</span>
+                {% endif %}
+            </h2>
+            {% if target.bio %}
+                <p class="net-profile-bio">{{ target.bio }}</p>
+            {% endif %}
+            <div class="net-profile-meta">
+                {% if target.profilePublic %}
+                    <span class="net-privacy-badge public">🌐 Public</span>
+                {% else %}
+                    <span class="net-privacy-badge private">🔒 Privé</span>
+                {% endif %}
+                <span>📅 Membre depuis {{ target.createdAt|date('M Y') }}</span>
+            </div>
+
+            {% if not isMe %}
+                <div class="net-profile-actions">
+                    {% if isConnected %}
+                        <span class="net-connected-badge">✅ Connecté</span>
+                        <a href="#" class="net-msg-friend-btn" onclick="window.location.href='{{ path('app_networking', {'_locale': current_locale}) }}#messages'">💬 Message</a>
+                    {% elseif pendingInvite %}
+                        <span class="net-pending-badge">⏳ Invitation en attente</span>
+                    {% else %}
+                        <button class="net-invite-btn" data-user-id="{{ target.id }}">+ Envoyer une invitation</button>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    {# User Posts #}
+    {% if posts|length > 0 %}
+        <div class="net-feed" id="feedContainer">
+            {% for post in posts %}
+                <div class="net-post" data-post-id="{{ post.id }}">
+                    <div class="net-post-header">
+                        <div class="net-post-author">
+                            <div class="net-avatar-sm">
+                                {% if post.author.imageProfil %}
+                                    <img src="{{ post.author.imageProfil }}" alt="">
+                                {% else %}
+                                    {{ post.author.firstName|default('U')|first|upper }}
+                                {% endif %}
+                            </div>
+                            <div>
+                                <strong>{{ post.author.fullName }}</strong>
+                                {% if post.author.effectiveBadge == 'purple' %}
+                                    <span class="net-badge-verified purple" title="Admin vérifié">✓</span>
+                                {% elseif post.author.effectiveBadge == 'blue' %}
+                                    <span class="net-badge-verified blue" title="Vérifié">✓</span>
+                                {% endif %}
+                                <small>{{ post.createdAt|date('d/m/Y H:i') }}</small>
+                            </div>
+                        </div>
+                    </div>
+                    {% if post.content %}
+                        <div class="net-post-content">{{ post.content|nl2br }}</div>
+                    {% endif %}
+                    {% if post.media|length > 0 %}
+                        <div class="net-post-media">
+                            {% for m in post.media %}
+                                {% if m.mediaType == 'image' %}
+                                    <img src="{{ m.filePath }}" alt="" class="net-media-img" loading="lazy">
+                                {% elseif m.mediaType == 'video' %}
+                                    <video controls class="net-media-video" preload="metadata"><source src="{{ m.filePath }}"></video>
+                                {% elseif m.mediaType == 'voice' %}
+                                    <audio controls class="net-media-audio"><source src="{{ m.filePath }}"></audio>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    <div class="net-post-stats">
+                        <span class="net-like-count" id="likeCount-{{ post.id }}">{{ post.likesCount }} ❤️</span>
+                        <span class="net-comment-count" data-post-id="{{ post.id }}">{{ post.commentsCount }} commentaires</span>
+                    </div>
+                    <div class="net-post-actions">
+                        <button class="net-action-btn {% if post.id in likedPostIds %}liked{% endif %}" data-action="like" data-post-id="{{ post.id }}">
+                            {{ post.id in likedPostIds ? '❤️' : '🤍' }} J'aime
+                        </button>
+                        <button class="net-action-btn" data-action="comment" data-post-id="{{ post.id }}">💬 Commenter</button>
+                    </div>
+                    <div class="net-comments-section" id="comments-{{ post.id }}" style="display:none;">
+                        <div class="net-comments-list" id="commentsList-{{ post.id }}"></div>
+                        <div class="net-comment-form">
+                            <input type="text" class="net-comment-input" placeholder="Écrire un commentaire..." data-post-id="{{ post.id }}">
+                            <button class="net-comment-send" data-post-id="{{ post.id }}">Envoyer</button>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% elseif not target.profilePublic and not isConnected and not isMe %}
+        <div class="net-empty">
+            <p>🔒 Ce profil est privé. Envoyez une invitation pour voir les publications.</p>
+        </div>
+    {% else %}
+        <div class="net-empty">
+            <p>📭 Aucune publication pour le moment.</p>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+    window.NET_CONFIG = {
+        locale: '{{ current_locale }}',
+        userId: {{ user.id }},
+        urls: {
+            likePost: '{{ path('app_networking_post_like', {'_locale': current_locale, 'id': 0}) }}'.replace('/0/', '/{id}/'),
+            commentPost: '{{ path('app_networking_post_comment', {'_locale': current_locale, 'id': 0}) }}'.replace('/0/', '/{id}/'),
+            getComments: '{{ path('app_networking_post_comments', {'_locale': current_locale, 'id': 0}) }}'.replace('/0/', '/{id}/'),
+            sendInvite: '{{ path('app_networking_invite_send', {'_locale': current_locale, 'id': 0}) }}'.replace('/0', '/{id}'),
+        }
+    };
+</script>
+<script src="/js/networking.js"></script>
+{% endblock %}

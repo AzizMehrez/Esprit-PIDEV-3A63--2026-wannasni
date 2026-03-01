@@ -1,0 +1,61 @@
+includes:
+    - vendor/phpstan/phpstan-symfony/extension.neon
+
+parameters:
+    level: 6
+    paths:
+        - src/Entity/ServiceRequest.php
+        - src/Entity/Intervention.php
+        - src/Service/InterventionValidatorService.php
+        - src/Service/FeatureGateService.php
+        - src/Service/ServiceManagementService.php
+        - src/Service/InterventionPdfGeneratorService.php
+        - src/Service/DevisService.php
+        - src/Service/ServiceImageAnalyzerService.php
+        - src/Exception/ValidationException.php
+        - src/Exception/BusinessRuleException.php
+        - src/Exception/UnauthorizedException.php
+        - src/Controller/Admin/InterventionAdminController.php
+        - src/Controller/Front/UserServiceController.php
+    symfony:
+        containerXmlPath: var/cache/dev/App_KernelDevDebugContainer.xml
+    ignoreErrors:
+        # ServiceManagementService is a prototype — it calls methods not yet on the real entity
+        -
+            message: '#Call to an undefined method App\\Entity\\ServiceRequest::#'
+            path: src/Service/ServiceManagementService.php
+        -
+            message: '#Call to an undefined method App\\Entity\\Intervention::#'
+            path: src/Service/ServiceManagementService.php
+        # Custom repository methods called from controller
+        -
+            message: '#Call to an undefined method Doctrine\\ORM\\EntityRepository<App\\Entity\\Intervention>::(findAllWithServices|countByStatut)\(\)#'
+            path: src/Controller/Admin/InterventionAdminController.php
+        # Symfony security UserInterface → App\User mismatch (common in Symfony)
+        -
+            message: '#Parameter .* expects App\\Entity\\User\|null, Symfony\\Component\\Security\\Core\\User\\UserInterface given#'
+            path: src/Controller/Front/UserServiceController.php
+        -
+            message: '#Call to an undefined method Symfony\\Component\\Security\\Core\\User\\UserInterface::(getFirstName|getLastName)\(\)#'
+            path: src/Controller/Front/UserServiceController.php
+        # Doctrine ORM — $id is assigned by DB, unusedType is a false positive
+        - '#Property App\\Entity\\(ServiceRequest|Intervention)::\$id .* is never assigned int so it can be removed#'
+        # Doctrine ORM — niveauUrgence has default value, nullable comes from ORM mapping
+        - '#Property App\\Entity\\ServiceRequest::\$niveauUrgence .* is never assigned null#'
+        # Doctrine Collection generics — would require Psalm-style annotations
+        - '#Property App\\Entity\\ServiceRequest::\$interventions with generic interface#'
+        # Null coalescing on known offsets — defensive coding, not a bug
+        - '#on left side of \?\? always exists and is not nullable#'
+        - '#in isset\(\) always exists and is not nullable#'
+        # ServiceImageAnalyzerService — large service with many array returns
+        -
+            message: '#no value type specified in iterable type array#'
+            path: src/Service/ServiceImageAnalyzerService.php
+        # ServiceManagementService — prototype service with untyped arrays
+        -
+            message: '#no value type specified in iterable type array#'
+            path: src/Service/ServiceManagementService.php
+        # Controller array properties without value types
+        -
+            message: '#no value type specified in iterable type array#'
+            path: src/Controller

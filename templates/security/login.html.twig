@@ -1,0 +1,112 @@
+{% extends 'base_auth.html.twig' %}
+
+{% block title %}{{ 'cta.login'|trans|default('Connexion') }} — {{ 'site.name'|trans }}{% endblock %}
+
+{% block body %}
+<div class="auth-page">
+    {# Left Side - Image & Quote #}
+    <div class="auth-image-side">
+        <div class="auth-image-overlay"></div>
+        <img src="/images/hero.png" alt="" class="auth-bg-image" aria-hidden="true">
+        <div class="auth-image-content">
+            <div class="auth-logo">
+                <img src="/images/logo.png" alt="WANNASNI" class="auth-logo-img">
+            </div>
+            <blockquote class="auth-quote">
+                <p>"{{ 'auth.quote'|trans|default('Des soins qui ressemblent à de la famille.') }}"</p>
+                <cite>— WANNASNI</cite>
+            </blockquote>
+        </div>
+    </div>
+    
+    {# Right Side - Login Form #}
+    <div class="auth-form-side">
+        <div class="auth-form-container">
+            {# Mobile Logo (shown on small screens only) #}
+            <div class="auth-mobile-header">
+                <a href="{{ path('app_home') }}" class="auth-back-link">
+                    ← {{ 'nav.back'|trans|default('Retour') }}
+                </a>
+                <img src="/images/logo.png" alt="WANNASNI" class="auth-mobile-logo">
+            </div>
+            
+            <div class="auth-form-header">
+                <h1 class="auth-title">{{ 'auth.login.title'|trans|default('Bon retour !') }}</h1>
+                <p class="auth-subtitle">{{ 'auth.login.subtitle'|trans|default('Connectez-vous pour accéder à votre espace.') }}</p>
+            </div>
+            
+            {% if error is defined and error %}
+                <div class="auth-error" role="alert">
+                    <span class="error-icon">⚠️</span>
+                    {{ error.messageKey|trans(error.messageData, 'security') }}
+                </div>
+            {% endif %}
+            
+            <form method="post" class="auth-form">
+                <div class="form-group">
+                    <label for="inputEmail" class="form-label">{{ 'auth.email'|trans|default('Adresse email') }}</label>
+                    <input type="email" 
+                           id="inputEmail" 
+                           name="email" 
+                           class="form-input" 
+                           placeholder="exemple@email.com"
+                           autocomplete="email"
+                           required 
+                           autofocus>
+                </div>
+                
+                <div class="form-group">
+                    <label for="inputPassword" class="form-label">{{ 'auth.password'|trans|default('Mot de passe') }}</label>
+                    <input type="password" 
+                           id="inputPassword" 
+                           name="password" 
+                           class="form-input" 
+                           placeholder="••••••••"
+                           autocomplete="current-password"
+                           required>
+                </div>
+                
+                <div class="form-row">
+                    <label class="form-checkbox">
+                        <input type="checkbox" name="_remember_me">
+                        <span class="checkbox-label">{{ 'auth.remember_me'|trans|default('Se souvenir de moi') }}</span>
+                    </label>
+                    <a href="#forgot" class="auth-link">{{ 'auth.forgot_password'|trans|default('Mot de passe oublié ?') }}</a>
+                </div>
+                
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+                
+                <button type="submit" class="btn btn-primary btn-large btn-full">
+                    {{ 'cta.login'|trans|default('Se connecter') }}
+                </button>
+            </form>
+            
+            {# Social Authentication Buttons #}
+            <div class="auth-divider">
+                <span class="auth-divider-text">{{ 'auth.or_continue_with'|trans|default('Ou continuer avec') }}</span>
+            </div>
+            
+            <div class="social-auth-buttons">
+                <button type="button" class="btn-social btn-google" disabled>
+                    <span class="btn-social-icon">G</span>
+                    <span>{{ 'auth.continue_google'|trans|default('Continuer avec Google') }}</span>
+                </button>
+                <button type="button" class="btn-social btn-x" disabled>
+                    <span class="btn-social-icon">𝕏</span>
+                    <span>{{ 'auth.continue_x'|trans|default('Continuer avec X') }}</span>
+                </button>
+                <button type="button" class="btn-social btn-facebook" disabled>
+                    <span class="btn-social-icon">f</span>
+                    <span>{{ 'auth.continue_facebook'|trans|default('Continuer avec Facebook') }}</span>
+                </button>
+            </div>
+            
+            <div class="auth-footer">
+                <p>{{ 'auth.no_account'|trans|default("Vous n'avez pas de compte ?") }} 
+                   <a href="{{ path('app_register') }}" class="auth-link-strong">{{ 'cta.signup'|trans|default("S'inscrire") }}</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

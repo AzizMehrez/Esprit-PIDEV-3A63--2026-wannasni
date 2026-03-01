@@ -1,0 +1,1 @@
+"""Activity Recommendations Module"""

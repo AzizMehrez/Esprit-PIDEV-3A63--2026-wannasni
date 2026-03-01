@@ -1,0 +1,500 @@
+{% extends 'base_dashboard.html.twig' %}
+
+{% block title %}Mon Régime Prescrit{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    :root {
+        --nutri-primary: #10b981;
+        --nutri-primary-dark: #059669;
+        --nutri-bg: #f0fdf4;
+        --nutri-card: #ffffff;
+        --nutri-text: #1f2937;
+        --nutri-text-muted: #6b7280;
+        --nutri-border: #d1fae5;
+    }
+
+    .nutrition-wrapper {
+        min-height: 100vh;
+        padding: 2rem 1rem 4rem;
+        background: linear-gradient(180deg, var(--nutri-bg) 0%, #f9fafb 30%);
+    }
+
+    .nutrition-container {
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+
+    .btn-back-clean {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--nutri-primary-dark);
+        text-decoration: none;
+        font-weight: 600;
+        margin-bottom: 2rem;
+        padding: 0.75rem 1.25rem;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        transition: all 0.2s;
+    }
+
+    .btn-back-clean:hover {
+        transform: translateX(-5px);
+        background: var(--nutri-bg);
+    }
+
+    .premium-header {
+        background: linear-gradient(135deg, var(--nutri-primary), var(--nutri-primary-dark));
+        border-radius: 30px;
+        padding: 3rem 2rem;
+        margin-bottom: 2.5rem;
+        color: white;
+        text-align: center;
+        box-shadow: 0 10px 40px rgba(16, 185, 129, 0.25);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .premium-header::after {
+        content: '🥗';
+        position: absolute;
+        right: -20px;
+        bottom: -20px;
+        font-size: 8rem;
+        opacity: 0.1;
+        transform: rotate(-15deg);
+    }
+
+    .header-icon-main {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        filter: drop-shadow(0 4px 10px rgba(0,0,0,0.2));
+    }
+
+    .premium-title {
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin-bottom: 0.5rem;
+        letter-spacing: -0.5px;
+    }
+
+    .premium-subtitle {
+        font-size: 1.2rem;
+        opacity: 0.9;
+    }
+
+    .regime-type-badge {
+        display: inline-block;
+        padding: 0.5rem 1.5rem;
+        border-radius: 50px;
+        font-size: 1rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        background: rgba(255,255,255,0.2);
+        margin-top: 1rem;
+        letter-spacing: 1px;
+    }
+
+    .stats-container {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1rem;
+        margin-bottom: 2.5rem;
+    }
+
+    .stat-mini-card {
+        background: white;
+        padding: 1.5rem 1rem;
+        border-radius: 20px;
+        text-align: center;
+        border: 1px solid var(--nutri-border);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+    }
+
+    .stat-mini-card .emoji { font-size: 2.5rem; margin-bottom: 0.75rem; display: block; }
+    .stat-mini-card .val { font-size: 1.5rem; font-weight: 800; color: var(--nutri-primary-dark); display: block; }
+    .stat-mini-card .lab { font-size: 0.8rem; color: var(--nutri-text-muted); font-weight: 600; }
+
+    .detail-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+        margin-bottom: 2.5rem;
+    }
+
+    .card-glass {
+        background: white;
+        border-radius: 24px;
+        padding: 2rem;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.04);
+        border: 1px solid var(--nutri-border);
+    }
+
+    .card-glass.full-width {
+        grid-column: 1 / -1;
+    }
+
+    .card-title-nutri {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: var(--nutri-text);
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid var(--nutri-bg);
+    }
+
+    .info-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+    }
+
+    .info-row {
+        display: flex;
+        align-items: center;
+        gap: 1.25rem;
+    }
+
+    .icon-box {
+        width: 50px;
+        height: 50px;
+        background: var(--nutri-bg);
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        flex-shrink: 0;
+    }
+
+    .info-content label {
+        display: block;
+        font-size: 0.85rem;
+        color: var(--nutri-text-muted);
+        font-weight: 600;
+        margin-bottom: 0.2rem;
+    }
+
+    .info-content span {
+        font-weight: 700;
+        color: var(--nutri-text);
+        font-size: 1.1rem;
+    }
+
+    .food-split {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+    }
+
+    .food-card {
+        padding: 1.5rem;
+        border-radius: 20px;
+        border: 2px solid transparent;
+    }
+
+    .food-card.allowed { background: #f0fdf4; border-color: #86efac; }
+    .food-card.forbidden { background: #fef2f2; border-color: #fca5a5; }
+
+    .food-card h4 {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+        font-size: 1.1rem;
+        font-weight: 700;
+    }
+
+    .food-card ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .food-card li {
+        padding: 0.5rem 0;
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+        font-weight: 600;
+        color: #374151;
+    }
+
+    .food-card li:last-child { border-bottom: none; }
+
+    .recommendation-box {
+        background: var(--nutri-bg);
+        padding: 2rem;
+        border-radius: 20px;
+        border-left: 5px solid var(--nutri-primary);
+    }
+
+    .recommendation-box h4 {
+        margin: 0 0 0.75rem 0;
+        color: var(--nutri-primary-dark);
+        font-size: 1.1rem;
+    }
+
+    .recommendation-box p {
+        margin: 0;
+        font-style: italic;
+        color: var(--nutri-text);
+        line-height: 1.6;
+    }
+
+    .regime-active-indicator {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.4rem 1rem;
+        border-radius: 50px;
+        font-size: 0.85rem;
+        font-weight: 700;
+    }
+
+    .regime-active { background: #dcfce7; color: #065f46; }
+    .regime-expired { background: #fef3c7; color: #92400e; }
+    .regime-upcoming { background: #dbeafe; color: #1e40af; }
+
+    @media (max-width: 850px) {
+        .stats-container { grid-template-columns: repeat(2, 1fr); }
+        .detail-grid { grid-template-columns: 1fr; }
+        .food-split { grid-template-columns: 1fr; }
+    }
+</style>
+{% endblock %}
+
+{% block sidebar %}
+    <span class="sidebar-nav-title">Navigation Nutrition</span>
+    <nav>
+        <a href="{{ path('app_my_nutrition') }}" class="sidebar-link">
+            <i class="fas fa-utensils"></i> Tableau de bord
+        </a>
+        <a href="{{ path('app_nutrition_request') }}" class="sidebar-link">
+            <i class="fas fa-plus"></i> Nouvelle demande
+        </a>
+        <a href="{{ path('app_nutrition_scan') }}" class="sidebar-link">
+            <i class="fas fa-barcode"></i> Scanner produit
+        </a>
+        <a href="{{ path('app_nutrition_track') }}" class="sidebar-link">
+            <i class="fas fa-camera"></i> Analyse Photo IA
+        </a>
+    </nav>
+{% endblock %}
+
+{% block body %}
+<div class="nutrition-wrapper">
+    <div class="nutrition-container">
+
+        <a href="{{ path('app_my_nutrition', {'_locale': app.request.locale}) }}" class="btn-back-clean">
+            ← Retour au tableau de bord
+        </a>
+
+        {# ── Header ── #}
+        <div class="premium-header">
+            <div class="header-icon-main">
+                <i class="fas fa-heartbeat"></i>
+            </div>
+            <h1 class="premium-title">Mon Régime Prescrit</h1>
+            <p class="premium-subtitle">Programme nutritionnel personnalisé par votre nutritionniste</p>
+            <span class="regime-type-badge">{{ regime_prescrit.typeRegime }}</span>
+        </div>
+
+        {# ── Status indicator ── #}
+        {% set now = "now"|date("Y-m-d") %}
+        {% set debut = regime_prescrit.dateDebut|date("Y-m-d") %}
+        {% set fin = regime_prescrit.dateFin|date("Y-m-d") %}
+        <div style="text-align: center; margin-bottom: 2rem;">
+            {% if now >= debut and now <= fin %}
+                <span class="regime-active-indicator regime-active">
+                    <i class="fas fa-check-circle"></i> Régime actif
+                </span>
+            {% elseif now < debut %}
+                <span class="regime-active-indicator regime-upcoming">
+                    <i class="fas fa-clock"></i> Commence le {{ regime_prescrit.dateDebut|date('d/m/Y') }}
+                </span>
+            {% else %}
+                <span class="regime-active-indicator regime-expired">
+                    <i class="fas fa-exclamation-circle"></i> Régime terminé le {{ regime_prescrit.dateFin|date('d/m/Y') }}
+                </span>
+            {% endif %}
+        </div>
+
+        {# ── Quick Stats ── #}
+        <div class="stats-container">
+            <div class="stat-mini-card">
+                <span class="emoji"><i class="fas fa-fire" style="color: #ef4444;"></i></span>
+                <span class="val">{{ regime_prescrit.caloriesJournalieres }}</span>
+                <span class="lab">kcal / jour</span>
+            </div>
+            <div class="stat-mini-card">
+                <span class="emoji"><i class="fas fa-utensils" style="color: var(--nutri-primary);"></i></span>
+                <span class="val">{{ regime_prescrit.repasParJour }}</span>
+                <span class="lab">Repas / jour</span>
+            </div>
+            <div class="stat-mini-card">
+                <span class="emoji"><i class="fas fa-tint" style="color: #3b82f6;"></i></span>
+                <span class="val">{{ (regime_prescrit.hydratationQuotidienne / 1000)|number_format(1) }}L</span>
+                <span class="lab">Eau / jour</span>
+            </div>
+            <div class="stat-mini-card">
+                <span class="emoji"><i class="fas fa-clipboard-check" style="color: #8b5cf6;"></i></span>
+                <span class="val">{{ regime_prescrit.suiviRequis|capitalize }}</span>
+                <span class="lab">Suivi requis</span>
+            </div>
+        </div>
+
+        {# ── Biometric Data ── #}
+        {% if regime_prescrit.poidsActuel or regime_prescrit.taille or regime_prescrit.niveauActivite %}
+        <div class="detail-grid" style="margin-bottom: 1.5rem;">
+            <div class="card-glass full-width">
+                <div class="card-title-nutri">
+                    <i class="fas fa-weight"></i> Données biométriques
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem;">
+                    {% if regime_prescrit.poidsActuel %}
+                    <div class="stat-mini-card" style="margin-bottom: 0;">
+                        <span class="emoji"><i class="fas fa-weight" style="color: #6366f1;"></i></span>
+                        <span class="val">{{ regime_prescrit.poidsActuel }} kg</span>
+                        <span class="lab">Poids actuel</span>
+                    </div>
+                    {% endif %}
+                    {% if regime_prescrit.taille %}
+                    <div class="stat-mini-card" style="margin-bottom: 0;">
+                        <span class="emoji"><i class="fas fa-ruler-vertical" style="color: #06b6d4;"></i></span>
+                        <span class="val">{{ regime_prescrit.taille }} cm</span>
+                        <span class="lab">Taille</span>
+                    </div>
+                    {% endif %}
+                    {% if regime_prescrit.imc %}
+                    <div class="stat-mini-card" style="margin-bottom: 0;">
+                        <span class="emoji"><i class="fas fa-calculator" style="color: {% if regime_prescrit.imc < 18.5 %}#f59e0b{% elseif regime_prescrit.imc < 25 %}#10b981{% elseif regime_prescrit.imc < 30 %}#f97316{% else %}#dc2626{% endif %};"></i></span>
+                        <span class="val">{{ regime_prescrit.imc }}</span>
+                        <span class="lab">IMC{% if regime_prescrit.imc < 18.5 %} (sous-poids){% elseif regime_prescrit.imc < 25 %} (normal){% elseif regime_prescrit.imc < 30 %} (surpoids){% else %} (obésité){% endif %}</span>
+                    </div>
+                    {% endif %}
+                    {% if regime_prescrit.niveauActivite %}
+                    <div class="stat-mini-card" style="margin-bottom: 0;">
+                        <span class="emoji"><i class="fas fa-running" style="color: #8b5cf6;"></i></span>
+                        <span class="val" style="font-size: 1.1rem;">{{ regime_prescrit.niveauActivite|replace({'_': ' '})|capitalize }}</span>
+                        <span class="lab">Activité physique</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        </div>
+        {% endif %}
+
+        {# ── Detail Cards ── #}
+        <div class="detail-grid">
+            {# Left Card: Dates & Info #}
+            <div class="card-glass">
+                <div class="card-title-nutri">
+                    <i class="fas fa-calendar-alt"></i> Informations du régime
+                </div>
+                <div class="info-list">
+                    <div class="info-row">
+                        <div class="icon-box"><i class="fas fa-stethoscope"></i></div>
+                        <div class="info-content">
+                            <label>Type de régime</label>
+                            <span>{{ regime_prescrit.typeRegime|capitalize }}</span>
+                        </div>
+                    </div>
+                    <div class="info-row">
+                        <div class="icon-box"><i class="fas fa-calendar-day"></i></div>
+                        <div class="info-content">
+                            <label>Date de début</label>
+                            <span>{{ regime_prescrit.dateDebut|date('d/m/Y') }}</span>
+                        </div>
+                    </div>
+                    <div class="info-row">
+                        <div class="icon-box"><i class="fas fa-calendar-check"></i></div>
+                        <div class="info-content">
+                            <label>Date de fin</label>
+                            <span>{{ regime_prescrit.dateFin|date('d/m/Y') }}</span>
+                        </div>
+                    </div>
+                    <div class="info-row">
+                        <div class="icon-box"><i class="fas fa-prescription"></i></div>
+                        <div class="info-content">
+                            <label>Prescrit le</label>
+                            <span>{{ regime_prescrit.datePrescription|date('d/m/Y à H:i') }}</span>
+                        </div>
+                    </div>
+                    {% if regime_prescrit.nutritionniste %}
+                    <div class="info-row">
+                        <div class="icon-box"><i class="fas fa-user-md"></i></div>
+                        <div class="info-content">
+                            <label>Nutritionniste</label>
+                            <span>{{ regime_prescrit.nutritionniste.nom ?? '' }} {{ regime_prescrit.nutritionniste.prenom ?? '' }}</span>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            {# Right Card: Foods #}
+            <div class="card-glass">
+                <div class="card-title-nutri">
+                    <i class="fas fa-apple-alt"></i> Mon alimentation
+                </div>
+                <div class="food-split">
+                    <div class="food-card allowed">
+                        <h4><i class="fas fa-check-circle" style="color: #22c55e;"></i> Recommandés</h4>
+                        <ul>
+                            {% if regime_prescrit.alimentsRecommandes|length > 0 %}
+                                {% for aliment in regime_prescrit.alimentsRecommandes %}
+                                    <li>{{ aliment }}</li>
+                                {% endfor %}
+                            {% else %}
+                                <li>Alimentation variée et équilibrée</li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                    <div class="food-card forbidden">
+                        <h4><i class="fas fa-times-circle" style="color: #ef4444;"></i> À éviter</h4>
+                        <ul>
+                            {% if regime_prescrit.alimentsInterdits|length > 0 %}
+                                {% for aliment in regime_prescrit.alimentsInterdits %}
+                                    <li>{{ aliment }}</li>
+                                {% endfor %}
+                            {% else %}
+                                <li>Aucun interdit strict</li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            {# Full-Width Card: Recommendations #}
+            {% if regime_prescrit.recommandationsSpeciales %}
+            <div class="card-glass full-width">
+                <div class="card-title-nutri">
+                    <i class="fas fa-lightbulb"></i> Recommandations du nutritionniste
+                </div>
+                <div class="recommendation-box">
+                    <h4><i class="fas fa-user-md me-2"></i> Conseil personnalisé :</h4>
+                    <p>"{{ regime_prescrit.recommandationsSpeciales }}"</p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        {# ── Related demand link ── #}
+        {% if regime_prescrit.demande %}
+        <div style="text-align: center; margin-top: 1rem;">
+            <a href="{{ path('app_nutrition_show', {'id': regime_prescrit.demande.id}) }}" class="btn-back-clean" style="margin: 0;">
+                <i class="fas fa-file-medical"></i> Voir la demande associée
+            </a>
+        </div>
+        {% endif %}
+
+    </div>
+</div>
+{% endblock %}

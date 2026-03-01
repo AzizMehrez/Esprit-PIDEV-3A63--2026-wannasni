@@ -1,0 +1,978 @@
+{% extends 'base_dashboard.html.twig' %}
+
+{% block title %}Boutique Boissons Santé - WANNASNI{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    :root {
+        --mk-primary: #6366f1;
+        --mk-primary-dark: #4f46e5;
+        --mk-accent: #10b981;
+        --mk-danger: #ef4444;
+        --mk-text: #1f2937;
+        --mk-border: #e2e8f0;
+    }
+
+    .marketplace-container {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 1.5rem 1rem 4rem;
+    }
+
+    /* ── Header ── */
+    .mk-header {
+        background: linear-gradient(135deg, #4f46e5, #7c3aed, #ec4899);
+        border-radius: 24px;
+        padding: 2.5rem 2rem;
+        margin-bottom: 2rem;
+        color: white;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 10px 40px rgba(99,102,241,0.25);
+    }
+    .mk-header h1 { font-size: 2rem; font-weight: 800; margin-bottom: 0.5rem; }
+    .mk-header p { opacity: 0.9; font-size: 1rem; }
+
+    /* ── Cart Badge ── */
+    .cart-floating-btn {
+        position: fixed;
+        top: 5rem;
+        right: 1.5rem;
+        z-index: 9998;
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--mk-primary), #7c3aed);
+        color: white;
+        border: none;
+        font-size: 1.4rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 6px 20px rgba(99,102,241,0.45);
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    .cart-floating-btn:hover { transform: scale(1.1); background: linear-gradient(135deg, var(--mk-primary-dark), #6d28d9); }
+    .cart-badge {
+        position: absolute;
+        top: -4px;
+        right: -4px;
+        background: var(--mk-danger);
+        color: white;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        font-size: 0.75rem;
+        font-weight: 800;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* ── Product Grid ── */
+    .mk-section { margin-bottom: 2.5rem; }
+    .mk-section h2 { font-size: 1.4rem; font-weight: 800; margin-bottom: 0.5rem; }
+    .mk-section-subtitle { color: #94a3b8; font-size: 0.9rem; margin-bottom: 1.25rem; }
+
+    .products-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 1.25rem;
+    }
+
+    .product-card {
+        background: white;
+        border-radius: 16px;
+        border: 2px solid var(--mk-border);
+        overflow: hidden;
+        transition: all 0.3s;
+        display: flex;
+        flex-direction: column;
+    }
+    .product-card:hover { transform: translateY(-5px); box-shadow: 0 12px 30px rgba(0,0,0,0.08); border-color: var(--mk-primary); }
+
+    .product-card-top {
+        padding: 1.5rem 1.25rem 1rem;
+        text-align: center;
+        background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+        position: relative;
+    }
+    .product-emoji { font-size: 3rem; display: block; margin-bottom: 0.5rem; }
+    .product-badge {
+        position: absolute;
+        top: 0.75rem;
+        right: 0.75rem;
+        padding: 0.2rem 0.6rem;
+        border-radius: 8px;
+        font-size: 0.7rem;
+        font-weight: 700;
+    }
+    .badge-sale { background: #fef2f2; color: var(--mk-danger); }
+    .badge-bio { background: #f0fdf4; color: var(--mk-accent); }
+    .badge-featured { background: #fefce8; color: #d97706; }
+
+    .product-card-body {
+        padding: 1.25rem;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    .product-name { font-weight: 700; font-size: 0.95rem; color: var(--mk-text); margin-bottom: 0.25rem; }
+    .product-brand { font-size: 0.8rem; color: #94a3b8; margin-bottom: 0.5rem; }
+    .product-short-desc { font-size: 0.83rem; color: #64748b; line-height: 1.5; margin-bottom: 0.75rem; flex: 1; }
+
+    .product-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.3rem;
+        margin-bottom: 0.75rem;
+    }
+    .product-tag {
+        padding: 0.15rem 0.5rem;
+        border-radius: 6px;
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+    .tag-hydration { background: #eff6ff; color: #3b82f6; }
+    .tag-sugar-free { background: #f0fdf4; color: #10b981; }
+    .tag-caffeine-free { background: #faf5ff; color: #8b5cf6; }
+    .tag-bio { background: #ecfdf5; color: #059669; }
+
+    .product-price-row {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.75rem;
+    }
+    .product-price { font-size: 1.3rem; font-weight: 800; color: var(--mk-primary); }
+    .product-price-old { font-size: 0.9rem; color: #94a3b8; text-decoration: line-through; }
+    .product-volume { font-size: 0.8rem; color: #94a3b8; }
+    .product-stock { font-size: 0.75rem; }
+    .stock-ok { color: var(--mk-accent); }
+    .stock-low { color: #f59e0b; }
+    .stock-out { color: var(--mk-danger); }
+
+    .product-rating {
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+        font-size: 0.8rem;
+        margin-bottom: 0.75rem;
+    }
+    .rating-stars { color: #f59e0b; }
+    .rating-count { color: #94a3b8; }
+
+    .btn-add-cart {
+        width: 100%;
+        padding: 0.75rem;
+        background: var(--mk-primary);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .btn-add-cart:hover { background: var(--mk-primary-dark); transform: translateY(-1px); }
+    .btn-add-cart:disabled { background: #cbd5e1; cursor: not-allowed; }
+    .btn-add-cart.added { background: var(--mk-accent); }
+
+    /* ── Category Tabs ── */
+    .mk-cat-tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-bottom: 1.5rem;
+    }
+    .mk-cat-tab {
+        padding: 0.5rem 1rem;
+        border-radius: 12px;
+        border: 2px solid var(--mk-border);
+        background: white;
+        font-size: 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .mk-cat-tab:hover { border-color: var(--mk-primary); color: var(--mk-primary); }
+    .mk-cat-tab.active { background: var(--mk-primary); color: white; border-color: var(--mk-primary); }
+
+    /* ── Cart Sidebar ── */
+    .cart-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 99999;
+    }
+    .cart-overlay.open { display: flex; justify-content: flex-end; }
+    .cart-panel {
+        position: relative;
+        width: 420px;
+        max-width: 100vw;
+        height: 100vh;
+        background: white;
+        z-index: 100000;
+        box-shadow: -10px 0 30px rgba(0,0,0,0.15);
+        display: flex;
+        flex-direction: column;
+        transform: translateX(100%);
+        transition: transform 0.3s ease;
+        overflow: hidden;
+    }
+    .cart-overlay.open .cart-panel { transform: translateX(0); }
+
+    .cart-header {
+        padding: 1.5rem;
+        border-bottom: 2px solid var(--mk-border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .cart-header h3 { font-weight: 800; font-size: 1.2rem; }
+    .cart-close { background: #f1f5f9; border: none; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; font-size: 1.2rem; }
+
+    .cart-items {
+        flex: 1;
+        overflow-y: auto;
+        padding: 1rem 1.5rem;
+    }
+    .cart-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem 0;
+        border-bottom: 1px solid #f1f5f9;
+    }
+    .cart-item-emoji { font-size: 2rem; }
+    .cart-item-info { flex: 1; }
+    .cart-item-name { font-weight: 700; font-size: 0.9rem; }
+    .cart-item-details { font-size: 0.8rem; color: #94a3b8; }
+    .cart-item-qty {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .cart-qty-btn {
+        width: 28px; height: 28px;
+        border-radius: 8px; border: 1px solid var(--mk-border);
+        background: white; cursor: pointer;
+        display: flex; align-items: center; justify-content: center;
+        font-weight: 700;
+    }
+    .cart-qty-btn:hover { background: #f1f5f9; }
+    .cart-item-total { font-weight: 800; color: var(--mk-primary); min-width: 60px; text-align: right; }
+    .cart-item-remove { background: none; border: none; color: var(--mk-danger); cursor: pointer; font-size: 0.8rem; }
+
+    .cart-footer {
+        padding: 1.5rem;
+        border-top: 2px solid var(--mk-border);
+        background: #f8fafc;
+        max-height: 55vh;
+        overflow-y: auto;
+    }
+    .cart-summary-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+    }
+    .cart-summary-total {
+        display: flex;
+        justify-content: space-between;
+        font-weight: 800;
+        font-size: 1.2rem;
+        margin: 0.75rem 0;
+        padding-top: 0.75rem;
+        border-top: 2px solid var(--mk-border);
+    }
+
+    .btn-checkout {
+        width: 100%;
+        padding: 1rem;
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: white;
+        border: none;
+        border-radius: 14px;
+        font-weight: 800;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .btn-checkout:hover { transform: translateY(-1px); box-shadow: 0 4px 15px rgba(16,185,129,0.3); }
+
+    /* ── Checkout Form ── */
+    .checkout-form { display: none; }
+    .checkout-form.open { display: block; }
+    .checkout-form .form-group { margin-bottom: 1rem; }
+    .checkout-form label { font-weight: 700; font-size: 0.85rem; display: block; margin-bottom: 0.3rem; color: var(--mk-text); }
+    .checkout-form input,
+    .checkout-form select,
+    .checkout-form textarea {
+        width: 100%;
+        padding: 0.65rem 1rem;
+        border-radius: 10px;
+        border: 2px solid var(--mk-border);
+        font-size: 0.9rem;
+        transition: border-color 0.2s;
+    }
+    .checkout-form input:focus,
+    .checkout-form select:focus,
+    .checkout-form textarea:focus {
+        border-color: var(--mk-primary);
+        outline: none;
+    }
+    .free-shipping-banner {
+        background: #f0fdf4;
+        border: 1px solid #bbf7d0;
+        border-radius: 10px;
+        padding: 0.6rem 1rem;
+        text-align: center;
+        font-size: 0.85rem;
+        color: #059669;
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+    }
+    .shipping-progress-bar {
+        height: 6px;
+        background: #e2e8f0;
+        border-radius: 3px;
+        overflow: hidden;
+        margin-top: 0.4rem;
+    }
+    .shipping-progress-fill {
+        height: 100%;
+        background: var(--mk-accent);
+        border-radius: 3px;
+        transition: width 0.5s;
+    }
+
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--mk-primary);
+        text-decoration: none;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        transition: all 0.2s;
+    }
+    .back-link:hover { color: var(--mk-primary-dark); transform: translateX(-3px); }
+
+    .empty-cart {
+        text-align: center;
+        padding: 3rem 1rem;
+    }
+    .empty-cart-emoji { font-size: 3rem; margin-bottom: 1rem; }
+
+    @media (max-width: 768px) {
+        .products-grid { grid-template-columns: 1fr 1fr; }
+        .cart-panel { width: 100vw; }
+    }
+    @media (max-width: 480px) {
+        .products-grid { grid-template-columns: 1fr; }
+    }
+</style>
+{% endblock %}
+
+{% block sidebar %}
+    <span class="sidebar-nav-title">Navigation Nutrition</span>
+    <nav>
+        <a href="{{ path('app_my_nutrition') }}" class="sidebar-link">
+            <i class="fas fa-utensils"></i> Tableau de bord
+        </a>
+        <a href="{{ path('app_nutrition_sommelier') }}" class="sidebar-link" data-turbo="false">
+            <i class="fas fa-wine-glass-alt"></i> Sommelier
+        </a>
+        <a href="{{ path('app_nutrition_sommelier_marketplace') }}" class="sidebar-link active" data-turbo="false">
+            <i class="fas fa-store"></i> Boutique
+        </a>
+        <a href="{{ path('app_nutrition_sommelier_orders') }}" class="sidebar-link" data-turbo="false">
+            <i class="fas fa-box"></i> Mes commandes
+        </a>
+        <a href="{{ path('app_nutrition_sommelier_history') }}" class="sidebar-link" data-turbo="false">
+            <i class="fas fa-history"></i> Historique boissons
+        </a>
+    </nav>
+{% endblock %}
+
+{% block body %}
+<div class="marketplace-container">
+
+    <a href="{{ path('app_nutrition_sommelier') }}" class="back-link">
+        <i class="fas fa-arrow-left"></i> Retour au Sommelier
+    </a>
+
+    <div class="mk-header">
+        <h1>🛒 Boutique Boissons & Nutriments Santé</h1>
+        <p>Achetez des boissons healthy, thés, infusions, superaliments et compléments adaptés à votre régime</p>
+    </div>
+
+    {# ── Recommended for Regime ── #}
+    {% if recommended is not empty %}
+    <div class="mk-section">
+        <h2><i class="fas fa-star" style="color:#f59e0b;"></i> Recommandés pour vous{% if regime %} ({{ regime.typeRegime|capitalize }}){% endif %}</h2>
+        <p class="mk-section-subtitle">Sélectionnés en fonction de votre profil santé</p>
+        <div class="products-grid">
+            {% for product in recommended %}
+                {{ _self.product_card(product) }}
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    {# ── On Sale ── #}
+    {% if on_sale is not empty %}
+    <div class="mk-section">
+        <h2>🔥 Promotions</h2>
+        <p class="mk-section-subtitle">Offres spéciales du moment</p>
+        <div class="products-grid">
+            {% for product in on_sale %}
+                {{ _self.product_card(product) }}
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    {# ── Full Catalog by Category ── #}
+    <div class="mk-section">
+        <h2><i class="fas fa-th-large"></i> Catalogue complet</h2>
+        <p class="mk-section-subtitle">Parcourez toutes nos catégories de boissons et nutriments healthy</p>
+
+        {% set catEmojis = {'thé': '🍵', 'café': '☕', 'infusion': '🌿', 'eau': '💧', 'jus': '🧃', 'smoothie': '🥤', 'sirop_sans_sucre': '🍯', 'mocktail': '🍹', 'complément': '💊', 'superaliment': '🌱'} %}
+
+        <div class="mk-cat-tabs" id="mkCatTabs">
+            <button class="mk-cat-tab active" onclick="filterProducts('all', this)">Tout</button>
+            {% for category, products in products_by_category %}
+            <button class="mk-cat-tab" onclick="filterProducts('{{ category }}', this)">
+                {{ catEmojis[category]|default('🥤') }} {{ category|capitalize }}
+            </button>
+            {% endfor %}
+        </div>
+
+        <div class="products-grid" id="allProductsGrid">
+            {% for category, products in products_by_category %}
+                {% for product in products %}
+                <div class="product-card-wrapper" data-category="{{ category }}">
+                    {{ _self.product_card(product) }}
+                </div>
+                {% endfor %}
+            {% endfor %}
+        </div>
+    </div>
+
+</div>
+
+{# ── Floating Cart Button ── #}
+<button class="cart-floating-btn" onclick="openCart()">
+    <i class="fas fa-shopping-cart"></i>
+    <span class="cart-badge" id="cartBadge">{{ cart_count }}</span>
+</button>
+
+{# ── Cart Sidebar ── #}
+<div class="cart-overlay" id="cartOverlay" onclick="closeCart(event)">
+    <div class="cart-panel" onclick="event.stopPropagation()">
+        <div class="cart-header">
+            <h3>🛒 Mon Panier</h3>
+            <button class="cart-close" onclick="closeCart()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="cart-items" id="cartItems">
+            <div class="empty-cart" id="cartEmpty">
+                <div class="empty-cart-emoji">🛒</div>
+                <p>Votre panier est vide</p>
+            </div>
+        </div>
+        <div class="cart-footer" id="cartFooter" style="display:none;">
+            <div id="shippingBannerArea"></div>
+            <div class="cart-summary-row">
+                <span>Sous-total</span>
+                <span id="cartSubtotal">0.00 DH</span>
+            </div>
+            <div class="cart-summary-row">
+                <span>Livraison</span>
+                <span id="cartShipping">25.00 DH</span>
+            </div>
+            <div class="cart-summary-total">
+                <span>Total</span>
+                <span id="cartGrandTotal">0.00 DH</span>
+            </div>
+
+            <div id="checkoutBtnArea">
+                <button class="btn-checkout" onclick="showCheckoutForm()">
+                    <i class="fas fa-lock me-1"></i> Passer la commande
+                </button>
+            </div>
+
+            <div class="checkout-form" id="checkoutForm">
+                <h4 style="font-weight:700;margin-bottom:1rem;">📦 Informations de livraison</h4>
+                <div class="form-group">
+                    <label>Adresse *</label>
+                    <input type="text" id="ckAddress" placeholder="123 Rue Mohammed V">
+                </div>
+                <div class="form-group">
+                    <label>Ville *</label>
+                    <input type="text" id="ckCity" placeholder="Casablanca">
+                </div>
+                <div class="form-group">
+                    <label>Code postal</label>
+                    <input type="text" id="ckPostalCode" placeholder="20000">
+                </div>
+                <div class="form-group">
+                    <label>Téléphone *</label>
+                    <input type="text" id="ckPhone" placeholder="06 12 34 56 78">
+                </div>
+                <div class="form-group">
+                    <label>Mode de paiement</label>
+                    <select id="ckPaymentMethod">
+                        <option value="cash_on_delivery">💵 Paiement à la livraison</option>
+                        <option value="bank_transfer">🏦 Virement bancaire</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Notes (optionnel)</label>
+                    <textarea id="ckNotes" rows="2" placeholder="Instructions spéciales..."></textarea>
+                </div>
+                <button class="btn-checkout" onclick="submitCheckout()">
+                    <i class="fas fa-check me-1"></i> Confirmer la commande
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# ── Product Card Macro ── #}
+{% macro product_card(product) %}
+<div class="product-card">
+    <div class="product-card-top">
+        {% if product.imageUrl %}
+            <img src="{{ product.imageUrl }}" alt="{{ product.name }}" style="width:100%;height:150px;object-fit:cover;border-radius:8px;margin-bottom:0.75rem;" />
+        {% else %}
+            <span class="product-emoji" style="display:block;">{{ product.categoryEmoji }}</span>
+        {% endif %}
+        {% if product.isOnSale() %}
+            <span class="product-badge badge-sale">-{{ product.getDiscountPercent() }}%</span>
+        {% elseif product.isBio() %}
+            <span class="product-badge badge-bio">🌱 BIO</span>
+        {% elseif product.isFeatured() %}
+            <span class="product-badge badge-featured">⭐ TOP</span>
+        {% endif %}
+    </div>
+    <div class="product-card-body">
+        <div class="product-name">{{ product.name }}</div>
+        <div class="product-brand">{{ product.brand ?? '' }} {% if product.origin %}· {{ product.origin }}{% endif %}</div>
+        <div class="product-short-desc">{{ product.shortDescription|default(product.description|default('')|slice(0,100)) }}</div>
+
+        <div class="product-tags">
+            {% if product.hydrationScore %}
+            <span class="product-tag tag-hydration">💧 {{ product.hydrationScore }}%</span>
+            {% endif %}
+            {% if product.isSugarFree() %}
+            <span class="product-tag tag-sugar-free">0 sucre</span>
+            {% endif %}
+            {% if product.isCaffeineFree() %}
+            <span class="product-tag tag-caffeine-free">Sans caféine</span>
+            {% endif %}
+            {% if product.isBio() %}
+            <span class="product-tag tag-bio">🌱 Bio</span>
+            {% endif %}
+        </div>
+
+        {% if product.averageRating %}
+        <div class="product-rating">
+            <span class="rating-stars">
+                {% for i in 1..5 %}{{ i <= product.averageRating|round ? '★' : '☆' }}{% endfor %}
+            </span>
+            <span>{{ product.averageRating }}</span>
+            <span class="rating-count">({{ product.reviewCount }})</span>
+        </div>
+        {% endif %}
+
+        <div class="product-price-row">
+            {% if product.isOnSale() %}
+            <span class="product-price">{{ product.salePrice }} DH</span>
+            <span class="product-price-old">{{ product.price }} DH</span>
+            {% else %}
+            <span class="product-price">{{ product.price }} DH</span>
+            {% endif %}
+            {% if product.volume %}
+            <span class="product-volume">/ {{ product.volume }}</span>
+            {% endif %}
+        </div>
+
+        <div class="product-stock" style="margin-bottom:0.5rem;">
+            {% if product.stockQuantity > 10 %}
+                <span class="stock-ok">✅ En stock</span>
+            {% elseif product.stockQuantity > 0 %}
+                <span class="stock-low">⚠️ Plus que {{ product.stockQuantity }} en stock</span>
+            {% else %}
+                <span class="stock-out">❌ Rupture de stock</span>
+            {% endif %}
+        </div>
+
+        <button class="btn-add-cart" id="addBtn{{ product.id }}" onclick="addToCart({{ product.id }}, this)"
+            {{ product.stockQuantity == 0 ? 'disabled' : '' }}>
+            <i class="fas fa-cart-plus me-1"></i> Ajouter au panier
+        </button>
+    </div>
+</div>
+{% endmacro %}
+
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+// Create namespace to avoid global conflicts and allow Turbo.js compatibility
+window.marketplace = window.marketplace || {
+    csrfToken: '{{ csrf_token("app") }}',
+    cartCount: {{ cart_count }}
+};
+
+// Update with fresh CSRF token on each page load
+window.marketplace.csrfToken = '{{ csrf_token("app") }}';
+
+// ═══════════════════════════
+// CART STATE
+// ═══════════════════════════
+function openCart() {
+    const overlay = document.getElementById('cartOverlay');
+    if (!overlay) return;
+    overlay.classList.add('open');
+    loadCartData();
+}
+
+function closeCart(event) {
+    if (event && event.target !== document.getElementById('cartOverlay')) return;
+    const overlay = document.getElementById('cartOverlay');
+    if (overlay) overlay.classList.remove('open');
+    const checkoutForm = document.getElementById('checkoutForm');
+    if (checkoutForm) checkoutForm.classList.remove('open');
+}
+
+function updateBadge(count) {
+    window.marketplace.cartCount = count;
+    const badge = document.getElementById('cartBadge');
+    if (badge) {
+        badge.textContent = count;
+        badge.style.display = count > 0 ? 'flex' : 'none';
+    }
+}
+
+// ═══════════════════════════
+// ADD TO CART
+// ═══════════════════════════
+function addToCart(productId, btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Ajout...';
+
+    const formData = new FormData();
+    formData.append('product_id', productId);
+    formData.append('quantity', 1);
+
+    fetch('{{ path("app_nutrition_sommelier_add_to_cart") }}', {
+        method: 'POST',
+        body: formData,
+        credentials: 'include',
+        headers: {
+            'X-CSRF-Token': window.marketplace.csrfToken,
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(r => {
+        if (!r.ok) {
+            throw new Error('HTTP ' + r.status);
+        }
+        return r.json();
+    })
+    .then(data => {
+        if (data.status === 'success') {
+            btn.classList.add('added');
+            btn.innerHTML = '<i class="fas fa-check me-1"></i> Ajouté !';
+            updateBadge(data.cart_count || window.marketplace.cartCount + 1);
+            showToast('✅ ' + data.message);
+            setTimeout(() => {
+                btn.classList.remove('added');
+                btn.innerHTML = '<i class="fas fa-cart-plus me-1"></i> Ajouter au panier';
+                btn.disabled = false;
+            }, 2000);
+        } else {
+            btn.innerHTML = '<i class="fas fa-cart-plus me-1"></i> Ajouter au panier';
+            btn.disabled = false;
+            showToast('❌ ' + data.message);
+        }
+    })
+    .catch(err => {
+        console.error('Add to cart error:', err);
+        btn.innerHTML = '<i class="fas fa-cart-plus me-1"></i> Ajouter au panier';
+        btn.disabled = false;
+        showToast('❌ Erreur de connexion. Vérifiez votre connexion Internet.');
+    });
+}
+// Also expose function name variant for compatibility with orders page
+window.addCatalogToCart = addToCart;
+
+// ═══════════════════════════
+// LOAD CART DATA
+// ═══════════════════════════
+function loadCartData() {
+    fetch('{{ path("app_nutrition_sommelier_cart_data") }}', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+            'X-CSRF-Token': window.marketplace.csrfToken,
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.status === 'success') {
+            renderCart(data);
+        }
+    })
+    .catch(err => {
+        console.error('Load cart error:', err);
+        showToast('❌ Erreur lors du chargement du panier');
+    });
+}
+
+function renderCart(data) {
+    const container = document.getElementById('cartItems');
+    const footer = document.getElementById('cartFooter');
+    const emptyEl = document.getElementById('cartEmpty');
+    
+    // Exit if cart elements don't exist on this page
+    if (!container || !footer) return;
+
+    if (!data.items || data.items.length === 0) {
+        container.innerHTML = '<div class="empty-cart"><div class="empty-cart-emoji">🛒</div><p>Votre panier est vide</p></div>';
+        footer.style.display = 'none';
+        return;
+    }
+
+    let html = '';
+    data.items.forEach(item => {
+        html += `<div class="cart-item">
+            <span class="cart-item-emoji">${item.emoji}</span>
+            <div class="cart-item-info">
+                <div class="cart-item-name">${item.name}</div>
+                <div class="cart-item-details">${item.brand || ''} · ${item.volume || ''}</div>
+                <div class="cart-item-details">${item.unit_price} DH/unité</div>
+                <div class="cart-item-qty">
+                    <button class="cart-qty-btn" onclick="updateCartQty(${item.item_id}, ${item.quantity - 1})">−</button>
+                    <span style="font-weight:700;">${item.quantity}</span>
+                    <button class="cart-qty-btn" onclick="updateCartQty(${item.item_id}, ${item.quantity + 1})">+</button>
+                </div>
+                <button class="cart-item-remove" onclick="removeCartItem(${item.item_id})"><i class="fas fa-trash-alt me-1"></i> Supprimer</button>
+            </div>
+            <div class="cart-item-total">${item.line_total} DH</div>
+        </div>`;
+    });
+    container.innerHTML = html;
+    footer.style.display = 'block';
+
+    const subtotalEl = document.getElementById('cartSubtotal');
+    if (subtotalEl) subtotalEl.textContent = data.total + ' DH';
+    const shippingEl = document.getElementById('cartShipping');
+    if (shippingEl) shippingEl.textContent = data.shipping_cost === '0.00' ? 'Gratuit 🎉' : data.shipping_cost + ' DH';
+    const totalEl = document.getElementById('cartGrandTotal');
+    if (totalEl) totalEl.textContent = data.grand_total + ' DH';
+    updateBadge(data.cart_count);
+
+    // Shipping progress
+    const total = parseFloat(data.total);
+    const threshold = data.free_shipping_at;
+    let bannerHTML = '';
+    if (total >= threshold) {
+        bannerHTML = '<div class="free-shipping-banner">🚚 Livraison gratuite !</div>';
+    } else {
+        const remaining = (threshold - total).toFixed(2);
+        const pct = Math.min(100, (total / threshold) * 100);
+        bannerHTML = `<div class="free-shipping-banner">
+            🚚 Plus que ${remaining} DH pour la livraison gratuite !
+            <div class="shipping-progress-bar"><div class="shipping-progress-fill" style="width:${pct}%"></div></div>
+        </div>`;
+    }
+    const bannerArea = document.getElementById('shippingBannerArea');
+    if (bannerArea) bannerArea.innerHTML = bannerHTML;
+}
+
+function updateCartQty(itemId, qty) {
+    const formData = new FormData();
+    formData.append('item_id', itemId);
+    formData.append('quantity', qty);
+
+    fetch('{{ path("app_nutrition_sommelier_update_cart") }}', {
+        method: 'POST',
+        body: formData,
+        credentials: 'include',
+        headers: {
+            'X-CSRF-Token': window.marketplace.csrfToken,
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.status === 'success') {
+            loadCartData();
+        } else {
+            showToast('❌ ' + data.message);
+        }
+    })
+    .catch(err => {
+        console.error('Update cart error:', err);
+        showToast('❌ Erreur lors de la mise à jour du panier');
+    });
+}
+
+function removeCartItem(itemId) {
+    const formData = new FormData();
+    formData.append('item_id', itemId);
+
+    fetch('{{ path("app_nutrition_sommelier_remove_from_cart") }}', {
+        method: 'POST',
+        body: formData,
+        credentials: 'include',
+        headers: {
+            'X-CSRF-Token': window.marketplace.csrfToken,
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.status === 'success') {
+            loadCartData();
+            updateBadge(data.cart_count);
+        }
+    })
+    .catch(err => {
+        console.error('Remove error:', err);
+        showToast('❌ Erreur lors de la suppression');
+    });
+}
+
+// ═══════════════════════════
+// CHECKOUT
+// ═══════════════════════════
+function showCheckoutForm() {
+    document.getElementById('checkoutBtnArea').style.display = 'none';
+    document.getElementById('checkoutForm').classList.add('open');
+}
+
+function submitCheckout() {
+    const address = document.getElementById('ckAddress').value;
+    const city = document.getElementById('ckCity').value;
+    const phone = document.getElementById('ckPhone').value;
+
+    if (!address || !city || !phone) {
+        showToast('❌ Veuillez remplir adresse, ville et téléphone.');
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('address', address);
+    formData.append('city', city);
+    formData.append('postal_code', document.getElementById('ckPostalCode').value);
+    formData.append('phone', phone);
+    formData.append('payment_method', document.getElementById('ckPaymentMethod').value);
+    formData.append('notes', document.getElementById('ckNotes').value);
+
+    fetch('{{ path("app_nutrition_sommelier_checkout") }}', {
+        method: 'POST',
+        body: formData,
+        credentials: 'include',
+        headers: {
+            'X-CSRF-Token': window.marketplace.csrfToken,
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(r => {
+        if (!r.ok) {
+            throw new Error('Erreur serveur: ' + r.status);
+        }
+        return r.json();
+    })
+    .then(data => {
+        if (data.status === 'success') {
+            const cartItems = document.getElementById('cartItems');
+            if (cartItems) {
+                cartItems.innerHTML = `
+                    <div style="text-align:center;padding:3rem 1rem;">
+                        <div style="font-size:4rem;margin-bottom:1rem;">🎉</div>
+                        <h3 style="font-weight:800;margin-bottom:0.5rem;">Commande confirmée !</h3>
+                        <p style="color:#64748b;">N° ${data.order_number}</p>
+                        <p style="font-weight:700;font-size:1.3rem;color:#10b981;margin:1rem 0;">Total : ${data.grand_total} DH</p>
+                        ${data.shipping_cost == 0 ? '<p style="color:#059669;font-weight:600;">🚚 Livraison gratuite !</p>' : ''}
+                        <a href="{{ path('app_nutrition_sommelier_orders') }}" data-turbo="false" style="display:inline-block;margin-top:1.5rem;padding:0.75rem 2rem;background:#6366f1;color:white;border-radius:12px;text-decoration:none;font-weight:700;">
+                            <i class="fas fa-box me-1"></i> Voir mes commandes
+                        </a>
+                    </div>`;
+            }
+            const cartFooter = document.getElementById('cartFooter');
+            if (cartFooter) cartFooter.style.display = 'none';
+            updateBadge(0);
+            showToast('✅ Commande confirmée !');
+        } else {
+            showToast('❌ ' + (data.message || 'Erreur lors de la commande'));
+        }
+    })
+    .catch(err => {
+        console.error('Checkout error:', err);
+        showToast('❌ Erreur réseau lors du checkout. Vérifiez votre connexion et réessayez.');
+    });
+}
+
+// ═══════════════════════════
+// FILTER PRODUCTS
+// ═══════════════════════════
+function filterProducts(category, btn) {
+    document.querySelectorAll('.mk-cat-tab').forEach(t => t.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+
+    document.querySelectorAll('.product-card-wrapper').forEach(el => {
+        el.style.display = (category === 'all' || el.dataset.category === category) ? '' : 'none';
+    });
+}
+
+// ═══════════════════════════
+// TOAST
+// ═══════════════════════════
+function showToast(message) {
+    const toast = document.createElement('div');
+    toast.style.cssText = 'position:fixed;top:20px;right:20px;z-index:20000;background:#f0fdf4;color:#065f46;padding:1rem 1.5rem;border-radius:14px;font-weight:600;box-shadow:0 8px 30px rgba(0,0,0,0.15);border:1px solid #bbf7d0;animation:slideIn 0.3s ease;max-width:400px;';
+    if (message.includes('❌')) {
+        toast.style.background = '#fef2f2';
+        toast.style.color = '#991b1b';
+        toast.style.borderColor = '#fecaca';
+    }
+    toast.innerHTML = message;
+    document.body.appendChild(toast);
+    setTimeout(() => { toast.style.animation = 'toastOut 0.3s forwards'; setTimeout(() => toast.remove(), 300); }, 3000);
+}
+
+// ═══════════════════════════
+// EXPOSE ALL FUNCTIONS TO WINDOW GLOBAL SCOPE
+// ═══════════════════════════
+window.openCart = openCart;
+window.closeCart = closeCart;
+window.updateBadge = updateBadge;
+window.addToCart = addToCart;
+window.addCatalogToCart = addToCart;
+window.loadCartData = loadCartData;
+window.renderCart = renderCart;
+window.updateCartQty = updateCartQty;
+window.removeCartItem = removeCartItem;
+window.showCheckoutForm = showCheckoutForm;
+window.submitCheckout = submitCheckout;
+window.filterProducts = filterProducts;
+window.showToast = showToast;
+</script>
+
+<style>
+@keyframes slideIn { from { opacity:0; transform:translateX(30px); } to { opacity:1; transform:translateX(0); } }
+@keyframes toastOut { from { opacity:1; } to { opacity:0; transform:translateX(30px); } }
+</style>
+{% endblock %}

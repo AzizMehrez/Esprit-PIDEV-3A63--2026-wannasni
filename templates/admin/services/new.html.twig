@@ -1,0 +1,83 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Nouveau Service - Admin WANNASNI{% endblock %}
+{% block page_title %}Nouveau Service{% endblock %}
+
+{% block header_actions %}
+<a href="{{ path('admin_services') }}" class="btn btn-outline">← Retour</a>
+{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .form-container { max-width: 700px; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .form-group { margin-bottom: 1.25rem; }
+    .form-group.full { grid-column: span 2; }
+    .form-label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--admin-text); margin-bottom: 0.5rem; }
+    .form-input { width: 100%; padding: 0.85rem 1rem; font-size: 0.95rem; border: 1px solid var(--admin-border); border-radius: var(--admin-radius-sm); background: var(--admin-bg); color: var(--admin-text); transition: all 0.2s; }
+    .form-input:focus { outline: none; border-color: var(--admin-primary); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); }
+    .btn-group { display: flex; gap: 1rem; margin-top: 1.5rem; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <div class="admin-card">
+        <div class="card-header">
+            <h2 class="card-title">🛎️ Nouveau Service</h2>
+        </div>
+        <div class="card-body">
+            <form method="post">
+                <div class="form-grid">
+                    <div class="form-group full">
+                        <label class="form-label">Demandeur *</label>
+                        <select class="form-input" name="requester" required>
+                            <option value="">Sélectionner un utilisateur...</option>
+                            <option value="1">Marie Dupont</option>
+                            <option value="2">Jean Martin</option>
+                            <option value="3">Sophie Bernard</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Type de Service *</label>
+                        <select class="form-input" name="type" required>
+                            <option value="Medical Transport">🚗 Transport Médical</option>
+                            <option value="Home Care">🏠 Aide à Domicile</option>
+                            <option value="Grocery Shopping">🛒 Courses</option>
+                            <option value="Companionship">👥 Compagnie</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Priorité *</label>
+                        <select class="form-input" name="priority" required>
+                            <option value="low">🟢 Normale</option>
+                            <option value="medium">🟡 Moyenne</option>
+                            <option value="high">🔴 Urgente</option>
+                        </select>
+                    </div>
+                    <div class="form-group full">
+                        <label class="form-label">Description *</label>
+                        <textarea class="form-input" name="description" rows="3" placeholder="Décrivez le service..." required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Date Prévue</label>
+                        <input type="date" class="form-input" name="scheduledFor">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Statut</label>
+                        <select class="form-input" name="status">
+                            <option value="pending">⏳ En attente</option>
+                            <option value="in_progress">🔄 En cours</option>
+                            <option value="completed">✅ Terminé</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="btn-group">
+                    <button type="submit" class="btn btn-primary">💾 Créer le Service</button>
+                    <a href="{{ path('admin_services') }}" class="btn btn-outline">Annuler</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

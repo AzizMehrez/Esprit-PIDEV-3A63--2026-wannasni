@@ -1,0 +1,61 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}HealthJournal index{% endblock %}
+
+{% block body %}
+    <h1>HealthJournal index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>SeniorId</th>
+                <th>Date</th>
+                <th>Humeur</th>
+                <th>QualiteSommeil</th>
+                <th>Appetit</th>
+                <th>NiveauDouleur</th>
+                <th>Symptomes</th>
+                <th>TensionArterielle</th>
+                <th>FrequenceCardiaque</th>
+                <th>Temperature</th>
+                <th>MedicamentsPris</th>
+                <th>ActivitePhysique</th>
+                <th>Hydratation</th>
+                <th>Notes</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for health_journal in health_journals %}
+            <tr>
+                <td>{{ health_journal.id }}</td>
+                <td>{{ health_journal.seniorId }}</td>
+                <td>{{ health_journal.date ? health_journal.date|date('Y-m-d H:i:s') : '' }}</td>
+                <td>{{ health_journal.humeur }}</td>
+                <td>{{ health_journal.qualiteSommeil }}</td>
+                <td>{{ health_journal.appetit }}</td>
+                <td>{{ health_journal.niveauDouleur }}</td>
+                <td>{{ health_journal.symptomes }}</td>
+                <td>{{ health_journal.tensionArterielle }}</td>
+                <td>{{ health_journal.frequenceCardiaque }}</td>
+                <td>{{ health_journal.temperature }}</td>
+                <td>{{ health_journal.medicamentsPris }}</td>
+                <td>{{ health_journal.activitePhysique }}</td>
+                <td>{{ health_journal.hydratation }}</td>
+                <td>{{ health_journal.notes }}</td>
+                <td>
+                    <a href="{{ path('app_health_journal_show', {'id': health_journal.id}) }}">show</a>
+                    <a href="{{ path('app_health_journal_edit', {'id': health_journal.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="16">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_health_journal_new') }}">Create new</a>
+{% endblock %}

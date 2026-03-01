@@ -1,0 +1,205 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Marketplace - Admin WANNASNI{% endblock %}
+{% block page_title %}Marketplace - Produits Boissons{% endblock %}
+
+{% block header_actions %}
+<a href="{{ path('admin_nutrition') }}" class="btn btn-outline" style="margin-right: 0.75rem;">🥗 Régimes</a>
+<a href="{{ path('admin_nutrition_marketplace_orders') }}" class="btn btn-outline" style="margin-right: 0.75rem;">📦 Commandes</a>
+<a href="{{ path('admin_nutrition_marketplace_new') }}" class="btn btn-primary">➕ Nouveau Produit</a>
+{% endblock %}
+
+{% block content %}
+{# Flash Messages #}
+{% for type in ['success', 'error'] %}
+    {% if app.flashes(type) %}
+        <div class="alert alert-{{ type }}">
+            {% for message in app.flashes(type) %}
+                {{ message }}
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endfor %}
+
+{# Statistics Cards #}
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon" style="background: linear-gradient(135deg, #6366f1, #818cf8);">🛍️</div>
+        <div class="stat-info">
+            <div class="stat-value">{{ total_products }}</div>
+            <div class="stat-label">Total Produits</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background: linear-gradient(135deg, #22c55e, #4ade80);">✅</div>
+        <div class="stat-info">
+            <div class="stat-value">{{ active_products }}</div>
+            <div class="stat-label">Actifs</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background: linear-gradient(135deg, #f59e0b, #fbbf24);">⭐</div>
+        <div class="stat-info">
+            <div class="stat-value">{{ featured_products }}</div>
+            <div class="stat-label">Vedettes</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background: linear-gradient(135deg, #ef4444, #f87171);">📦</div>
+        <div class="stat-info">
+            <div class="stat-value">{{ out_of_stock }}</div>
+            <div class="stat-label">Rupture Stock</div>
+        </div>
+    </div>
+</div>
+
+{# Filters #}
+<div class="admin-toolbar">
+    <div class="toolbar-search">
+        <form method="get" action="{{ path('admin_nutrition_marketplace') }}" style="display: flex; gap: 0.5rem;">
+            <input type="text" name="q" placeholder="Rechercher un produit..." value="{{ current_search }}">
+            <button type="submit" class="btn btn-secondary">🔍</button>
+        </form>
+    </div>
+    <div class="toolbar-actions">
+        <div class="filter-group">
+            <a href="{{ path('admin_nutrition_marketplace') }}" class="filter-btn {% if not current_category %}active{% endif %}">Tous</a>
+            {% for cat in ['thé', 'café', 'infusion', 'eau', 'jus', 'smoothie', 'complément', 'superaliment'] %}
+                <a href="{{ path('admin_nutrition_marketplace', {category: cat}) }}" class="filter-btn {% if current_category == cat %}active{% endif %}">
+                    {{ cat|capitalize }}
+                </a>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+{# Products Table #}
+<div class="admin-card">
+    <div class="card-header">
+        <h2 class="card-title">🛍️ Produits Marketplace</h2>
+        <span class="badge badge-info">{{ products|length }} produit{{ products|length > 1 ? 's' : '' }}</span>
+    </div>
+    <table class="admin-table" id="productsTable">
+        <thead>
+            <tr>
+                <th style="width: 50px;">ID</th>
+                <th>Produit</th>
+                <th>Catégorie</th>
+                <th>Prix</th>
+                <th>Stock</th>
+                <th>Statut</th>
+                <th>Ventes</th>
+                <th style="width: 180px;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for product in products %}
+            <tr>
+                <td>#{{ product.id }}</td>
+                <td>
+                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                        <div style="width: 40px; height: 40px; border-radius: 10px; background: linear-gradient(135deg, #6366f1, #818cf8); display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">
+                            {{ product.categoryEmoji }}
+                        </div>
+                        <div>
+                            <div style="font-weight: 600;">{{ product.name }}</div>
+                            {% if product.brand %}<div style="font-size: 0.8rem; color: var(--admin-text-muted);">{{ product.brand }} — {{ product.volume }}</div>{% endif %}
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <span class="badge badge-info">{{ product.categoryEmoji }} {{ product.category|capitalize }}</span>
+                </td>
+                <td>
+                    {% if product.isOnSale %}
+                        <span style="text-decoration: line-through; color: var(--admin-text-muted); font-size: 0.85rem;">{{ product.price }} DH</span><br>
+                        <strong style="color: #ef4444;">{{ product.salePrice }} DH</strong>
+                        <span class="badge badge-danger" style="font-size: 0.65rem;">-{{ product.discountPercent }}%</span>
+                    {% else %}
+                        <strong>{{ product.price }} DH</strong>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if product.stockQuantity == 0 %}
+                        <span class="badge badge-danger">Rupture</span>
+                    {% elseif product.stockQuantity < 10 %}
+                        <span class="badge badge-warning">{{ product.stockQuantity }}</span>
+                    {% else %}
+                        <span class="badge badge-success">{{ product.stockQuantity }}</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if product.isActive %}
+                        <span class="badge badge-success">Actif</span>
+                    {% else %}
+                        <span class="badge badge-secondary">Inactif</span>
+                    {% endif %}
+                    {% if product.isFeatured %}
+                        <span class="badge badge-warning">⭐</span>
+                    {% endif %}
+                </td>
+                <td>{{ product.salesCount }}</td>
+                <td>
+                    <div style="display: flex; gap: 0.25rem; flex-wrap: wrap;">
+                        <a href="{{ path('admin_nutrition_marketplace_edit', {id: product.id}) }}" class="action-btn" title="Modifier">✏️</a>
+                        <form method="post" action="{{ path('admin_nutrition_marketplace_toggle', {id: product.id}) }}" style="display: inline;">
+                            <input type="hidden" name="_token" value="{{ csrf_token('toggle' ~ product.id) }}">
+                            <button type="submit" class="action-btn" title="{{ product.isActive ? 'Désactiver' : 'Activer' }}">
+                                {{ product.isActive ? '🔴' : '🟢' }}
+                            </button>
+                        </form>
+                        <form method="post" action="{{ path('admin_nutrition_marketplace_delete', {id: product.id}) }}" style="display: inline;" onsubmit="return confirm('Supprimer ce produit ?')">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ product.id) }}">
+                            <button type="submit" class="action-btn action-btn-delete" title="Supprimer">🗑️</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="8" style="text-align: center; padding: 2rem; color: var(--admin-text-muted);">
+                    Aucun produit trouvé.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<style>
+.filter-group {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+.filter-btn {
+    padding: 0.4rem 0.8rem;
+    background: var(--admin-card);
+    border: 1px solid var(--admin-border);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    color: var(--admin-text-muted);
+    font-size: 0.85rem;
+}
+.filter-btn:hover { background: var(--admin-card-hover); color: var(--admin-text); }
+.filter-btn.active { background: var(--admin-primary); color: white; border-color: var(--admin-primary); }
+.alert {
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    font-weight: 500;
+}
+.alert-success {
+    background: rgba(34, 197, 94, 0.15);
+    color: #4ade80;
+    border: 1px solid rgba(34, 197, 94, 0.3);
+}
+.alert-error {
+    background: rgba(239, 68, 68, 0.15);
+    color: #f87171;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+</style>
+{% endblock %}

@@ -1,0 +1,413 @@
+<?php
+
+namespace App\Controller\Front;
+
+use App\Entity\DemandeRegime;
+use App\Entity\RegimePrescrit;
+use App\Entity\SuiviRepas;
+use App\Form\DemandeRegimeType;
+use App\Repository\DemandeRegimeRepository;
+use App\Repository\RegimePrescritRepository;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
+use App\Service\NutritionAnalysisService;
+use App\Service\PythonMLService;
+use Symfony\Component\Routing\Annotation\Route;
+
+#[Route('/{_locale}/nutrition', requirements: ['_locale' => 'fr|en|ar'])]
+class NutritionController extends AbstractController
+{
+    #[Route('/', name: 'app_my_nutrition')]
+    public function index(
+        DemandeRegimeRepository $demandeRegimeRepository,
+        RegimePrescritRepository $regimePrescritRepository,
+        EntityManagerInterface $em
+    ): Response
+    {
+        $user = $this->getUser();
+        
+        if ($user) {
+            // Fetch demands by user relation OR seniorId
+            $demandeRegimes = $demandeRegimeRepository->createQueryBuilder('d')
+                ->where('d.user = :user OR d.seniorId = :seniorId')
+                ->setParameter('user', $user)
+                ->setParameter('seniorId', $user->getId())
+                ->orderBy('d.dateDemande', 'DESC')
+                ->getQuery()
+                ->getResult();
+
+            // Fetch all regime prescrits for the user (by user relation OR seniorId)
+            $regimesPrescrits = $regimePrescritRepository->createQueryBuilder('r')
+                ->where('r.user = :user OR r.seniorId = :seniorId')
+                ->setParameter('user', $user)
+                ->setParameter('seniorId', $user->getId())
+                ->orderBy('r.datePrescription', 'DESC')
+                ->getQuery()
+                ->getResult();
+
+            // Also collect regimes from treated demands (belt+suspenders approach)
+            if (empty($regimesPrescrits)) {
+                $existingIds = [];
+                foreach ($demandeRegimes as $demande) {
+                    foreach ($demande->getRegimesPrescrits() as $regime) {
+                        if (!in_array($regime->getId(), $existingIds)) {
+                            $regimesPrescrits[] = $regime;
+                            $existingIds[] = $regime->getId();
+                        }
+                    }
+                }
+            }
+
+            // Calculate meals eaten today (count of SuiviRepas records)
+            $today = new \DateTime('today');
+            try {
+                $mealsToday = $em->getRepository(SuiviRepas::class)->createQueryBuilder('s')
+                    ->select('COUNT(s.id)')
+                    ->where('s.senior = :senior')
+                    ->andWhere('s.dateRepas >= :today')
+                    ->setParameter('senior', $user)
+                    ->setParameter('today', $today)
+                    ->getQuery()
+                    ->getSingleScalarResult();
+
+                // Calculate calories consumed today
+                $caloriesConsumedToday = $em->getRepository(SuiviRepas::class)->createQueryBuilder('s')
+                    ->select('SUM(s.caloriesCalculees)')
+                    ->where('s.senior = :senior')
+                    ->andWhere('s.dateRepas >= :today')
+                    ->setParameter('senior', $user)
+                    ->setParameter('today', $today)
+                    ->getQuery()
+                    ->getSingleScalarResult();
+            } catch (\Exception $e) {
+                $mealsToday = 0;
+                $caloriesConsumedToday = 0;
+            }
+
+            // Get the latest active regime for default selection
+            $activeRegime = $regimesPrescrits[0] ?? null;
+        } else {
+            $demandeRegimes = [];
+            $regimesPrescrits = [];
+            $mealsToday = 0;
+            $caloriesConsumedToday = 0;
+            $activeRegime = null;
+        }
+
+        return $this->render('front/nutrition/index.html.twig', [
+            'demande_regimes' => $demandeRegimes,
+            'regimes_prescrits' => $regimesPrescrits,
+            'active_regime' => $activeRegime,
+            'meals_today' => (int)$mealsToday,
+            'calories_consumed_today' => (int)$caloriesConsumedToday,
+        ]);
+    }
+
+    #[Route('/meal-reminders', name: 'app_nutrition_meal_reminders', methods: ['POST'])]
+    public function mealReminders(
+        Request $request,
+        RegimePrescritRepository $regimePrescritRepository,
+        EntityManagerInterface $em,
+        PythonMLService $pythonMLService
+    ): JsonResponse
+    {
+        $user = $this->getUser();
+        if (!$user) {
+            return new JsonResponse(['error' => 'Non connecté'], 403);
+        }
+
+        $regimeId = $request->request->get('regime_id');
+        $regime = $regimePrescritRepository->find($regimeId);
+
+        if (!$regime || ($regime->getUser() !== $user && $regime->getSeniorId() !== $user->getId())) {
+            return new JsonResponse(['error' => 'Régime introuvable'], 404);
+        }
+
+        // Count meals today
+        $today = new \DateTime('today');
+        try {
+            $mealsToday = (int)$em->getRepository(SuiviRepas::class)->createQueryBuilder('s')
+                ->select('COUNT(s.id)')
+                ->where('s.senior = :senior')
+                ->andWhere('s.dateRepas >= :today')
+                ->setParameter('senior', $user)
+                ->setParameter('today', $today)
+                ->getQuery()
+                ->getSingleScalarResult();
+
+            $caloriesConsumed = (int)$em->getRepository(SuiviRepas::class)->createQueryBuilder('s')
+                ->select('SUM(s.caloriesCalculees)')
+                ->where('s.senior = :senior')
+                ->andWhere('s.dateRepas >= :today')
+                ->setParameter('senior', $user)
+                ->setParameter('today', $today)
+                ->getQuery()
+                ->getSingleScalarResult();
+        } catch (\Exception $e) {
+            $mealsToday = 0;
+            $caloriesConsumed = 0;
+        }
+
+        // Call Python ML service for intelligent reminders
+        $reminders = $pythonMLService->getMealReminders(
+            $regime->getTypeRegime(),
+            (int)$regime->getRepasParJour(),
+            $mealsToday,
+            $caloriesConsumed,
+            $regime->getCaloriesJournalieres(),
+            $regime->getAlimentsRecommandes(),
+            $regime->getAlimentsInterdits()
+        );
+
+        return new JsonResponse($reminders);
+    }
+
+    #[Route('/scan', name: 'app_nutrition_scan')]
+    public function scan(): Response
+    {
+        return $this->render('front/nutrition/scan.html.twig');
+    }
+
+    #[Route('/scan/analyze', name: 'app_nutrition_scan_analyze', methods: ['POST'])]
+    public function analyze(
+        Request $request, 
+        EntityManagerInterface $em,
+        DemandeRegimeRepository $demandeRegimeRepository,
+        HttpClientInterface $httpClient,
+        NutritionAnalysisService $nutritionAnalyzer
+    ): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+        $barcode = $data['barcode'] ?? null;
+
+        if (!$barcode) {
+            return new JsonResponse(['error' => 'Code-barres manquant'], 400);
+        }
+
+        // 1. Récupérer la demande en cours de l'utilisateur
+        $user = $this->getUser();
+        if (!$user) {
+            return new JsonResponse(['error' => 'Utilisateur non connecté'], 403);
+        }
+
+        // On cherche la dernière demande "en_attente" - by user relation OR seniorId
+        $demande = $demandeRegimeRepository->createQueryBuilder('d')
+            ->where('(d.user = :user OR d.seniorId = :seniorId)')
+            ->andWhere('d.statut = :statut')
+            ->setParameter('user', $user)
+            ->setParameter('seniorId', $user->getId())
+            ->setParameter('statut', DemandeRegime::STATUT_EN_ATTENTE)
+            ->orderBy('d.dateDemande', 'DESC')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+
+        if (!$demande) {
+            return new JsonResponse(['error' => 'Aucune demande de régime en attente trouvée. Veuillez d\'abord créer une demande.'], 404);
+        }
+
+        // 2. Appeler OpenFoodFacts
+        $url = "https://world.openfoodfacts.org/api/v0/product/{$barcode}.json";
+        try {
+            $response = $httpClient->request('GET', $url);
+            $offData = $response->toArray();
+        } catch (\Exception $e) {
+            return new JsonResponse(['error' => 'Erreur de communication avec OpenFoodFacts'], 502);
+        }
+
+        if (($offData['status'] ?? 0) !== 1) {
+            return new JsonResponse(['error' => 'Produit non trouvé'], 404);
+        }
+
+        $product = $offData['product'];
+
+        // 3. Analyser la compatibilité
+        $analysis = $nutritionAnalyzer->analyze($product, $demande->getTypeRegimeSouhaite());
+
+        // 4. Mettre à jour la demande
+        $demande->setCodeBarresNumero($barcode);
+        
+        // On stocke une version allégée du produit + l'analyse
+        $storedData = [
+            'product_name' => $product['product_name'] ?? 'Inconnu',
+            'brands' => $product['brands'] ?? '',
+            'image_url' => $product['image_url'] ?? '',
+            'nutriscore_grade' => $product['nutriscore_grade'] ?? null,
+            'nutriments' => [
+                'energy_kcal_100g' => $product['nutriments']['energy-kcal_100g'] ?? null,
+                'sugars_100g' => $product['nutriments']['sugars_100g'] ?? null,
+                'salt_100g' => $product['nutriments']['salt_100g'] ?? null,
+                'fat_100g' => $product['nutriments']['fat_100g'] ?? null,
+                'saturated-fat_100g' => $product['nutriments']['saturated-fat_100g'] ?? null,
+                'proteins_100g' => $product['nutriments']['proteins_100g'] ?? null,
+            ],
+            'analysis' => $analysis
+        ];
+
+        $demande->setProduitAnalyse($storedData);
+        $em->flush();
+
+        // 5. Retourner le résultat au frontend
+        return new JsonResponse([
+            'success' => true,
+            'produit' => [
+                'product_name' => $product['product_name'] ?? 'Produit inconnu',
+                'brands' => $product['brands'] ?? '',
+                'image_url' => $product['image_url'] ?? null,
+                'nutriments' => $product['nutriments'] ?? [],
+                'nutriscore_grade' => $product['nutriscore_grade'] ?? null,
+            ],
+            'regime' => [
+                'type' => $demande->getTypeRegimeSouhaite(),
+                'compatible' => $analysis['compatible'],
+                'raison' => $analysis['raison']
+            ],
+            'analyse_complete' => $analysis['details'],
+            'analyse_globale' => $analysis['all_diets'] ?? []
+        ]);
+    }
+
+    #[Route('/request', name: 'app_nutrition_request', methods: ['GET', 'POST'])]
+    public function request(Request $request, EntityManagerInterface $em): Response
+    {
+        $demandeRegime = new DemandeRegime();
+        
+        $form = $this->createForm(DemandeRegimeType::class, $demandeRegime);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $user = $this->getUser();
+            
+            // Associate with logged-in user
+            $demandeRegime->setUser($user);
+            
+            // Set integer IDs for backward compatibility (if needed)
+            $demandeRegime->setSeniorId($user->getId());
+            
+            // Assign nutritionist (hardcoded for now, can be dynamic later)
+            $demandeRegime->setNutritionnisteId(2); // Default nutritionist
+            
+            // Date is auto-set in constructor
+            // Statut is auto-set to 'en_attente' in entity
+
+            $em->persist($demandeRegime);
+            $em->flush();
+
+            $this->addFlash('success', '🎉 Votre demande de régime a été créée avec succès !');
+            return $this->redirectToRoute('app_my_nutrition');
+        }
+
+        return $this->render('front/nutrition/request.html.twig', [
+            'demande_regime' => $demandeRegime,
+            'form' => $form,
+        ]);
+    }
+
+    #[Route('/{id}', name: 'app_nutrition_show', requirements: ['id' => '\d+'])]
+    public function show(int $id, DemandeRegimeRepository $demandeRegimeRepository): Response
+    {
+        $demandeRegime = $demandeRegimeRepository->find($id);
+
+        if (!$demandeRegime) {
+            $this->addFlash('error', 'Demande de régime introuvable.');
+            return $this->redirectToRoute('app_my_nutrition');
+        }
+
+        // Security check - user relation OR seniorId
+        $user = $this->getUser();
+        if ($demandeRegime->getUser() !== $user && $demandeRegime->getSeniorId() !== $user->getId()) {
+            $this->addFlash('error', 'Vous n\'avez pas accès à cette demande.');
+            return $this->redirectToRoute('app_my_nutrition');
+        }
+
+        return $this->render('front/nutrition/show.html.twig', [
+            'demande_regime' => $demandeRegime,
+        ]);
+    }
+
+    #[Route('/{id}/edit', name: 'app_nutrition_edit', methods: ['GET', 'POST'])]
+    public function edit(int $id, Request $request, DemandeRegimeRepository $demandeRegimeRepository, EntityManagerInterface $em): Response
+    {
+        $demandeRegime = $demandeRegimeRepository->find($id);
+
+        if (!$demandeRegime) {
+            $this->addFlash('error', 'Demande de régime introuvable.');
+            return $this->redirectToRoute('app_my_nutrition');
+        }
+
+        // Security check - user relation OR seniorId
+        $user = $this->getUser();
+        if ($demandeRegime->getUser() !== $user && $demandeRegime->getSeniorId() !== $user->getId()) {
+            $this->addFlash('error', 'Vous ne pouvez pas modifier cette demande.');
+            return $this->redirectToRoute('app_my_nutrition');
+        }
+
+        $form = $this->createForm(DemandeRegimeType::class, $demandeRegime);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $em->flush();
+
+            $this->addFlash('success', '✅ Demande de régime mise à jour avec succès !');
+            return $this->redirectToRoute('app_my_nutrition');
+        }
+
+        return $this->render('front/nutrition/edit.html.twig', [
+            'demande_regime' => $demandeRegime,
+            'form' => $form,
+        ]);
+    }
+
+    #[Route('/{id}/delete', name: 'app_nutrition_delete', methods: ['POST'])]
+    public function delete(int $id, Request $request, DemandeRegimeRepository $demandeRegimeRepository, EntityManagerInterface $em): Response
+    {
+        $demandeRegime = $demandeRegimeRepository->find($id);
+
+        if (!$demandeRegime) {
+            $this->addFlash('error', 'Demande de régime introuvable.');
+            return $this->redirectToRoute('app_my_nutrition');
+        }
+
+        // Security check - user relation OR seniorId
+        $user = $this->getUser();
+        if ($demandeRegime->getUser() !== $user && $demandeRegime->getSeniorId() !== $user->getId()) {
+            $this->addFlash('error', 'Vous ne pouvez pas supprimer cette demande.');
+            return $this->redirectToRoute('app_my_nutrition');
+        }
+
+        if ($this->isCsrfTokenValid('delete'.$demandeRegime->getId(), $request->request->get('_token'))) {
+            $em->remove($demandeRegime);
+            $em->flush();
+            $this->addFlash('success', '🗑️ Demande de régime supprimée avec succès !');
+        }
+
+        return $this->redirectToRoute('app_my_nutrition');
+    }
+
+    #[Route('/regime/{id}', name: 'app_nutrition_regime', requirements: ['id' => '\d+'])]
+    public function regime(int $id, RegimePrescritRepository $regimePrescritRepository): Response
+    {
+        $regimePrescrit = $regimePrescritRepository->find($id);
+
+        if (!$regimePrescrit) {
+            $this->addFlash('error', 'Régime prescrit introuvable.');
+            return $this->redirectToRoute('app_my_nutrition');
+        }
+
+        // Security check - user should only see their own prescribed regimes
+        $user = $this->getUser();
+        if ($regimePrescrit->getUser() !== $user && $regimePrescrit->getSeniorId() !== $user->getId()) {
+            $this->addFlash('error', 'Vous n\'avez pas accès à ce régime.');
+            return $this->redirectToRoute('app_my_nutrition');
+        }
+
+        return $this->render('front/nutrition/regime.html.twig', [
+            'regime_prescrit' => $regimePrescrit,
+        ]);
+    }
+
+}

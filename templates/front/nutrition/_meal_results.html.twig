@@ -1,0 +1,110 @@
+<div class="analysis-results text-start mt-4" id="finalReport">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <h2 class="h3 mb-0">🍽️ Rapport d'Analyse</h2>
+        <span id="complianceBadge" class="badge bg-secondary p-2 rounded-pill">
+            ... En attente ...
+        </span>
+    </div>
+
+    <!-- Image preview -->
+    <div class="text-center mb-4">
+        <img id="resultImage" src="{{ photo is defined ? asset('uploads/meals/' ~ photo) : '' }}" class="rounded shadow-sm" style="max-width: 100%; height: auto; border: 4px solid #fff; display: {{ photo is defined ? 'inline-block' : 'none' }}">
+    </div>
+
+    <!-- Alerts -->
+    <div id="alertsContainer" class="alerts mb-4">
+        <!-- Rempli par le JS -->
+    </div>
+
+    <!-- Calorie Card -->
+    <div class="card border-0 bg-light rounded-4 mb-4 shadow-sm">
+        <div class="card-body p-4 text-center">
+            <h4 class="text-muted mb-2 text-uppercase font-weight-bold" style="font-size: 0.8rem; letter-spacing: 1px;">Total Journée (incluant ce repas)</h4>
+            <div class="display-4 font-weight-bold text-success"><span id="totalDayCals">0</span> <small class="h3">kcal</small></div>
+            <div class="progress mt-3 rounded-pill" style="height: 10px;">
+                {% set limit = regime.caloriesJournalieres|default(2000) %}
+                <div id="calorieBar" class="progress-bar bg-success" role="progressbar" style="width: 0%"></div>
+            </div>
+            <p class="mt-2 text-muted small">Objectif : {{ limit }} kcal / jour</p>
+        </div>
+    </div>
+
+    <!-- Aliments détectés -->
+    <h3 class="h5 mb-3">🍗 Aliments détectés</h3>
+    <div class="list-group mb-4 shadow-sm rounded-4 overflow-hidden" id="foodsList">
+        <!-- Rempli par le JS -->
+    </div>
+
+    <!-- Portions Estimées -->
+    <div id="portionsSection" class="bg-white p-4 rounded-4 shadow-sm border mb-4" style="display:none;">
+        <h3 class="h5 mb-3"><i class="fas fa-balance-scale me-2"></i> Portions estimées</h3>
+        <div id="portionsList" class="row g-2">
+            <!-- Rempli par le JS -->
+        </div>
+    </div>
+
+    <!-- Mode de cuisson -->
+    <div id="cookingSection" class="bg-white p-4 rounded-4 shadow-sm border mb-4" style="display:none;">
+        <h3 class="h5 mb-3"><i class="fas fa-fire-alt me-2"></i> Mode de cuisson détecté</h3>
+        <div id="cookingInfo" class="d-flex align-items-center gap-3">
+            <!-- Rempli par le JS -->
+        </div>
+    </div>
+
+    {# Score de risque nutritionnel [DISABLED] #}
+    {# <div id="riskScoreSection" class="bg-white p-4 rounded-4 shadow-sm border mb-4" style="display:none;">
+        <h3 class="h5 mb-3"><i class="fas fa-shield-alt me-2"></i> Score de risque nutritionnel</h3>
+        <div class="text-center mb-3">
+            <div id="riskScoreGauge" style="width: 120px; height: 120px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: 800; color: white; box-shadow: 0 4px 16px rgba(0,0,0,0.15);">
+                --
+            </div>
+            <p id="riskScoreLabel" class="mt-2 font-weight-bold" style="font-size: 1.1rem;">--</p>
+        </div>
+        <div id="riskDetails" class="list-group list-group-flush">
+            <!-- Rempli par le JS -->
+        </div>
+        <div id="riskRecommandations" class="mt-3">
+            <!-- Rempli par le JS -->
+        </div>
+    </div> #}
+
+    <!-- Analyse texture (dysphagie) -->
+    <div id="textureSection" class="bg-white p-4 rounded-4 shadow-sm border mb-4" style="display:none;">
+        <h3 class="h5 mb-3"><i class="fas fa-utensil-spoon me-2"></i> Analyse de texture</h3>
+        <div id="textureAlerts">
+            <!-- Rempli par le JS -->
+        </div>
+        <div id="textureResults" class="list-group list-group-flush">
+            <!-- Rempli par le JS -->
+        </div>
+        <div id="textureConseil" class="alert alert-info mt-3" style="display:none;">
+            <!-- Rempli par le JS -->
+        </div>
+    </div>
+
+    <!-- Suggestions de recettes -->
+    <div class="bg-white p-4 rounded-4 shadow-sm border mt-5" id="recipesSection" style="display:none;">
+        <h3 class="h5 mb-4">💡 Suggestions de recettes</h3>
+        <div class="row g-3" id="recipesList">
+            <!-- Rempli par le JS -->
+        </div>
+    </div>
+
+    <!-- Message Personnalisé -->
+    <div id="finalMessageContainer" class="mt-4 p-4 border-start border-4 border-success bg-light rounded shadow-sm" style="display:none;">
+        <p class="mb-0 font-italic" id="finalMessage">...</p>
+    </div>
+
+    <div class="text-center mt-5">
+        <a href="{{ path('app_nutrition_track') }}" class="btn btn-outline-success rounded-pill px-4">
+            <i class="fas fa-reply me-2"></i> Faire une autre analyse
+        </a>
+        <a href="{{ path('app_my_nutrition') }}" class="btn btn-primary rounded-pill px-4 ms-2">
+            <i class="fas fa-home me-2"></i> Retour au tableau de bord
+        </a>
+    </div>
+</div>
+
+<style>
+    .bg-soft-success { background-color: #f0fdf4; }
+</style>

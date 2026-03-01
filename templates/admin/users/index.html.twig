@@ -1,0 +1,528 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Utilisateurs - Admin WANNASNI{% endblock %}
+{% block page_title %}Gestion des Utilisateurs{% endblock %}
+
+{% block header_actions %}
+<a href="{{ path('app_home', {'_locale': 'fr'}) }}" class="btn btn-outline" style="margin-right: 0.75rem;">🏠 Accueil</a>
+<a href="{{ path('admin_users_new') }}" class="btn btn-primary">➕ Nouvel Utilisateur</a>
+{% endblock %}
+
+{% block content %}
+{# Flash Messages #}
+{% if app.flashes('success') %}
+    <div class="alert alert-success">
+        {% for message in app.flashes('success') %}
+            {{ message }}
+        {% endfor %}
+    </div>
+{% endif %}
+
+{% if app.flashes('error') %}
+    <div class="alert alert-error">
+        {% for message in app.flashes('error') %}
+            {{ message }}
+        {% endfor %}
+    </div>
+{% endif %}
+
+{# Statistics Cards #}
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon blue">👥</div>
+        <div class="stat-info">
+            <div class="stat-value">{{ stats.total }}</div>
+            <div class="stat-label">Total Utilisateurs</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon green">✓</div>
+        <div class="stat-info">
+            <div class="stat-value">{{ stats.active }}</div>
+            <div class="stat-label">Actifs</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon orange">⏸</div>
+        <div class="stat-info">
+            <div class="stat-value">{{ stats.inactive }}</div>
+            <div class="stat-label">Inactifs</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon purple">🛡️</div>
+        <div class="stat-info">
+            <div class="stat-value">{{ stats.admins }}</div>
+            <div class="stat-label">Admins</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background: linear-gradient(135deg, #dbeafe, #bfdbfe); color: #2563eb;">✓</div>
+        <div class="stat-info">
+            <div class="stat-value">{{ stats.verified }}</div>
+            <div class="stat-label">Vérifiés</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background: linear-gradient(135deg, #fef3c7, #fde68a); color: #92400e;">⏳</div>
+        <div class="stat-info">
+            <div class="stat-value">{{ stats.pending_verifications }}</div>
+            <div class="stat-label">Demandes en attente</div>
+        </div>
+    </div>
+</div>
+
+{# Filters #}
+<div class="admin-toolbar">
+    <div class="toolbar-search">
+        <input type="text" id="searchInput" placeholder="Rechercher un utilisateur..." onkeyup="filterTable()">
+    </div>
+    <div class="toolbar-actions">
+        <div class="filter-group">
+            <a href="{{ path('admin_users', {filter: 'all'}) }}" class="filter-btn {% if current_filter == 'all' %}active{% endif %}">Tous</a>
+            <a href="{{ path('admin_users', {filter: 'active'}) }}" class="filter-btn {% if current_filter == 'active' %}active{% endif %}">Actifs</a>
+            <a href="{{ path('admin_users', {filter: 'inactive'}) }}" class="filter-btn {% if current_filter == 'inactive' %}active{% endif %}">Inactifs</a>
+            <a href="{{ path('admin_users', {filter: 'admins'}) }}" class="filter-btn {% if current_filter == 'admins' %}active{% endif %}">Admins</a>
+            <a href="{{ path('admin_users', {filter: 'caregivers'}) }}" class="filter-btn {% if current_filter == 'caregivers' %}active{% endif %}">Aidants</a>
+            <a href="{{ path('admin_users', {filter: 'verified'}) }}" class="filter-btn {% if current_filter == 'verified' %}active{% endif %}">✓ Vérifiés</a>
+            <a href="{{ path('admin_users', {filter: 'banned'}) }}" class="filter-btn {% if current_filter == 'banned' %}active{% endif %}">⛔ Bannis</a>
+        </div>
+        <div class="export-group">
+            <a href="{{ path('admin_users_export_pdf', {filter: current_filter, search: search_term}) }}" class="btn-export btn-export-pdf" title="Exporter en PDF" target="_blank">
+                <span class="export-icon">📄</span>
+                <span class="export-text">PDF</span>
+            </a>
+            <a href="{{ path('admin_users_export_excel', {filter: current_filter, search: search_term}) }}" class="btn-export btn-export-excel" title="Exporter en Excel">
+                <span class="export-icon">📊</span>
+                <span class="export-text">Excel</span>
+            </a>
+        </div>
+    </div>
+</div>
+
+{# Table #}
+<div class="admin-card">
+    <div class="card-header">
+        <h2 class="card-title">👥 Liste des Utilisateurs</h2>
+        <span class="badge badge-info">{{ users|length }} utilisateurs</span>
+    </div>
+    <table class="admin-table" id="dataTable">
+        <thead>
+            <tr>
+                <th class="sortable" onclick="sortTable(0)">ID</th>
+                <th class="sortable" onclick="sortTable(1)">Utilisateur</th>
+                <th class="sortable" onclick="sortTable(2)">Email</th>
+                <th class="sortable" onclick="sortTable(3)">Rôle</th>
+                <th>Badge</th>
+                <th class="sortable" onclick="sortTable(5)">Statut</th>
+                <th>Networking</th>
+                <th class="sortable" onclick="sortTable(7)">Inscrit le</th>
+                <th style="width: 200px;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+            <tr>
+                <td>#{{ user.id }}</td>
+                <td>
+                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                        <div style="width: 36px; height: 36px; border-radius: 8px; background: linear-gradient(135deg, #3b82f6, #8b5cf6); display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 0.85rem; color: white; overflow: hidden;">
+                            {% if user.imageProfil %}
+                                <img src="{{ user.imageProfil }}" alt="{{ user.firstName }}" style="width: 100%; height: 100%; object-fit: cover;">
+                            {% else %}
+                                {{ user.firstName|first|upper }}{{ user.lastName|first|upper }}
+                            {% endif %}
+                        </div>
+                        <div>
+                            <div style="font-weight: 600;">
+                                {{ user.firstName }} {{ user.lastName }}
+                                {% if user.effectiveBadge == 'purple' %}
+                                    <span style="display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:linear-gradient(135deg,#8b5cf6,#7c3aed);color:white;font-size:9px;font-weight:800;margin-left:3px;vertical-align:middle;" title="Admin vérifié">✓</span>
+                                {% elseif user.effectiveBadge == 'blue' %}
+                                    <span style="display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:linear-gradient(135deg,#3b82f6,#2563eb);color:white;font-size:9px;font-weight:800;margin-left:3px;vertical-align:middle;" title="Vérifié">✓</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </td>
+                <td>{{ user.email }}</td>
+                <td>
+                    {% if 'ROLE_ADMIN' in user.roles %}
+                        <span class="badge badge-danger">Admin</span>
+                    {% elseif 'ROLE_CAREGIVER' in user.roles %}
+                        <span class="badge badge-info">Aidant</span>
+                    {% else %}
+                        <span class="badge badge-success">Utilisateur</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if user.effectiveBadge == 'purple' %}
+                        <span class="badge" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed);color:white;">🟣 Purple</span>
+                    {% elseif user.effectiveBadge == 'blue' %}
+                        <span class="badge" style="background:linear-gradient(135deg,#3b82f6,#2563eb);color:white;">🔵 Bleu</span>
+                    {% else %}
+                        <span style="color: #9ca3af; font-size: 0.875rem;">—</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if user.status == 'active' %}
+                        <span class="badge badge-success">✓ Actif</span>
+                    {% else %}
+                        <span class="badge badge-warning">⏸ Inactif</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if user.isNetworkingBanned() %}
+                        <span class="badge" style="background:#fee2e2;color:#991b1b;">⛔ Banni</span>
+                    {% else %}
+                        <span style="color: #22c55e; font-size: 0.85rem;">✓ OK</span>
+                    {% endif %}
+                </td>
+                <td>{{ user.createdAt|date('d/m/Y H:i') }}</td>
+                <td>
+                    <div style="display: flex; gap: 0.25rem; flex-wrap: wrap;">
+                        <a href="{{ path('admin_users_show', {id: user.id}) }}" class="action-btn" title="Voir">👁️</a>
+                        <a href="{{ path('admin_users_edit', {id: user.id}) }}" class="action-btn" title="Modifier">✏️</a>
+                        <form method="post" action="{{ path('admin_users_toggle_status', {id: user.id}) }}" style="display: inline;">
+                            <button type="submit" class="action-btn" title="{% if user.status == 'active' %}Désactiver{% else %}Activer{% endif %}" onclick="return confirm('Changer le statut de cet utilisateur ?')">
+                                {% if user.status == 'active' %}⏸{% else %}▶{% endif %}
+                            </button>
+                        </form>
+                        <form method="post" action="{{ path('admin_users_toggle_networking_ban', {id: user.id}) }}" style="display: inline;">
+                            <button type="submit" class="action-btn" title="{% if user.isNetworkingBanned() %}Débannir networking{% else %}Bannir networking{% endif %}" onclick="return confirm('{% if user.isNetworkingBanned() %}Débannir cet utilisateur du networking ?{% else %}Bannir cet utilisateur du networking (lecture seule) ?{% endif %}')" style="{% if user.isNetworkingBanned() %}color:#22c55e{% else %}color:#ef4444{% endif %}">
+                                {% if user.isNetworkingBanned() %}🔓{% else %}🚫{% endif %}
+                            </button>
+                        </form>
+                        <form method="post" action="{{ path('admin_users_delete', {id: user.id}) }}" style="display: inline;" onsubmit="return confirm('⚠️ Supprimer {{ user.firstName }} {{ user.lastName }} ? Irréversible !')">
+                            <button type="submit" class="action-btn action-btn-delete" title="Supprimer">🗑️</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="9" style="text-align: center; padding: 2rem; color: #718096;">
+                    Aucun utilisateur trouvé.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{# ═══════════════════════════════════════════════════════════════
+   Verification Requests Queue
+   ═══════════════════════════════════════════════════════════════ #}
+{% if pendingRequests|length > 0 %}
+<div class="admin-card" style="margin-top: 2rem;">
+    <div class="card-header">
+        <h2 class="card-title">⏳ Demandes de vérification en attente</h2>
+        <span class="badge" style="background:linear-gradient(135deg,#fbbf24,#f59e0b);color:white;">{{ pendingRequestCount }} en attente</span>
+    </div>
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th>Utilisateur</th>
+                <th>Email</th>
+                <th>Raison</th>
+                <th>Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for vr in pendingRequests %}
+            <tr>
+                <td>
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <div style="width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #3b82f6, #8b5cf6); display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 0.75rem; color: white; overflow: hidden;">
+                            {% if vr.user.imageProfil %}
+                                <img src="{{ vr.user.imageProfil }}" alt="" style="width: 100%; height: 100%; object-fit: cover;">
+                            {% else %}
+                                {{ vr.user.firstName|default('U')|first|upper }}
+                            {% endif %}
+                        </div>
+                        <strong>{{ vr.user.fullName }}</strong>
+                    </div>
+                </td>
+                <td>{{ vr.user.email }}</td>
+                <td style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{{ vr.reason }}">{{ vr.reason|length > 80 ? vr.reason|slice(0, 80) ~ '...' : vr.reason }}</td>
+                <td>{{ vr.createdAt|date('d/m/Y H:i') }}</td>
+                <td>
+                    <a href="{{ path('admin_users_verification_review', {id: vr.id}) }}" class="btn-examiner">
+                        📋 Examiner
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+
+<style>
+.filter-group {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.filter-btn {
+    padding: 0.5rem 1rem;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    color: #4a5568;
+}
+
+.filter-btn:hover {
+    background: #f7fafc;
+    border-color: #cbd5e0;
+}
+
+.filter-btn.active {
+    background: #3b82f6;
+    color: white;
+    border-color: #3b82f6;
+}
+
+.alert {
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-weight: 500;
+    animation: slideInDown 0.4s ease-out;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+@keyframes slideInDown {
+    from {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.alert-success {
+    background: linear-gradient(135deg, #d4f4dd 0%, #c6f6d5 100%);
+    color: #276749;
+    border: 2px solid #48bb78;
+    font-size: 1rem;
+}
+
+.alert-success::before {
+    content: '✅';
+    font-size: 1.5rem;
+}
+
+.alert-error {
+    background: linear-gradient(135deg, #fee 0%, #fed7d7 100%);
+    color: #c53030;
+    border: 2px solid #fc8181;
+    font-size: 1rem;
+}
+
+.alert-error::before {
+    content: '❌';
+    font-size: 1.5rem;
+}
+
+.export-group {
+    display: flex;
+    gap: 0.75rem;
+    margin-left: 1rem;
+}
+
+.btn-export {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1.25rem;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border: 2px solid;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.btn-export .export-icon {
+    font-size: 1.25rem;
+    transition: transform 0.3s ease;
+}
+
+.btn-export .export-text {
+    font-weight: 600;
+    letter-spacing: 0.3px;
+}
+
+.btn-export-pdf {
+    background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+    color: white;
+    border-color: #dc2626;
+}
+
+.btn-export-pdf:hover {
+    background: linear-gradient(135deg, #b91c1c 0%, #7f1d1d 100%);
+    border-color: #b91c1c;
+    box-shadow: 0 4px 8px rgba(220, 38, 38, 0.3);
+    transform: translateY(-2px);
+}
+
+.btn-export-pdf:hover .export-icon {
+    transform: scale(1.2) rotate(-5deg);
+}
+
+.btn-export-excel {
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    color: white;
+    border-color: #059669;
+}
+
+.btn-export-excel:hover {
+    background: linear-gradient(135deg, #047857 0%, #065f46 100%);
+    border-color: #047857;
+    box-shadow: 0 4px 8px rgba(5, 150, 105, 0.3);
+    transform: translateY(-2px);
+}
+
+.btn-export-excel:hover .export-icon {
+    transform: scale(1.2) rotate(5deg);
+}
+
+.btn-export:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.sortable {
+    cursor: pointer;
+    user-select: none;
+    position: relative;
+    padding-right: 1.5rem;
+}
+
+.sortable:hover {
+    background-color: #f7fafc;
+}
+
+.sort-icon {
+    position: absolute;
+    right: 0.5rem;
+    opacity: 0.3;
+    font-size: 0.8rem;
+}
+
+.sortable.asc .sort-icon::after {
+    content: ' ▲';
+    opacity: 1;
+}
+
+.sortable.desc .sort-icon::after {
+    content: ' ▼';
+    opacity: 1;
+}
+
+.btn-examiner {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.5rem 1.2rem;
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: white !important;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.85rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3);
+    white-space: nowrap;
+}
+
+.btn-examiner:hover {
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+.btn-examiner:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 3px rgba(59, 130, 246, 0.3);
+}
+</style>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+/* ── Search ── */
+function filterTable() {
+    const filter = document.getElementById('searchInput').value.toLowerCase();
+    const tbody  = document.querySelector('#dataTable tbody');
+    if (!tbody) return;
+    
+    const rows   = tbody.querySelectorAll('tr');
+    rows.forEach(row => {
+        // Skip empty state row (row with only 1 cell = colspan message)
+        if (row.cells.length <= 1) return;
+        
+        const cells = row.querySelectorAll('td');
+        let found = false;
+        cells.forEach((cell, idx) => {
+            if (idx < cells.length - 1 && cell.textContent.toLowerCase().includes(filter)) {
+                found = true;
+            }
+        });
+        row.style.display = found || filter === '' ? '' : 'none';
+    });
+}
+
+/* ── Sort ── */
+let sortDirection = {};
+function sortTable(columnIndex) {
+    const table   = document.getElementById('dataTable');
+    const tbody   = table.querySelector('tbody');
+    const rows    = Array.from(tbody.querySelectorAll('tr'));
+    const headers = table.querySelectorAll('thead th');
+
+    sortDirection[columnIndex] = !sortDirection[columnIndex];
+    const ascending = sortDirection[columnIndex];
+    headers.forEach(h => h.classList.remove('asc', 'desc'));
+    headers[columnIndex].classList.add(ascending ? 'asc' : 'desc');
+
+    // ID column (0), Date column (6)
+    rows.sort((a, b) => {
+        let aText = a.cells[columnIndex]?.textContent.trim() || '';
+        let bText = b.cells[columnIndex]?.textContent.trim() || '';
+        
+        // ID column - numeric
+        if (columnIndex === 0) {
+            const aNum = parseInt(aText.replace('#', '')) || 0;
+            const bNum = parseInt(bText.replace('#', '')) || 0;
+            return ascending ? aNum - bNum : bNum - aNum;
+        }
+        
+        // Date column
+        if (columnIndex === 6) {
+            const aDate = new Date(aText.split(' ')[0].split('/').reverse().join('-'));
+            const bDate = new Date(bText.split(' ')[0].split('/').reverse().join('-'));
+            return ascending ? aDate - bDate : bDate - aDate;
+        }
+        
+        return ascending
+            ? aText.toLowerCase().localeCompare(bText.toLowerCase())
+            : bText.toLowerCase().localeCompare(aText.toLowerCase());
+    });
+    rows.forEach(row => tbody.appendChild(row));
+}
+</script>
+{% endblock %}
+
+

@@ -1,0 +1,85 @@
+{% extends 'base_auth.html.twig' %}
+
+{% block title %}{{ 'auth.confirm_link_title'|trans|default('Lier votre compte') }} — {{ 'site.name'|trans }}{% endblock %}
+
+{% block body %}
+<div class="auth-page">
+    {# Left Side - Image & Quote #}
+    <div class="auth-image-side">
+        <div class="auth-image-overlay"></div>
+        <img src="/images/hero.png" alt="" class="auth-bg-image" aria-hidden="true">
+        <div class="auth-image-content">
+            <div class="auth-logo">
+                <img src="/images/logo.png" alt="WANNASNI" class="auth-logo-img">
+            </div>
+            <blockquote class="auth-quote">
+                <p>"{{ 'auth.quote'|trans|default('Des soins qui ressemblent à de la famille.') }}"</p>
+                <cite>— WANNASNI</cite>
+            </blockquote>
+        </div>
+    </div>
+    
+    {# Right Side - Confirm Link Form #}
+    <div class="auth-form-side">
+        <div class="auth-form-container">
+            <div class="auth-mobile-header">
+                <a href="{{ path('app_login', {_locale: app.request.locale}) }}" class="auth-back-link">
+                    ← {{ 'nav.back'|trans|default('Retour') }}
+                </a>
+                <img src="/images/logo.png" alt="WANNASNI" class="auth-mobile-logo">
+            </div>
+            
+            <div class="auth-form-header">
+                <h1 class="auth-title">{{ 'auth.confirm_link_title'|trans|default('Lier votre compte') }}</h1>
+                <p class="auth-subtitle">
+                    {{ 'auth.confirm_link_desc'|trans({
+                        '%provider%': provider|capitalize,
+                        '%email%': existingEmail
+                    })|default('Un compte existe déjà avec l\'email ' ~ existingEmail ~ '. Voulez-vous lier votre compte ' ~ provider|capitalize ~ ' ?') }}
+                </p>
+            </div>
+
+            {% for message in app.flashes('error') %}
+                <div class="auth-error" role="alert">
+                    <span class="error-icon">⚠️</span>
+                    {{ message }}
+                </div>
+            {% endfor %}
+
+            <div style="background: linear-gradient(135deg, #f0fdf4, #dcfce7); border: 2px solid #86efac; border-radius: 14px; padding: 1.5rem; margin-bottom: 1.5rem;">
+                <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;">
+                    <span style="font-size: 1.5rem;">🔗</span>
+                    <strong style="color: #166534;">{{ 'auth.confirm_link_info_title'|trans|default('Que va-t-il se passer ?') }}</strong>
+                </div>
+                <ul style="margin: 0; padding-left: 1.25rem; color: #15803d; line-height: 1.8; font-size: 0.95rem;">
+                    <li>{{ 'auth.confirm_link_bullet1'|trans({
+                        '%provider%': provider|capitalize
+                    })|default('Votre compte ' ~ provider|capitalize ~ ' sera lié à votre compte existant.') }}</li>
+                    <li>{{ 'auth.confirm_link_bullet2'|trans|default('Vous pourrez vous connecter avec les deux méthodes.') }}</li>
+                    <li>{{ 'auth.confirm_link_bullet3'|trans|default('Vos données actuelles seront conservées.') }}</li>
+                </ul>
+            </div>
+
+            <form method="post" action="{{ path('connect_confirm_link', {_locale: app.request.locale}) }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('confirm_social_link') }}">
+
+                <button type="submit" class="btn btn-primary btn-large btn-full" style="margin-bottom: 1rem;">
+                    ✅ {{ 'auth.confirm_link_button'|trans({
+                        '%provider%': provider|capitalize
+                    })|default('Oui, lier mon compte ' ~ provider|capitalize) }}
+                </button>
+            </form>
+
+            <a href="{{ path('app_login', {_locale: app.request.locale}) }}" class="btn btn-secondary btn-large btn-full" style="text-align: center; text-decoration: none;">
+                ❌ {{ 'auth.confirm_link_cancel'|trans|default('Non, annuler') }}
+            </a>
+
+            <div class="auth-footer" style="margin-top: 1.5rem;">
+                <p>{{ 'auth.have_account'|trans|default('Vous avez déjà un compte ?') }} 
+                   <a href="{{ path('app_login', {_locale: app.request.locale}) }}" class="auth-link-strong">{{ 'cta.login'|trans|default('Se connecter') }}</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

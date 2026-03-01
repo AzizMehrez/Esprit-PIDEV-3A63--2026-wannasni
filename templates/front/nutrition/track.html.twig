@@ -1,0 +1,303 @@
+{% extends 'base_dashboard.html.twig' %}
+
+{% block title %}Journal Repas IA - WANNASNI{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    .upload-container {
+        max-width: 800px;
+        margin: 2rem auto;
+        padding: 2rem;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        text-align: center;
+    }
+
+    .regime-selector {
+        background: #f0fdf4;
+        border: 2px solid #10b981;
+        border-radius: 16px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        text-align: left;
+    }
+
+    .regime-selector h3 {
+        font-size: 1rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: #065f46;
+    }
+
+    .regime-selector select {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 2px solid #d1fae5;
+        border-radius: 12px;
+        font-size: 1rem;
+        font-weight: 600;
+        background: white;
+        color: #1f2937;
+    }
+
+    .regime-info {
+        display: flex;
+        gap: 1.5rem;
+        margin-top: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .regime-info-item {
+        background: white;
+        padding: 0.5rem 1rem;
+        border-radius: 10px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    .regime-info-item span { color: #059669; }
+
+    .drop-zone {
+        border: 3px dashed #10b981;
+        border-radius: 20px;
+        padding: 3rem;
+        cursor: pointer;
+        transition: all 0.3s;
+        background: #f0fdf4;
+    }
+
+    .drop-zone:hover, .drop-zone.drag-over {
+        background: #dcfce7;
+        transform: scale(1.02);
+    }
+
+    .drop-zone i {
+        font-size: 4rem;
+        color: #10b981;
+        margin-bottom: 1rem;
+    }
+
+    .loading-overlay {
+        display: none;
+        margin-top: 2rem;
+    }
+
+    .spinner-nutri {
+        width: 50px;
+        height: 50px;
+        border: 5px solid #f3f3f3;
+        border-top: 5px solid #10b981;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 1rem;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    .preview-image {
+        max-width: 100%;
+        max-height: 400px;
+        border-radius: 15px;
+        margin-top: 1rem;
+        display: none;
+    }
+
+    .not-detected-result {
+        display: none;
+        margin-top: 2rem;
+        padding: 2rem;
+        background: #fef2f2;
+        border: 2px solid #fecaca;
+        border-radius: 16px;
+        text-align: center;
+    }
+
+    .not-detected-result i {
+        font-size: 3rem;
+        color: #ef4444;
+        margin-bottom: 1rem;
+    }
+
+    .not-detected-result h3 {
+        color: #991b1b;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .not-detected-result p {
+        color: #7f1d1d;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    <div class="upload-container">
+        <h1 class="mb-4">📸 Analyser mon repas</h1>
+        <p class="text-muted mb-4">
+            Prenez une photo de votre assiette pour une analyse nutritionnelle instantanée.
+        </p>
+
+        {% if analysis is not defined %}
+            {% set consumed = consumedToday|default(0) %}
+            {% set dailyLimit = regime ? regime.caloriesJournalieres : 2000 %}
+            {% set pct = dailyLimit > 0 ? ((consumed / dailyLimit) * 100)|round : 0 %}
+            {% set pct = pct > 100 ? 100 : pct %}
+            {% set barColor = pct < 60 ? '#10b981' : (pct < 85 ? '#f59e0b' : '#ef4444') %}
+            {% set remaining = dailyLimit - consumed %}
+
+            <!-- Daily Calorie Progress Banner -->
+            <div style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-radius: 16px; padding: 1.5rem; margin-bottom: 1.5rem; color: white; text-align: left; box-shadow: 0 8px 24px rgba(0,0,0,0.15);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+                    <div style="font-size: 1rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem;">
+                        <span style="font-size: 1.4rem;">🔥</span>
+                        Calories de la journée
+                    </div>
+                    <div style="display: flex; gap: 1.5rem; flex-wrap: wrap;">
+                        <div style="text-align: center;">
+                            <div style="font-size: 1.6rem; font-weight: 800; color: {{ barColor }};">{{ consumed }}</div>
+                            <div style="font-size: 0.72rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em;">Consommées</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 1.6rem; font-weight: 800; color: #e2e8f0;">{{ dailyLimit }}</div>
+                            <div style="font-size: 0.72rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em;">Limite / jour</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 1.6rem; font-weight: 800; color: {{ remaining >= 0 ? '#34d399' : '#f87171' }};">
+                                {{ remaining >= 0 ? remaining : '-' ~ (remaining|abs) }}
+                            </div>
+                            <div style="font-size: 0.72rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em;">{{ remaining >= 0 ? 'Restantes' : 'Dépassées' }}</div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Progress bar -->
+                <div style="background: rgba(255,255,255,0.1); border-radius: 50px; height: 12px; overflow: hidden;">
+                    <div style="width: {{ pct }}%; height: 100%; background: {{ barColor }}; border-radius: 50px; transition: width 0.5s ease; position: relative;">
+                        {% if pct > 8 %}
+                        <div style="position: absolute; right: 6px; top: 50%; transform: translateY(-50%); font-size: 0.55rem; font-weight: 700; color: white;">{{ pct }}%</div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-top: 0.4rem; font-size: 0.75rem; color: #64748b;">
+                    <span>0 kcal</span>
+                    <span>{{ pct }}% utilisé</span>
+                    <span>{{ dailyLimit }} kcal</span>
+                </div>
+                {% if remaining < 0 %}
+                <div style="margin-top: 0.75rem; background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3); border-radius: 8px; padding: 0.5rem 0.75rem; font-size: 0.85rem; color: #fca5a5; display: flex; align-items: center; gap: 0.4rem;">
+                    ⚠️ Vous avez dépassé votre limite journalière de <strong>{{ remaining|abs }} kcal</strong>. Privilégiez les légumes et protéines légères.
+                </div>
+                {% elseif pct >= 85 %}
+                <div style="margin-top: 0.75rem; background: rgba(245,158,11,0.15); border: 1px solid rgba(245,158,11,0.3); border-radius: 8px; padding: 0.5rem 0.75rem; font-size: 0.85rem; color: #fcd34d; display: flex; align-items: center; gap: 0.4rem;">
+                    ⚡ Attention : il ne vous reste que <strong>{{ remaining }} kcal</strong> pour aujourd'hui.
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Regime Selector -->
+            {% if regime %}
+            <div class="regime-selector">
+                <h3><i class="fas fa-clipboard-list me-2"></i> ✅ Régime prescrit appliqué</h3>
+                <select id="regimeSelect">
+                    <option value="{{ regime.typeRegime }}" 
+                            data-limit="{{ regime.caloriesJournalieres }}"
+                            data-repas="{{ regime.repasParJour }}"
+                            selected>
+                        {{ regime.typeRegime|capitalize }} ({{ regime.caloriesJournalieres }} kcal/jour)
+                    </option>
+                </select>
+                <div class="regime-info">
+                    <div class="regime-info-item">🔥 Limite : <span id="regimeLimit">{{ regime.caloriesJournalieres }}</span> kcal/jour</div>
+                    <div class="regime-info-item">🍽️ Repas/jour : <span id="regimeRepas">{{ regime.repasParJour }}</span></div>
+                    <div class="regime-info-item">📊 Consommé : <span>{{ consumed }}</span> kcal</div>
+                </div>
+            </div>
+            {% else %}
+            <div class="regime-selector" style="background: #fef3c7; border-color: #f59e0b;">
+                <h3 style="color: #92400e;"><i class="fas fa-exclamation-triangle me-2"></i> Aucun régime prescrit</h3>
+                <p style="color: #78350f; margin: 0.5rem 0 1rem; font-size: 0.9rem;">L'analyse utilisera des valeurs par défaut. Pour un suivi personnalisé, demandez un régime à votre nutritionniste.</p>
+                <a href="{{ path('app_nutrition_request') }}" class="btn btn-warning btn-sm rounded-pill">
+                    <i class="fas fa-plus me-1"></i> Demander un régime
+                </a>
+                <div class="regime-info" style="margin-top: 1rem;">
+                    <div class="regime-info-item">🔥 Limite par défaut : <span id="regimeLimit">2000</span> kcal/jour</div>
+                    <div class="regime-info-item">🍽️ Repas/jour : <span id="regimeRepas">3</span></div>
+                    <div class="regime-info-item">📊 Consommé : <span>{{ consumed }}</span> kcal</div>
+                </div>
+                <input type="hidden" id="regimeSelect" value="Normal" data-limit="2000" data-repas="3">
+            </div>
+            {% endif %}
+
+            <form id="uploadForm" 
+                  action="{{ path('app_nutrition_track') }}" 
+                  method="POST" 
+                  enctype="multipart/form-data"
+                  data-regime="{{ regime ? regime.typeRegime : 'Normal' }}"
+                  data-limit="{{ regime ? regime.caloriesJournalieres : 2000 }}"
+                  data-consumed="{{ consumed }}">
+                <div class="drop-zone" id="dropZone" onclick="document.getElementById('mealPhoto').click();">
+                    <i class="fas fa-camera fa-4x mb-3" style="color: #059669;"></i>
+                    <h3 class="h4">Cliquez ici pour prendre une photo</h3>
+                    <p class="text-muted">Ou glissez une photo du repas</p>
+                    <input type="file" name="meal_photo" id="mealPhoto" hidden accept="image/*" capture="environment">
+                </div>
+                <img id="imagePreview" class="preview-image">
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-success btn-lg px-5 py-3 rounded-pill" style="display:none;" id="submitBtn">
+                        <i class="fas fa-magic me-2"></i> Analyser maintenant
+                    </button>
+                </div>
+            </form>
+
+            <!-- Not detected message -->
+            <div class="not-detected-result" id="notDetectedResult">
+                <i class="fas fa-search-minus"></i>
+                <h3>Aliment non détecté</h3>
+                <p id="notDetectedMessage">L'IA n'a pas pu identifier l'aliment dans cette image.</p>
+                <p class="text-muted mt-2">Essayez de reprendre la photo de plus près, avec un bon éclairage.</p>
+                <button class="btn btn-outline-danger rounded-pill mt-3" onclick="resetUpload()">
+                    <i class="fas fa-redo me-2"></i> Réessayer
+                </button>
+            </div>
+
+            <div class="loading-overlay" id="loading">
+                <div class="spinner-nutri"></div>
+                <h4 id="loadingText">Analyse en cours par l'IA...</h4>
+                <div id="progressSteps" class="mt-3 text-start mx-auto" style="max-width: 300px;">
+                    <div id="step1" class="text-muted"><i class="fas fa-check-circle me-2"></i> Détection des aliments...</div>
+                    <div id="step2" class="text-muted"><i class="fas fa-check-circle me-2"></i> Calories & Conformité...</div>
+                    <div id="step3" class="text-muted"><i class="fas fa-check-circle me-2"></i> Suggestions de recettes...</div>
+                    <div id="step4" class="text-muted"><i class="fas fa-check-circle me-2"></i> Rapport final & Sauvegarde...</div>
+                </div>
+            </div>
+
+            <div id="resultsContainer" style="display:none;">
+            </div>
+        {% else %}
+            {% include 'front/nutrition/_meal_results.html.twig' %}
+        {% endif %}
+    </div>
+</div>
+
+<template id="resultsTemplate">
+    {% include 'front/nutrition/_meal_results.html.twig' with {'analysis': {}} %}
+</template>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script src="/js/nutrition-upload.js?v=5.0"></script>
+<script>
+function resetUpload() {
+    document.getElementById('notDetectedResult').style.display = 'none';
+    document.getElementById('dropZone').style.display = 'block';
+    document.getElementById('imagePreview').style.display = 'none';
+    document.getElementById('mealPhoto').value = '';
+}
+</script>
+{% endblock %}

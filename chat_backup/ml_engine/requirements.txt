@@ -1,0 +1,49 @@
+# Core Machine Learning Libraries
+scikit-learn==1.4.0
+pandas==2.1.4
+numpy==1.24.3
+scipy==1.12.0
+
+# Deep Learning
+tensorflow==2.15.0
+torch==2.1.2
+transformers==4.36.2
+
+# Data Processing
+matplotlib==3.8.2
+seaborn==0.13.1
+plotly==5.17.0
+
+# API Framework
+flask==3.0.0
+flask-cors==4.0.0
+gunicorn==21.2.0
+
+# Database Connectivity
+pymysql==1.1.0
+SQLAlchemy==2.0.23
+
+# Natural Language Processing
+nltk==3.8.1
+textblob==0.17.1
+spacy==3.7.2
+
+# Time Series Analysis
+statsmodels==0.14.1
+
+# Utility Libraries
+python-dotenv==1.0.0
+python-dateutil==2.8.2
+requests==2.31.0
+schedule==1.2.1
+
+# Voice & Audio Processing (for ElevenLabs integration)
+librosa==0.10.1
+pydub==0.25.1
+
+# Health Data Specific
+heartpy==1.2.7
+
+# Development Tools
+jupyter==1.0.0
+ipython==8.18.1

@@ -1,0 +1,981 @@
+<style>
+/* Voice Assistant Widget - Modern & Accessibility Focused */
+#voice-assistant-widget {
+    position: fixed;
+    bottom: 100px;
+    right: 30px;
+    z-index: 9998;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+}
+
+/* Main Voice Activation Button — hidden, unified launcher takes over */
+#voice-btn-main {
+    display: none !important;
+}
+
+#voice-btn-main:hover {
+    transform: scale(1.12);
+    box-shadow: 0 15px 40px rgba(59, 130, 246, 0.4);
+}
+
+#voice-btn-main.listening {
+    background: linear-gradient(135deg, #ef4444 0%, #991b1b 100%);
+    animation: pulse-listen 1s infinite;
+}
+
+@keyframes pulse-breath {
+    0%, 100% {
+        box-shadow: 0 10px 30px rgba(59, 130, 246, 0.3), 0 0 0 0 rgba(59, 130, 246, 0.7);
+    }
+    50% {
+        box-shadow: 0 10px 30px rgba(59, 130, 246, 0.3), 0 0 0 20px rgba(59, 130, 246, 0);
+    }
+}
+
+@keyframes pulse-listen {
+    0%, 100% { 
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+    }
+    50% { 
+        box-shadow: 0 0 0 25px rgba(239, 68, 68, 0);
+    }
+}
+
+#voice-btn-main svg {
+    width: 40px;
+    height: 40px;
+    color: white;
+}
+
+/* Assistant Panel — positioned right to align with unified launcher */
+#assistant-panel {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 450px;
+    max-width: calc(100vw - 2rem);
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    opacity: 0;
+    visibility: hidden;
+    transform: scale(0.9) translateY(20px);
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+#assistant-panel.active {
+    opacity: 1;
+    visibility: visible;
+    transform: scale(1) translateY(0);
+}
+
+/* Panel Header */
+.panel-header {
+    background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+    padding: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: white;
+}
+
+.panel-header h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.panel-header-icon {
+    font-size: 1.5rem;
+    animation: wave 1s ease-in-out infinite;
+}
+
+@keyframes wave {
+    0%, 100% { transform: rotateZ(0deg); }
+    25% { transform: rotateZ(25deg); }
+    75% { transform: rotateZ(-25deg); }
+}
+
+#assistant-panel .close-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+#assistant-panel .close-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: rotate(90deg);
+}
+
+/* Status Display */
+.status-section {
+    padding: 1.5rem;
+    background: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
+    display: none;
+}
+
+.status-section.active {
+    display: block;
+}
+
+.listening-indicator {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.sound-wave {
+    display: flex;
+    gap: 4px;
+    align-items: flex-end;
+    height: 30px;
+}
+
+.sound-bar {
+    width: 4px;
+    background: linear-gradient(180deg, #3b82f6, #1e40af);
+    border-radius: 2px;
+    animation: soundwave 0.6s ease-in-out infinite;
+}
+
+.sound-bar:nth-child(1) { animation-delay: -0.4s; }
+.sound-bar:nth-child(2) { animation-delay: -0.2s; }
+.sound-bar:nth-child(3) { animation-delay: 0s; }
+
+@keyframes soundwave {
+    0%, 100% { height: 8px; }
+    50% { height: 24px; }
+}
+
+/* Response Area */
+.response-area {
+    padding: 1.5rem;
+    max-height: 350px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.response-area::-webkit-scrollbar {
+    width: 6px;
+}
+
+.response-area::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+}
+
+.response {
+    background: #f1f5f9;
+    padding: 1.25rem;
+    border-radius: 12px;
+    border-left: 4px solid #3b82f6;
+    animation: slideInUp 0.4s ease-out;
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.response-text {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: #1e293b;
+    margin: 0;
+}
+
+.response-action {
+    margin-top: 0.75rem;
+    font-size: 0.85rem;
+    color: #3b82f6;
+    font-weight: 600;
+}
+
+/* Activity List */
+.activities-list {
+    padding: 1rem 1.5rem;
+}
+
+.activity-item {
+    background: white;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.activity-item:hover {
+    border-color: #3b82f6;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+}
+
+.activity-title {
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 0.25rem;
+}
+
+.activity-meta {
+    font-size: 0.8rem;
+    color: #64748b;
+    display: flex;
+    gap: 1rem;
+}
+
+/* Control Buttons */
+.control-buttons {
+    padding: 1.25rem 1.5rem;
+    background: #f8fafc;
+    border-top: 1px solid #e2e8f0;
+    display: flex;
+    gap: 0.75rem;
+}
+
+.action-btn {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.action-btn.primary {
+    background: #3b82f6;
+    color: white;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.action-btn.primary:hover {
+    background: #1e40af;
+    transform: translateY(-2px);
+}
+
+.action-btn.secondary {
+    background: white;
+    color: #3b82f6;
+    border: 2px solid #3b82f6;
+}
+
+.action-btn.secondary:hover {
+    background: #eff6ff;
+}
+
+/* Transcript Display */
+.transcript-display {
+    padding: 1rem 1.5rem;
+    background: #f1f5f9;
+    font-style: italic;
+    color: #64748b;
+    font-size: 0.9rem;
+    border-bottom: 1px solid #e2e8f0;
+    display: none;
+}
+
+.transcript-display.active {
+    display: block;
+}
+
+/* Mobile Responsive */
+@media (max-width: 640px) {
+    #voice-assistant-widget {
+        bottom: 90px;
+        right: 10px;
+    }
+
+    #voice-btn-main {
+        width: 70px;
+        height: 70px;
+    }
+
+    #assistant-panel {
+        width: calc(100vw - 1rem);
+        right: 0;
+        bottom: 0;
+    }
+}
+
+/* Loading Animation */
+.loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 1.5rem;
+}
+
+.loading span {
+    width: 8px;
+    height: 8px;
+    background: #3b82f6;
+    border-radius: 50%;
+    animation: bounce 1.4s infinite;
+}
+
+.loading span:nth-child(1) { animation-delay: -0.32s; }
+.loading span:nth-child(2) { animation-delay: -0.16s; }
+
+@keyframes bounce {
+    0%, 80%, 100% { transform: scale(0); }
+    40% { transform: scale(1); }
+}
+</style>
+
+<div id="voice-assistant-widget">
+    <!-- Main Voice Button (Always Visible) -->
+    <button type="button" id="voice-btn-main" aria-label="Voice Assistant" title="Click to activate voice control">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+            <path d="M17 16.91c-1.48 1.45-3.5 2.38-5.77 2.38C9.92 19.29 8 18.62 6.58 17.5H5c.57 1 1.4 1.88 2.38 2.6.3.23.62.45.97.66 1.6.95 3.5 1.5 5.65 1.5s4.05-.55 5.65-1.5c.35-.21.67-.43.97-.66.98-.72 1.81-1.6 2.38-2.6h-1.58zM19 13h2c0-1.23-.2-2.41-.57-3.5h-1.48c.3 1.01.47 2.08.53 3.5zm0-5h1.48C20.8 6.41 21 5.23 21 4h-2c-.06 1.42-.23 2.49-.53 3.5z"/>
+        </svg>
+    </button>
+
+    <!-- Assistant Panel (Hidden by default) -->
+    <div id="assistant-panel">
+        <!-- Header -->
+        <div class="panel-header">
+            <h3>
+                <span class="panel-header-icon">🎤</span>
+                <span id="panel-title">Voice Assistant</span>
+            </h3>
+            <button type="button" class="close-btn" id="close-panel">✕</button>
+        </div>
+
+        <!-- Status Section -->
+        <div class="status-section" id="status-section">
+            <div class="listening-indicator">
+                <div class="sound-wave">
+                    <div class="sound-bar"></div>
+                    <div class="sound-bar"></div>
+                    <div class="sound-bar"></div>
+                </div>
+                <span id="status-text">Listening...</span>
+            </div>
+        </div>
+
+        <!-- Transcript Display -->
+        <div class="transcript-display" id="transcript-display"></div>
+
+        <!-- Response Area -->
+        <div class="response-area" id="response-area">
+            <div class="response">
+                <p class="response-text" id="initial-message">👋 Hello! I can help you find activities, register for events, and manage your schedule using voice commands.</p>
+            </div>
+        </div>
+
+        <!-- Activities List (Dynamic) -->
+        <div class="activities-list" id="activities-list" style="display: none;"></div>
+
+        <!-- Control Buttons -->
+        <div class="control-buttons">
+            <button type="button" class="action-btn primary" id="start-listening-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+                </svg>
+                <span id="start-listening-text">Start Listening</span>
+            </button>
+            <button type="button" class="action-btn secondary" id="help-btn">Help</button>
+        </div>
+
+        <!-- Text Input Fallback -->
+        <div class="text-input-area" id="text-input-area" style="display: flex; gap: 0.5rem; padding: 1rem 1.5rem; border-top: 1px solid #e2e8f0; background: #f8fafc;">
+            <input type="text" id="voice-text-input" placeholder="Tapez votre commande ici..." 
+                style="flex: 1; padding: 0.6rem 0.9rem; border: 2px solid #cbd5e1; border-radius: 10px; background: white; color: #1e293b; font-size: 0.9rem; outline: none;"
+                onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#cbd5e1'">
+            <button type="button" id="voice-text-send" style="padding: 0.6rem 1rem; background: linear-gradient(135deg, #3b82f6, #1e40af); color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 0.85rem;">
+                Envoyer
+            </button>
+        </div>
+
+        <!-- Network Warning Banner (shown when voice is unavailable) -->
+        <div id="network-warning" style="display: none; padding: 0.75rem 1.5rem; background: #fef3c7; border-top: 1px solid #fde68a; font-size: 0.8rem; color: #92400e;">
+            ⚠️ <span id="network-warning-text">La reconnaissance vocale n'est pas disponible. Utilisez le champ texte ci-dessus.</span>
+        </div>
+    </div>
+</div>
+
+<script>
+(function() {
+    // Prevent double initialization
+    if (window.__voiceAssistantInitialized) return;
+    window.__voiceAssistantInitialized = true;
+
+    function boot() {
+        const voiceBtnMain = document.getElementById('voice-btn-main');
+        const assistantPanel = document.getElementById('assistant-panel');
+        if (!voiceBtnMain || !assistantPanel) return;
+
+        const closeBtn = document.getElementById('close-panel');
+        const responseArea = document.getElementById('response-area');
+        const statusSection = document.getElementById('status-section');
+        const statusText = document.getElementById('status-text');
+        const transcriptDisplay = document.getElementById('transcript-display');
+        const startListeningBtn = document.getElementById('start-listening-btn');
+        const helpBtn = document.getElementById('help-btn');
+        const panelTitle = document.getElementById('panel-title');
+        const initialMessage = document.getElementById('initial-message');
+        const textInput = document.getElementById('voice-text-input');
+        const textSend = document.getElementById('voice-text-send');
+        const networkWarning = document.getElementById('network-warning');
+        const networkWarningText = document.getElementById('network-warning-text');
+
+        let isListening = false;
+        let recognition = null;
+        let panelOpen = false;
+        let currentLang = (document.documentElement.lang || 'en').substring(0, 2);
+
+        // Voice availability checks
+        const hasSpeechAPI = !!(window.SpeechRecognition || window.webkitSpeechRecognition);
+        let voiceAvailable = hasSpeechAPI; // optimistic; will be set to false on runtime error
+
+        // Disable voice gracefully when runtime network error occurs
+        function disableVoice() {
+            voiceAvailable = false;
+            const lang = getLang();
+            if (networkWarning) networkWarning.style.display = 'block';
+            if (startListeningBtn) startListeningBtn.style.display = 'none';
+            if (networkWarningText) {
+                networkWarningText.innerHTML = lang.networkWarn.replace('{path}', window.location.pathname);
+            }
+            setTimeout(() => { if (textInput) textInput.focus(); }, 100);
+        }
+
+        // ─── Multilingual Smart Intent Detection (client-side) ───
+        function detectIntent(text) {
+            const t = text.toLowerCase().trim();
+
+            // Navigation patterns — check FIRST
+            const navPatterns = [
+                /\b(take me to|go to|navigate to|open page|open the)\b/i,
+                /\b(emm[eè]ne.?moi|aller [aà]|ouvrir|portez.?moi)\b/i,
+                /(خذني|روح|فتحلي|امشي|أريد أن أذهب|اذهب إلى|افتح)/i,
+                /\b(roh l|khothni|fta7li|emchi|beh t3addi|wadini)\b/i,
+            ];
+            for (const pat of navPatterns) {
+                if (pat.test(t)) return { action: 'navigate', activityName: '' };
+            }
+
+            // Patterns for each intent — works across EN/FR/AR/Tunisian and mixed language
+            const myActivitiesPatterns = [
+                // EN
+                /\b(my activit|my schedule|what am i (in|registered|enrolled|doing)|i('m| am) (in|registered|signed)|my events|what (do i have|have i joined))\b/i,
+                // FR
+                /\b(mes activit|mon (emploi|calendrier|planning)|je suis inscri|mes inscri|auxquelles|mes événements|qu.?est.?ce que j.?ai|quelles? activit)\b/i,
+                // AR
+                /(أنشطتي|مسجل في|جدولي|ما هي أنشطتي|فيم أنا مسجل)/i,
+                // Tunisian (Arabic + Latin)
+                /(نشاطاتي|شو اشتركت فيه|مسجل فيهم|famma achniya|chny3mlu|chno 3andi inscrit)/i,
+            ];
+
+            const joinPatterns = [
+                // EN
+                /\b(join|enroll|register|sign (me )?up|participate|book|add me to|i want to (join|do|try))\b/i,
+                // FR
+                /\b(inscri|rejoind|particip|réserv|ajout.? moi|je (veux|voudrais) (m.?inscrire|participer|rejoindre|faire))\b/i,
+                // AR
+                /(انضم|سجل|اشترك|احجز|أريد الانضمام|سجلني)/i,
+                // Tunisian
+                /(نحب نسجل|باهي نشارك|حب يشارك|inscri-ni|nheb nsajel|bahi nchark|7ab ychark)/i,
+            ];
+
+            const cancelPatterns = [
+                // EN
+                /\b(cancel|unsubscribe|leave|quit|drop|remove|unregister|i (don.?t|no longer) want)\b/i,
+                // FR
+                /\b(annul|désinscrire|quitt|retire|supprim|je (ne )?(veux|voudrais) plus)\b/i,
+                // AR
+                /(الغ|حذف|غادر|اسحب|ألغِ|لا أريد)/i,
+                // Tunisian
+                /(الغيلي|مزبلة|ماحبتش|حذفها منهم|7thef|alghili|mech 7abi|mazbelha)/i,
+            ];
+
+            const listPatterns = [
+                // EN
+                /\b(show|list|see|view|available|what.?s (available|there)|activities|find|search|browse|what can i do)\b/i,
+                // FR
+                /\b(affich|montr|voir|list|disponible|qu.?(?:est.?ce qu.?)?il y a|cherch|trouvé? moi|activités disponibles)\b/i,
+                // AR
+                /(اعرض|قائمة|ماذا يوجد|نشاط|متاح|أظهر لي)/i,
+                // Tunisian
+                /(عرضلي|شو فامة|كيفاش|شنو|3radli|chno famma|kifech|chnou)/i,
+            ];
+
+            const greetingPatterns = [
+                /^(hi|hello|hey|bonjour|salut|ça va|coucou|مرحبا|السلام|اهلا)\b/i
+            ];
+
+            // Check intents in priority order
+            // 1) "my activities" before general "list"
+            for (const pat of myActivitiesPatterns) {
+                if (pat.test(t)) return { action: 'list_my_activities', activityName: '' };
+            }
+            // 2) join
+            for (const pat of joinPatterns) {
+                if (pat.test(t)) return { action: 'join_activity', activityName: extractActivityName(t, 'join') };
+            }
+            // 3) cancel
+            for (const pat of cancelPatterns) {
+                if (pat.test(t)) return { action: 'cancel_activity', activityName: extractActivityName(t, 'cancel') };
+            }
+            // 4) list available
+            for (const pat of listPatterns) {
+                if (pat.test(t)) return { action: 'list_available', activityName: '' };
+            }
+            // 5) greeting
+            if (t.split(/\s+/).length <= 5) {
+                for (const pat of greetingPatterns) {
+                    if (pat.test(t)) return { action: 'chat', activityName: '' };
+                }
+            }
+            // Default: let server-side NLP handle it
+            return { action: 'chat', activityName: '' };
+        }
+
+        function extractActivityName(text, intentType) {
+            // Strip common intent words to isolate the activity name
+            let cleaned = text.toLowerCase().trim();
+
+            // EN removal
+            cleaned = cleaned.replace(/\b(please|can you|could you|i want to|i('d| would) like to|for me|me for|me to|me in|me up for|sign me up for)\b/gi, '');
+            // Join keywords
+            if (intentType === 'join') {
+                cleaned = cleaned.replace(/\b(join|enroll|register|sign up|participate in|book|add me to)\b/gi, '');
+                cleaned = cleaned.replace(/\b(inscri[st]?.?moi (au|à|pour|dans)?|rejoind?r?e?|participer? (à|au|dans)?|réserve?r?|ajoute?r?.?moi (au|à|dans)?|je veux m.?inscrire (au|à|pour)?|je voudrais (m.?inscrire|participer) (au|à|pour)?)\b/gi, '');
+                cleaned = cleaned.replace(/(انضم (إلى|ل|في)?|سجلني (في|ل)?|اشترك (في|ل)?|احجز)/gi, '');
+            }
+            // Cancel keywords
+            if (intentType === 'cancel') {
+                cleaned = cleaned.replace(/\b(cancel|unsubscribe from|leave|quit|drop|remove me from)\b/gi, '');
+                cleaned = cleaned.replace(/\b(annule?r?|désinscrire? (de|du)?|quitter?|retire?r?.?moi (de|du)?|supprime?r?|je ne veux plus)\b/gi, '');
+                cleaned = cleaned.replace(/(الغ|حذف|غادر|اسحب|ألغِ) ?(من|في)?/gi, '');
+            }
+            // Clean up leftover articles/prepositions
+            cleaned = cleaned.replace(/\b(le|la|les|l'|du|de|des|au|aux|un|une|mon|ma|mes|my|the|a|an|for|from|in|to)\b/gi, '');
+            cleaned = cleaned.trim().replace(/\s+/g, ' ');
+            return cleaned;
+        }
+
+        // ─── Language Texts ───
+        const texts = {
+            en: {
+                title: 'Activity Assistant',
+                initialMsg: '👋 Hello! I can help you:\n• Show available activities\n• Show your enrolled activities\n• Join an activity\n• Cancel an enrollment\n\nSpeak or type below!',
+                listening: 'Listening...',
+                startBtn: '🎤 Speak',
+                helpText: 'Try:\n• "Show available activities"\n• "Join yoga"\n• "What am I registered for?"\n• "Cancel swimming"',
+                placeholder: 'Type a command... e.g. "show activities"',
+                send: 'Send',
+                networkWarn: 'Voice unavailable here. Type your command below, or open via <a href="http://localhost:8000{path}" style="color:#92400e;font-weight:600;">localhost:8000</a> for voice.'
+            },
+            fr: {
+                title: 'Assistant Activités',
+                initialMsg: '👋 Bonjour! Je peux vous aider à:\n• Voir les activités disponibles\n• Voir vos inscriptions\n• Vous inscrire à une activité\n• Annuler une inscription\n\nParlez ou tapez ci-dessous!',
+                listening: 'À l\'écoute...',
+                startBtn: '🎤 Parler',
+                helpText: 'Essayez:\n• "Montre-moi les activités"\n• "Inscris-moi au yoga"\n• "Quelles sont mes activités?"\n• "Annule la natation"',
+                placeholder: 'Tapez une commande... ex: "affiche les activités"',
+                send: 'Envoyer',
+                networkWarn: 'Voix non disponible ici. Tapez votre commande ci-dessous, ou ouvrez via <a href="http://localhost:8000{path}" style="color:#92400e;font-weight:600;">localhost:8000</a> pour la voix.'
+            },
+            ar: {
+                title: 'مساعد الأنشطة',
+                initialMsg: '👋 مرحبا! يمكنني مساعدتك في:\n• عرض الأنشطة المتاحة\n• عرض أنشطتك المسجلة\n• التسجيل في نشاط\n• إلغاء تسجيل\n\nتحدث أو اكتب أدناه!',
+                listening: 'استماع...',
+                startBtn: '🎤 تحدث',
+                helpText: 'جرب:\n• "اعرض الأنشطة"\n• "سجلني في اليوجا"\n• "ما هي أنشطتي؟"\n• "ألغِ السباحة"',
+                placeholder: 'اكتب أمرًا... مثال: "اعرض الأنشطة"',
+                send: 'إرسال',
+                networkWarn: 'الصوت غير متاح هنا. اكتب أمرك أدناه، أو افتح عبر <a href="http://localhost:8000{path}" style="color:#92400e;font-weight:600;">localhost:8000</a> للصوت.'
+            }
+        };
+
+        function getLang() { return texts[currentLang] || texts['en']; }
+
+        function applyLanguage() {
+            const lang = getLang();
+            if (panelTitle) panelTitle.textContent = lang.title;
+            if (initialMessage) initialMessage.innerHTML = lang.initialMsg.replace(/\n/g, '<br>');
+            if (statusText) statusText.textContent = lang.listening;
+            if (startListeningBtn) {
+                const span = startListeningBtn.querySelector('span');
+                if (span) span.textContent = lang.startBtn;
+            }
+            if (textInput) textInput.placeholder = lang.placeholder;
+            if (textSend) textSend.textContent = lang.send;
+
+            // Voice availability
+            if (!voiceAvailable) {
+                if (networkWarning) networkWarning.style.display = 'block';
+                if (startListeningBtn) startListeningBtn.style.display = 'none';
+                if (networkWarningText) {
+                    networkWarningText.innerHTML = lang.networkWarn.replace('{path}', window.location.pathname);
+                }
+            } else {
+                if (networkWarning) networkWarning.style.display = 'none';
+                if (startListeningBtn) startListeningBtn.style.display = 'flex';
+            }
+        }
+
+        // ─── Panel Toggle ───
+        function openPanel() {
+            if (panelOpen) return;
+            panelOpen = true;
+            assistantPanel.classList.add('active');
+            // Focus: voice mic if available, otherwise text input
+            setTimeout(() => {
+                if (voiceAvailable) {
+                    startListening();
+                } else if (textInput) {
+                    textInput.focus();
+                }
+            }, 350);
+        }
+
+        function closePanel() {
+            panelOpen = false;
+            assistantPanel.classList.remove('active');
+            stopListening();
+        }
+
+        function togglePanel() {
+            if (panelOpen) { closePanel(); } else { openPanel(); }
+        }
+
+        // ─── Speech Recognition ───
+        function startListening() {
+            if (isListening) return;
+            if (!voiceAvailable) {
+                if (textInput) textInput.focus();
+                return;
+            }
+            // Respect global lock: another component (chat voice call) owns the mic
+            if (window.__speechRecogLock && window.__speechRecogLock !== 'assistant') {
+                addResponse('⚠️ The microphone is being used by the voice call. End the call first.');
+                return;
+            }
+            window.__speechRecogLock = 'assistant';
+
+            if (!recognition) {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                if (!SpeechRecognition) {
+                    addResponse('⚠️ Speech recognition not supported in your browser. Please use the text field.');
+                    return;
+                }
+                recognition = new SpeechRecognition();
+                window.__vaRecognition = recognition; // expose globally for cross-component coordination
+                recognition.continuous = false;
+                recognition.interimResults = true;
+                recognition.maxAlternatives = 1;
+
+                recognition.onstart = () => {
+                    isListening = true;
+                    voiceBtnMain.classList.add('listening');
+                    if (statusSection) statusSection.classList.add('active');
+                    if (transcriptDisplay) transcriptDisplay.classList.remove('active');
+                    if (startListeningBtn) startListeningBtn.disabled = true;
+                };
+
+                recognition.onresult = (event) => {
+                    let interim = '';
+                    for (let i = event.resultIndex; i < event.results.length; i++) {
+                        const transcript = event.results[i][0].transcript;
+                        if (event.results[i].isFinal) {
+                            processCommand(transcript);
+                        } else {
+                            interim += transcript;
+                        }
+                    }
+                    if (interim && transcriptDisplay) {
+                        transcriptDisplay.textContent = '🗣️ ' + interim;
+                        transcriptDisplay.classList.add('active');
+                    }
+                };
+
+                let _networkRetries = 0;
+                recognition.onerror = (event) => {
+                    console.warn('Speech recognition error:', event.error);
+                    if (event.error === 'network') {
+                        _networkRetries++;
+                        if (_networkRetries <= 2) {
+                            console.log('🔄 Network error — retrying speech recognition (' + _networkRetries + '/2)...');
+                            stopListening();
+                            setTimeout(() => { if (panel.classList.contains('active')) startListening(); }, 1000 * _networkRetries);
+                            return;
+                        }
+                        addResponse('⚠️ Speech recognition network unavailable. Use the text field below instead.');
+                        disableVoice();
+                    } else if (event.error === 'not-allowed') {
+                        addResponse('⚠️ Microphone blocked. Please allow microphone access in your browser settings.');
+                    } else if (event.error !== 'aborted' && event.error !== 'no-speech') {
+                        addResponse('⚠️ Voice error: ' + event.error + '. Try the text field instead.');
+                    }
+                    stopListening();
+                };
+
+                recognition.onend = () => {
+                    stopListening();
+                };
+            }
+
+            // Set language code for SpeechRecognition (e.g. fr-FR, en-US, ar-SA, ar-TN)
+            const langMap = { 'fr': 'fr-FR', 'en': 'en-US', 'ar': 'ar-SA', 'tn': 'ar-TN' };
+            recognition.lang = langMap[currentLang] || 'fr-FR';
+
+            try {
+                recognition.start();
+            } catch (e) {
+                console.warn('Recognition start failed:', e);
+                stopListening();
+            }
+        }
+
+        // ─── Voice availability: passive check (no probe — avoids mic conflicts) ───
+        // We trust hasSpeechAPI; real errors are caught lazily on first startListening().
+        // A global lock prevents this panel and the chat voice-call from fighting.
+        window.__speechRecogLock = window.__speechRecogLock || null;
+
+        function stopListening() {
+            if (recognition) {
+                try { recognition.stop(); } catch(e) {}
+            }
+            isListening = false;
+            if (window.__speechRecogLock === 'assistant') window.__speechRecogLock = null;
+            voiceBtnMain.classList.remove('listening');
+            if (statusSection) statusSection.classList.remove('active');
+            if (transcriptDisplay) transcriptDisplay.classList.remove('active');
+            if (startListeningBtn) startListeningBtn.disabled = false;
+        }
+
+        // ─── Process Command (voice or text) ───
+        async function processCommand(transcript) {
+            const trimmed = transcript.trim();
+            if (!trimmed) return;
+
+            // Auto-detect Tunisian dialect (both scripts) to set correct lang for API
+            const tunLatinWords = ['chnowa','kifech','nheb','wqtesh','bahi','barcha','moch','3andi','ya kho','roh l','hedha','famma','yezzi','chwaya','n7eb','inscri-ni'];
+            const tunArabicWords = ['شنوا','كيفاش','نحب','باهي','برشا','موش','يزي','خذني','روح','فامة','شوية','تاو'];
+            const detectedTunisian = tunLatinWords.some(w => trimmed.toLowerCase().includes(w)) ||
+                                     tunArabicWords.some(w => trimmed.includes(w));
+            const effectiveLang = detectedTunisian ? 'tn' : currentLang;
+
+            // Show what was said/typed
+            if (transcriptDisplay) {
+                transcriptDisplay.textContent = '💬 "' + trimmed + '"';
+                transcriptDisplay.classList.add('active');
+            }
+
+            // Smart client-side intent detection
+            const { action, activityName } = detectIntent(trimmed);
+
+            const loadingId = showLoading();
+
+            try {
+                const response = await fetch('/api/voice-assistant', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        message: trimmed,
+                        lang: effectiveLang,
+                        action: action,
+                        activityName: activityName
+                    })
+                });
+
+                const data = await response.json();
+                removeLoading(loadingId);
+
+                const message = data.message || data.text || 'Error processing your request';
+
+                if (response.ok) {
+                    addResponse(message, data.action);
+
+                    // Show activities list if provided
+                    if (data.navigate_url) {
+                        // Navigate to the requested app page
+                        setTimeout(() => { window.location.href = data.navigate_url; }, 1200);
+                    } else if (data.activities && data.activities.length > 0) {
+                        displayActivities(data.activities);
+                    }
+
+                    // Play audio if provided
+                    if (data.audio) {
+                        playAudio(data.audio, (data.should_refresh) ? () => {
+                            setTimeout(() => location.reload(), 500);
+                        } : null);
+                    } else if (data.should_refresh) {
+                        // Refresh after a short delay so user can read the message
+                        setTimeout(() => location.reload(), 2500);
+                    }
+                } else {
+                    addResponse(data.error || message);
+                }
+            } catch (error) {
+                removeLoading(loadingId);
+                const errMsgs = {
+                    en: 'Connection error. Please try again.',
+                    fr: 'Erreur de connexion. Veuillez réessayer.',
+                    ar: 'خطأ في الاتصال. يرجى المحاولة مرة أخرى.',
+                    tn: 'مشكلة في الاتصال. حاول مرة أخرى.'
+                };
+                addResponse(errMsgs[effectiveLang] || errMsgs['fr']);
+                console.error('Voice assistant error:', error);
+            }
+        }
+
+        // ─── UI Helpers ───
+        function addResponse(text, action = null) {
+            const div = document.createElement('div');
+            div.className = 'response';
+            div.innerHTML = '<p class="response-text">' + text + '</p>';
+            if (action) {
+                div.innerHTML += '<p class="response-action">' + action + '</p>';
+            }
+            responseArea.appendChild(div);
+            responseArea.scrollTop = responseArea.scrollHeight;
+        }
+
+        function showLoading() {
+            const id = 'loading-' + Date.now();
+            const div = document.createElement('div');
+            div.id = id;
+            div.className = 'loading';
+            div.innerHTML = '<span></span><span></span><span></span>';
+            responseArea.appendChild(div);
+            responseArea.scrollTop = responseArea.scrollHeight;
+            return id;
+        }
+
+        function removeLoading(id) {
+            const el = document.getElementById(id);
+            if (el) el.remove();
+        }
+
+        function displayActivities(activities) {
+            const activitiesList = document.getElementById('activities-list');
+            if (!activitiesList) return;
+            activitiesList.innerHTML = '';
+
+            activities.forEach(activity => {
+                const startTime = activity.startTime || activity.start_time;
+                let timeStr = 'TBD';
+                if (startTime) {
+                    try {
+                        const date = new Date(startTime);
+                        timeStr = date.toLocaleDateString(currentLang === 'ar' ? 'ar-SA' : currentLang, {
+                            weekday: 'short', month: 'short', day: 'numeric',
+                            hour: '2-digit', minute: '2-digit'
+                        });
+                    } catch(e) { timeStr = startTime; }
+                }
+
+                const div = document.createElement('div');
+                div.className = 'activity-item';
+                const spots = activity.spotsAvailable != null ? (' — ' + activity.spotsAvailable + ' spots') : '';
+                div.innerHTML =
+                    '<div class="activity-title">' + (activity.title || 'Untitled') + '</div>' +
+                    '<div class="activity-meta">' +
+                        '<span>📅 ' + timeStr + '</span>' +
+                        '<span>📍 ' + (activity.location || 'TBD') + spots + '</span>' +
+                    '</div>';
+
+                // Click to join
+                div.addEventListener('click', () => {
+                    processCommand((currentLang === 'fr' ? 'inscris-moi au ' : currentLang === 'ar' ? 'سجلني في ' : 'join ') + activity.title);
+                });
+                activitiesList.appendChild(div);
+            });
+
+            activitiesList.style.display = activities.length > 0 ? 'block' : 'none';
+        }
+
+        function playAudio(audioUrl, onComplete = null) {
+            try {
+                const audio = new Audio(audioUrl);
+                if (onComplete) audio.addEventListener('ended', onComplete, { once: true });
+                audio.play().catch(e => {
+                    console.warn('Audio playback failed:', e);
+                    if (onComplete) onComplete();
+                });
+            } catch (e) {
+                console.warn('Audio error:', e);
+                if (onComplete) onComplete();
+            }
+        }
+
+        // ─── Event Listeners (attached once!) ───
+        voiceBtnMain.addEventListener('click', togglePanel);
+        if (closeBtn) closeBtn.addEventListener('click', closePanel);
+        if (startListeningBtn) startListeningBtn.addEventListener('click', startListening);
+
+        if (helpBtn) {
+            helpBtn.addEventListener('click', () => {
+                addResponse(getLang().helpText.replace(/\n/g, '<br>'));
+            });
+        }
+
+        // Text input handlers
+        if (textInput && textSend) {
+            textSend.addEventListener('click', () => {
+                const text = textInput.value.trim();
+                if (text) { textInput.value = ''; processCommand(text); }
+            });
+            textInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const text = textInput.value.trim();
+                    if (text) { textInput.value = ''; processCommand(text); }
+                }
+            });
+        }
+
+        // ─── Init ───
+        applyLanguage();
+        console.log('🎤 Voice Assistant initialized — voice:', voiceAvailable ? 'available' : 'text-only mode');
+
+        // ─── Expose global API for unified launcher integration ───
+        window.__voiceAssistant = {
+            open: openPanel,
+            close: closePanel,
+            toggle: togglePanel,
+            isOpen: function() { return panelOpen; }
+        };
+    }
+
+    // Single, clean initialization
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', boot);
+    } else {
+        boot();
+    }
+})();
+</script>

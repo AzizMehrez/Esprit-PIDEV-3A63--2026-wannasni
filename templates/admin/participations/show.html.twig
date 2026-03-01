@@ -1,0 +1,132 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Participation #{{ participation.id }} - Admin WANNASNI{% endblock %}
+{% block page_title %}Détails de la Participation{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 1rem; display: flex; gap: 0.5rem;">
+    <a href="{{ path('admin_participations') }}" class="btn btn-secondary">← Retour aux Participations</a>
+    <a href="{{ path('admin_participations_edit', {id: participation.id}) }}" class="btn btn-primary">✏️ Modifier</a>
+    <form method="post" action="{{ path('admin_participations_delete', {id: participation.id}) }}" style="display:inline;" onsubmit="return confirm('Supprimer cette participation ?')">
+        <button type="submit" class="btn" style="background: var(--admin-danger); color: white;">🗑️ Supprimer</button>
+    </form>
+</div>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+    {# Info Card #}
+    <div class="admin-card">
+        <div class="card-header">
+            <h2 class="card-title">📋 Informations</h2>
+        </div>
+        <div style="padding: 1.5rem; display: grid; gap: 1rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="color: var(--admin-text-muted);">Participant</span>
+                <span style="font-weight: 600;">{{ participation.seniorName }}</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="color: var(--admin-text-muted);">Activité</span>
+                <a href="{{ path('admin_activities_show', {id: participation.activityId}) }}" style="color: var(--admin-primary-light); text-decoration: none; font-weight: 600;">
+                    🎯 {{ participation.activityName }}
+                </a>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="color: var(--admin-text-muted);">Statut</span>
+                {% if participation.status in ['registered', 'inscrit'] %}
+                    <span class="badge badge-success">✅ Inscrit</span>
+                {% elseif participation.status == 'attended' %}
+                    <span class="badge badge-info">🎓 Présent</span>
+                {% elseif participation.status in ['cancelled', 'annulé'] %}
+                    <span class="badge badge-danger">❌ Annulé</span>
+                {% else %}
+                    <span class="badge badge-warning">{{ participation.status|capitalize }}</span>
+                {% endif %}
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="color: var(--admin-text-muted);">Date d'inscription</span>
+                <span>{{ participation.registeredAt ? participation.registeredAt|date('d/m/Y H:i') : 'N/A' }}</span>
+            </div>
+            {% if participation.registrationMethod %}
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="color: var(--admin-text-muted);">Méthode</span>
+                <span>{{ participation.registrationMethod }}</span>
+            </div>
+            {% endif %}
+            {% if participation.presenceConfirmationDate %}
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="color: var(--admin-text-muted);">Présence confirmée</span>
+                <span>{{ participation.presenceConfirmationDate|date('d/m/Y H:i') }}</span>
+            </div>
+            {% endif %}
+            {% if participation.hasCertificate is not null %}
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="color: var(--admin-text-muted);">Certificat</span>
+                <span>{{ participation.hasCertificate ? '✅ Oui' : '❌ Non' }}</span>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    {# Feedback Card #}
+    <div class="admin-card">
+        <div class="card-header">
+            <h2 class="card-title">⭐ Feedback</h2>
+        </div>
+        <div style="padding: 1.5rem; display: grid; gap: 1rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="color: var(--admin-text-muted);">Note</span>
+                {% if participation.rating %}
+                    <span style="color: #fbbf24; font-size: 1.2rem;">
+                        {% for i in 1..5 %}{{ i <= participation.rating ? '★' : '☆' }}{% endfor %}
+                    </span>
+                {% else %}
+                    <span style="color: var(--admin-text-muted);">Pas de note</span>
+                {% endif %}
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="color: var(--admin-text-muted);">Humeur Avant</span>
+                <span>{{ participation.moodBefore is not null ? participation.moodBefore ~ '/5' : '—' }}</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="color: var(--admin-text-muted);">Humeur Après</span>
+                <span>{{ participation.moodAfter is not null ? participation.moodAfter ~ '/5' : '—' }}</span>
+            </div>
+            {% if participation.moodBefore is not null and participation.moodAfter is not null %}
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="color: var(--admin-text-muted);">Évolution</span>
+                <span style="font-weight: 700; font-size: 1.1rem; color: {% if participation.moodAfter > participation.moodBefore %}#4ade80{% elseif participation.moodAfter < participation.moodBefore %}#f87171{% else %}#fbbf24{% endif %};">
+                    {% if participation.moodAfter > participation.moodBefore %}📈 Amélioré{% elseif participation.moodAfter < participation.moodBefore %}📉 Détérioré{% else %}➡️ Stable{% endif %}
+                </span>
+            </div>
+            {% endif %}
+            {% if participation.recommendToFriends is not null %}
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="color: var(--admin-text-muted);">Recommande</span>
+                <span>{{ participation.recommendToFriends ? '👍 Oui' : '👎 Non' }}</span>
+            </div>
+            {% endif %}
+            {% if participation.shareWithFamily %}
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="color: var(--admin-text-muted);">Partage famille</span>
+                <span>{{ participation.shareWithFamily }}</span>
+            </div>
+            {% endif %}
+            {% if participation.feedback %}
+            <div>
+                <span style="color: var(--admin-text-muted); display: block; margin-bottom: 0.5rem;">Commentaire</span>
+                <div style="background: var(--admin-bg); padding: 1rem; border-radius: 8px; border: 1px solid var(--admin-border); font-size: 0.9rem; line-height: 1.6;">
+                    {{ participation.feedback }}
+                </div>
+            </div>
+            {% endif %}
+            {% if participation.problemsEncountered %}
+            <div>
+                <span style="color: var(--admin-text-muted); display: block; margin-bottom: 0.5rem;">Problèmes rencontrés</span>
+                <div style="background: rgba(239,68,68,0.1); padding: 1rem; border-radius: 8px; border: 1px solid rgba(239,68,68,0.2); font-size: 0.9rem; line-height: 1.6;">
+                    {{ participation.problemsEncountered }}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

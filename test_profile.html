@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Profile - WANNASNI</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .profile-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin: 15px 0;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+        input[type="text"], input[type="email"], input[type="tel"], input[type="date"], select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        .empty-field {
+            border-color: #ff9999;
+            background-color: #fff8f8;
+        }
+        .required {
+            color: red;
+        }
+        .missing-overlay {
+            background: #ffe6e6;
+            border: 2px dashed #ff6666;
+            padding: 10px;
+            text-align: center;
+            color: #cc0000;
+        }
+        h2 {
+            color: #2c5aa0;
+            border-bottom: 2px solid #2c5aa0;
+            padding-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>👤 Mon Profil WANNASNI</h1>
+    
+    <div class="profile-section">
+        <h2>📋 Informations Personnelles</h2>
+        
+        <div class="form-group">
+            <label for="first_name">Prénom <span class="required">*</span></label>
+            <input type="text" id="first_name" name="first_name" value="Ahmed" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="last_name">Nom <span class="required">*</span></label>
+            <input type="text" id="last_name" name="last_name" value="Mokhtar" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="email">Email <span class="required">*</span></label>
+            <input type="email" id="email" name="email" value="ahmed@example.com" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="date_naissance">Date de naissance</label>
+            <input type="date" id="date_naissance" name="date_naissance" value="" class="empty-field" placeholder="Sélectionnez votre date de naissance">
+        </div>
+        
+        <div class="form-group">
+            <label for="phone">Numéro de téléphone</label>
+            <input type="tel" id="phone" name="phone" value="" class="empty-field" placeholder="Entrez votre numéro de téléphone">
+        </div>
+    </div>
+
+    <div class="profile-section">
+        <h2>🏠 Adresse</h2>
+        
+        <div class="form-group">
+            <label for="adresse">Adresse complète</label>
+            <input type="text" id="adresse" name="adresse" value="" class="empty-field" placeholder="Entrez votre adresse">
+        </div>
+        
+        <div class="form-group">
+            <label for="ville">Ville</label>
+            <input type="text" id="ville" name="ville" value="" class="empty-field" placeholder="Entrez votre ville">
+        </div>
+        
+        <div class="form-group">
+            <label for="code_postal">Code postal</label>
+            <input type="text" id="code_postal" name="code_postal" value="" class="empty-field" placeholder="Entrez votre code postal">
+        </div>
+        
+        <div class="form-group">
+            <label for="pays">Pays</label>
+            <select id="pays" name="pays" class="empty-field">
+                <option value="">Sélectionnez votre pays</option>
+                <option value="France">France</option>
+                <option value="Maroc">Maroc</option>
+                <option value="Tunisie">Tunisie</option>
+                <option value="Algérie">Algérie</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="profile-section">
+        <h2>📸 Photo de profil</h2>
+        <div class="missing-overlay">
+            <p><strong>Photo de profil manquante</strong></p>
+            <p>Ajoutez une photo de profil pour personnaliser votre expérience</p>
+            <input type="file" accept="image/*" style="margin: 10px;">
+        </div>
+    </div>
+
+    <div class="profile-section">
+        <h2>🚨 Contact d'urgence</h2>
+        <div class="missing-overlay">
+            <p><strong>Contact d'urgence non défini</strong></p>
+            <p>Définissez un contact d'urgence pour votre sécurité</p>
+        </div>
+        
+        <div class="form-group" style="margin-top: 15px;">
+            <label for="emergency_contact">Nom du contact d'urgence</label>
+            <input type="text" id="emergency_contact" name="emergency_contact" value="" placeholder="Entrez le nom de votre contact d'urgence">
+        </div>
+        
+        <div class="form-group">
+            <label for="emergency_phone">Téléphone du contact d'urgence</label>
+            <input type="tel" id="emergency_phone" name="emergency_phone" value="" placeholder="Entrez le numéro de téléphone d'urgence">
+        </div>
+    </div>
+
+    <div class="profile-section">
+        <h2>💊 Informations médicales (optionnel)</h2>
+        
+        <div class="form-group">
+            <label for="specialite">Spécialité médicale</label>
+            <input type="text" id="specialite" name="specialite" value="" placeholder="Ex: Cardiologie, Diabétologie, etc.">
+        </div>
+    </div>
+
+    <div style="text-align: center; margin: 30px 0;">
+        <button style="background: #2c5aa0; color: white; padding: 12px 24px; border: none; border-radius: 6px; font-size: 16px; cursor: pointer;">
+            💾 Enregistrer les modifications
+        </button>
+    </div>
+
+    <div style="background: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 6px; margin: 20px 0;">
+        <h3>📊 Statut du profil</h3>
+        <p><strong>Complétude:</strong> 40% (6 champs manquants sur 10)</p>
+        <p><strong>Recommandation:</strong> Complétez votre profil pour bénéficier de services personnalisés</p>
+    </div>
+</body>
+</html>

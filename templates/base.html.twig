@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+{% set current_locale = app.request.locale|default('fr') %}
+{% set text_direction = current_locale == 'ar' ? 'rtl' : 'ltr' %}
+<html lang="{{ current_locale }}" dir="{{ text_direction }}">
+    <head>
+        <script>
+            // Chrome Web Speech API requires localhost (not 127.0.0.1) for microphone access.
+            // Auto-redirect so voice always works without any user action.
+            if (window.location.hostname === '127.0.0.1') {
+                window.location.replace(window.location.href.replace('127.0.0.1', 'localhost'));
+            }
+        </script>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="{{ 'meta.description'|trans }}">
+        <meta name="theme-color" content="#2E7D32">
+        <title>{% block title %}{{ 'site.name'|trans }}{% endblock %}</title>
+        <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>🌿</text></svg>">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600&family=Noto+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+        {% block stylesheets %}
+        {% endblock %}
+
+        {% block javascripts %}
+            {% block importmap %}{{ importmap('app') }}{% endblock %}
+        {% endblock %}
+    </head>
+    <body>
+        {# Header / Navigation #}
+        <header class="site-header" role="banner">
+            <div class="container header-inner">
+                <a href="{{ path('app_home', {'_locale': current_locale}) }}" class="logo" aria-label="WANNASNI Home">
+                    <img src="/images/logo.png" alt="" class="logo-icon" style="height:40px;width:auto;vertical-align:middle;" aria-hidden="true">
+                    <span class="logo-text">WANNASNI</span>
+                </a>
+                
+                <nav class="main-nav" role="navigation" aria-label="Main navigation">
+                    <ul class="nav-list">
+                        <li><a href="#features">{{ 'nav.features'|trans }}</a></li>
+                        <li><a href="#why">{{ 'nav.why'|trans }}</a></li>
+                        <li><a href="#contact">{{ 'nav.contact'|trans }}</a></li>
+                    </ul>
+                </nav>
+                
+                {# Auth Buttons #}
+                <div class="header-auth">
+                    {% if app.user %}
+                        {# User is logged in - show dashboard button #}
+                        <a href="{{ path('app_dashboard', {_locale: app.request.locale|default('fr')}) }}" class="btn btn-sm btn-ghost">
+                            {{ 'nav.dashboard'|trans|default('Mon espace') }}
+                        </a>
+                        <a href="{{ path('app_logout', {_locale: app.request.locale|default('fr')}) }}" class="btn btn-sm btn-primary">
+                            {{ 'nav.logout'|trans|default('Déconnexion') }}
+                        </a>
+                    {% else %}
+                        {# User is not logged in - show login/register buttons #}
+                        <a href="{{ path('app_login', {_locale: app.request.locale|default('fr')}) }}" class="btn btn-sm btn-ghost">
+                            {{ 'cta.login'|trans|default('Connexion') }}
+                        </a>
+                        <a href="{{ path('app_register', {_locale: app.request.locale|default('fr')}) }}" class="btn btn-sm btn-primary">
+                            {{ 'cta.signup'|trans|default("S'inscrire") }}
+                        </a>
+                    {% endif %}
+                </div>
+                
+                <div class="lang-switcher" role="navigation" aria-label="Language selection">
+                    <a href="{{ path('app_home', {'_locale': 'fr'}) }}" 
+                       class="lang-link {{ current_locale == 'fr' ? 'active' : '' }}" 
+                       title="Français"
+                       aria-current="{{ current_locale == 'fr' ? 'page' : 'false' }}">FR</a>
+                    <a href="{{ path('app_home', {'_locale': 'en'}) }}" 
+                       class="lang-link {{ current_locale == 'en' ? 'active' : '' }}" 
+                       title="English"
+                       aria-current="{{ current_locale == 'en' ? 'page' : 'false' }}">EN</a>
+                    <a href="{{ path('app_home', {'_locale': 'ar'}) }}" 
+                       class="lang-link {{ current_locale == 'ar' ? 'active' : '' }}" 
+                       title="العربية"
+                       aria-current="{{ current_locale == 'ar' ? 'page' : 'false' }}">ع</a>
+                </div>
+            </div>
+        </header>
+
+        {# Main Content #}
+        <main class="site-main" role="main" id="main-content">
+            {% block body %}{% endblock %}
+        </main>
+
+        {# Login Modal #}
+        <div id="loginModal" class="modal-overlay" style="display: none;" onclick="closeLoginModal(event)">
+            <div class="modal-content" onclick="event.stopPropagation()">
+                <div class="modal-header">
+                    <h2>{{ 'cta.login'|trans|default('Connexion') }}</h2>
+                    <button onclick="closeLoginModal()" class="modal-close" aria-label="Close">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <p style="margin-bottom: 1.5rem; color: var(--text-secondary);">
+                        {{ 'login.description'|trans|default('Connectez-vous à votre compte WANNASNI.') }}
+                    </p>
+                    <form action="{{ path('app_login', {_locale: app.request.locale|default('fr')}) }}" method="get">
+                        <button type="submit" class="btn btn-primary btn-block">
+                            {{ 'cta.login'|trans|default('Se connecter') }}
+                        </button>
+                    </form>
+                    <p style="margin-top: 1rem; text-align: center; font-size: 0.9rem; color: var(--text-muted);">
+                        {{ 'login.no_account'|trans|default('Pas encore de compte ?') }}
+                        <a href="javascript:void(0)" onclick="closeLoginModal(); openSignupModal();" style="color: var(--primary-color); font-weight: 600;">
+                            {{ 'cta.signup'|trans|default("S'inscrire") }}
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        {# Signup Modal #}
+        <div id="signupModal" class="modal-overlay" style="display: none;" onclick="closeSignupModal(event)">
+            <div class="modal-content" onclick="event.stopPropagation()">
+                <div class="modal-header">
+                    <h2>{{ 'cta.signup'|trans|default("S'inscrire") }}</h2>
+                    <button onclick="closeSignupModal()" class="modal-close" aria-label="Close">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <p style="margin-bottom: 1.5rem; color: var(--text-secondary);">
+                        {{ 'signup.description'|trans|default('Créez votre compte WANNASNI et profitez de tous nos services.') }}
+                    </p>
+                    <form action="{{ path('app_register', {_locale: app.request.locale|default('fr')}) }}" method="get">
+                        <button type="submit" class="btn btn-primary btn-block">
+                            {{ 'cta.create_account'|trans|default('Créer mon compte') }}
+                        </button>
+                    </form>
+                    <p style="margin-top: 1rem; text-align: center; font-size: 0.9rem; color: var(--text-muted);">
+                        {{ 'signup.already_member'|trans|default('Déjà membre ?') }}
+                        <a href="javascript:void(0)" onclick="closeSignupModal(); openLoginModal();" style="color: var(--primary-color); font-weight: 600;">
+                            {{ 'cta.login'|trans|default('Connexion') }}
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        {# Footer #}
+        <footer class="site-footer" id="contact" role="contentinfo">
+            <div class="container">
+                <div class="footer-content">
+                    <div class="footer-brand">
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <span class="logo-icon" aria-hidden="true">🌿</span>
+                            <span class="logo-text">WANNASNI</span>
+                        </div>
+                        <p class="footer-tagline">{{ 'footer.tagline'|trans }}</p>
+                        
+                        {# Trust Badges - Certification Style #}
+                        <div class="footer-badges" role="list" aria-label="Trust certifications">
+                            <div class="footer-badge" role="listitem">
+                                <span aria-hidden="true">🔒</span>
+                                <span>{{ 'trust.badge.data'|trans|default('Data Protected') }}</span>
+                            </div>
+                            <div class="footer-badge" role="listitem">
+                                <span aria-hidden="true">👨‍👩‍👧</span>
+                                <span>{{ 'trust.badge.family'|trans|default('Family-First') }}</span>
+                            </div>
+                            <div class="footer-badge" role="listitem">
+                                <span aria-hidden="true">👴</span>
+                                <span>{{ 'trust.badge.senior'|trans|default('Senior-Friendly') }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="footer-contact">
+                        <h4>{{ 'footer.contact_title'|trans }}</h4>
+                        <ul class="contact-list">
+                            <li>
+                                <span class="contact-icon" aria-hidden="true">✉️</span>
+                                <a href="mailto:wannasni@gmail.com">wannasni@gmail.com</a>
+                            </li>
+                            <li>
+                                <span class="contact-icon" aria-hidden="true">📞</span>
+                                <a href="tel:+2161223445">+216 12 234 45</a>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="footer-links">
+                        <h4>{{ 'footer.navigation'|trans }}</h4>
+                        <ul>
+                            <li><a href="#features">{{ 'nav.features'|trans }}</a></li>
+                            <li><a href="#why">{{ 'nav.why'|trans }}</a></li>
+                            <li><a href="#contact">{{ 'nav.contact'|trans }}</a></li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="footer-bottom">
+                    <p>&copy; {{ "now"|date("Y") }} WANNASNI. {{ 'footer.rights'|trans }}</p>
+                </div>
+            </div>
+        </footer>
+        
+        {# Help Modal #}
+        <div class="help-modal" id="helpModal" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
+            <div class="help-modal-content">
+                <button class="help-close" onclick="document.getElementById('helpModal').classList.remove('active')" aria-label="Close">&times;</button>
+                <h2 id="helpTitle" style="font-size: 1.75rem; margin-bottom: 1.5rem; color: #2E7D32;">🤝 Comment puis-je vous aider ?</h2>
+                <div class="help-options">
+                    <a href="tel:+2161223445" class="help-option urgent">
+                        <span class="help-option-icon">📞</span>
+                        <span class="help-option-text">
+                            <strong>Appeler maintenant</strong>
+                            <small>Assistance immédiate</small>
+                        </span>
+                    </a>
+                    <a href="mailto:wannasni@gmail.com" class="help-option">
+                        <span class="help-option-icon">✉️</span>
+                        <span class="help-option-text">
+                            <strong>Envoyer un email</strong>
+                            <small>Réponse sous 24h</small>
+                        </span>
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <style>
+            /* Floating Help Button */
+            .floating-help {
+                position: fixed;
+                bottom: 2rem;
+                right: 2rem;
+                z-index: 9999;
+            }
+            
+            .help-trigger {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                padding: 1rem 1.5rem;
+                background: linear-gradient(135deg, #dc2626, #ef4444);
+                color: white;
+                border: none;
+                border-radius: 50px;
+                font-size: 1.1rem;
+                font-weight: 600;
+                cursor: pointer;
+                box-shadow: 0 8px 32px rgba(220, 38, 38, 0.4);
+                transition: all 0.3s ease;
+                animation: pulse-help 2s infinite;
+            }
+            
+            .help-trigger:hover {
+                transform: scale(1.08);
+                box-shadow: 0 12px 40px rgba(220, 38, 38, 0.5);
+            }
+            
+            .help-icon { font-size: 1.5rem; }
+            
+            @keyframes pulse-help {
+                0%, 100% { box-shadow: 0 8px 32px rgba(220, 38, 38, 0.4); }
+                50% { box-shadow: 0 8px 32px rgba(220, 38, 38, 0.6), 0 0 20px rgba(220, 38, 38, 0.3); }
+            }
+            
+            /* Help Modal */
+            .help-modal {
+                position: fixed;
+                inset: 0;
+                background: rgba(0, 0, 0, 0.6);
+                backdrop-filter: blur(8px);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 10000;
+                opacity: 0;
+                visibility: hidden;
+                transition: all 0.3s ease;
+            }
+            
+            .help-modal.active {
+                opacity: 1;
+                visibility: visible;
+            }
+            
+            .help-modal-content {
+                background: white;
+                border-radius: 24px;
+                padding: 2.5rem;
+                max-width: 450px;
+                width: 90%;
+                position: relative;
+                transform: scale(0.9) translateY(20px);
+                transition: all 0.3s ease;
+            }
+            
+            .help-modal.active .help-modal-content {
+                transform: scale(1) translateY(0);
+            }
+            
+            .help-close {
+                position: absolute;
+                top: 1rem;
+                right: 1rem;
+                width: 40px;
+                height: 40px;
+                border: none;
+                background: #f1f5f9;
+                border-radius: 50%;
+                font-size: 1.5rem;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: all 0.2s;
+            }
+            
+            .help-close:hover { background: #e2e8f0; }
+            
+            .help-options {
+                display: flex;
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .help-option {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+                padding: 1.25rem;
+                background: #f8fafc;
+                border-radius: 16px;
+                text-decoration: none;
+                border: 2px solid transparent;
+                transition: all 0.2s;
+            }
+            
+            .help-option:hover {
+                border-color: #2E7D32;
+                background: #f0fdf4;
+            }
+            
+            .help-option.urgent {
+                background: linear-gradient(135deg, #fef2f2, #fee2e2);
+                border-color: #fca5a5;
+            }
+            
+            .help-option.urgent:hover {
+                border-color: #dc2626;
+                background: #fee2e2;
+            }
+            
+            .help-option-icon {
+                font-size: 2rem;
+                width: 56px;
+                height: 56px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: white;
+                border-radius: 12px;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            }
+            
+            .help-option-text {
+                display: flex;
+                flex-direction: column;
+            }
+            
+            .help-option-text strong {
+                font-size: 1.1rem;
+                color: #1a1a2e;
+            }
+            
+            .help-option-text small {
+                font-size: 0.85rem;
+                color: #64748b;
+            }
+
+            /* Signup Modal */
+            .modal-overlay {
+                position: fixed;
+                inset: 0;
+                background: rgba(0, 0, 0, 0.6);
+                backdrop-filter: blur(8px);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 10000;
+                animation: fadeIn 0.3s ease;
+            }
+
+            .modal-content {
+                background: white;
+                border-radius: 20px;
+                max-width: 500px;
+                width: 90%;
+                max-height: 90vh;
+                overflow-y: auto;
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+                animation: slideUp 0.3s ease;
+            }
+
+            .modal-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 1.5rem;
+                border-bottom: 1px solid #e2e8f0;
+            }
+
+            .modal-header h2 {
+                font-size: 1.5rem;
+                font-weight: 700;
+                color: #1a1a2e;
+                margin: 0;
+            }
+
+            .modal-close {
+                background: none;
+                border: none;
+                font-size: 2rem;
+                color: #64748b;
+                cursor: pointer;
+                padding: 0;
+                width: 32px;
+                height: 32px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 50%;
+                transition: all 0.2s;
+            }
+
+            .modal-close:hover {
+                background: #f1f5f9;
+                color: #1a1a2e;
+            }
+
+            .modal-body {
+                padding: 2rem 1.5rem;
+            }
+
+            .btn-block {
+                width: 100%;
+                padding: 1rem;
+                font-size: 1.1rem;
+            }
+
+            @keyframes fadeIn {
+                from { opacity: 0; }
+                to { opacity: 1; }
+            }
+
+            @keyframes slideUp {
+                from {
+                    opacity: 0;
+                    transform: translateY(30px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+            
+            @media (max-width: 768px) {
+                .floating-help { bottom: 1.5rem; right: 1rem; }
+                .help-text { display: none; }
+                .help-trigger { padding: 1rem; border-radius: 50%; }
+            }
+        </style>
+        
+        {# Senior Mode & Interaction Scripts #}
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // ========== Senior Mode Toggle ==========
+                const toggle = document.getElementById('seniorModeToggle');
+                const body = document.body;
+                
+                // Check local storage and system preference
+                const prefersSeniorMode = localStorage.getItem('seniorMode') === 'enabled';
+                const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+                
+                if (prefersSeniorMode || prefersReducedMotion) {
+                    body.classList.add('senior-mode');
+                    if (toggle) {
+                        toggle.classList.add('active');
+                        toggle.setAttribute('aria-pressed', 'true');
+                        toggle.querySelector('.toggle-label').textContent = 'Normal Mode';
+                    }
+                }
+
+                if (toggle) {
+                    toggle.addEventListener('click', function() {
+                        body.classList.toggle('senior-mode');
+                        const isEnabled = body.classList.contains('senior-mode');
+                        
+                        localStorage.setItem('seniorMode', isEnabled ? 'enabled' : 'disabled');
+                        toggle.classList.toggle('active', isEnabled);
+                        toggle.setAttribute('aria-pressed', isEnabled ? 'true' : 'false');
+                        toggle.querySelector('.toggle-label').textContent = isEnabled ? 'Normal Mode' : 'Senior Mode';
+                        
+                        // Success visual feedback
+                        toggle.classList.add('success');
+                        setTimeout(() => toggle.classList.remove('success'), 800);
+                    });
+                }
+                
+                // ========== Animated Counter for Trust Section ==========
+                const counter = document.getElementById('familyCounter');
+                if (counter) {
+                    const target = parseInt(counter.dataset.target);
+                    let current = 0;
+                    const duration = 3000; // 3 seconds for slow, deliberate count
+                    const steps = 60;
+                    const increment = target / steps;
+                    const stepTime = duration / steps;
+                    
+                    const observer = new IntersectionObserver((entries) => {
+                        entries.forEach(entry => {
+                            if (entry.isIntersecting && current === 0) {
+                                const countUp = setInterval(() => {
+                                    current += increment;
+                                    if (current >= target) {
+                                        current = target;
+                                        clearInterval(countUp);
+                                    }
+                                    counter.textContent = Math.floor(current).toLocaleString();
+                                }, stepTime);
+                            }
+                        });
+                    }, { threshold: 0.5 });
+                    
+                    observer.observe(counter);
+                }
+                
+                // ========== Exit Intent Comfort Message ==========
+                const comfortMessage = document.getElementById('comfortMessage');
+                let hasShownComfort = false;
+                
+                if (comfortMessage && !body.classList.contains('senior-mode')) {
+                    // Show on mouse leave (desktop)
+                    document.addEventListener('mouseleave', function(e) {
+                        if (e.clientY < 10 && !hasShownComfort) {
+                            comfortMessage.classList.add('visible');
+                            hasShownComfort = true;
+                            setTimeout(() => {
+                                comfortMessage.classList.remove('visible');
+                            }, 5000);
+                        }
+                    });
+                    
+                    // Show after inactivity (30 seconds)
+                    let inactivityTimer;
+                    const resetTimer = () => {
+                        clearTimeout(inactivityTimer);
+                        inactivityTimer = setTimeout(() => {
+                            if (!hasShownComfort) {
+                                comfortMessage.classList.add('visible');
+                                hasShownComfort = true;
+                                setTimeout(() => {
+                                    comfortMessage.classList.remove('visible');
+                                }, 5000);
+                            }
+                        }, 30000);
+                    };
+                    
+                    ['mousemove', 'keydown', 'scroll', 'touchstart'].forEach(event => {
+                        document.addEventListener(event, resetTimer);
+                    });
+                    resetTimer();
+                }
+                
+                // ========== Button Micro-Interactions ==========
+                document.querySelectorAll('.btn').forEach(btn => {
+                    // Success state on click (visual feedback)
+                    btn.addEventListener('click', function(e) {
+                        if (!body.classList.contains('senior-mode')) {
+                            // Check morph effect simulation
+                            const originalContent = btn.innerHTML;
+                            if (btn.href && btn.href.startsWith('mailto:')) {
+                                btn.classList.add('success');
+                                setTimeout(() => btn.classList.remove('success'), 1000);
+                            }
+                        }
+                    });
+                });
+                
+                // ========== Scroll-Based Narrative Animations ==========
+                if (!body.classList.contains('senior-mode')) {
+                    const narrativeSections = document.querySelectorAll('.narrative-section');
+                    
+                    const narrativeObserver = new IntersectionObserver((entries) => {
+                        entries.forEach(entry => {
+                            if (entry.isIntersecting) {
+                                entry.target.classList.add('in-view');
+                            }
+                        });
+                    }, { threshold: 0.3 });
+                    
+                    narrativeSections.forEach(section => {
+                        narrativeObserver.observe(section);
+                    });
+                }
+                
+                // ========== Smooth scroll for anchor links ==========
+                document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                    anchor.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        const target = document.querySelector(this.getAttribute('href'));
+                        if (target) {
+                            target.scrollIntoView({
+                                behavior: body.classList.contains('senior-mode') ? 'auto' : 'smooth',
+                                block: 'start'
+                            });
+                        }
+                    });
+                });
+            });
+
+            // Login Modal Functions
+            function openLoginModal() {
+                document.getElementById('loginModal').style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+            }
+
+            function closeLoginModal(event) {
+                if (!event || event.target === event.currentTarget) {
+                    document.getElementById('loginModal').style.display = 'none';
+                    document.body.style.overflow = 'auto';
+                }
+            }
+
+            // Signup Modal Functions
+            function openSignupModal() {
+                document.getElementById('signupModal').style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+            }
+
+            function closeSignupModal(event) {
+                if (!event || event.target === event.currentTarget) {
+                    document.getElementById('signupModal').style.display = 'none';
+                    document.body.style.overflow = 'auto';
+                }
+            }
+
+            // Close modals with Escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    closeLoginModal();
+                    closeSignupModal();
+                }
+            });
+        </script>
+    </body>
+</html>

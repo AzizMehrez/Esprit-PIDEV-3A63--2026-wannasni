@@ -1,0 +1,349 @@
+{% extends 'base_dashboard.html.twig' %}
+
+{% block title %}Détails de l'Entrée Santé - WANNASNI{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    :root {
+        --health-primary: #dc2626;
+        --health-primary-light: #ef4444;
+        --health-bg: #fef2f2;
+        --health-card: #ffffff;
+        --health-text: #1a1a2e;
+        --health-text-muted: #64748b;
+        --health-border: #fecaca;
+    }
+
+    .health-wrapper {
+        min-height: 100vh;
+        padding: 2rem 1.5rem 4rem;
+        background: linear-gradient(180deg, var(--health-bg) 0%, #f8fafc 30%);
+    }
+
+    .health-container {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--health-primary);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 1.1rem;
+        margin-bottom: 1.5rem;
+        padding: 0.75rem 1.25rem;
+        border-radius: 50px;
+        background: white;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        transition: all 0.2s;
+    }
+
+    .back-link:hover {
+        background: var(--health-bg);
+        transform: translateX(-4px);
+    }
+
+    .detail-card {
+        background: var(--health-card);
+        border-radius: 24px;
+        padding: 2.5rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+        border: 2px solid var(--health-border);
+    }
+
+    .detail-header {
+        text-align: center;
+        padding-bottom: 2rem;
+        border-bottom: 2px dashed var(--health-border);
+        margin-bottom: 2rem;
+    }
+
+    .detail-date {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--health-primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .detail-section {
+        margin-bottom: 2rem;
+        padding: 1.5rem;
+        background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+        border-radius: 16px;
+    }
+
+    .section-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--health-text);
+        margin-bottom: 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .detail-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+
+    .detail-item {
+        background: white;
+        padding: 1.25rem;
+        border-radius: 12px;
+        border: 1px solid #e2e8f0;
+    }
+
+    .detail-label {
+        font-size: 0.875rem;
+        color: var(--health-text-muted);
+        text-transform: uppercase;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .detail-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--health-text);
+    }
+
+    .detail-value.empty {
+        font-size: 1.25rem;
+        color: #cbd5e1;
+        font-style: italic;
+    }
+
+    .detail-text {
+        background: white;
+        padding: 1.25rem;
+        border-radius: 12px;
+        border: 1px solid #e2e8f0;
+        font-size: 1.1rem;
+        line-height: 1.6;
+    }
+
+    .mood-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1rem 1.5rem;
+        background: linear-gradient(135deg, #fef3c7, #fefce8);
+        border-radius: 50px;
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #92400e;
+    }
+
+    .mood-emoji {
+        font-size: 2rem;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+        padding-top: 2rem;
+        border-top: 2px dashed var(--health-border);
+    }
+
+    .btn-action {
+        flex: 1;
+        padding: 1.25rem;
+        border-radius: 16px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        text-decoration: none;
+        text-align: center;
+        border: 2px solid;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .btn-edit {
+        background: #dbeafe;
+        color: #1e40af;
+        border-color: #93c5fd;
+    }
+
+    .btn-edit:hover {
+        background: #1e40af;
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    .btn-delete {
+        background: #fee2e2;
+        color: #991b1b;
+        border-color: #fecaca;
+        cursor: pointer;
+    }
+
+    .btn-delete:hover {
+        background: #991b1b;
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    @media (max-width: 640px) {
+        .detail-grid {
+            grid-template-columns: 1fr;
+        }
+        .action-buttons {
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="health-wrapper">
+    <div class="health-container">
+        
+        <a href="{{ path('app_my_health', {'_locale': app.request.locale}) }}" class="back-link">
+            ← Retour au journal
+        </a>
+        
+        <div class="detail-card">
+            <!-- Header -->
+            <div class="detail-header">
+                <div class="detail-date">
+                    📅 {{ record.date|date('l d F Y') }}
+                </div>
+            </div>
+
+            <!-- Vital Signs -->
+            <div class="detail-section">
+                <h2 class="section-title">🩺 Signes Vitaux</h2>
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <div class="detail-label">Tension Artérielle</div>
+                        <div class="detail-value {% if not record.tensionArterielle %}empty{% endif %}">
+                            {{ record.tensionArterielle ?? 'Non renseigné' }}
+                        </div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Fréquence Cardiaque</div>
+                        <div class="detail-value {% if not record.frequenceCardiaque %}empty{% endif %}">
+                            {{ record.frequenceCardiaque ? (record.frequenceCardiaque ~ ' BPM') : 'Non renseigné' }}
+                        </div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Température</div>
+                        <div class="detail-value {% if not record.temperature %}empty{% endif %}">
+                            {{ record.temperature ? (record.temperature ~ ' °C') : 'Non renseigné' }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mood & Well-being -->
+            <div class="detail-section">
+                <h2 class="section-title">😊 Humeur & Bien-être</h2>
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <div class="detail-label">Humeur</div>
+                        <div class="detail-value">
+                            {% if record.humeur == 'excellent' %}😊 Excellente
+                            {% elseif record.humeur == 'good' or record.humeur == 'bon' %}🙂 Bonne
+                            {% elseif record.humeur == 'average' or record.humeur == 'moyen' %}😐 Moyenne
+                            {% elseif record.humeur %}😑 {{ record.humeur }}
+                            {% else %}<span class="empty">Non renseigné</span>{% endif %}
+                        </div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Qualité du Sommeil</div>
+                        <div class="detail-value {% if not record.qualiteSommeil %}empty{% endif %}">
+                            {{ record.qualiteSommeil ?? 'Non renseigné' }}
+                        </div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Appétit</div>
+                        <div class="detail-value {% if not record.appetit %}empty{% endif %}">
+                            {{ record.appetit ?? 'Non renseigné' }}
+                        </div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Niveau de Douleur</div>
+                        <div class="detail-value {% if record.niveauDouleur is null %}empty{% endif %}">
+                            {{ record.niveauDouleur is not null ? (record.niveauDouleur ~ '/10') : 'Non renseigné' }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Activity & Hydration -->
+            <div class="detail-section">
+                <h2 class="section-title">🏃 Activité & Hydratation</h2>
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <div class="detail-label">Activité Physique</div>
+                        <div class="detail-value {% if not record.activitePhysique %}empty{% endif %}">
+                            {{ record.activitePhysique ?? 'Non renseigné' }}
+                        </div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Hydratation</div>
+                        <div class="detail-value {% if not record.hydratation %}empty{% endif %}">
+                            {{ record.hydratation ?? 'Non renseigné' }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Medications & Symptoms -->
+            {% if record.medicamentsPris or record.symptomes %}
+            <div class="detail-section">
+                <h2 class="section-title">💊 Médicaments & Symptômes</h2>
+                {% if record.medicamentsPris %}
+                <div style="margin-bottom: 1rem;">
+                    <div class="detail-label" style="margin-bottom: 0.5rem;">Médicaments Pris</div>
+                    <div class="detail-text">{{ record.medicamentsPris }}</div>
+                </div>
+                {% endif %}
+                {% if record.symptomes %}
+                <div>
+                    <div class="detail-label" style="margin-bottom: 0.5rem;">Symptômes</div>
+                    <div class="detail-text">{{ record.symptomes }}</div>
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            <!-- Notes -->
+            {% if record.notes %}
+            <div class="detail-section">
+                <h2 class="section-title">📝 Notes Additionnelles</h2>
+                <div class="detail-text">{{ record.notes }}</div>
+            </div>
+            {% endif %}
+
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <a href="{{ path('app_my_health_edit', {'id': record.id, '_locale': app.request.locale}) }}" class="btn-action btn-edit">
+                    ✏️ Modifier
+                </a>
+                <form method="post" action="{{ path('app_my_health_delete', {'id': record.id, '_locale': app.request.locale}) }}" style="flex: 1;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette entrée ?');">
+                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ record.id) }}">
+                    <button type="submit" class="btn-action btn-delete" style="width: 100%;">
+                        🗑️ Supprimer
+                    </button>
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

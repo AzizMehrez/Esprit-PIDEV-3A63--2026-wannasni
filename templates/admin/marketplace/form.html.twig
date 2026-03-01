@@ -1,0 +1,234 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}{{ is_edit ? 'Modifier' : 'Nouveau' }} Produit - Admin WANNASNI{% endblock %}
+{% block page_title %}{{ is_edit ? 'Modifier' : 'Ajouter' }} un Produit{% endblock %}
+
+{% block header_actions %}
+<a href="{{ path('admin_nutrition_marketplace') }}" class="btn btn-outline">← Retour Marketplace</a>
+{% endblock %}
+
+{% block content %}
+<div class="admin-card" style="max-width: 900px;">
+    <div class="card-header">
+        <h2 class="card-title">{{ is_edit ? '✏️ Modifier' : '➕ Nouveau' }} Produit</h2>
+        {% if is_edit %}
+            <span class="badge badge-info">{{ product.categoryEmoji }} {{ product.category|capitalize }}</span>
+        {% endif %}
+    </div>
+
+    {{ form_start(form, {'attr': {'class': 'product-form', 'novalidate': 'novalidate'}}) }}
+
+    <div class="form-grid">
+        {# Row 1: Name + Category #}
+        <div class="form-group full-width">
+            {{ form_label(form.name) }}
+            {{ form_widget(form.name, {'attr': {'class': 'form-input'}}) }}
+            {{ form_errors(form.name) }}
+        </div>
+
+        <div class="form-group">
+            {{ form_label(form.category) }}
+            {{ form_widget(form.category, {'attr': {'class': 'form-input'}}) }}
+            {{ form_errors(form.category) }}
+        </div>
+
+        <div class="form-group">
+            {{ form_label(form.brand) }}
+            {{ form_widget(form.brand, {'attr': {'class': 'form-input'}}) }}
+        </div>
+
+        {# Row 2: Short Description #}
+        <div class="form-group full-width">
+            {{ form_label(form.shortDescription) }}
+            {{ form_widget(form.shortDescription, {'attr': {'class': 'form-input'}}) }}
+        </div>
+
+        {# Row 3: Description #}
+        <div class="form-group full-width">
+            {{ form_label(form.description) }}
+            {{ form_widget(form.description, {'attr': {'class': 'form-input'}}) }}
+        </div>
+
+        {# Row 4: Price, Sale Price, Volume #}
+        <div class="form-group">
+            {{ form_label(form.price) }}
+            {{ form_widget(form.price, {'attr': {'class': 'form-input'}}) }}
+            {{ form_errors(form.price) }}
+        </div>
+
+        <div class="form-group">
+            {{ form_label(form.salePrice) }}
+            {{ form_widget(form.salePrice, {'attr': {'class': 'form-input'}}) }}
+        </div>
+
+        <div class="form-group">
+            {{ form_label(form.volume) }}
+            {{ form_widget(form.volume, {'attr': {'class': 'form-input'}}) }}
+        </div>
+
+        {# Row 5: Origin, Image, Stock #}
+        <div class="form-group">
+            {{ form_label(form.origin) }}
+            {{ form_widget(form.origin, {'attr': {'class': 'form-input'}}) }}
+        </div>
+
+        <div class="form-group">
+            {{ form_label(form.imageUrl) }}
+            {{ form_widget(form.imageUrl, {'attr': {'class': 'form-input'}}) }}
+        </div>
+
+        <div class="form-group">
+            {{ form_label(form.stockQuantity) }}
+            {{ form_widget(form.stockQuantity, {'attr': {'class': 'form-input'}}) }}
+        </div>
+
+        {# Row 6: Calories, Hydration #}
+        <div class="form-group">
+            {{ form_label(form.caloriesPer100ml) }}
+            {{ form_widget(form.caloriesPer100ml, {'attr': {'class': 'form-input'}}) }}
+        </div>
+
+        <div class="form-group">
+            {{ form_label(form.hydrationScore) }}
+            {{ form_widget(form.hydrationScore, {'attr': {'class': 'form-input'}}) }}
+        </div>
+
+        {# Row 7: Checkboxes #}
+        <div class="form-group full-width">
+            <label style="font-weight: 600; margin-bottom: 0.75rem; display: block;">Propriétés</label>
+            <div class="checkbox-row">
+                <div class="checkbox-item">
+                    {{ form_widget(form.isSugarFree) }}
+                    {{ form_label(form.isSugarFree) }}
+                </div>
+                <div class="checkbox-item">
+                    {{ form_widget(form.isCaffeineFree) }}
+                    {{ form_label(form.isCaffeineFree) }}
+                </div>
+                <div class="checkbox-item">
+                    {{ form_widget(form.isBio) }}
+                    {{ form_label(form.isBio) }}
+                </div>
+                <div class="checkbox-item">
+                    {{ form_widget(form.isActive) }}
+                    {{ form_label(form.isActive) }}
+                </div>
+                <div class="checkbox-item">
+                    {{ form_widget(form.isFeatured) }}
+                    {{ form_label(form.isFeatured) }}
+                </div>
+            </div>
+        </div>
+
+        {# Row 8: Compatible regimes #}
+        <div class="form-group full-width">
+            {{ form_label(form.compatibleRegimes) }}
+            <div class="checkbox-row">
+                {% for child in form.compatibleRegimes %}
+                    <div class="checkbox-item">
+                        {{ form_widget(child) }}
+                        {{ form_label(child) }}
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="form-actions">
+        <a href="{{ path('admin_nutrition_marketplace') }}" class="btn btn-outline">Annuler</a>
+        <button type="submit" class="btn btn-primary">
+            {{ is_edit ? '💾 Enregistrer' : '➕ Ajouter le produit' }}
+        </button>
+    </div>
+
+    {{ form_end(form) }}
+</div>
+
+<style>
+.product-form {
+    padding: 1.5rem;
+}
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1.25rem;
+}
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+.form-group.full-width {
+    grid-column: 1 / -1;
+}
+.form-group label {
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: var(--admin-text);
+}
+.form-input, .product-form input[type="text"], .product-form input[type="number"],
+.product-form select, .product-form textarea {
+    width: 100%;
+    padding: 0.65rem 0.85rem;
+    background: var(--admin-bg);
+    border: 1px solid var(--admin-border);
+    border-radius: var(--admin-radius-sm);
+    color: var(--admin-text);
+    font-size: 0.9rem;
+    transition: border-color 0.2s;
+}
+.form-input:focus, .product-form input:focus, .product-form select:focus, .product-form textarea:focus {
+    border-color: var(--admin-primary);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+.checkbox-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+.checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.9rem;
+}
+.checkbox-item input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--admin-primary);
+}
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--admin-border);
+}
+.btn {
+    padding: 0.65rem 1.25rem;
+    border-radius: var(--admin-radius-sm);
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+}
+.btn-primary {
+    background: var(--admin-primary);
+    color: white;
+}
+.btn-primary:hover { background: var(--admin-primary-light); }
+.btn-outline {
+    background: transparent;
+    color: var(--admin-text-muted);
+    border: 1px solid var(--admin-border);
+}
+.btn-outline:hover { color: var(--admin-text); border-color: var(--admin-text-muted); }
+
+ul.form-errors { list-style: none; padding: 0; }
+ul.form-errors li { color: #ef4444; font-size: 0.8rem; }
+</style>
+{% endblock %}
