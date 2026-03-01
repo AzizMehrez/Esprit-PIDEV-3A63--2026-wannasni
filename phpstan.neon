@@ -29,7 +29,7 @@ parameters:
             path: src/Service/ServiceManagementService.php
         # Custom repository methods called from controller
         -
-            message: '#Call to an undefined method Doctrine\\ORM\\EntityRepository<App\\Entity\\Intervention>::(findAllWithServices|countByStatut)\(\)#'
+            message: '#Call to an undefined method Doctrine\\ORM\\EntityRepository<App\\Entity\\(Intervention|ServiceRequest)>::(findAllWithServices|countByStatut|findRecent)\(\)#'
             path: src/Controller/Admin/InterventionAdminController.php
         # Symfony security UserInterface → App\User mismatch (common in Symfony)
         -
