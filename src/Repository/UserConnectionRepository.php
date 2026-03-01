@@ -36,6 +36,7 @@ class UserConnectionRepository extends ServiceEntityRepository
 
     /**
      * Get all friend IDs for a user.
+     * Uses scalar result to avoid full entity hydration.
      * @return int[]
      */
     public function findFriendIds(User $user): array
@@ -47,7 +48,7 @@ class UserConnectionRepository extends ServiceEntityRepository
             ->where('uc.userA = :uid OR uc.userB = :uid')
             ->setParameter('uid', $userId)
             ->getQuery()
-            ->getArrayResult();
+            ->getScalarResult();
 
         $ids = [];
         foreach ($rows as $row) {

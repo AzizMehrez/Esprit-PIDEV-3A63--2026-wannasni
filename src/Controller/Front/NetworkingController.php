@@ -55,28 +55,20 @@ class NetworkingController extends AbstractController
         $pendingCount = $this->inviteRepo->countPendingForUser($user);
         $unreadMessages = $this->conversationRepo->countUnreadForUser($user);
 
-        // Determine which posts the current user has liked
-        $likedPostIds = [];
-        foreach ($posts as $post) {
-            if ($this->likeRepo->findByUserAndPost($user, $post)) {
-                $likedPostIds[] = $post->getId();
-            }
-        }
+        // Determine which posts the current user has liked - single batch query
+        $postIds = array_map(fn(Post $p) => $p->getId(), $posts);
+        $likedPostIds = $this->likeRepo->findLikedPostIds($user, $postIds);
 
         // Discover users to connect with (not already friends, not self)
+        $excludeIds = array_merge($friendIds, [$user->getId()]);
         $suggestedUsers = $this->userRepo->createQueryBuilder('u')
-            ->where('u.id != :me')
+            ->where('u.id NOT IN (:excludeIds)')
             ->andWhere('u.status = :active')
-            ->setParameter('me', $user->getId())
+            ->setParameter('excludeIds', $excludeIds)
             ->setParameter('active', 'active')
             ->setMaxResults(10)
             ->getQuery()
             ->getResult();
-
-        // Filter out already-connected users
-        $suggestedUsers = array_filter($suggestedUsers, function (User $u) use ($friendIds) {
-            return !in_array($u->getId(), $friendIds);
-        });
 
         return $this->render('front/networking/index.html.twig', [
             'user' => $user,
