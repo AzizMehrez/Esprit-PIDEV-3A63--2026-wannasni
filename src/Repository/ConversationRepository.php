@@ -47,6 +47,7 @@ class ConversationRepository extends ServiceEntityRepository
             ->where('c.userA = :uid OR c.userB = :uid')
             ->setParameter('uid', $user->getId())
             ->orderBy('c.lastMessageAt', 'DESC')
+            ->setMaxResults(50)
             ->getQuery()
             ->getResult();
     }
@@ -56,6 +57,8 @@ class ConversationRepository extends ServiceEntityRepository
      */
     public function countUnreadForUser(User $user): int
     {
+        $uid = $user->getId();
+
         return (int) $this->getEntityManager()
             ->createQuery('
                 SELECT COUNT(m.id) FROM App\Entity\Message m
@@ -64,8 +67,8 @@ class ConversationRepository extends ServiceEntityRepository
                   AND m.sender != :uid2
                   AND m.isRead = false
             ')
-            ->setParameter('uid', $user->getId())
-            ->setParameter('uid2', $user->getId())
+            ->setParameter('uid', $uid)
+            ->setParameter('uid2', $uid)
             ->getSingleScalarResult();
     }
 }

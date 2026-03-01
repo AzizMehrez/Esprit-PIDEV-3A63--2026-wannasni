@@ -42,7 +42,7 @@ class VerificationRequestRepository extends ServiceEntityRepository
             ->select('COUNT(vr.id)')
             ->andWhere('vr.user = :user')
             ->andWhere('vr.status IN (:statuses)')
-            ->setParameter('user', $user)
+            ->setParameter('user', $user->getId())
             ->setParameter('statuses', [
                 VerificationRequest::STATUS_PENDING,
                 VerificationRequest::STATUS_APPROVED,

@@ -40,7 +40,7 @@ class PostLikeRepository extends ServiceEntityRepository
             ->select('IDENTITY(pl.post) as postId')
             ->where('pl.user = :user')
             ->andWhere('pl.post IN (:postIds)')
-            ->setParameter('user', $user)
+            ->setParameter('user', $user->getId())
             ->setParameter('postIds', $postIds)
             ->getQuery()
             ->getScalarResult();

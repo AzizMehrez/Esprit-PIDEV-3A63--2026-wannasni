@@ -5,7 +5,6 @@ namespace App\Repository;
 use App\Entity\Post;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\ORM\Tools\Pagination\Paginator;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -55,20 +54,31 @@ class PostRepository extends ServiceEntityRepository
         }
 
         // Step 2: Load posts with author + media (only 1 collection JOIN)
+        // No LIMIT here: IDs from Step 1 already constrain the set (avoids setMaxResults+collection join issue)
         $posts = $this->createQueryBuilder('p')
             ->leftJoin('p.author', 'a')->addSelect('a')
             ->leftJoin('p.media', 'm')->addSelect('m')
             ->where('p.id IN (:ids)')
             ->setParameter('ids', $postIds)
-            ->orderBy('p.createdAt', 'DESC')
-            ->setMaxResults($limit)
             ->getQuery()
             ->getResult();
 
         // Step 3: Batch-load likes and comments in separate queries (avoids cartesian product)
         $this->batchLoadCollections($postIds);
 
-        return $posts;
+        // Restore original order from Step 1
+        $indexed = [];
+        foreach ($posts as $post) {
+            $indexed[$post->getId()] = $post;
+        }
+        $sorted = [];
+        foreach ($postIds as $id) {
+            if (isset($indexed[$id])) {
+                $sorted[] = $indexed[$id];
+            }
+        }
+
+        return $sorted;
     }
 
     /**
@@ -95,20 +105,30 @@ class PostRepository extends ServiceEntityRepository
             return [];
         }
 
-        // Step 2: Load posts + media
+        // Step 2: Load posts + media (no LIMIT — IDs already constrained)
         $posts = $this->createQueryBuilder('p')
             ->leftJoin('p.media', 'm')->addSelect('m')
             ->where('p.id IN (:ids)')
             ->setParameter('ids', $postIds)
-            ->orderBy('p.createdAt', 'DESC')
-            ->setMaxResults($limit)
             ->getQuery()
             ->getResult();
 
         // Step 3: Batch-load collections
         $this->batchLoadCollections($postIds);
 
-        return $posts;
+        // Restore original order from Step 1
+        $indexed = [];
+        foreach ($posts as $post) {
+            $indexed[$post->getId()] = $post;
+        }
+        $sorted = [];
+        foreach ($postIds as $id) {
+            if (isset($indexed[$id])) {
+                $sorted[] = $indexed[$id];
+            }
+        }
+
+        return $sorted;
     }
 
     /**
@@ -143,21 +163,31 @@ class PostRepository extends ServiceEntityRepository
             return [];
         }
 
-        // Step 2: Load posts + author + media
+        // Step 2: Load posts + author + media (no LIMIT — IDs already constrained)
         $posts = $this->createQueryBuilder('p')
             ->leftJoin('p.author', 'a')->addSelect('a')
             ->leftJoin('p.media', 'm')->addSelect('m')
             ->where('p.id IN (:ids)')
             ->setParameter('ids', $postIds)
-            ->orderBy('p.createdAt', 'DESC')
-            ->setMaxResults($limit)
             ->getQuery()
             ->getResult();
 
         // Step 3: Batch-load collections
         $this->batchLoadCollections($postIds);
 
-        return $posts;
+        // Restore original order from Step 1
+        $indexed = [];
+        foreach ($posts as $post) {
+            $indexed[$post->getId()] = $post;
+        }
+        $sorted = [];
+        foreach ($postIds as $id) {
+            if (isset($indexed[$id])) {
+                $sorted[] = $indexed[$id];
+            }
+        }
+
+        return $sorted;
     }
 
     /**
