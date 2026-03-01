@@ -20,6 +20,9 @@ class LoyaltyService
     private const POINTS_SUBSCRIPTION_BONUS = 100;
     private const POINTS_ACTIVITY_BONUS = 20;
 
+    /** @var array<int, int> Per-request cache for getTotalPoints() keyed by senior ID */
+    private array $totalPointsCache = [];
+
     public function __construct(
         private EntityManagerInterface $em,
         private LoyaltyPointRepository $pointRepo,
@@ -116,11 +119,23 @@ class LoyaltyService
     // ─── Points Queries ─────────────────────────────────────────────────
 
     /**
+     * Get total points with per-request memoization to avoid duplicate DB queries.
+     */
+    private function getCachedTotalPoints(User $senior): int
+    {
+        $seniorId = $senior->getId();
+        if (!array_key_exists($seniorId, $this->totalPointsCache)) {
+            $this->totalPointsCache[$seniorId] = $this->pointRepo->getTotalPoints($senior);
+        }
+        return $this->totalPointsCache[$seniorId];
+    }
+
+    /**
      * Get complete loyalty dashboard data for a senior
      */
     public function getDashboardData(User $senior): array
     {
-        $totalPoints = $this->pointRepo->getTotalPoints($senior);
+        $totalPoints = $this->getCachedTotalPoints($senior);
         $monthlyEarned = $this->pointRepo->getMonthlyEarned($senior);
         $interventionCount = $this->pointRepo->countInterventionPoints($senior);
         $pointsBySource = $this->pointRepo->getPointsBySource($senior);
@@ -154,7 +169,7 @@ class LoyaltyService
      */
     public function checkAndGenerateReward(User $senior): ?LoyaltyReward
     {
-        $totalPoints = $this->pointRepo->getTotalPoints($senior);
+        $totalPoints = $this->getCachedTotalPoints($senior);
 
         // Only generate rewards at certain point thresholds: every 100 points
         $availableRewards = $this->rewardRepo->countAvailableForSenior($senior);
@@ -504,7 +519,7 @@ class LoyaltyService
      */
     public function getRewardCatalog(User $senior): array
     {
-        $totalPoints = $this->pointRepo->getTotalPoints($senior);
+        $totalPoints = $this->getCachedTotalPoints($senior);
 
         $catalogData = $this->callMLPredictor([
             'action' => 'catalog',

@@ -35,6 +35,7 @@ class NutritionController extends AbstractController
             ->setParameter('user', $user)
             ->setParameter('seniorId', $user->getId())
             ->orderBy('r.datePrescription', 'DESC')
+            ->setMaxResults(50)
             ->getQuery()
             ->getResult();
     }
@@ -53,6 +54,7 @@ class NutritionController extends AbstractController
             ->setParameter('user', $user)
             ->setParameter('seniorId', $user->getId())
             ->orderBy('d.dateDemande', 'DESC')
+            ->setMaxResults(50)
             ->getQuery()
             ->getResult();
     }
@@ -74,23 +76,17 @@ class NutritionController extends AbstractController
         $user = $this->getUser();
         $today = new \DateTime('today');
         try {
-            $mealsToday = (int) $em->getRepository(SuiviRepas::class)->createQueryBuilder('s')
-                ->select('COUNT(s.id)')
+            $result = $em->getRepository(SuiviRepas::class)->createQueryBuilder('s')
+                ->select('COUNT(s.id) AS mealCount, COALESCE(SUM(s.caloriesCalculees), 0) AS totalCalories')
                 ->where('s.senior = :senior')
                 ->andWhere('s.dateRepas >= :today')
                 ->setParameter('senior', $user)
                 ->setParameter('today', $today)
                 ->getQuery()
-                ->getSingleScalarResult();
+                ->getSingleResult();
 
-            $caloriesConsumedToday = (int) $em->getRepository(SuiviRepas::class)->createQueryBuilder('s')
-                ->select('COALESCE(SUM(s.caloriesCalculees), 0)')
-                ->where('s.senior = :senior')
-                ->andWhere('s.dateRepas >= :today')
-                ->setParameter('senior', $user)
-                ->setParameter('today', $today)
-                ->getQuery()
-                ->getSingleScalarResult();
+            $mealsToday = (int) $result['mealCount'];
+            $caloriesConsumedToday = (int) $result['totalCalories'];
         } catch (\Exception $e) {
             $mealsToday = 0;
             $caloriesConsumedToday = 0;

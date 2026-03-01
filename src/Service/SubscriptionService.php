@@ -12,6 +12,9 @@ use Psr\Log\LoggerInterface;
 
 class SubscriptionService
 {
+    /** @var array<int, Subscription|null> In-memory cache to avoid repeated DB lookups per request */
+    private array $activeSubscriptionCache = [];
+
     public function __construct(
         private EntityManagerInterface $em,
         private SubscriptionRepository $subscriptionRepo,
@@ -188,10 +191,17 @@ class SubscriptionService
 
     /**
      * Retourne l'abonnement actif d'un senior, ou null
+     * Uses per-request in-memory cache to avoid N+1 queries
      */
     public function getActiveSubscription(User $senior): ?Subscription
     {
-        return $this->subscriptionRepo->findActiveBySenior($senior);
+        $seniorId = $senior->getId();
+
+        if (!array_key_exists($seniorId, $this->activeSubscriptionCache)) {
+            $this->activeSubscriptionCache[$seniorId] = $this->subscriptionRepo->findActiveBySenior($senior);
+        }
+
+        return $this->activeSubscriptionCache[$seniorId];
     }
 
     /**

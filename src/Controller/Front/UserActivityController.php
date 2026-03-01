@@ -28,7 +28,7 @@ class UserActivityController extends AbstractController
         $user = $this->getUser();
         
         // Get all active activities from database
-        $allActivities = $this->activityRepository->findBy(['isActive' => true], ['startTime' => 'ASC']);
+        $allActivities = $this->activityRepository->findActive();
         
         // Get enrolled activity IDs from participations (excluding cancelled ones)
         $enrolledIds = [];

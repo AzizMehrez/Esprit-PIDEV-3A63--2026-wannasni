@@ -30,7 +30,7 @@ class LoyaltyRewardRepository extends ServiceEntityRepository
             ->setParameter('status', LoyaltyReward::STATUS_AVAILABLE)
             ->setParameter('now', new \DateTime())
             ->orderBy('lr.createdAt', 'DESC')
-            ->setMaxResults(100)
+            ->setMaxResults(50)
             ->getQuery()
             ->getResult();
     }
@@ -46,7 +46,7 @@ class LoyaltyRewardRepository extends ServiceEntityRepository
             ->setParameter('senior', $senior)
             ->setParameter('status', LoyaltyReward::STATUS_REDEEMED)
             ->orderBy('lr.redeemedAt', 'DESC')
-            ->setMaxResults(100)
+            ->setMaxResults(50)
             ->getQuery()
             ->getResult();
     }
@@ -60,7 +60,7 @@ class LoyaltyRewardRepository extends ServiceEntityRepository
             ->where('lr.senior = :senior')
             ->setParameter('senior', $senior)
             ->orderBy('lr.createdAt', 'DESC')
-            ->setMaxResults(100)
+            ->setMaxResults(50)
             ->getQuery()
             ->getResult();
     }

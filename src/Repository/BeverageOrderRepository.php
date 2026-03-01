@@ -34,6 +34,7 @@ class BeverageOrderRepository extends ServiceEntityRepository
             ->setParameter('user', $user)
             ->setParameter('cart', BeverageOrder::STATUS_CART)
             ->orderBy('o.createdAt', 'DESC')
+            ->setMaxResults(50)
             ->getQuery()
             ->getResult();
     }

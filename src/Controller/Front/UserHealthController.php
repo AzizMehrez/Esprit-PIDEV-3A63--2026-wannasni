@@ -6,6 +6,7 @@ use App\Entity\HealthJournal;
 use App\Form\HealthJournalType;
 use App\Repository\HealthJournalRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Tools\Pagination\Paginator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -23,20 +24,17 @@ class UserHealthController extends AbstractController
         $qb = $repo->createQueryBuilder('h')
             ->andWhere('h.senior = :senior')
             ->setParameter('senior', $this->getUser())
-            ->orderBy('h.date', 'DESC');
+            ->orderBy('h.date', 'DESC')
+            ->setFirstResult(($page - 1) * $perPage)
+            ->setMaxResults($perPage);
 
-        $total = (clone $qb)->select('COUNT(h.id)')->getQuery()->getSingleScalarResult();
+        $paginator = new Paginator($qb, fetchJoinCollection: false);
+        $total = count($paginator);
         $totalPages = (int) ceil($total / $perPage);
         $page = min($page, max(1, $totalPages));
 
-        $healthRecords = $qb
-            ->setFirstResult(($page - 1) * $perPage)
-            ->setMaxResults($perPage)
-            ->getQuery()
-            ->getResult();
-
         return $this->render('front/health/index.html.twig', [
-            'health_records' => $healthRecords,
+            'health_records' => $paginator,
             'current_page'   => $page,
             'total_pages'    => $totalPages,
         ]);

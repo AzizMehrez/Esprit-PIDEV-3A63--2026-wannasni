@@ -38,7 +38,8 @@ class UserServiceController extends AbstractController
             // Fetch real ServiceRequest entities for the logged-in user
             $myServices = $serviceRequestRepository->findBy(
                 ['user' => $user],
-                ['createdAt' => 'DESC']
+                ['createdAt' => 'DESC'],
+                50
             );
         } else {
             $myServices = [];

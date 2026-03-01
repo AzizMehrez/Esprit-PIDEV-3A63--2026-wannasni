@@ -381,7 +381,7 @@ class ChatController extends AbstractController
 
     private function chatListAvailable(?User $user, string $lang, string $locale): JsonResponse
     {
-        $activities = $this->activityRepository->findBy(['isActive' => true], ['startTime' => 'ASC']);
+        $activities = $this->activityRepository->findActive();
 
         if (empty($activities)) {
             return $this->activityTextResponse($this->t($lang, 'There are no activities available right now.', 'Il n\'y a pas d\'activités disponibles pour le moment.', 'لا توجد أنشطة متاحة حالياً.'));
@@ -494,7 +494,7 @@ class ChatController extends AbstractController
     {
         // If no activity name provided, show available activities to pick from
         if (empty(trim($activityName))) {
-            $activities = $this->activityRepository->findBy(['isActive' => true], ['startTime' => 'ASC']);
+            $activities = $this->activityRepository->findActive();
             $available = [];
             $enrolledIds = array_map(
                 fn($p) => $p->getActivityId(),

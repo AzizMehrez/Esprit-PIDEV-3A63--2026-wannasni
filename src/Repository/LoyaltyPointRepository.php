@@ -97,7 +97,7 @@ class LoyaltyPointRepository extends ServiceEntityRepository
             ->groupBy('lp.source')
             ->setParameter('senior', $senior)
             ->getQuery()
-            ->getResult();
+            ->getArrayResult();
     }
 
     /**

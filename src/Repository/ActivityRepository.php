@@ -30,7 +30,7 @@ class ActivityRepository extends ServiceEntityRepository
             ->andWhere('a.isActive = :active')
             ->setParameter('active', true)
             ->orderBy('a.startTime', 'ASC')
-            ->setMaxResults(100)
+            ->setMaxResults(50)
             ->getQuery()
             ->getResult();
     }
@@ -46,7 +46,7 @@ class ActivityRepository extends ServiceEntityRepository
             ->setParameter('active', true)
             ->setParameter('now', new \DateTime())
             ->orderBy('a.startTime', 'ASC')
-            ->setMaxResults(100)
+            ->setMaxResults(50)
             ->getQuery()
             ->getResult();
     }
