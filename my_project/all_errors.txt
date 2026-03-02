@@ -1,0 +1,278 @@
+﻿C:\Users\azizm\OneDrive\Desktop\my_project\bin\clear_today_meals.php:20|missingType.return|Method class@anonymous/bin/clear_today_meals.php:19::write() has no return type specified.
+C:\Users\azizm\OneDrive\Desktop\my_project\bin\clear_today_meals.php:20|missingType.parameter|Method class@anonymous/bin/clear_today_meals.php:19::write() has parameter $msg with no type specified.
+src/Command\GenerateWeeklyReportsCommand.php:19|missingType.property|Property App\Command\GenerateWeeklyReportsCommand::$userRepository has no type specified.
+src/Command\GenerateWeeklyReportsCommand.php:20|missingType.property|Property App\Command\GenerateWeeklyReportsCommand::$reportService has no type specified.
+src/Command\SendMealRemindersCommand.php:20|missingType.property|Property App\Command\SendMealRemindersCommand::$userRepository has no type specified.
+src/Command\SendMealRemindersCommand.php:21|missingType.property|Property App\Command\SendMealRemindersCommand::$mailer has no type specified.
+src/Controller\Admin\ServiceAdminController.php:186|argument.type|Parameter #2 $errors of class App\Exception\ValidationException constructor expects list<string>, array{technicien_id: 'TechnicienÔÇª'} given.
+src/Controller\Api\ActivityController.php:35|argument.type|Parameter #3 $creatorRoles of method App\Service\ActivityService::createActivity() expects array<string, mixed>, array<int, string> given.
+src/Controller\Api\ChatController.php:106|nullCoalesce.offset|Offset 'label_ar'|'label_en'|'label_fr'|'label_tn' on array{url: '/ar/dashboard'|'/en/dashboard'|'/fr/dashboard', label_en: 'Dashboard', label_fr: 'Tableau de bord', label_ar: '┘ä┘êÏ¡Ï® Ïº┘äÏ¬Ï¡┘â┘à', label_tn: 'Ïº┘äÏ»ÏºÏ┤Ï¿┘êÏ▒Ï»'}|array{url: '/ar/health/journal'|'/en/health/journal'|'/fr/health/journal', label_en: 'Health Journal', label_fr: 'Journal de sant├®', label_ar: 'Ï»┘üÏ¬Ï▒ Ïº┘äÏÁÏ¡Ï®', label_tn: 'Ï»┘üÏ¬Ï▒ Ïº┘äÏÁÏ¡Ï®'}|array{url: '/ar/loyalty'|'/en/loyalty'|'/fr/loyalty', label_en: 'Loyalty', label_fr: 'Fid├®lit├®', label_ar: 'Ïº┘ä┘ê┘äÏºÏí', label_tn: 'Ïº┘ä┘ê┘äÏºÏí'}|array{url: '/ar/my-activities'|'/en/my-activities'|'/fr/my-activities', label_en: 'Activities', label_fr: 'Activit├®s', label_ar: 'Ïº┘äÏú┘åÏ┤ÏÀÏ®', label_tn: 'Ïº┘ä┘åÏ┤ÏºÏÀÏºÏ¬'}|array{url: '/ar/my-services'|'/en/my-services'|'/fr/my-services', label_en: 'Services', label_fr: 'Services', label_ar: 'Ïº┘äÏ«Ï»┘àÏºÏ¬', label_tn: 'Ïº┘äÏ«Ï»┘àÏºÏ¬'}|array{url: '/ar/networkingÔÇª'|'/en/networkingÔÇª'|'/fr/networkingÔÇª', label_en: 'Messages', label_fr: 'Messages', label_ar: 'Ïº┘äÏ▒Ï│ÏºÏª┘ä', label_tn: 'Ïº┘äÏ▒Ï│ÏºÏª┘ä'}|array{url: '/ar/nutrition'|'/en/nutrition'|'/fr/nutrition', label_en: 'Nutrition', label_fr: 'Nutrition', label_ar: 'Ïº┘äÏ¬Ï║Ï░┘èÏ®', label_tn: 'Ïº┘äÏ¬Ï║Ï░┘èÏ®'}|array{url: '/ar/profile'|'/en/profile'|'/fr/profile', label_en: 'Profile', label_fr: 'Profil', label_ar: 'Ïº┘ä┘à┘ä┘ü Ïº┘äÏ┤Ï«ÏÁ┘è', label_tn: 'Ïº┘äÏ¿Ï▒┘ê┘ü┘è┘ä'}|array{url: '/ar/treatment'|'/en/treatment'|'/fr/treatment', label_en: 'Treatment', label_fr: 'Traitement', label_ar: 'Ïº┘äÏ╣┘äÏºÏ¼', label_tn: 'Ïº┘äÏ»┘êÏºÏí'} on left side of ?? always exists and is not nullable.
+src/Controller\Api\ChatController.php:447|missingType.return|Method App\Controller\Api\ChatController::findBestActivityMatch() has no return type specified.
+src/Controller\Api\ChatController.php:447|missingType.parameter|Method App\Controller\Api\ChatController::findBestActivityMatch() has parameter $activities with no type specified.
+src/Controller\Api\ChatController.php:447|missingType.parameter|Method App\Controller\Api\ChatController::findBestActivityMatch() has parameter $searchTerm with no type specified.
+src/Controller\Api\ChatController.php:471|missingType.parameter|Method App\Controller\Api\ChatController::formatActivitiesList() has parameter $activities with no type specified.
+src/Controller\Api\ChatController.php:471|missingType.parameter|Method App\Controller\Api\ChatController::formatActivitiesList() has parameter $lang with no type specified.
+src/Controller\Api\ChatController.php:484|nullCoalesce.expr|Expression on left side of ?? is not nullable.
+src/Controller\Api\ChatController.php:484|nullsafe.neverNull|Using nullsafe method call on non-nullable type DateTime|false. Use -> instead.
+src/Controller\Api\HealthController.php:37|argument.type|Parameter #4 $accessorRoles of method App\Service\HealthService::addHealthData() expects array<string, mixed>, array<int, string> given.
+src/Controller\Api\HealthController.php:73|argument.type|Parameter #3 $accessorRoles of method App\Service\HealthService::getHealthHistory() expects array<string, mixed>, array<int, string> given.
+src/Controller\Api\HealthController.php:136|argument.type|Parameter #3 $accessorRoles of method App\Service\HealthService::getActiveTreatments() expects array<string, mixed>, array<int, string> given.
+src/Controller\Front\ChatController.php:848|missingType.iterableValue|Method App\Controller\Front\ChatController::sanitizeRows() return type has no value type specified in iterable type array.
+src/Controller\Front\ChatController.php:936|booleanNot.alwaysFalse|Negated boolean expression is always false.
+src/Controller\Front\ChatController.php:1026|regexp.pattern|Regex pattern is invalid: Compilation failed: PCRE2 does not support \F, \L, \l, \N{name}, \U, or \u at offset 3 in pattern: /(\u0634\u0646\u0648\u0627|\u0643\u064a\u0641\u0627\u0634|\u0646\u062d\u0628|\u0628\u0627\u0647\u064a|\u0628\u0631\u0634\u0627|\u0645\u0648\u0634|\u064a\u0632\u064a|\u062e\u0630\u0646\u064a|\u0631\u0648\u062d|\u062c\u064a|\u0647\u0630\u0627\u0643\u0627|\u0641\u0645\u0629|\u0634\u0648\u064a\u0629|\u062a\u0627\u0648)/u
+src/Controller\Front\HealthJournalController.php:36|argument.type|Parameter #1 $senior of method App\Entity\HealthJournal::setSenior() expects App\Entity\User|null, Symfony\Component\Security\Core\User\UserInterface|null given.
+src/Controller\Front\LoyaltyController.php:32|booleanNot.alwaysFalse|Negated boolean expression is always false.
+src/Controller\Front\LoyaltyController.php:54|booleanNot.alwaysFalse|Negated boolean expression is always false.
+src/Controller\Front\LoyaltyController.php:74|booleanNot.alwaysFalse|Negated boolean expression is always false.
+src/Controller\Front\LoyaltyController.php:96|booleanNot.alwaysFalse|Negated boolean expression is always false.
+src/Controller\Front\LoyaltyController.php:124|booleanNot.alwaysFalse|Negated boolean expression is always false.
+src/Controller\Front\NetworkingController.php:228|nullCoalesce.offset|Offset 'safe' on array{safe: bool, reason?: string, categories?: array<string>, confidence?: float} on left side of ?? always exists and is not nullable.
+src/Controller\Front\NetworkingController.php:238|nullCoalesce.offset|Offset 'categories' on *NEVER* on left side of ?? always exists and is not nullable.
+src/Controller\Front\NetworkingController.php:279|nullCoalesce.offset|Offset 'safe' on array{safe: bool, reason?: string, categories?: array<string>, confidence?: float} on left side of ?? always exists and is not nullable.
+src/Controller\Front\NetworkingController.php:284|nullCoalesce.offset|Offset 'confidence' on *NEVER* on left side of ?? always exists and is not nullable.
+src/Controller\Front\NetworkingController.php:285|nullCoalesce.offset|Offset 'categories' on *NEVER* on left side of ?? always exists and is not nullable.
+src/Controller\Front\NetworkingController.php:296|nullCoalesce.offset|Offset 'categories' on *NEVER* on left side of ?? always exists and is not nullable.
+src/Controller\Front\NetworkingController.php:410|nullCoalesce.offset|Offset 'safe' on array{safe: bool, reason?: string, categories?: array<string>, confidence?: float} on left side of ?? always exists and is not nullable.
+src/Controller\Front\NetworkingController.php:420|nullCoalesce.offset|Offset 'categories' on *NEVER* on left side of ?? always exists and is not nullable.
+src/Controller\Front\NutritionController.php:41|method.notFound|Call to an undefined method Symfony\Component\Security\Core\User\UserInterface::getId().
+src/Controller\Front\NutritionController.php:47|return.unusedType|Method App\Controller\Front\NutritionController::findLatestUserRegime() never returns App\Entity\RegimePrescrit so it can be removed from the return type.
+src/Controller\Front\NutritionController.php:50|nullCoalesce.offset|Offset 0 on array<string, mixed> on left side of ?? does not exist.
+src/Controller\Front\NutritionController.php:60|method.notFound|Call to an undefined method Symfony\Component\Security\Core\User\UserInterface::getId().
+src/Controller\Front\NutritionController.php:69|method.notFound|Call to an undefined method Symfony\Component\Security\Core\User\UserInterface::getId().
+src/Controller\Front\NutritionController.php:75|method.notFound|Call to an undefined method Symfony\Component\Security\Core\User\UserInterface::getId().
+src/Controller\Front\NutritionController.php:182|nullCoalesce.expr|Expression on left side of ?? is not nullable.
+src/Controller\Front\NutritionController.php:182|argument.type|Parameter #6 $alimentsRecommandes of method App\Service\PythonMLService::getMealReminders() expects array<string, mixed>, list<string> given.
+src/Controller\Front\NutritionController.php:183|nullCoalesce.expr|Expression on left side of ?? is not nullable.
+src/Controller\Front\NutritionController.php:183|argument.type|Parameter #7 $alimentsInterdits of method App\Service\PythonMLService::getMealReminders() expects array<string, mixed>, list<string> given.
+src/Controller\Front\NutritionController.php:269|method.notFound|Call to an undefined method Symfony\Component\Security\Core\User\UserInterface::getId().
+src/Controller\Front\NutritionController.php:281|method.notFound|Call to an undefined method Symfony\Component\Security\Core\User\UserInterface::getId().
+src/Controller\Front\NutritionController.php:306|method.notFound|Call to an undefined method Symfony\Component\Security\Core\User\UserInterface::getId().
+src/Controller\Front\NutritionController.php:319|method.notFound|Call to an undefined method Symfony\Component\Security\Core\User\UserInterface::getId().
+src/Controller\Front\NutritionController.php:485|argument.type|Parameter #1 $user of method App\Entity\DemandeRegime::setUser() expects App\Entity\User|null, Symfony\Component\Security\Core\User\UserInterface|null given.
+src/Controller\Front\NutritionController.php:486|method.notFound|Call to an undefined method Symfony\Component\Security\Core\User\UserInterface::getId().
+src/Controller\Front\NutritionController.php:634|nullCoalesce.expr|Expression on left side of ?? is not nullable.
+src/Controller\Front\NutritionController.php:635|nullCoalesce.expr|Expression on left side of ?? is not nullable.
+src/Controller\Front\NutritionController.php:635|argument.type|Parameter #2 $alimentsInterdits of method App\Service\MealDbService::getRegimeSuggestions() expects array<string, mixed>, list<string> given.
+src/Controller\Front\NutritionController.php:769|nullCoalesce.expr|Expression on left side of ?? is not nullable.
+src/Controller\Front\NutritionController.php:770|nullCoalesce.expr|Expression on left side of ?? is not nullable.
+src/Controller\Front\NutritionController.php:815|argument.type|Parameter #1 $mealHistory of method App\Service\PythonMLService::analyzeTrends() expects array<string, mixed>, list<array<string, mixed>> given.
+src/Controller\Front\NutritionController.php:926|argument.type|Parameter #4 $mealHistory of method App\Service\PythonMLService::calculateRiskScore() expects array<string, mixed>, list<array<string, mixed>> given.
+src/Controller\Front\NutritionController.php:1053|argument.type|Parameter #1 $mealHistory of method App\Service\PythonMLService::generateNutritionistSummary() expects array<string, mixed>, list<array<string, mixed>> given.
+src/Controller\Front\NutritionController.php:1059|nullCoalesce.expr|Expression on left side of ?? is not nullable.
+src/Controller\Front\NutritionController.php:1059|argument.type|Parameter #7 $alimentsRecommandes of method App\Service\PythonMLService::generateNutritionistSummary() expects array<string, mixed>, list<string> given.
+src/Controller\Front\NutritionController.php:1060|nullCoalesce.expr|Expression on left side of ?? is not nullable.
+src/Controller\Front\NutritionController.php:1060|argument.type|Parameter #8 $alimentsInterdits of method App\Service\PythonMLService::generateNutritionistSummary() expects array<string, mixed>, list<string> given.
+src/Controller\Front\NutritionController.php:1075|nullCoalesce.expr|Expression on left side of ?? is not nullable.
+src/Controller\Front\NutritionController.php:1153|argument.type|Parameter #1 $senior of method App\Entity\SuiviRepas::setSenior() expects App\Entity\User|null, Symfony\Component\Security\Core\User\UserInterface|null given.
+src/Controller\Front\Nutrition\MealTrackingController.php:37|method.notFound|Call to an undefined method Symfony\Component\Security\Core\User\UserInterface::getId().
+src/Controller\Front\Nutrition\MealTrackingController.php:270|argument.type|Parameter #1 $senior of method App\Entity\SuiviRepas::setSenior() expects App\Entity\User|null, Symfony\Component\Security\Core\User\UserInterface|null given.
+src/Controller\Front\Nutrition\SommelierController.php:39|method.notFound|Call to an undefined method Symfony\Component\Security\Core\User\UserInterface::getId().
+src/Controller\Front\Nutrition\SommelierController.php:67|argument.type|Parameter #1 $user of method App\Service\SommelierService::getPersonalizedHydrationAdvice() expects App\Entity\User, Symfony\Component\Security\Core\User\UserInterface|null given.
+src/Controller\Front\Nutrition\SommelierController.php:70|argument.type|Parameter #1 $user of method App\Repository\BeverageLogRepository::findTodayLogs() expects App\Entity\User, Symfony\Component\Security\Core\User\UserInterface|null given.
+src/Controller\Front\Nutrition\SommelierController.php:86|argument.type|Parameter #1 $user of method App\Repository\BeverageOrderRepository::getCartItemCount() expects App\Entity\User, Symfony\Component\Security\Core\User\UserInterface|null given.
+src/Controller\Front\Nutrition\SommelierController.php:171|argument.type|Parameter #1 $user of method App\Entity\BeverageLog::setUser() expects App\Entity\User|null, Symfony\Component\Security\Core\User\UserInterface|null given.
+src/Controller\Front\Nutrition\SommelierController.php:213|argument.type|Parameter #1 $user of method App\Service\SommelierService::getPersonalizedHydrationAdvice() expects App\Entity\User, Symfony\Component\Security\Core\User\UserInterface|null given.
+src/Controller\Front\Nutrition\SommelierController.php:226|argument.type|Parameter #1 $user of method App\Repository\BeverageLogRepository::getHydrationStats() expects App\Entity\User, Symfony\Component\Security\Core\User\UserInterface|null given.
+src/Controller\Front\Nutrition\SommelierController.php:227|argument.type|Parameter #1 $user of method App\Repository\BeverageLogRepository::getFavoriteBeverages() expects App\Entity\User, Symfony\Component\Security\Core\User\UserInterface|null given.
+src/Controller\Front\Nutrition\SommelierController.php:261|argument.type|Parameter #1 $user of method App\Repository\BeverageLogRepository::findHistoryDays() expects App\Entity\User, Symfony\Component\Security\Core\User\UserInterface|null given.
+src/Controller\Front\Nutrition\SommelierController.php:299|nullCoalesce.offset|Offset 'error' on non-empty-array<string, mixed> on left side of ?? always exists and is not nullable.
+src/Controller\Front\Nutrition\SommelierController.php:334|argument.type|Parameter #1 $user of method App\Entity\BeverageLog::setUser() expects App\Entity\User|null, Symfony\Component\Security\Core\User\UserInterface|null given.
+src/Controller\Front\Nutrition\SommelierController.php:375|argument.type|Parameter #1 $user of method App\Repository\BeverageOrderRepository::getCartItemCount() expects App\Entity\User, Symfony\Component\Security\Core\User\UserInterface|null given.
+src/Controller\Front\Nutrition\SommelierController.php:414|argument.type|Parameter #1 $user of method App\Service\BeverageMarketplaceService::addToCart() expects App\Entity\User, Symfony\Component\Security\Core\User\UserInterface given.
+src/Controller\Front\Nutrition\SommelierController.php:417|argument.type|Parameter #1 $user of method App\Service\BeverageMarketplaceService::getOrCreateCart() expects App\Entity\User, Symfony\Component\Security\Core\User\UserInterface given.
+src/Controller\Front\Nutrition\SommelierController.php:442|argument.type|Parameter #1 $user of method App\Service\BeverageMarketplaceService::updateCartItem() expects App\Entity\User, Symfony\Component\Security\Core\User\UserInterface|null given.
+src/Controller\Front\Nutrition\SommelierController.php:457|argument.type|Parameter #1 $user of method App\Service\BeverageMarketplaceService::removeFromCart() expects App\Entity\User, Symfony\Component\Security\Core\User\UserInterface|null given.
+src/Controller\Front\Nutrition\SommelierController.php:469|argument.type|Parameter #1 $user of method App\Service\BeverageMarketplaceService::getOrCreateCart() expects App\Entity\User, Symfony\Component\Security\Core\User\UserInterface|null given.
+src/Controller\Front\Nutrition\SommelierController.php:529|argument.type|Parameter #1 $user of method App\Service\BeverageMarketplaceService::checkout() expects App\Entity\User, Symfony\Component\Security\Core\User\UserInterface given.
+src/Controller\Front\Nutrition\SommelierController.php:548|argument.type|Parameter #1 $user of method App\Repository\BeverageOrderRepository::findUserOrders() expects App\Entity\User, Symfony\Component\Security\Core\User\UserInterface|null given.
+src/Controller\Front\ParticipationController.php:21|property.onlyWritten|Property App\Controller\Front\ParticipationController::$activityService is never read, only written.
+src/Controller\Front\PaymentController.php:36|nullCoalesce.expr|Expression on left side of ?? is not nullable.
+src/Controller\Front\PaymentController.php:108|nullCoalesce.expr|Expression on left side of ?? is not nullable.
+src/Controller\Front\SecurityController.php:354|nullCoalesce.expr|Expression on left side of ?? is not nullable.
+src/Controller\Front\SocialAuthController.php:110|nullCoalesce.offset|Offset 0 on non-empty-list<string> on left side of ?? always exists and is not nullable.
+src/Controller\Front\SubscriptionController.php:227|method.protected|Call to protected method getEntityManager() of class Doctrine\ORM\EntityRepository<object>.
+src/Controller\Front\TreatmentController.php:54|argument.type|Parameter #1 $senior of method App\Entity\Treatment::setSenior() expects App\Entity\User|null, Symfony\Component\Security\Core\User\UserInterface|null given.
+src/Controller\Front\UserActivityController.php:18|property.onlyWritten|Property App\Controller\Front\UserActivityController::$requestStack is never read, only written.
+src/Controller\Front\UserActivityController.php:108|method.protected|Call to protected method getEntityManager() of class Doctrine\ORM\EntityRepository<App\Entity\Participation>.
+src/Controller\Front\UserActivityController.php:123|method.protected|Call to protected method getEntityManager() of class Doctrine\ORM\EntityRepository<App\Entity\Participation>.
+src/Controller\Front\UserActivityController.php:124|method.protected|Call to protected method getEntityManager() of class Doctrine\ORM\EntityRepository<App\Entity\Participation>.
+src/Controller\Front\UserActivityController.php:159|method.protected|Call to protected method getEntityManager() of class Doctrine\ORM\EntityRepository<App\Entity\Participation>.
+src/Controller\Front\UserActivityController.php:243|method.protected|Call to protected method getEntityManager() of class Doctrine\ORM\EntityRepository<App\Entity\Participation>.
+src/Controller\Front\UserActivityController.php:278|method.protected|Call to protected method getEntityManager() of class Doctrine\ORM\EntityRepository<App\Entity\Participation>.
+src/Controller\Front\UserHealthController.php:53|argument.type|Parameter #1 $senior of method App\Entity\HealthJournal::setSenior() expects App\Entity\User|null, Symfony\Component\Security\Core\User\UserInterface|null given.
+src/Controller\Front\UserHealthController.php:62|argument.type|Parameter #1 $senior of method App\Entity\HealthJournal::setSenior() expects App\Entity\User|null, Symfony\Component\Security\Core\User\UserInterface|null given.
+src/Controller\Front\UserServiceController.php:152|argument.type|Parameter #1 $user of method App\Entity\ServiceRequest::setUser() expects App\Entity\User|null, Symfony\Component\Security\Core\User\UserInterface given.
+src/Controller\Front\UserServiceController.php:178|method.notFound|Call to an undefined method Symfony\Component\Security\Core\User\UserInterface::getFirstName().
+src/Controller\Front\UserServiceController.php:178|method.notFound|Call to an undefined method Symfony\Component\Security\Core\User\UserInterface::getLastName().
+src/Entity\Beverage.php:36|property.unusedType|Property App\Entity\Beverage::$id (int|null) is never assigned int so it can be removed from the property type.
+src/Entity\BeverageLog.php:15|property.unusedType|Property App\Entity\BeverageLog::$id (int|null) is never assigned int so it can be removed from the property type.
+src/Entity\BeverageOrder.php:24|property.unusedType|Property App\Entity\BeverageOrder::$id (int|null) is never assigned int so it can be removed from the property type.
+src/Entity\BeverageOrder.php:73|missingType.generics|Property App\Entity\BeverageOrder::$items with generic interface Doctrine\Common\Collections\Collection does not specify its types: TKey, T
+src/Entity\BeverageOrder.php:129|missingType.generics|Method App\Entity\BeverageOrder::getItems() return type with generic interface Doctrine\Common\Collections\Collection does not specify its types: TKey, T
+src/Entity\BeverageOrderItem.php:15|property.unusedType|Property App\Entity\BeverageOrderItem::$id (int|null) is never assigned int so it can be removed from the property type.
+src/Entity\BeverageProduct.php:17|property.unusedType|Property App\Entity\BeverageProduct::$id (int|null) is never assigned int so it can be removed from the property type.
+src/Entity\BeverageProduct.php:146|binaryOp.invalid|Binary operation "/" between string|null and string results in an error.
+src/Entity\ConnectionInvite.php:21|property.unusedType|Property App\Entity\ConnectionInvite::$id (int|null) is never assigned int so it can be removed from the property type.
+src/Entity\Conversation.php:18|property.unusedType|Property App\Entity\Conversation::$id (int|null) is never assigned int so it can be removed from the property type.
+src/Entity\Conversation.php:37|missingType.generics|Property App\Entity\Conversation::$messages with generic interface Doctrine\Common\Collections\Collection does not specify its types: TKey, T
+src/Entity\DemandeRegime.php:38|property.unusedType|Property App\Entity\DemandeRegime::$id (int|null) is never assigned int so it can be removed from the property type.
+src/Entity\DemandeRegime.php:171|missingType.generics|Property App\Entity\DemandeRegime::$regimesPrescrits with generic interface Doctrine\Common\Collections\Collection does not specify its types: TKey, T
+src/Entity\DemandeRegime.php:214|isset.initializedProperty|Property App\Entity\DemandeRegime::$produitAnalyse in isset() is not nullable nor uninitialized.
+src/Entity\HealthJournal.php:20|property.unusedType|Property App\Entity\HealthJournal::$id (int|null) is never assigned int so it can be removed from the property type.
+src/Entity\Intervention.php:14|property.unusedType|Property App\Entity\Intervention::$id (int|null) is never assigned int so it can be removed from the property type.
+src/Entity\LoyaltyPoint.php:22|property.unusedType|Property App\Entity\LoyaltyPoint::$id (int|null) is never assigned int so it can be removed from the property type.
+src/Entity\LoyaltyReward.php:25|property.unusedType|Property App\Entity\LoyaltyReward::$id (int|null) is never assigned int so it can be removed from the property type.
+src/Entity\Message.php:22|property.unusedType|Property App\Entity\Message::$id (int|null) is never assigned int so it can be removed from the property type.
+src/Entity\Notification.php:18|property.unusedType|Property App\Entity\Notification::$id (int|null) is never assigned int so it can be removed from the property type.
+src/Entity\Participation.php:47|property.unusedType|Property App\Entity\Participation::$registeredAtAlt (DateTimeInterface|null) is never assigned DateTimeInterface so it can be removed from the property type.
+src/Entity\Participation.php:47|property.onlyWritten|Property App\Entity\Participation::$registeredAtAlt is never read, only written.
+src/Entity\Post.php:24|property.unusedType|Property App\Entity\Post::$id (int|null) is never assigned int so it can be removed from the property type.
+src/Entity\Post.php:43|missingType.generics|Property App\Entity\Post::$media with generic interface Doctrine\Common\Collections\Collection does not specify its types: TKey, T
+src/Entity\Post.php:46|missingType.generics|Property App\Entity\Post::$likes with generic interface Doctrine\Common\Collections\Collection does not specify its types: TKey, T
+src/Entity\Post.php:49|missingType.generics|Property App\Entity\Post::$comments with generic interface Doctrine\Common\Collections\Collection does not specify its types: TKey, T
+src/Entity\PostComment.php:17|property.unusedType|Property App\Entity\PostComment::$id (int|null) is never assigned int so it can be removed from the property type.
+src/Entity\PostLike.php:16|property.unusedType|Property App\Entity\PostLike::$id (int|null) is never assigned int so it can be removed from the property type.
+src/Entity\PostMedia.php:19|property.unusedType|Property App\Entity\PostMedia::$id (int|null) is never assigned int so it can be removed from the property type.
+src/Entity\RapportHebdomadaire.php:15|property.unusedType|Property App\Entity\RapportHebdomadaire::$id (int|null) is never assigned int so it can be removed from the property type.
+src/Entity\RegimePrescrit.php:35|property.unusedType|Property App\Entity\RegimePrescrit::$id (int|null) is never assigned int so it can be removed from the property type.
+src/Entity\ServiceRequest.php:18|property.unusedType|Property App\Entity\ServiceRequest::$id (int|null) is never assigned int so it can be removed from the property type.
+src/Entity\ServiceRequest.php:55|property.unusedType|Property App\Entity\ServiceRequest::$niveauUrgence (string|null) is never assigned null so it can be removed from the property type.
+src/Entity\ServiceRequest.php:99|missingType.generics|Property App\Entity\ServiceRequest::$interventions with generic interface Doctrine\Common\Collections\Collection does not specify its types: TKey, T
+src/Entity\Subscription.php:23|property.unusedType|Property App\Entity\Subscription::$id (int|null) is never assigned int so it can be removed from the property type.
+src/Entity\SubscriptionPlan.php:19|property.unusedType|Property App\Entity\SubscriptionPlan::$id (int|null) is never assigned int so it can be removed from the property type.
+src/Entity\SuiviRepas.php:17|property.unusedType|Property App\Entity\SuiviRepas::$id (int|null) is never assigned int so it can be removed from the property type.
+src/Entity\Treatment.php:19|property.unusedType|Property App\Entity\Treatment::$id (int|null) is never assigned int so it can be removed from the property type.
+src/Entity\UserConnection.php:21|property.unusedType|Property App\Entity\UserConnection::$id (int|null) is never assigned int so it can be removed from the property type.
+src/Entity\UserSocialAccount.php:20|property.unusedType|Property App\Entity\UserSocialAccount::$id (int|null) is never assigned int so it can be removed from the property type.
+src/Entity\VerificationRequest.php:26|property.unusedType|Property App\Entity\VerificationRequest::$id (int|null) is never assigned int so it can be removed from the property type.
+src/Form\DataTransformer\ArrayToStringTransformer.php:7|missingType.generics|Class App\Form\DataTransformer\ArrayToStringTransformer implements generic interface Symfony\Component\Form\DataTransformerInterface but does not specify its types: TValue, TTransformedValue
+src/Repository\BeverageLogRepository.php:122|return.type|Method App\Repository\BeverageLogRepository::getHydrationStats() should return array<string, mixed> but returns list<array<string, mixed>>.
+src/Repository\BeverageOrderItemRepository.php:9|missingType.generics|Class App\Repository\BeverageOrderItemRepository extends generic class Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository but does not specify its types: T
+src/Repository\BeverageOrderRepository.php:10|missingType.generics|Class App\Repository\BeverageOrderRepository extends generic class Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository but does not specify its types: T
+src/Repository\BeverageProductRepository.php:9|missingType.generics|Class App\Repository\BeverageProductRepository extends generic class Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository but does not specify its types: T
+src/Repository\DemandeRegimeRepository.php:238|return.type|Method App\Repository\DemandeRegimeRepository::getMonthlyStatistics() should return array<string, mixed> but returns array<int, int>.
+src/Repository\HealthJournalRepository.php:20|missingType.parameter|Method App\Repository\HealthJournalRepository::findBySenior() has parameter $senior with no type specified.
+src/Repository\NotificationRepository.php:9|missingType.generics|Class App\Repository\NotificationRepository extends generic class Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository but does not specify its types: T
+src/Repository\PostRepository.php:26|missingType.iterableValue|Method App\Repository\PostRepository::findFeedPosts() return type has no value type specified in iterable type array.
+src/Repository\PostRepository.php:91|missingType.iterableValue|Method App\Repository\PostRepository::findReels() return type has no value type specified in iterable type array.
+src/Repository\SubscriptionPlanRepository.php:9|missingType.generics|Class App\Repository\SubscriptionPlanRepository extends generic class Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository but does not specify its types: T
+src/Repository\SubscriptionRepository.php:10|missingType.generics|Class App\Repository\SubscriptionRepository extends generic class Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository but does not specify its types: T
+src/Repository\TreatmentRepository.php:20|missingType.parameter|Method App\Repository\TreatmentRepository::findActiveBySenior() has parameter $senior with no type specified.
+src/Security\AccessDeniedHandler.php:81|missingType.parameter|Method App\Security\AccessDeniedHandler::getUserDisplayName() has parameter $user with no type specified.
+src/Service\ActivityService.php:32|missingType.iterableValue|Method App\Service\ActivityService::createActivity() has parameter $data with no value type specified in iterable type array.
+src/Service\ActivityService.php:81|return.type|Method App\Service\ActivityService::getUpcomingActivities() should return array<string, mixed> but returns list<array<string, mixed>>.
+src/Service\ActivityService.php:190|return.type|Method App\Service\ActivityService::getUserParticipations() should return array<string, mixed> but returns list<array<string, int|string|null>>.
+src/Service\BeverageMarketplaceService.php:347|missingType.iterableValue|Method App\Service\BeverageMarketplaceService::checkout() return type has no value type specified in iterable type array.
+src/Service\BeverageMarketplaceService.php:434|return.type|Method App\Service\BeverageMarketplaceService::getRecommendedForRegime() should return array<string, mixed> but returns list<App\Entity\BeverageProduct>.
+src/Service\BeverageMarketplaceService.php:437|return.type|Method App\Service\BeverageMarketplaceService::getRecommendedForRegime() should return array<string, mixed> but returns list<App\Entity\BeverageProduct>.
+src/Service\BeveragePhotoUploadService.php:11|missingType.property|Property App\Service\BeveragePhotoUploadService::$targetDirectory has no type specified.
+src/Service\BeveragePhotoUploadService.php:12|missingType.property|Property App\Service\BeveragePhotoUploadService::$slugger has no type specified.
+src/Service\CaptchaService.php:131|function.alreadyNarrowedType|Call to function is_array() with array<string, string> will always evaluate to true.
+src/Service\CaptchaService.php:131|nullCoalesce.variable|Variable $_ENV on left side of ?? always exists and is not nullable.
+src/Service\EmailService.php:34|method.void|Result of method Symfony\Component\Mailer\MailerInterface::send() (void) is used.
+src/Service\FaceService.php:41|missingType.iterableValue|Method App\Service\FaceService::executePython() return type has no value type specified in iterable type array.
+src/Service\FaceService.php:60|function.alreadyNarrowedType|Call to function is_array() with array<string, string> will always evaluate to true.
+src/Service\FaceService.php:60|nullCoalesce.variable|Variable $_ENV on left side of ?? always exists and is not nullable.
+src/Service\FaceService.php:154|missingType.iterableValue|Method App\Service\FaceService::detectFaces() return type has no value type specified in iterable type array.
+src/Service\FaceService.php:159|argument.type|Parameter #2 $args of method App\Service\FaceService::executePython() expects array<string, mixed>, array<int, string> given.
+src/Service\FaceService.php:172|missingType.iterableValue|Method App\Service\FaceService::encodeFace() return type has no value type specified in iterable type array.
+src/Service\FaceService.php:177|argument.type|Parameter #2 $args of method App\Service\FaceService::executePython() expects array<string, mixed>, array<int, string> given.
+src/Service\FaceService.php:217|missingType.iterableValue|Method App\Service\FaceService::detectAndIdentify() return type has no value type specified in iterable type array.
+src/Service\FaceService.php:223|argument.type|Parameter #2 $args of method App\Service\FaceService::executePython() expects array<string, mixed>, array<int, string> given.
+src/Service\FaceService.php:256|missingType.iterableValue|Method App\Service\FaceService::getEncodingForEnrollment() return type has no value type specified in iterable type array.
+src/Service\FaceService.php:274|missingType.iterableValue|Method App\Service\FaceService::verifyFace() return type has no value type specified in iterable type array.
+src/Service\FaceService.php:280|argument.type|Parameter #2 $args of method App\Service\FaceService::executePython() expects array<string, mixed>, array<int, string> given.
+src/Service\FaceService.php:329|missingType.iterableValue|Method App\Service\FaceService::enrollFace() return type has no value type specified in iterable type array.
+src/Service\FeatureGateService.php:97|nullCoalesce.offset|Offset 'confort'|'essentiel'|'premium' on array{essentiel: 1, confort: 2, premium: 3} on left side of ?? always exists and is not nullable.
+src/Service\FeatureGateService.php:156|return.type|Method App\Service\FeatureGateService::getAllFeaturesStatus() should return array<string, mixed> but returns list<array<string, mixed>>.
+src/Service\FeatureGateService.php:169|nullCoalesce.offset|Offset 'confort'|'essentiel'|'premium' on array{essentiel: 1, confort: 2, premium: 3} on left side of ?? always exists and is not nullable.
+src/Service\FeatureGateService.php:181|return.type|Method App\Service\FeatureGateService::getFeaturesForPlan() should return array<string, mixed> but returns list<array<string, mixed>>.
+src/Service\GeminiService.php:10|missingType.property|Property App\Service\GeminiService::$client has no type specified.
+src/Service\GeminiService.php:11|missingType.property|Property App\Service\GeminiService::$apiKey has no type specified.
+src/Service\HealthService.php:21|missingType.iterableValue|Method App\Service\HealthService::addHealthData() has parameter $data with no value type specified in iterable type array.
+src/Service\HealthService.php:24|argument.type|Parameter #2 $roles of method App\Service\HealthService::canManageHealthData() expects list<string>, array<string, mixed> given.
+src/Service\HealthService.php:88|missingType.iterableValue|Method App\Service\HealthService::getHealthHistory() return type has no value type specified in iterable type array.
+src/Service\HealthService.php:91|argument.type|Parameter #2 $roles of method App\Service\HealthService::canViewHealthData() expects list<string>, array<string, mixed> given.
+src/Service\HealthService.php:109|missingType.iterableValue|Method App\Service\HealthService::prescribeTreatment() has parameter $doctorRoles with no value type specified in iterable type array.
+src/Service\HealthService.php:147|missingType.iterableValue|Method App\Service\HealthService::getActiveTreatments() return type has no value type specified in iterable type array.
+src/Service\HealthService.php:149|argument.type|Parameter #2 $roles of method App\Service\HealthService::canViewHealthData() expects list<string>, array<string, mixed> given.
+src/Service\HealthService.php:218|missingType.parameter|Method App\Service\HealthService::triggerHealthAlert() has parameter $value with no type specified.
+src/Service\ImageModerationService.php:64|function.alreadyNarrowedType|Call to function is_array() with array<string, string> will always evaluate to true.
+src/Service\ImageModerationService.php:64|nullCoalesce.variable|Variable $_ENV on left side of ?? always exists and is not nullable.
+src/Service\InterventionEmailService.php:66|closure.unusedUse|Anonymous function has an unused use $errors.
+src/Service\InterventionEmailService.php:110|missingType.parameter|Method App\Service\InterventionEmailService::buildDevisEmailHtml() has parameter $service with no type specified.
+src/Service\InterventionValidatorService.php:89|argument.type|Parameter #2 $errors of class App\Exception\ValidationException constructor expects list<string>, non-empty-array{zone_intervention?: 'La zone dÔÇª', competences?: 'Les comp├®tences neÔÇª'|'Les comp├®tencesÔÇª', heures_travail?: 'Les heures deÔÇª', tarif_horaire?: 'Le tarif horaireÔÇª'|'Le tarif horaire neÔÇª', technicien_email?: 'L\'adresse email duÔÇª', statut?: 'Le statutÔÇª', technicien_id?: 'Un technicien doitÔÇª', notes?: 'Les notes neÔÇª', ...} given.
+src/Service\InterventionValidatorService.php:142|argument.type|Parameter #2 $errors of class App\Exception\ValidationException constructor expects list<string>, non-empty-array{technicien_id?: 'VeuillezÔÇª', zone_intervention?: 'La zone dÔÇª', heures_travail?: 'Les heures deÔÇª', tarif_horaire?: 'Le tarif horaireÔÇª'|'Le tarif horaire neÔÇª', notes?: 'Les notes neÔÇª', date_debut?: 'La date de d├®butÔÇª'} given.
+src/Service\LoyaltyService.php:20|classConstant.unused|Constant App\Service\LoyaltyService::POINTS_SUBSCRIPTION_BONUS is unused.
+src/Service\LoyaltyService.php:21|classConstant.unused|Constant App\Service\LoyaltyService::POINTS_ACTIVITY_BONUS is unused.
+src/Service\LoyaltyService.php:27|property.onlyWritten|Property App\Service\LoyaltyService::$interventionRepo is never read, only written.
+src/Service\LoyaltyService.php:196|arrayValues.list|Parameter #1 $array (list<string>) of array_values is already a list, call has no effect.
+src/Service\LoyaltyService.php:205|argument.type|Parameter #3 $existingTypes of method App\Service\LoyaltyService::createFallbackReward() expects array<string, mixed>, list<string> given.
+src/Service\LoyaltyService.php:320|missingType.iterableValue|Method App\Service\LoyaltyService::callMLPredictor() return type has no value type specified in iterable type array.
+src/Service\LoyaltyService.php:376|missingType.iterableValue|Method App\Service\LoyaltyService::getFallbackPrediction() return type has no value type specified in iterable type array.
+src/Service\LoyaltyService.php:436|nullCoalesce.offset|Offset 1 on array{array{name: 'Bronze', emoji: '­ƒÑë', min: 0, max: 199}, array{name: 'Argent', emoji: '­ƒÑê', min: 200, max: 499}, array{name: 'Or', emoji: '­ƒÑç', min: 500, max: 999}, array{name: 'Platine', emoji: '­ƒÆÄ', min: 1000, max: 2499}, array{name: 'Diamant', emoji: '­ƒææ', min: 2500, max: 2147483647|9223372036854775807}} on left side of ?? always exists and is not nullable.
+src/Service\LoyaltyService.php:467|missingType.iterableValue|Method App\Service\LoyaltyService::createFallbackReward() has parameter $features with no value type specified in iterable type array.
+src/Service\LoyaltyService.php:594|missingType.iterableValue|Method App\Service\LoyaltyService::formatPointsBySource() return type has no value type specified in iterable type array.
+src/Service\MealAnalysisService.php:11|missingType.property|Property App\Service\MealAnalysisService::$geminiService has no type specified.
+src/Service\MealAnalysisService.php:12|missingType.property|Property App\Service\MealAnalysisService::$usdaService has no type specified.
+src/Service\MealAnalysisService.php:12|property.onlyWritten|Property App\Service\MealAnalysisService::$usdaService is never read, only written.
+src/Service\MealDbService.php:11|missingType.property|Property App\Service\MealDbService::$client has no type specified.
+src/Service\MealDbService.php:12|missingType.property|Property App\Service\MealDbService::$cache has no type specified.
+src/Service\MealDbService.php:119|return.type|Method App\Service\MealDbService::getRandomMeals() should return array<string, mixed> but returns list<array<string, mixed>>.
+src/Service\MealDbService.php:129|missingType.iterableValue|Method App\Service\MealDbService::getRegimeSuggestions() has parameter $alimentsRecommandes with no value type specified in iterable type array.
+src/Service\MealDbService.php:129|missingType.iterableValue|Method App\Service\MealDbService::getRegimeSuggestions() return type has no value type specified in iterable type array.
+src/Service\MedicamentMLService.php:12|missingType.property|Property App\Service\MedicamentMLService::$httpClient has no type specified.
+src/Service\MedicamentMLService.php:13|missingType.property|Property App\Service\MedicamentMLService::$mlApiUrl has no type specified.
+src/Service\NutritionAnalysisService.php:14|missingType.iterableValue|Method App\Service\NutritionAnalysisService::analyze() has parameter $product with no value type specified in iterable type array.
+src/Service\NutritionAnalysisService.php:14|missingType.iterableValue|Method App\Service\NutritionAnalysisService::analyze() return type has no value type specified in iterable type array.
+src/Service\NutritionAnalysisService.php:93|missingType.iterableValue|Method App\Service\NutritionAnalysisService::checkDiabetic() has parameter $result with no value type specified in iterable type array.
+src/Service\NutritionAnalysisService.php:106|missingType.iterableValue|Method App\Service\NutritionAnalysisService::checkWeightLoss() has parameter $result with no value type specified in iterable type array.
+src/Service\NutritionAnalysisService.php:116|missingType.iterableValue|Method App\Service\NutritionAnalysisService::checkMassGain() has parameter $result with no value type specified in iterable type array.
+src/Service\NutritionAnalysisService.php:126|missingType.iterableValue|Method App\Service\NutritionAnalysisService::checkHypoSode() has parameter $result with no value type specified in iterable type array.
+src/Service\NutritionAnalysisService.php:136|missingType.iterableValue|Method App\Service\NutritionAnalysisService::checkCardio() has parameter $result with no value type specified in iterable type array.
+src/Service\NutritionAnalysisService.php:146|missingType.iterableValue|Method App\Service\NutritionAnalysisService::checkGlutenFree() has parameter $categories with no value type specified in iterable type array.
+src/Service\NutritionAnalysisService.php:146|missingType.iterableValue|Method App\Service\NutritionAnalysisService::checkGlutenFree() has parameter $result with no value type specified in iterable type array.
+src/Service\NutritionAnalysisService.php:162|missingType.iterableValue|Method App\Service\NutritionAnalysisService::buildNormalDietAnalysis() has parameter $nutriments with no value type specified in iterable type array.
+src/Service\NutritionAnalysisService.php:162|missingType.iterableValue|Method App\Service\NutritionAnalysisService::buildNormalDietAnalysis() has parameter $product with no value type specified in iterable type array.
+src/Service\NutritionService.php:137|return.unusedType|Method App\Service\NutritionService::getActiveNutritionPlan() never returns null so it can be removed from the return type.
+src/Service\PhotoUploadService.php:11|missingType.property|Property App\Service\PhotoUploadService::$targetDirectory has no type specified.
+src/Service\PhotoUploadService.php:12|missingType.property|Property App\Service\PhotoUploadService::$slugger has no type specified.
+src/Service\ServiceImageAnalyzerService.php:381|isset.offset|Offset 0|1|2|3|4|5 on array{'plomberie', 'electricite', 'courses', 'transport', 'menage', 'compagnie'} in isset() always exists and is not nullable.
+src/Service\ServiceImageAnalyzerService.php:388|isset.offset|Offset 0|1|2|3|4|5 on array{'plomberie', 'electricite', 'courses', 'transport', 'menage', 'compagnie'} in isset() always exists and is not nullable.
+src/Service\ServiceImageAnalyzerService.php:415|nullCoalesce.offset|Offset 'compagnie'|'courses'|'electricite'|'menage'|'plomberie'|'transport' on array{plomberie: 'Probl├¿me deÔÇª', electricite: 'Probl├¿me ├®lectriqueÔÇª', courses: 'Besoin d\'aide pourÔÇª', transport: 'Transport m├®dicalÔÇª', menage: 'Service de m├®nageÔÇª', compagnie: 'Besoin de compagnieÔÇª'} on left side of ?? always exists and is not nullable.
+src/Service\ServiceManagementService.php:188|nullsafe.neverNull|Using nullsafe method call on non-nullable type DateTimeInterface. Use -> instead.
+src/Service\SommelierService.php:250|return.type|Method App\Service\SommelierService::suggestForMeal() should return array<string, mixed> but returns list<array<string, App\Entity\Beverage|int<1, max>>>.
+src/Service\SommelierService.php:305|return.type|Method App\Service\SommelierService::suggestFromCatalog() should return array<string, mixed> but returns list<array<string, bool|float|int|list<string>|string|null>>.
+src/Service\SommelierService.php:583|return.type|Method App\Service\SommelierService::getBoxSubscriptionSuggestions() should return array<string, mixed> but returns array<int, array<string, list<string>|string>>.
+src/Service\SommelierService.php:593|return.type|Method App\Service\SommelierService::getPartners() should return array<string, mixed> but returns array<int, array<string, string>>.
+src/Service\TextModerationService.php:75|function.alreadyNarrowedType|Call to function is_array() with array<string, string> will always evaluate to true.
+src/Service\UserService.php:204|return.unusedType|Method App\Service\UserService::findUserByEmail() never returns null so it can be removed from the return type.
+src/Service\UserService.php:218|return.unusedType|Method App\Service\UserService::findUserById() never returns null so it can be removed from the return type.
+src/Service\VerificationAnalyzerService.php:140|function.alreadyNarrowedType|Call to function is_array() with array<string, string> will always evaluate to true.
+C:\Users\azizm\OneDrive\Desktop\my_project\tests\Unit\Entity\UserTest.php:64|arrayValues.list|Parameter #1 $array (list<string>) of array_values is already a list, call has no effect.
+C:\Users\azizm\OneDrive\Desktop\my_project\tests\Unit\Service\ActivityServiceTest.php:50|argument.type|Parameter #3 $creatorRoles of method App\Service\ActivityService::createActivity() expects array<string, mixed>, array<int, string> given.
+C:\Users\azizm\OneDrive\Desktop\my_project\tests\Unit\Service\ActivityServiceTest.php:66|argument.type|Parameter #3 $creatorRoles of method App\Service\ActivityService::createActivity() expects array<string, mixed>, array<int, string> given.
+C:\Users\azizm\OneDrive\Desktop\my_project\tests\Unit\Service\ActivityServiceTest.php:79|argument.type|Parameter #3 $creatorRoles of method App\Service\ActivityService::createActivity() expects array<string, mixed>, array<int, string> given.
+C:\Users\azizm\OneDrive\Desktop\my_project\tests\Unit\Service\ActivityServiceTest.php:91|argument.type|Parameter #3 $creatorRoles of method App\Service\ActivityService::createActivity() expects array<string, mixed>, array<int, string> given.
+C:\Users\azizm\OneDrive\Desktop\my_project\tests\Unit\Service\ActivityServiceTest.php:103|argument.type|Parameter #3 $creatorRoles of method App\Service\ActivityService::createActivity() expects array<string, mixed>, array<int, string> given.
+C:\Users\azizm\OneDrive\Desktop\my_project\tests\Unit\Service\ActivityServiceTest.php:115|argument.type|Parameter #3 $creatorRoles of method App\Service\ActivityService::createActivity() expects array<string, mixed>, array<int, string> given.
+C:\Users\azizm\OneDrive\Desktop\my_project\tests\Unit\Service\ActivityServiceTest.php:127|argument.type|Parameter #3 $creatorRoles of method App\Service\ActivityService::createActivity() expects array<string, mixed>, array<int, string> given.
+C:\Users\azizm\OneDrive\Desktop\my_project\tests\Unit\Service\ActivityServiceTest.php:139|argument.type|Parameter #3 $creatorRoles of method App\Service\ActivityService::createActivity() expects array<string, mixed>, array<int, string> given.
+C:\Users\azizm\OneDrive\Desktop\my_project\tests\Unit\Service\FeatureGateServiceTest.php:184|offsetAccess.notFound|Offset 0 does not exist on array<string, mixed>.
+C:\Users\azizm\OneDrive\Desktop\my_project\tests\Unit\Service\HealthServiceTest.php:28|argument.type|Parameter #4 $accessorRoles of method App\Service\HealthService::addHealthData() expects array<string, mixed>, array<int, string> given.
+C:\Users\azizm\OneDrive\Desktop\my_project\tests\Unit\Service\HealthServiceTest.php:35|argument.type|Parameter #4 $accessorRoles of method App\Service\HealthService::addHealthData() expects array<string, mixed>, array<int, string> given.
+C:\Users\azizm\OneDrive\Desktop\my_project\tests\Unit\Service\HealthServiceTest.php:42|argument.type|Parameter #4 $accessorRoles of method App\Service\HealthService::addHealthData() expects array<string, mixed>, array<int, string> given.
+C:\Users\azizm\OneDrive\Desktop\my_project\tests\Unit\Service\HealthServiceTest.php:51|argument.type|Parameter #4 $accessorRoles of method App\Service\HealthService::addHealthData() expects array<string, mixed>, array<int, string> given.
+C:\Users\azizm\OneDrive\Desktop\my_project\tests\Unit\Service\HealthServiceTest.php:58|argument.type|Parameter #4 $accessorRoles of method App\Service\HealthService::addHealthData() expects array<string, mixed>, array<int, string> given.
+C:\Users\azizm\OneDrive\Desktop\my_project\tests\Unit\Service\HealthServiceTest.php:68|argument.type|Parameter #4 $accessorRoles of method App\Service\HealthService::addHealthData() expects array<string, mixed>, array<int, string> given.
+C:\Users\azizm\OneDrive\Desktop\my_project\tests\Unit\Service\HealthServiceTest.php:75|argument.type|Parameter #4 $accessorRoles of method App\Service\HealthService::addHealthData() expects array<string, mixed>, array<int, string> given.
+C:\Users\azizm\OneDrive\Desktop\my_project\tests\Unit\Service\HealthServiceTest.php:83|argument.type|Parameter #4 $accessorRoles of method App\Service\HealthService::addHealthData() expects array<string, mixed>, array<int, string> given.
+C:\Users\azizm\OneDrive\Desktop\my_project\tests\Unit\Service\HealthServiceTest.php:90|argument.type|Parameter #4 $accessorRoles of method App\Service\HealthService::addHealthData() expects array<string, mixed>, array<int, string> given.
+C:\Users\azizm\OneDrive\Desktop\my_project\tests\Unit\Service\HealthServiceTest.php:98|argument.type|Parameter #4 $accessorRoles of method App\Service\HealthService::addHealthData() expects array<string, mixed>, array<int, string> given.
+C:\Users\azizm\OneDrive\Desktop\my_project\tests\Unit\Service\HealthServiceTest.php:103|argument.type|Parameter #4 $accessorRoles of method App\Service\HealthService::addHealthData() expects array<string, mixed>, array<int, string> given.
+C:\Users\azizm\OneDrive\Desktop\my_project\tests\Unit\Service\HealthServiceTest.php:117|argument.type|Parameter #4 $accessorRoles of method App\Service\HealthService::addHealthData() expects array<string, mixed>, array<int, string> given.
+C:\Users\azizm\OneDrive\Desktop\my_project\tests\Unit\Service\HealthServiceTest.php:129|argument.type|Parameter #3 $accessorRoles of method App\Service\HealthService::getHealthHistory() expects array<string, mixed>, array<int, string> given.
+C:\Users\azizm\OneDrive\Desktop\my_project\tests\Unit\Service\HealthServiceTest.php:136|argument.type|Parameter #3 $accessorRoles of method App\Service\HealthService::getHealthHistory() expects array<string, mixed>, array<int, string> given.
+C:\Users\azizm\OneDrive\Desktop\my_project\tests\Unit\Service\HealthServiceTest.php:145|argument.type|Parameter #3 $accessorRoles of method App\Service\HealthService::getHealthHistory() expects array<string, mixed>, array<int, string> given.
+C:\Users\azizm\OneDrive\Desktop\my_project\tests\Unit\Service\HealthServiceTest.php:210|argument.type|Parameter #3 $accessorRoles of method App\Service\HealthService::getActiveTreatments() expects array<string, mixed>, array<int, string> given.
+C:\Users\azizm\OneDrive\Desktop\my_project\tests\Unit\Service\HealthServiceTest.php:219|argument.type|Parameter #3 $accessorRoles of method App\Service\HealthService::getActiveTreatments() expects array<string, mixed>, array<int, string> given.

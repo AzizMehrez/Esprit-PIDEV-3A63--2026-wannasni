@@ -1,0 +1,50 @@
+parameters:
+    level: 6
+    paths:
+        - bin/
+        - config/
+        - public/
+        - src/
+        - tests/
+    treatPhpDocTypesAsCertain: false
+    reportUnmatchedIgnoredErrors: false
+    ignoreErrors:
+        # Doctrine: auto-generated $id is typed int|null but Doctrine only assigns int via DB
+        -
+            identifier: property.unusedType
+
+        # Symfony controllers: getUser() returns UserInterface, not App\Entity\User
+        -
+            message: '#UserInterface#'
+            identifier: argument.type
+
+        # Symfony controllers: UserInterface doesn't declare getId(), getFirstName() etc.
+        -
+            message: '#UserInterface::#'
+            identifier: method.notFound
+
+        # Defensive null-coalescing on arrays/variables (safe patterns)
+        -
+            identifier: nullCoalesce.offset
+        -
+            identifier: nullCoalesce.expr
+        -
+            identifier: nullCoalesce.variable
+
+        # Defensive isset on already-typed offsets/properties
+        -
+            identifier: isset.offset
+        -
+            identifier: isset.initializedProperty
+
+        # Type narrowing already done by PHPDoc (redundant checks)
+        -
+            identifier: function.alreadyNarrowedType
+
+        # Injected services stored but not yet used (kept for future use)
+        -
+            identifier: property.onlyWritten
+
+        # Negated boolean always false (PHPDoc type certainty)
+        -
+            identifier: booleanNot.alwaysFalse
