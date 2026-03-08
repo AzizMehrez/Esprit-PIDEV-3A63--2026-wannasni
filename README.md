@@ -550,4 +550,54 @@ This project is licensed under the MIT License.
 5. Open a Pull Request
 
 ---
+# WANNASNI - Senior Care Platform
 
+## Overview
+This project was developed as part of the PIDEV – 3rd Year Engineering Program at **Esprit School of Engineering – Tunisia** (Academic Year 2025–2026).
+WANNASNI is a full-stack web platform for seniors and caregivers, combining health tracking, service requests, nutrition management, social interaction, AI assistance, and secure digital services.
+
+## Features
+- Service requests and interventions
+- Health tracking
+- Nutrition management
+- Beverage recommendation and marketplace
+- Activities and participation
+- Medicament alternatives
+- AI chat assistant
+- Social networking
+- Authentication and security
+- Payments and subscriptions
+- Loyalty program
+
+## Tech Stack
+
+### Frontend
+- Twig
+- JavaScript
+- Bootstrap
+- CSS
+- HTML
+
+### Backend
+- Symfony
+- PHP
+- Python
+- FastAPI
+- MySQL / PostgreSQL
+
+## Architecture
+Describe the Symfony web application, Twig frontend, Python ML services, database layer, and integrations.
+
+## Contributors
+- Aziz Mehrez
+- Add team members here
+
+## Academic Context
+Developed at **Esprit School of Engineering – Tunisia**  
+PIDEV – 3A63 | 2025–2026
+
+## Getting Started
+Keep your current installation and launch steps here.
+
+## Acknowledgments
+Thanks to Esprit School of Engineering, supervisors, and project mentors.
