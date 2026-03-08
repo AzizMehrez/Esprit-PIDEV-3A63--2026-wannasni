@@ -589,8 +589,11 @@ WANNASNI is a full-stack web platform for seniors and caregivers, combining heal
 Describe the Symfony web application, Twig frontend, Python ML services, database layer, and integrations.
 
 ## Contributors
-- Aziz Mehrez
-- Add team members here
+- Mohamed Aziz Mehrez
+- Koussay Ben Khadher
+- SYrine Ayadi
+- Roua Baccour
+- Mariem Slatni 
 
 ## Academic Context
 Developed at **Esprit School of Engineering – Tunisia**  
