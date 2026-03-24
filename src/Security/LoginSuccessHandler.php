@@ -2,6 +2,8 @@
 
 namespace App\Security;
 
+use App\Entity\User;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\RouterInterface;
@@ -11,7 +13,8 @@ use Symfony\Component\Security\Http\Authentication\AuthenticationSuccessHandlerI
 class LoginSuccessHandler implements AuthenticationSuccessHandlerInterface
 {
     public function __construct(
-        private RouterInterface $router
+        private RouterInterface $router,
+        private EntityManagerInterface $entityManager
     ) {
     }
 
@@ -19,7 +22,14 @@ class LoginSuccessHandler implements AuthenticationSuccessHandlerInterface
     {
         $user = $token->getUser();
         $locale = $request->getLocale() ?: 'fr';
-        
+
+        // Update last login timestamp
+        if ($user instanceof User) {
+            $user->setLastLoginAt(new \DateTime());
+            $this->entityManager->persist($user);
+            $this->entityManager->flush();
+        }
+
         // Check if user has @wannasni.com email
         if ($user && method_exists($user, 'getEmail')) {
             $email = $user->getEmail();

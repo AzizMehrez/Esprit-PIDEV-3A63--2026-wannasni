@@ -403,7 +403,7 @@ class SecurityController extends AbstractController
             // Generate reset token
             $resetToken = bin2hex(random_bytes(32));
             
-            // Check if user exists, if not create a temporary session-based verification
+            // Only process password reset for existing users to prevent email enumeration
             $user = $entityManager->getRepository(User::class)->findOneBy(['email' => $email]);
             
             if ($user) {
@@ -411,47 +411,46 @@ class SecurityController extends AbstractController
                 $user->setResetToken($resetToken);
                 $user->setResetTokenExpiresAt(new \DateTime('+15 minutes'));
                 $entityManager->flush();
-            }
-            
-            // Store in session for any email (even non-existing users)
-            $request->getSession()->set('reset_email', $email);
-            $request->getSession()->set('reset_code', $verificationCode);
-            $request->getSession()->set('reset_token', $resetToken);
-            $request->getSession()->set('reset_expires', (new \DateTime('+15 minutes'))->getTimestamp());
-            
-            // Send email using Python script to ANY email entered
-            try {
-                $pythonPath = 'python';
-                $scriptPath = $this->getParameter('kernel.project_dir') . '/send_email.py';
-                
-                // Execute Python script
-                $command = sprintf(
-                    '%s "%s" "%s" "%s"',
-                    $pythonPath,
-                    $scriptPath,
-                    $email,
-                    $verificationCode
-                );
-                
-                $output = [];
-                $returnCode = 0;
-                exec($command, $output, $returnCode);
-                
-                if ($returnCode === 0 && !empty($output) && $output[0] === 'SUCCESS') {
-                    $this->addFlash('success', 'Un code de vérification a été envoyé à ' . $email);
-                    return $this->redirectToRoute('app_verify_code', ['_locale' => $request->getLocale()]);
-                } else {
-                    // If email fails, show the code for development/testing
-                    $this->addFlash('error', 'Erreur lors de l\'envoi de l\'email.');
+
+                // Store in session only for existing users
+                $request->getSession()->set('reset_email', $email);
+                $request->getSession()->set('reset_code', $verificationCode);
+                $request->getSession()->set('reset_token', $resetToken);
+                $request->getSession()->set('reset_expires', (new \DateTime('+15 minutes'))->getTimestamp());
+
+                // Send email using Python script
+                try {
+                    $pythonPath = 'python';
+                    $scriptPath = $this->getParameter('kernel.project_dir') . '/send_email.py';
+                    
+                    // Execute Python script
+                    $command = sprintf(
+                        '%s "%s" "%s" "%s"',
+                        $pythonPath,
+                        $scriptPath,
+                        $email,
+                        $verificationCode
+                    );
+                    
+                    $output = [];
+                    $returnCode = 0;
+                    exec($command, $output, $returnCode);
+                    
+                    if ($returnCode !== 0 || empty($output) || $output[0] !== 'SUCCESS') {
+                        // If email fails, show the code for development/testing
+                        $this->addFlash('error', 'Erreur lors de l\'envoi de l\'email.');
+                        $this->addFlash('info', 'Code de test : ' . $verificationCode);
+                    }
+                } catch (\Exception $e) {
+                    // If email fails, show the code for development
+                    $this->addFlash('error', 'Erreur : ' . $e->getMessage());
                     $this->addFlash('info', 'Code de test : ' . $verificationCode);
-                    return $this->redirectToRoute('app_verify_code', ['_locale' => $request->getLocale()]);
                 }
-            } catch (\Exception $e) {
-                // If email fails, show the code for development
-                $this->addFlash('error', 'Erreur : ' . $e->getMessage());
-                $this->addFlash('info', 'Code de test : ' . $verificationCode);
-                return $this->redirectToRoute('app_verify_code', ['_locale' => $request->getLocale()]);
             }
+
+            // Always show the same message regardless of whether the user exists (prevents enumeration)
+            $this->addFlash('success', 'Si un compte existe avec cet email, un code de vérification vous a été envoyé.');
+            return $this->redirectToRoute('app_verify_code', ['_locale' => $request->getLocale()]);
         }
         
         return $this->render('front/forgot_password.html.twig');
@@ -541,6 +540,21 @@ class SecurityController extends AbstractController
         
         if (!$user) {
             $this->addFlash('error', 'Utilisateur introuvable.');
+            $request->getSession()->remove('verified_email');
+            return $this->redirectToRoute('app_forgot_password', ['_locale' => $request->getLocale()]);
+        }
+
+        // Validate the reset token from the URL matches the one stored for the user
+        $userToken = $user->getResetToken();
+        if (empty($userToken) || !hash_equals($userToken, $token)) {
+            $this->addFlash('error', 'Lien de réinitialisation invalide ou expiré. Veuillez recommencer.');
+            $request->getSession()->remove('verified_email');
+            return $this->redirectToRoute('app_forgot_password', ['_locale' => $request->getLocale()]);
+        }
+
+        // Check token expiry
+        if ($user->getResetTokenExpiresAt() < new \DateTime()) {
+            $this->addFlash('error', 'Le lien de réinitialisation a expiré. Veuillez recommencer.');
             $request->getSession()->remove('verified_email');
             return $this->redirectToRoute('app_forgot_password', ['_locale' => $request->getLocale()]);
         }
